@@ -7,6 +7,7 @@ import android.util.EventLogTags;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 public class EnterActivity extends AppCompatActivity {
 
@@ -22,6 +23,8 @@ public class EnterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_enter);
 
+        Log.i(TAG, "onCreate: ->start");
+
 
         buttonJWT = (Button) findViewById(R.id.buttonJWT);
         buttonJWT.setOnClickListener(new View.OnClickListener() {
@@ -33,6 +36,25 @@ public class EnterActivity extends AppCompatActivity {
                 // currentContext.startActivity(activityChangeIntent);
 
                 EnterActivity.this.startActivity(intent);
+
+                KitchenSinkApplication myapplication = (KitchenSinkApplication)getApplication();
+
+                if(myapplication.mSpark != null){
+
+                    Log.i(TAG, "mSpark is created ");
+
+                    Toast.makeText(EnterActivity.this, "mSpark is created", Toast.LENGTH_SHORT)
+                            .show();
+
+                }else{
+
+                    Log.i(TAG, "mSpark is null ");
+
+                    Toast.makeText(EnterActivity.this, "mSpark is null", Toast.LENGTH_SHORT).show();
+
+                }
+
+                Log.i(TAG, "onClick: ->end");
             }
         });
     }

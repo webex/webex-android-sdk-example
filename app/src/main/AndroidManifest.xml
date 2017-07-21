@@ -2,23 +2,57 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.cisco.sparksdk.sparkkitchensink">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false"/>
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false"/>
+    <uses-feature
+        android:name="android.hardware.camera.flash"
+        android:required="false"/>
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false"/>
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+
+    <uses-permission android:name="android.permission.GET_TASKS" />
+
     <application
+
+        android:name=".KitchenSinkApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".EnterActivity">
+
+        <activity
+            android:name=".EnterActivity"
+            android:configChanges="orientation|screenSize"
+            android:windowSoftInputMode="stateHidden">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".JWTActivity">
+        <activity android:name=".JWTActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:windowSoftInputMode="stateHidden">
         </activity>
-        <activity android:name=".RegistryActivity">
+        <activity android:name=".RegistryActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:windowSoftInputMode="stateHidden">
         </activity>
     </application>
 

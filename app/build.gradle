@@ -10,21 +10,142 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
+
+
+        // Enabling multidex support.
+        multiDexEnabled true
     }
+
+
+
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    dexOptions {
+        preDexLibraries = false
+        javaMaxHeapSize "4g"
+
+        //lm
+        dexInProcess false
+    }
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'armeabi-v7a'
+            universalApk false
+        }
+    }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':common-prod-debug')
+    compile project(':sdk-dev-debug')
+}
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support:design:25.3.1'
+    compile 'com.android.support:support-vector-drawable:25.3.1'
     testCompile 'junit:junit:4.12'
+    compile project(':common-prod-debug')
+    compile project(':sdk-dev-debug')
+}
+
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+
+
+    compile 'com.google.code.gson:gson:2.7'
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+
+    //lm
+    compile libs.ln
+    compile 'com.android.support:multidex:1.0.1'
+    compile libs.dagger
+    provided libs.daggercompiler
+
+    compile libs.eventbus
+
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    testCompile 'junit:junit:4.12'
+
+    compile libs.supportv13
+    compile libs.supportannotation
+    compile libs.appcompatv7
+    compile libs.recyclerviewv7
+    compile libs.cardviewv7
+    compile libs.supportdesign
+    compile libs.gridlayout
+
+    compile libs.gson
+
+    compile libs.retrofit
+    compile libs.retrofit_gsonconverter
+
+    compile libs.retrofit_deprecated
+    compile libs.okhttp3_for_retrofit1
+    compile libs.retrofit_rxjava
+
+    compile libs.okhttp
+    compile libs.okhttp_logging
+    compile libs.websocket
+
+    compile libs.dagger
+    provided libs.daggercompiler
+
+    compile libs.eventbus
+
+    compile 'com.jakewharton:butterknife:7.0.1'
+
+
+    compile libs.spongycastle_prov
+    compile libs.spongycastle_core
+    compile libs.kms
+
+
+    compile libs.wmeaar
+
+    compile libs.rxjava
+    compile libs.rxandroid
+
+    compile libs.will
+
+    debugCompile libs.leak_canary
+    releaseCompile libs.leak_canary_disabled
+    testCompile libs.leak_canary_disabled
+    androidTestCompile libs.leak_canary_disabled
+
+    compile libs.rxrelay
+
+    testCompile libs.junit
+    testCompile libs.robolectric
+    testCompile libs.robolectric_multidex
+    testCompile libs.mockito
+    compile 'joda-time:joda-time:2.9.2'
+
+
 }
