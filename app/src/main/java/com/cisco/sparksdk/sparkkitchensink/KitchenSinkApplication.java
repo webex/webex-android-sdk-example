@@ -2,6 +2,7 @@ package com.cisco.sparksdk.sparkkitchensink;
 
 import android.util.Log;
 
+import com.cisco.spark.android.authenticator.OAuth2AccessToken;
 import com.ciscospark.Spark;
 import com.ciscospark.core.SparkApplication;
 import com.ciscospark.phone.Phone;
@@ -13,6 +14,8 @@ import com.ciscospark.phone.Phone;
 public class KitchenSinkApplication extends SparkApplication {
 
     public Spark mSpark;
+    public OAuth2AccessToken token;
+
     private static final String TAG = "KitchenSinkApplication";
 
     @Override

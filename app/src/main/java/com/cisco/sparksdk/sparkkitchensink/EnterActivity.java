@@ -43,14 +43,21 @@ public class EnterActivity extends AppCompatActivity {
 
                     Log.i(TAG, "mSpark is created ");
 
-                    Toast.makeText(EnterActivity.this, "mSpark is created", Toast.LENGTH_SHORT)
-                            .show();
+                    //prevent go back
+                    EnterActivity.this.finish();
+
+                    //Toast.makeText(EnterActivity.this, "Spark version is " + myapplication.mSpark.version(), Toast.LENGTH_SHORT).show();
+
+                    //Toast.makeText(EnterActivity.this, "mSpark is created", Toast.LENGTH_SHORT).show();
 
                 }else{
 
                     Log.i(TAG, "mSpark is null ");
 
-                    Toast.makeText(EnterActivity.this, "mSpark is null", Toast.LENGTH_SHORT).show();
+                    //prevent go back
+                    EnterActivity.this.finish();
+
+                    //Toast.makeText(EnterActivity.this, "mSpark is null", Toast.LENGTH_SHORT).show();
 
                 }
 
