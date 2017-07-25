@@ -22,11 +22,9 @@
 
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
-
-    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.GET_TASKS"/>
 
     <application
-
         android:name=".KitchenSinkApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -34,25 +32,29 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <activity
             android:name=".EnterActivity"
             android:configChanges="orientation|screenSize"
             android:windowSoftInputMode="stateHidden">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".JWTActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:windowSoftInputMode="stateHidden">
+        <activity
+            android:name=".JWTActivity"
+            android:configChanges="orientation|screenSize"
+            android:windowSoftInputMode="stateHidden">
         </activity>
-        <activity android:name=".RegistryActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:windowSoftInputMode="stateHidden">
+        <activity
+            android:name=".RegistryActivity"
+            android:configChanges="orientation|screenSize"
+            android:windowSoftInputMode="stateHidden">
+        </activity>
+        <activity android:name=".CallActivity">
+        </activity>
+        <activity android:name=".dialActivity">
         </activity>
     </application>
 

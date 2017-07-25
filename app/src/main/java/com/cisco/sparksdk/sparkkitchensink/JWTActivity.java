@@ -1,6 +1,7 @@
 package com.cisco.sparksdk.sparkkitchensink;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,7 +25,7 @@ public class JWTActivity extends AppCompatActivity {
 
     private Authenticator strategy;
 
-    KitchenSinkApplication myapplication;
+    private KitchenSinkApplication myapplication;
 
 
     @Override
@@ -66,7 +67,9 @@ public class JWTActivity extends AppCompatActivity {
                             Log.d(TAG, token.getAccessToken());
                             Toast.makeText(JWTActivity.this, "JWT auth success", Toast.LENGTH_SHORT).show();
 
-                            JWTActivity.this.myapplication.token = token;
+                            Intent intent = new Intent(JWTActivity.this, RegistryActivity.class);
+
+                            JWTActivity.this.startActivity(intent);
 
                         }
 
@@ -83,6 +86,26 @@ public class JWTActivity extends AppCompatActivity {
 
         });
 
+
+    }
+
+    private boolean exit = false;
+    @Override
+    public void onBackPressed() {
+        if (exit) {
+            this.finish();
+        }
+        else {
+            Toast.makeText(this, "Press Back again to Exit.",Toast.LENGTH_SHORT).show();
+            exit = true;
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    exit = false;
+                }
+            }, 3 * 1000);
+
+        }
 
     }
 }

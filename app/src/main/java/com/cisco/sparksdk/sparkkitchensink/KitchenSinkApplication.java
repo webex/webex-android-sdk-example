@@ -14,9 +14,13 @@ import com.ciscospark.phone.Phone;
 public class KitchenSinkApplication extends SparkApplication {
 
     public Spark mSpark;
+
     public OAuth2AccessToken token;
 
     private static final String TAG = "KitchenSinkApplication";
+
+    public String callee;
+    public boolean isAudioCall;
 
     @Override
     public void onCreate() {
