@@ -52,9 +52,11 @@
             android:configChanges="orientation|screenSize"
             android:windowSoftInputMode="stateHidden">
         </activity>
-        <activity android:name=".CallActivity">
+        <activity android:name=".CallActivity"
+                  android:configChanges="orientation|screenSize">
         </activity>
-        <activity android:name=".dialActivity">
+        <activity android:name=".dialActivity"
+                  android:configChanges="orientation|screenSize">
         </activity>
     </application>
 

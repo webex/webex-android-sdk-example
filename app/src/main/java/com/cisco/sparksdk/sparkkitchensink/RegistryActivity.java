@@ -133,9 +133,6 @@ public class RegistryActivity extends AppCompatActivity {
 
                 }
 
-
-
-
             }
         });
     }
