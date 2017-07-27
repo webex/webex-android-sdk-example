@@ -27,7 +27,7 @@ public class MyCallObserver implements com.ciscospark.phone.CallObserver {
     public void onConnected(Call call) {
         Log.i(TAG, "onConnected: ->start");
         Toast.makeText(mActivity, "call onConnected", Toast.LENGTH_SHORT).show();
-        //this.mActivity.callStatus.setText(R.string.call_status_InCall);
+        this.mActivity.callStatus.setText("In Call");
     }
 
     @Override
