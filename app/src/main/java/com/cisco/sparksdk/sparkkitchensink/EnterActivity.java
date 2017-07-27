@@ -1,15 +1,17 @@
 package com.cisco.sparksdk.sparkkitchensink;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.EventLogTags;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
-public class EnterActivity extends AppCompatActivity {
+
+public class EnterActivity extends AppCompatActivity implements OAuth2Fragment.OnFragmentInteractionListener {
 
     Button buttonJWT;
 
@@ -25,6 +27,21 @@ public class EnterActivity extends AppCompatActivity {
 
         Log.i(TAG, "onCreate: ->start");
 
+        buttonSpark = (Button) findViewById(R.id.buttonSpark);
+        buttonSpark.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*
+                Log.i(TAG, "spark id authorize");
+
+                */
+                FragmentManager fragmentManager = getFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                OAuth2Fragment fragment = OAuth2Fragment.newInstance();
+                fragmentTransaction.replace(R.id.enter_activity_layout, fragment);
+                fragmentTransaction.commit();
+            }
+        });
 
         buttonJWT = (Button) findViewById(R.id.buttonJWT);
         buttonJWT.setOnClickListener(new View.OnClickListener() {
@@ -37,9 +54,9 @@ public class EnterActivity extends AppCompatActivity {
 
                 EnterActivity.this.startActivity(intent);
 
-                KitchenSinkApplication myapplication = (KitchenSinkApplication)getApplication();
+                KitchenSinkApplication myapplication = (KitchenSinkApplication) getApplication();
 
-                if(myapplication.mSpark != null){
+                if (myapplication.mSpark != null) {
 
                     Log.i(TAG, "mSpark is created ");
 
@@ -50,7 +67,7 @@ public class EnterActivity extends AppCompatActivity {
 
                     //Toast.makeText(EnterActivity.this, "mSpark is created", Toast.LENGTH_SHORT).show();
 
-                }else{
+                } else {
 
                     Log.i(TAG, "mSpark is null ");
 
@@ -64,5 +81,10 @@ public class EnterActivity extends AppCompatActivity {
                 Log.i(TAG, "onClick: ->end");
             }
         });
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }
