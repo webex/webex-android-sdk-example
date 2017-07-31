@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/call_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.cisco.sparksdk.sparkkitchensink.CallActivity">
@@ -12,33 +12,33 @@
         android:id="@+id/localView"
         android:layout_width="178dp"
         android:layout_height="150dp"
-        tools:ignore="MissingRegistered"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintVertical_bias="0.0"
-        android:layout_marginLeft="8dp"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginRight="8dp"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        tools:ignore="MissingRegistered" />
 
     <com.webex.wseclient.WseSurfaceView
         android:id="@+id/remoteView"
         android:layout_width="178dp"
         android:layout_height="150dp"
-        tools:ignore="MissingRegistered"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintVertical_bias="0.0"
-        android:layout_marginLeft="8dp"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginRight="8dp"
         app:layout_constraintRight_toRightOf="@+id/localView"
-        app:layout_constraintHorizontal_bias="0.0"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        tools:ignore="MissingRegistered" />
 
     <RadioButton
         android:id="@+id/ButtonLoudSpeaker"
@@ -55,7 +55,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.422"
-        tools:layout_editor_absoluteY="227dp"/>
+        tools:layout_editor_absoluteY="227dp" />
 
     <RadioButton
         android:id="@+id/buttonRemoteSendVideo"
@@ -72,7 +72,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.758"
-        tools:layout_editor_absoluteY="398dp"/>
+        tools:layout_editor_absoluteY="398dp" />
 
     <RadioButton
         android:id="@+id/buttonRemoteSendAudio"
@@ -89,7 +89,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.824"
-        tools:layout_editor_absoluteY="432dp"/>
+        tools:layout_editor_absoluteY="432dp" />
 
     <RadioButton
         android:id="@+id/ButtonReceiveAudio"
@@ -106,7 +106,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.692"
-        tools:layout_editor_absoluteY="364dp"/>
+        tools:layout_editor_absoluteY="364dp" />
 
     <RadioButton
         android:id="@+id/ButtonReceiveVideo"
@@ -123,7 +123,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.625"
-        tools:layout_editor_absoluteY="330dp"/>
+        tools:layout_editor_absoluteY="330dp" />
 
     <RadioButton
         android:id="@+id/ButtonSendAudio"
@@ -140,7 +140,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.559"
-        tools:layout_editor_absoluteY="299dp"/>
+        tools:layout_editor_absoluteY="299dp" />
 
     <RadioButton
         android:id="@+id/ButtonSendVideo"
@@ -157,7 +157,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.491"
-        tools:layout_editor_absoluteY="263dp"/>
+        tools:layout_editor_absoluteY="263dp" />
 
     <RadioButton
         android:id="@+id/ButtonFrontCamera"
@@ -174,7 +174,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.352"
-        tools:layout_editor_absoluteY="192dp"/>
+        tools:layout_editor_absoluteY="192dp" />
 
     <Button
         android:id="@+id/buttonDTMF"
@@ -190,8 +190,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.921"
-        />
+        app:layout_constraintVertical_bias="0.921" />
 
     <Button
         android:id="@+id/buttonHangup"
@@ -207,8 +206,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.921"
-        />
+        app:layout_constraintVertical_bias="0.921" />
 
     <TextView
         android:id="@+id/textViewStatus"
@@ -223,7 +221,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.983"/>
+        app:layout_constraintVertical_bias="0.983" />
 
 
 </android.support.constraint.ConstraintLayout>

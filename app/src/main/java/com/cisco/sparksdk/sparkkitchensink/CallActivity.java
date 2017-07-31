@@ -1,6 +1,8 @@
 package com.cisco.sparksdk.sparkkitchensink;
 
-import android.content.Intent;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,6 +16,8 @@ import com.ciscospark.common.SparkError;
 import com.ciscospark.phone.Call;
 import com.ciscospark.phone.CallOption;
 import com.ciscospark.phone.DialObserver;
+import com.ciscospark.phone.IncomingCallObserver;
+import com.ciscospark.phone.Phone;
 import com.webex.wseclient.WseSurfaceView;
 
 import java.util.List;
@@ -21,6 +25,7 @@ import java.util.List;
 public class CallActivity extends AppCompatActivity {
 
     private static final String TAG = "CallActivity";
+    public static final String IS_WAITING_CALL = "isWaitingCall";
 
     WseSurfaceView localView;
     WseSurfaceView remoteView;
@@ -37,9 +42,13 @@ public class CallActivity extends AppCompatActivity {
 
     TextView callStatus;
 
+    private Fragment mWaitingFragment;
+    private boolean mWaitingCall;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(TAG, "onCreate");
         setContentView(R.layout.activity_call);
 
         localView = (WseSurfaceView) findViewById(R.id.localView);
@@ -52,15 +61,83 @@ public class CallActivity extends AppCompatActivity {
         callStatus = (TextView) findViewById(R.id.textViewStatus);
 
         HandleHangupButton();
+
+        mWaitingCall = getIntent().getBooleanExtra(IS_WAITING_CALL, false);
+        if (mWaitingCall) {
+            setupWaitingCallFragment();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG, "onResume: ->start");
-        call();
+        Log.i(TAG, "onResume " + mWaitingCall);
+        if (!mWaitingCall) {
+            call();
+        } else {
+            waitForIncomingCall();
+        }
+    }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG, "onStop");
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, "onDestroy");
+
+        if (mActiveCall != null) {
+            mActiveCall.hangup();
+        }
+    }
+
+    private void setupWaitingCallFragment() {
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        mWaitingFragment = InComingCallFragment.newInstance();
+        fragmentTransaction.add(R.id.call_layout, mWaitingFragment);
+        fragmentTransaction.commit();
+    }
+
+    private void waitForIncomingCall() {
+        KitchenSinkApplication application = (KitchenSinkApplication) getApplication();
+        if (application.mSpark.getStrategy().isAuthorized()) {
+            Phone phone = application.mSpark.phone();
+            phone.setIncomingCallObserver(new IncomingCallObserver() {
+                @Override
+                public void onIncomingCall(Call call) {
+                    mActiveCall = call;
+                    if (mWaitingFragment != null) {
+                        ((InComingCallFragment) mWaitingFragment).setButtonVisibility(View.VISIBLE);
+                    }
+                }
+            });
+        }
+
+    }
+
+    public void reject() {
+        if (mWaitingFragment != null) {
+            ((InComingCallFragment)mWaitingFragment).setButtonVisibility(View.INVISIBLE);
+        }
+        if (mActiveCall != null) {
+            mActiveCall.reject();
+        }
+    }
+
+    public void answerCall() {
+        if (mActiveCall != null) {
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.remove(mWaitingFragment);
+            fragmentTransaction.commit();
+            mActiveCall.setObserver(mActiveCallObserver);
+            mActiveCall.answer(new CallOption(CallOption.CallType.VIDEO, remoteView, localView));
+        }
     }
 
     private void call(){

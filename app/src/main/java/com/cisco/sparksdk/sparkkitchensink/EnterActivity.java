@@ -3,7 +3,6 @@ package com.cisco.sparksdk.sparkkitchensink;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -11,7 +10,7 @@ import android.view.View;
 import android.widget.Button;
 
 
-public class EnterActivity extends AppCompatActivity implements OAuth2Fragment.OnFragmentInteractionListener {
+public class EnterActivity extends AppCompatActivity {
 
     Button buttonJWT;
 
@@ -31,10 +30,7 @@ public class EnterActivity extends AppCompatActivity implements OAuth2Fragment.O
         buttonSpark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*
                 Log.i(TAG, "spark id authorize");
-
-                */
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 OAuth2Fragment fragment = OAuth2Fragment.newInstance();
@@ -81,10 +77,5 @@ public class EnterActivity extends AppCompatActivity implements OAuth2Fragment.O
                 Log.i(TAG, "onClick: ->end");
             }
         });
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
     }
 }

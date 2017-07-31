@@ -17,12 +17,15 @@ import com.ciscospark.phone.RegisterListener;
 public class RegistryActivity extends AppCompatActivity {
 
     private static final String TAG = "RegistryActivity";
+    public static final String IS_REGISTERED = "isRegistered";
 
     private Button buttonLogout;
 
     private Button buttonDial;
 
-    private boolean isRegistered;
+    private Button buttonWaiting;
+
+    private boolean isRegistered = false;
 
     private KitchenSinkApplication myapplication;
 
@@ -38,11 +41,43 @@ public class RegistryActivity extends AppCompatActivity {
 
         viewStatus = (TextView) findViewById(R.id.textViewStatus);
 
+        if (savedInstanceState != null) {
+            isRegistered = savedInstanceState.getBoolean(IS_REGISTERED, false);
+        }
+
         HandleLogoutButton();
 
         HandleDialButton();
 
+        HandleWaitingCallButton();
+
         Log.i(TAG, "onCreate: ->start");
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save the user's current game state
+        savedInstanceState.putBoolean(IS_REGISTERED, isRegistered);
+
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    private void HandleWaitingCallButton() {
+        buttonWaiting = (Button) findViewById(R.id.buttonWaitingCall);
+        buttonWaiting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(RegistryActivity.this.isRegistered){
+                    Intent intent = new Intent(RegistryActivity.this, CallActivity.class);
+                    intent.putExtra(CallActivity.IS_WAITING_CALL, true);
+                    startActivity(intent);
+                }else{
+                    Toast.makeText(RegistryActivity.this, "Please wait for registration", Toast
+                            .LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     @Override
