@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/SparkKitchenSink.iml" filepath="$PROJECT_DIR$/SparkKitchenSink.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/common-prod-debug/common-prod-debug.iml" filepath="$PROJECT_DIR$/common-prod-debug/common-prod-debug.iml" />
       <module fileurl="file://$PROJECT_DIR$/sdk-dev-debug/sdk-dev-debug.iml" filepath="$PROJECT_DIR$/sdk-dev-debug/sdk-dev-debug.iml" />
-      <module fileurl="file://$PROJECT_DIR$/spark-android-sdk-example.iml" filepath="$PROJECT_DIR$/spark-android-sdk-example.iml" />
     </modules>
   </component>
 </project>
