@@ -14,6 +14,7 @@ import com.ciscospark.phone.Phone;
 public class KitchenSinkApplication extends SparkApplication {
 
     public Spark mSpark;
+    public Phone mPhone;
 
     public OAuth2AccessToken token;
 

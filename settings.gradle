@@ -1,1 +1,1 @@
-include ':app', ':common-prod-debug', ':sdk-dev-debug'
+include ':app', ':sdk-debug'

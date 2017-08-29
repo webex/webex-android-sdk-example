@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ciscospark.common.SparkError;
+import com.ciscospark.SparkError;
 import com.ciscospark.phone.Call;
 import com.ciscospark.phone.CallOption;
 import com.ciscospark.phone.DialObserver;
@@ -36,7 +36,7 @@ public class CallActivity extends AppCompatActivity {
     public Call mActiveCall;
     private MyCallObserver mActiveCallObserver;
 
-    private KitchenSinkApplication myapplication;
+    private KitchenSinkApplication myApplication;
 
     Button hangupButton;
 
@@ -54,7 +54,7 @@ public class CallActivity extends AppCompatActivity {
         localView = (WseSurfaceView) findViewById(R.id.localView);
         remoteView = (WseSurfaceView) findViewById(R.id.remoteView);
 
-        myapplication = (KitchenSinkApplication)getApplication();
+        myApplication = (KitchenSinkApplication)getApplication();
 
         mActiveCallObserver = new MyCallObserver(this);
 
@@ -105,9 +105,8 @@ public class CallActivity extends AppCompatActivity {
 
     private void waitForIncomingCall() {
         KitchenSinkApplication application = (KitchenSinkApplication) getApplication();
-        if (application.mSpark.getStrategy().isAuthorized()) {
-            Phone phone = application.mSpark.phone();
-            phone.setIncomingCallObserver(new IncomingCallObserver() {
+        if (application.mSpark.getAuthenticator().isAuthorized()) {
+            application.mPhone.setIncomingCallObserver(new IncomingCallObserver() {
                 @Override
                 public void onIncomingCall(Call call) {
                     mActiveCall = call;
@@ -143,8 +142,8 @@ public class CallActivity extends AppCompatActivity {
     private void call(){
         Log.i(TAG, "call: ->start");
 
-        this.dialCallee = myapplication.callee;
-        this.isAudioCall = myapplication.isAudioCall;
+        this.dialCallee = myApplication.callee;
+        this.isAudioCall = myApplication.isAudioCall;
 
         if(this.isAudioCall){
             this.audioCall(this.dialCallee);
@@ -177,7 +176,7 @@ public class CallActivity extends AppCompatActivity {
 
         CallOption options = new CallOption(CallOption.CallType.VIDEO, this.remoteView, this.localView);
 
-        this.myapplication.mSpark.phone().dial(dialstring, options, new DialObserver() {
+        this.myApplication.mPhone.dial(dialstring, options, new DialObserver() {
             @Override
             public void onSuccess(Call call) {
                 Log.i(TAG, "DialObserver-> onSuccess");
@@ -206,7 +205,7 @@ public class CallActivity extends AppCompatActivity {
     private void audioCall(String dialstring) {
         Log.i(TAG, "audioCall: ->start");
         CallOption options = new CallOption(CallOption.CallType.AUDIO, null, null);
-        this.myapplication.mSpark.phone().dial(dialstring, options, new DialObserver() {
+        this.myApplication.mSpark.phone().dial(dialstring, options, new DialObserver() {
             @Override
             public void onSuccess(Call call) {
                 Log.i(TAG, "DialObserver-> onSuccess");

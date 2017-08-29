@@ -3,8 +3,9 @@ package com.cisco.sparksdk.sparkkitchensink;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.ciscospark.common.SparkError;
+import com.ciscospark.SparkError;
 import com.ciscospark.phone.Call;
+import com.ciscospark.phone.CallObserver;
 
 
 public class MyCallObserver implements com.ciscospark.phone.CallObserver {
@@ -87,11 +88,9 @@ public class MyCallObserver implements com.ciscospark.phone.CallObserver {
     }
 
     @Override
-    public void onMediaChanged(Call call, MediaChangeReason reason) {
+    public void onMediaChanged(Call call, MediaChangedEvent mediaChangedEvent) {
         Log.i(TAG, "onMediaChanged: ->start");
-        Log.i(TAG, "reason is  " + reason);
+        Log.i(TAG, "reason is  " + mediaChangedEvent);
     }
-
-
 }
 

@@ -3,7 +3,6 @@ package com.cisco.sparksdk.sparkkitchensink;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,10 +10,9 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.Toast;
 
-import com.cisco.spark.android.authenticator.OAuth2AccessToken;
-import com.ciscospark.auth.AuthorizeListener;
-import com.ciscospark.auth.OAuth2Authenticator;
-import com.ciscospark.common.SparkError;
+import com.ciscospark.CompletionHandler;
+import com.ciscospark.auth.OAuthWebViewAuthenticator;
+import com.ciscospark.SparkError;
 
 
 /**
@@ -67,18 +65,18 @@ public class OAuth2Fragment extends Fragment {
         String redirect = "AndroidDemoApp://response";
         String scope = "spark:all spark:kms";
         WebView webView = (WebView)rootView.findViewById(R.id.OAuthWebView);
-        OAuth2Authenticator authenticator = new OAuth2Authenticator(clientId,clientSec,redirect,scope);
-        ((KitchenSinkApplication)getActivity().getApplication()).mSpark.setStrategy(authenticator);
+        OAuthWebViewAuthenticator authenticator = new OAuthWebViewAuthenticator(clientId,clientSec,redirect,scope,"",webView);
+        ((KitchenSinkApplication)getActivity().getApplication()).mSpark.setAuthenticator(authenticator);
         if (!authenticator.isAuthorized()) {
-            authenticator.authorize(webView, new AuthorizeListener() {
+            authenticator.authorize(new CompletionHandler<String>() {
                 @Override
-                public void onSuccess(OAuth2AccessToken oAuth2AccessToken) {
+                public void onComplete(String oAuth2AccessToken) {
                     startActivity(new Intent(getActivity(), RegistryActivity.class));
                     getActivity().finish();
                 }
 
                 @Override
-                public void onFailed(SparkError<AuthError> sparkError) {
+                public void onError(SparkError sparkError) {
                     Toast.makeText(getActivity(), "Authorize error: " + sparkError.toString(), Toast.LENGTH_SHORT).show();
                 }
             });

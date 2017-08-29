@@ -56,6 +56,11 @@
         <activity
             android:name=".dialActivity"
             android:configChanges="orientation|screenSize"></activity>
+        <provider
+            android:name="com.cisco.spark.android.sync.ConversationContentProvider"
+            android:authorities="com.cisco.spark.android.sync.conversation"
+            android:exported="false"
+            />
     </application>
 
 </manifest>

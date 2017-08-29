@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ciscospark.common.SparkError;
+import com.ciscospark.SparkError;
 import com.ciscospark.phone.DeregisterListener;
 import com.ciscospark.phone.RegisterListener;
 
@@ -27,7 +27,7 @@ public class RegistryActivity extends AppCompatActivity {
 
     private boolean isRegistered = false;
 
-    private KitchenSinkApplication myapplication;
+    private KitchenSinkApplication myApplication;
 
     private TextView viewStatus;
 
@@ -37,7 +37,7 @@ public class RegistryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_registry);
 
 
-        myapplication = (KitchenSinkApplication)getApplication();
+        myApplication = (KitchenSinkApplication)getApplication();
 
         viewStatus = (TextView) findViewById(R.id.textViewStatus);
 
@@ -113,7 +113,7 @@ public class RegistryActivity extends AppCompatActivity {
     private void logout(){
         Log.i(TAG, "logout: ->start");
 
-        this.myapplication.mSpark.phone().deregister(new DeregisterListener() {
+        this.myApplication.mSpark.phone().deregister(new DeregisterListener() {
             @Override
             public void onSuccess() {
                 Toast.makeText(RegistryActivity.this, "Deregister successfully", Toast.LENGTH_SHORT)
@@ -179,7 +179,8 @@ public class RegistryActivity extends AppCompatActivity {
 
             Log.i(TAG, "begin to register");
 
-            this.myapplication.mSpark.phone().register(new RegisterListener() {
+            myApplication.mPhone = myApplication.mSpark.phone();
+            this.myApplication.mPhone.register(new RegisterListener() {
                 @Override
                 public void onSuccess() {
                     Log.i(TAG, "register successfully");

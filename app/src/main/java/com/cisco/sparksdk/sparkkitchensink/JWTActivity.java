@@ -1,20 +1,19 @@
 package com.cisco.sparksdk.sparkkitchensink;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.cisco.spark.android.authenticator.OAuth2AccessToken;
+import com.ciscospark.CompletionHandler;
+import com.ciscospark.SparkError;
 import com.ciscospark.auth.Authenticator;
-import com.ciscospark.auth.AuthorizeListener;
 import com.ciscospark.auth.JWTAuthenticator;
-import com.ciscospark.common.SparkError;
 
 public class JWTActivity extends AppCompatActivity {
 
@@ -25,7 +24,7 @@ public class JWTActivity extends AppCompatActivity {
 
     private Authenticator strategy;
 
-    private KitchenSinkApplication myapplication;
+    private KitchenSinkApplication myApplication;
 
 
     @Override
@@ -33,7 +32,7 @@ public class JWTActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_jwt);
 
-        myapplication = (KitchenSinkApplication)getApplication();
+        myApplication = (KitchenSinkApplication) getApplication();
 
         Log.i(TAG, "onCreate: ->start");
 
@@ -45,43 +44,36 @@ public class JWTActivity extends AppCompatActivity {
 
                 String jwtKey = editTextJWT.getText().toString();
                 if (jwtKey.isEmpty()) {
+                    /*
                     Toast.makeText(JWTActivity.this, "JWT Token cannot be empty", Toast
                             .LENGTH_SHORT).show();
                     return;
+                    */
+                    jwtKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMSIsIm5hbWUiOiJ1c2VyICMxIiwiaXNzIjoiY2Q1YzlhZjctOGVkMy00ZTE1LTk3MDUtMDI1ZWYzMGIxYjZhIn0.nQTlT_WwkHdWZTCNi4tVl2IA476nAWo34oxtuTlLSDk";
                 }
 
                 Toast.makeText(JWTActivity.this, "JWT authoring", Toast.LENGTH_SHORT).show();
 
-                JWTAuthenticator authenticator = new JWTAuthenticator();
+                JWTAuthenticator authenticator = new JWTAuthenticator(jwtKey);
                 strategy = authenticator;
 
+                myApplication.mSpark.setAuthenticator(strategy);
 
+                myApplication.mSpark.authorize(new CompletionHandler<String>() {
+                    @Override
+                    public void onComplete(String s) {
+                        Log.d(TAG, s);
+                        Toast.makeText(JWTActivity.this, "JWT auth success", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(JWTActivity.this, RegistryActivity.class);
+                        JWTActivity.this.startActivity(intent);
+                    }
 
-                JWTActivity.this.myapplication.mSpark.init(strategy);
-
-                authenticator.authorize(jwtKey);
-                if (strategy.isAuthorized()) {
-                    strategy.accessToken(new AuthorizeListener() {
-                        @Override
-                        public void onSuccess(OAuth2AccessToken token) {
-                            Log.d(TAG, token.getAccessToken());
-                            Toast.makeText(JWTActivity.this, "JWT auth success", Toast.LENGTH_SHORT).show();
-
-                            Intent intent = new Intent(JWTActivity.this, RegistryActivity.class);
-
-                            JWTActivity.this.startActivity(intent);
-
-                        }
-
-                        @Override
-                        public void onFailed(SparkError<AuthError> error) {
-                            Toast.makeText(JWTActivity.this, "JWT auth failed", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-
+                    @Override
+                    public void onError(SparkError sparkError) {
+                        Toast.makeText(JWTActivity.this, "JWT auth failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
-
 
 
         });
@@ -90,13 +82,13 @@ public class JWTActivity extends AppCompatActivity {
     }
 
     private boolean exit = false;
+
     @Override
     public void onBackPressed() {
         if (exit) {
             this.finish();
-        }
-        else {
-            Toast.makeText(this, "Press Back again to Exit.",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Press Back again to Exit.", Toast.LENGTH_SHORT).show();
             exit = true;
             new Handler().postDelayed(new Runnable() {
                 @Override
