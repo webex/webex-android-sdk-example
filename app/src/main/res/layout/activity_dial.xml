@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.cisco.sparksdk.sparkkitchensink.dialActivity">
+    tools:context="com.cisco.sparksdk.sparkkitchensink.DialActivity">
 
     <android.support.design.widget.TabLayout
         android:id="@+id/simpleTabLayout"

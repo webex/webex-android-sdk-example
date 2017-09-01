@@ -54,7 +54,7 @@
             android:name=".CallActivity"
             android:configChanges="orientation|screenSize"></activity>
         <activity
-            android:name=".dialActivity"
+            android:name=".DialActivity"
             android:configChanges="orientation|screenSize"></activity>
         <provider
             android:name="com.cisco.spark.android.sync.ConversationContentProvider"

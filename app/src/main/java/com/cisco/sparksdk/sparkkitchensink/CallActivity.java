@@ -3,9 +3,9 @@ package com.cisco.sparksdk.sparkkitchensink;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -17,7 +17,6 @@ import com.ciscospark.phone.Call;
 import com.ciscospark.phone.CallOption;
 import com.ciscospark.phone.DialObserver;
 import com.ciscospark.phone.IncomingCallObserver;
-import com.ciscospark.phone.Phone;
 import com.webex.wseclient.WseSurfaceView;
 
 import java.util.List;
@@ -54,7 +53,7 @@ public class CallActivity extends AppCompatActivity {
         localView = (WseSurfaceView) findViewById(R.id.localView);
         remoteView = (WseSurfaceView) findViewById(R.id.remoteView);
 
-        myApplication = (KitchenSinkApplication)getApplication();
+        myApplication = (KitchenSinkApplication) getApplication();
 
         mActiveCallObserver = new MyCallObserver(this);
 
@@ -121,7 +120,7 @@ public class CallActivity extends AppCompatActivity {
 
     public void reject() {
         if (mWaitingFragment != null) {
-            ((InComingCallFragment)mWaitingFragment).setButtonVisibility(View.INVISIBLE);
+            ((InComingCallFragment) mWaitingFragment).setButtonVisibility(View.INVISIBLE);
         }
         if (mActiveCall != null) {
             mActiveCall.reject();
@@ -139,15 +138,15 @@ public class CallActivity extends AppCompatActivity {
         }
     }
 
-    private void call(){
+    private void call() {
         Log.i(TAG, "call: ->start");
 
         this.dialCallee = myApplication.callee;
         this.isAudioCall = myApplication.isAudioCall;
 
-        if(this.isAudioCall){
+        if (this.isAudioCall) {
             this.audioCall(this.dialCallee);
-        }else{
+        } else {
             this.videoCall(this.dialCallee);
 
         }
@@ -156,7 +155,7 @@ public class CallActivity extends AppCompatActivity {
 
     }
 
-    private void HandleHangupButton(){
+    private void HandleHangupButton() {
         Log.i(TAG, "HandleHangupButton: ->start");
         hangupButton = (Button) findViewById(R.id.buttonHangup);
         hangupButton.setOnClickListener(new View.OnClickListener() {
@@ -190,7 +189,7 @@ public class CallActivity extends AppCompatActivity {
                 Log.i(TAG, "DialObserver-> onFailed");
                 Log.i(TAG, "error code is " + error.toString());
                 Toast.makeText(CallActivity.this, "DialObserver-> onFailed", Toast.LENGTH_SHORT).show();
-                CallActivity.this.callStatus.setText("Dialing failed for "+ error.toString());
+                CallActivity.this.callStatus.setText("Dialing failed for " + error.toString());
             }
 
             @Override

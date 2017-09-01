@@ -12,7 +12,6 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
-        // Enabling multidex support.
         multiDexEnabled true
     }
 
@@ -33,20 +32,16 @@ android {
     dexOptions {
         preDexLibraries = false
         javaMaxHeapSize "4g"
-
-        //lm
-        dexInProcess false
     }
     splits {
         abi {
             enable true
             reset()
-            include 'armeabi-v7a', 'x86'
+            include 'armeabi-v7a'
             universalApk false
         }
     }
 }
-
 
 repositories {
     flatDir {
@@ -59,94 +54,14 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    compile 'com.webex:wme4android-release:7.7.0@aar'
     compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:design:25.3.1'
+    compile 'com.android.support.constraint:constraint-layout:+'
+    compile 'com.android.support:support-v4:25.+'
     compile 'com.android.support:support-vector-drawable:25.3.1'
-    testCompile 'junit:junit:4.12'
-    compile project(':sdk-debug')
-}
-
-
-dependencies {
-    compile 'com.android.support.constraint:constraint-layout:+'
-}
-dependencies {
-    compile 'com.android.support.constraint:constraint-layout:+'
-}
-dependencies {
-    compile 'com.android.support:support-v4:25.+'
+    compile 'com.android.support:design:25.3.1'
     compile 'com.google.android.gms:play-services-plus:+'
+    compile 'com.android.support:cardview-v7:25.3.1'
+    compile 'com.ciscospark:android-sdk:0.0.1'
 }
-dependencies {
-    compile 'com.android.support:support-v4:25.+'
-}
-dependencies {
-    compile 'com.android.support:support-v4:25.+'
-}
-dependencies {
 
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-
-    testCompile 'junit:junit:4.12'
-
-    compile libs.supportv13
-    compile libs.supportannotation
-    compile libs.appcompatv7
-    compile libs.recyclerviewv7
-    compile libs.cardviewv7
-    compile libs.supportdesign
-    compile libs.gridlayout
-
-    compile libs.gson
-
-    compile libs.dagger
-    provided libs.daggercompiler
-
-    compile libs.retrofit
-    compile libs.retrofit_gsonconverter
-    compile libs.retrofit_rxjava
-
-    compile libs.okhttp
-    compile libs.okhttp_logging
-
-    compile libs.eventbus
-
-    compile libs.spongycastle_prov
-    compile libs.spongycastle_core
-    compile libs.kms
-
-    compile libs.ln
-
-    compile libs.wmeaar
-
-    compile libs.rxjava
-    compile libs.rxandroid
-
-    compile libs.will
-
-    compile libs.sqlcipher
-
-    compile libs.fasterxml_annotations
-    compile libs.fasterxml_databind
-    compile libs.fasterxml_core
-
-    debugCompile libs.leak_canary
-    releaseCompile libs.leak_canary_disabled
-    testCompile libs.leak_canary_disabled
-    androidTestCompile libs.leak_canary_disabled
-
-    compile libs.rxrelay
-
-    testCompile libs.junit
-    testCompile libs.robolectric
-    testCompile libs.robolectric_multidex
-    testCompile libs.mockito
-    compile 'joda-time:joda-time:2.9.9'
-    compile 'com.cisco.wx2:diagnostic-events-gson:1.0.86'
-
-    compile 'com.segment.analytics.android:analytics:4.3.0-RC1'
-    compile 'com.cisco.spark.android:common-lib:2.0.3886@aar'
-
-
-}

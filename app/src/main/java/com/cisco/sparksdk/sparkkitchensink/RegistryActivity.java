@@ -157,7 +157,7 @@ public class RegistryActivity extends AppCompatActivity {
                 Log.i(TAG, "buttonDial.onClick: ->start");
 
                 if(RegistryActivity.this.isRegistered){
-                    Intent intent = new Intent(RegistryActivity.this, dialActivity.class);
+                    Intent intent = new Intent(RegistryActivity.this, DialActivity.class);
 
                     RegistryActivity.this.startActivity(intent);
 
