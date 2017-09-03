@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="40dp"
+    android:paddingRight="40dp"
+    android:background="@drawable/searchview_background"
+    tools:context="com.cisco.sparksdk.sparkkitchensink.DialActivity">
+
+    <SearchView
+        android:id="@+id/search_people"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/searchview_background" />
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>

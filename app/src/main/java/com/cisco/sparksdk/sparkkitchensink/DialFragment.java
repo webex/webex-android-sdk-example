@@ -11,10 +11,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class ThirdFragment extends Fragment {
-    private static final String TAG = "ThirdFragment";
+public class DialFragment extends Fragment {
+    private static final String TAG = "DialFragment";
 
-    public ThirdFragment() {
+    public DialFragment() {
         // Required empty public constructor
     }
 
@@ -36,7 +36,7 @@ public class ThirdFragment extends Fragment {
                              Bundle savedInstanceState) {
         Log.i(TAG, "onCreateView: ->start");
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_third, container, false);
+        View view = inflater.inflate(R.layout.fragment_dial, container, false);
 
         textCallee = (EditText) view.findViewById(R.id.editCallee);
         buttonVideo = (Button)view.findViewById(R.id.buttonVideoCall);
@@ -72,8 +72,8 @@ public class ThirdFragment extends Fragment {
                     return;
                 }else{
                     Log.i(TAG, "Audio call is sent out");
-                    ThirdFragment.this.myapplication.callee = callee;
-                    ThirdFragment.this.myapplication.isAudioCall = true;
+                    DialFragment.this.myapplication.callee = callee;
+                    DialFragment.this.myapplication.isAudioCall = true;
                     Intent intent = new Intent(getActivity(), CallActivity.class);
 
                     getActivity().startActivity(intent);
@@ -99,8 +99,8 @@ public class ThirdFragment extends Fragment {
                     return;
                 }else{
                     Log.i(TAG, "Video call is sent out");
-                    ThirdFragment.this.myapplication.callee = callee;
-                    ThirdFragment.this.myapplication.isAudioCall = false;
+                    DialFragment.this.myapplication.callee = callee;
+                    DialFragment.this.myapplication.isAudioCall = false;
 
                     Intent intent = new Intent(getActivity(), CallActivity.class);
 

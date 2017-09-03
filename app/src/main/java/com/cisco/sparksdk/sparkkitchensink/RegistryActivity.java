@@ -20,38 +20,25 @@ public class RegistryActivity extends AppCompatActivity {
     public static final String IS_REGISTERED = "isRegistered";
 
     private Button buttonLogout;
-
     private Button buttonDial;
-
     private Button buttonWaiting;
-
     private boolean isRegistered = false;
-
     private KitchenSinkApplication myApplication;
-
     private TextView viewStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registry);
-
-
-        myApplication = (KitchenSinkApplication)getApplication();
-
-        viewStatus = (TextView) findViewById(R.id.textViewStatus);
-
         if (savedInstanceState != null) {
             isRegistered = savedInstanceState.getBoolean(IS_REGISTERED, false);
         }
+        setContentView(R.layout.activity_registry);
+        myApplication = (KitchenSinkApplication)getApplication();
+        viewStatus = (TextView) findViewById(R.id.textViewStatus);
 
-        HandleLogoutButton();
-
-        HandleDialButton();
-
-        HandleWaitingCallButton();
-
-        Log.i(TAG, "onCreate: ->start");
+        SetupLogoutButton();
+        SetupDialButton();
+        SetupWaitingCallButton();
     }
 
     @Override
@@ -63,7 +50,7 @@ public class RegistryActivity extends AppCompatActivity {
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    private void HandleWaitingCallButton() {
+    private void SetupWaitingCallButton() {
         buttonWaiting = (Button) findViewById(R.id.buttonWaitingCall);
         buttonWaiting.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,7 +72,6 @@ public class RegistryActivity extends AppCompatActivity {
         super.onStart();
 
         Log.i(TAG, "onStart: ->start");
-
         this.registerToLocus();
     }
 
@@ -133,8 +119,8 @@ public class RegistryActivity extends AppCompatActivity {
 
     }
 
-    private void HandleLogoutButton(){
-        Log.i(TAG, "HandleLogoutButton: ->start");
+    private void SetupLogoutButton(){
+        Log.i(TAG, "SetupLogoutButton: ->start");
         buttonLogout = (Button) findViewById(R.id.buttonLogout);
         buttonLogout.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -144,30 +130,23 @@ public class RegistryActivity extends AppCompatActivity {
                         .show();
 
                 RegistryActivity.this.logout();
-
                 }
         });
     }
 
-    private void HandleDialButton(){
-        Log.i(TAG, "HandleDialButton: ->start");
+    private void SetupDialButton(){
+        Log.i(TAG, "SetupDialButton: ->start");
         buttonDial = (Button) findViewById(R.id.buttonDial);
         buttonDial.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Log.i(TAG, "buttonDial.onClick: ->start");
-
                 if(RegistryActivity.this.isRegistered){
                     Intent intent = new Intent(RegistryActivity.this, DialActivity.class);
-
                     RegistryActivity.this.startActivity(intent);
-
                 }else{
-
                     Toast.makeText(RegistryActivity.this, "Please wait for registration", Toast
                             .LENGTH_SHORT).show();
-
                 }
-
             }
         });
     }
@@ -179,7 +158,9 @@ public class RegistryActivity extends AppCompatActivity {
 
             Log.i(TAG, "begin to register");
 
-            myApplication.mPhone = myApplication.mSpark.phone();
+            if (myApplication.mPhone != null) {
+                myApplication.mPhone = myApplication.mSpark.phone();
+            }
             this.myApplication.mPhone.register(new RegisterListener() {
                 @Override
                 public void onSuccess() {
@@ -187,9 +168,7 @@ public class RegistryActivity extends AppCompatActivity {
                     Toast.makeText(RegistryActivity.this, "register successfully", Toast
                             .LENGTH_SHORT).show();
                     RegistryActivity.this.viewStatus.setText("Registered");
-
                     RegistryActivity.this.isRegistered = true;
-
                 }
 
                 @Override
@@ -205,13 +184,7 @@ public class RegistryActivity extends AppCompatActivity {
             RegistryActivity.this.viewStatus.setText("registering");
 
         }else{
-
             Log.i(TAG, "already register");
-
         }
-
-
-
-
     }
 }

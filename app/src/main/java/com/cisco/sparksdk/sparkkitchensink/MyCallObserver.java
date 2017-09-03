@@ -5,7 +5,6 @@ import android.widget.Toast;
 
 import com.ciscospark.SparkError;
 import com.ciscospark.phone.Call;
-import com.ciscospark.phone.CallObserver;
 
 
 public class MyCallObserver implements com.ciscospark.phone.CallObserver {

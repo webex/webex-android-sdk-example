@@ -7,11 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class SecondFragment extends Fragment {
+public class PeopleFragment extends Fragment {
 
-    private static final String TAG = "SecondFragment";
+    private static final String TAG = "PeopleFragment";
 
-    public SecondFragment() {
+    public PeopleFragment() {
         // Required empty public constructor
     }
 
@@ -26,7 +26,6 @@ public class SecondFragment extends Fragment {
                              Bundle savedInstanceState) {
         Log.i(TAG, "onCreateView: ->start");
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_second, container, false);
+        return inflater.inflate(R.layout.fragment_people, container, false);
     }
-
 }

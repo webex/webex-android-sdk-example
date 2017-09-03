@@ -8,11 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class FirstFragment extends Fragment {
+public class HistoryFragment extends Fragment {
 
-    private static final String TAG = "FirstFragment";
+    private static final String TAG = "HistoryFragment";
 
-    public FirstFragment() {
+    public HistoryFragment() {
         // Required empty public constructor
     }
 
@@ -28,7 +28,7 @@ public class FirstFragment extends Fragment {
 
         Log.i(TAG, "onCreateView: ->start");
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_first, container, false);
+        return inflater.inflate(R.layout.fragment_history, container, false);
     }
 
 }

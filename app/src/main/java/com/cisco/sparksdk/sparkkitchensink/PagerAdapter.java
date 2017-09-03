@@ -5,9 +5,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-/**
- * Created by lm on 7/25/17.
- */
 
 public class PagerAdapter extends FragmentStatePagerAdapter {
 
@@ -23,13 +20,13 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
 
         switch (position) {
             case 0:
-                FirstFragment tab1 = new FirstFragment();
+                HistoryFragment tab1 = new HistoryFragment();
                 return tab1;
             case 1:
-                SecondFragment tab2 = new SecondFragment();
+                PeopleFragment tab2 = new PeopleFragment();
                 return tab2;
             case 2:
-                ThirdFragment tab3 = new ThirdFragment();
+                DialFragment tab3 = new DialFragment();
                 return tab3;
             default:
                 return null;
@@ -40,7 +37,6 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
     public int getCount() {
         return mNumOfTabs;
     }
-
 
 
 }
