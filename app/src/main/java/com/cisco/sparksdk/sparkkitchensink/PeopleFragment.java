@@ -14,6 +14,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ciscospark.CompletionHandler;
 import com.ciscospark.Spark;
@@ -68,6 +69,9 @@ public class PeopleFragment extends Fragment {
                 mSearchView.clearFocus();
                 mSearchView.setInputType(InputType.TYPE_NULL);
 
+                mPersonList.clear();
+                ((BaseAdapter) mListView.getAdapter()).notifyDataSetChanged();
+
                 PersonClient client = mSpark.people();
                 String email = null;
                 String name = null;
@@ -76,7 +80,7 @@ public class PeopleFragment extends Fragment {
                 } else {
                     name = query;
                 }
-                client.list(email, name, 10, new CompletionHandler<List<Person>>() {
+                client.list(email, name, 100, new CompletionHandler<List<Person>>() {
                     @Override
                     public void onComplete(List<Person> persons) {
                         mSearchView.setEnabled(true);
@@ -87,6 +91,7 @@ public class PeopleFragment extends Fragment {
                             mPersonList.add(p);
                         }
                         ((BaseAdapter) mListView.getAdapter()).notifyDataSetChanged();
+                        Toast.makeText(getActivity(), "find " + persons.size() + " person", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -94,6 +99,7 @@ public class PeopleFragment extends Fragment {
                         mSearchView.setEnabled(true);
                         mSearchView.setInputType(InputType.TYPE_CLASS_TEXT);
                         mPersonList = null;
+                        Toast.makeText(getActivity(), "find error", Toast.LENGTH_SHORT).show();
                     }
                 });
                 return false;

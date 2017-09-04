@@ -41,7 +41,6 @@ public class RegistryActivity extends AppCompatActivity {
         SetupDialButton();
         SetupWaitingCallButton();
         myApplication.mPhone = new Phone(myApplication.mSpark);
-        this.isRegistered = true;
     }
 
     @Override
