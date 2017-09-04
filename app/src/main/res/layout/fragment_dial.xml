@@ -22,10 +22,12 @@
         android:id="@+id/buttonVideoCall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="54dp"
-        android:text="VideoCall"
         android:layout_below="@+id/editCallee"
-        android:layout_centerHorizontal="true"/>
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="54dp"
+        android:background="@android:color/holo_blue_bright"
+        android:textColor="@android:color/background_light"
+        android:text="VideoCall" />
 
     <Button
         android:id="@+id/buttonAudioCall"
@@ -34,5 +36,7 @@
         android:layout_alignEnd="@+id/buttonVideoCall"
         android:layout_below="@+id/buttonVideoCall"
         android:layout_marginTop="32dp"
-        android:text="AudioCall"/>
+        android:background="@android:color/holo_blue_bright"
+        android:textColor="@android:color/background_light"
+        android:text="AudioCall" />
 </RelativeLayout>

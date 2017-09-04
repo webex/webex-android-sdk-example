@@ -1,6 +1,7 @@
 package com.cisco.sparksdk.sparkkitchensink;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
@@ -58,6 +60,17 @@ public class PeopleFragment extends Fragment {
         mSearchView = (SearchView)rootView.findViewById(R.id.search_people);
         PersonAdapter adapter = new PersonAdapter(getActivity(), R.layout.listview_person, mPersonList);
         mListView.setAdapter(adapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, final View view,
+                                    int position, long id) {
+                final Person item = (Person) parent.getItemAtPosition(position);
+                Log.d(TAG, item.getEmails()[0]);
+                ((DialActivity)getActivity()).makeCall(item.getEmails()[0]);
+            }
+        });
+
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
