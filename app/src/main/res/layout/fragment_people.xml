@@ -4,18 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingLeft="40dp"
-    android:paddingRight="40dp"
-    android:background="@drawable/searchview_background"
+    android:paddingLeft="30dp"
+    android:paddingRight="30dp"
     tools:context="com.cisco.sparksdk.sparkkitchensink.DialActivity">
 
     <SearchView
         android:id="@+id/search_people"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:background="@drawable/searchview_background" />
 
     <ListView
+        android:id="@+id/people_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </LinearLayout>

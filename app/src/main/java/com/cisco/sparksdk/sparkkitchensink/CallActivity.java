@@ -115,7 +115,6 @@ public class CallActivity extends AppCompatActivity {
                 }
             });
         }
-
     }
 
     public void reject() {
@@ -228,8 +227,6 @@ public class CallActivity extends AppCompatActivity {
 
                 CallActivity.this.setPermission(list);
             }
-
-
         });
         Log.i(TAG, "audioCall: ->end");
     }

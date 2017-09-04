@@ -51,6 +51,8 @@ public class JWTActivity extends AppCompatActivity {
                     */
                     jwtKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMSIsIm5hbWUiOiJ1c2VyICMxIiwiaXNzIjoiY2Q1YzlhZjctOGVkMy00ZTE1LTk3MDUtMDI1ZWYzMGIxYjZhIn0.nQTlT_WwkHdWZTCNi4tVl2IA476nAWo34oxtuTlLSDk";
                 }
+                buttonLogin.setEnabled(false);
+                editTextJWT.setEnabled(false);
 
                 Toast.makeText(JWTActivity.this, "JWT authoring", Toast.LENGTH_SHORT).show();
 
@@ -64,21 +66,21 @@ public class JWTActivity extends AppCompatActivity {
                     public void onComplete(String s) {
                         Log.d(TAG, s);
                         Toast.makeText(JWTActivity.this, "JWT auth success", Toast.LENGTH_SHORT).show();
+                        buttonLogin.setEnabled(true);
+                        editTextJWT.setEnabled(true);
                         Intent intent = new Intent(JWTActivity.this, RegistryActivity.class);
                         JWTActivity.this.startActivity(intent);
                     }
 
                     @Override
                     public void onError(SparkError sparkError) {
+                        buttonLogin.setEnabled(true);
+                        editTextJWT.setEnabled(true);
                         Toast.makeText(JWTActivity.this, "JWT auth failed", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
-
-
         });
-
-
     }
 
     private boolean exit = false;
@@ -96,7 +98,6 @@ public class JWTActivity extends AppCompatActivity {
                     exit = false;
                 }
             }, 3 * 1000);
-
         }
 
     }

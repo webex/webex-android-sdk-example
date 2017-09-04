@@ -1,9 +1,9 @@
 package com.cisco.sparksdk.sparkkitchensink;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.ciscospark.SparkError;
 import com.ciscospark.phone.DeregisterListener;
+import com.ciscospark.phone.Phone;
 import com.ciscospark.phone.RegisterListener;
 
 public class RegistryActivity extends AppCompatActivity {
@@ -33,12 +34,14 @@ public class RegistryActivity extends AppCompatActivity {
             isRegistered = savedInstanceState.getBoolean(IS_REGISTERED, false);
         }
         setContentView(R.layout.activity_registry);
-        myApplication = (KitchenSinkApplication)getApplication();
+        myApplication = (KitchenSinkApplication) getApplication();
         viewStatus = (TextView) findViewById(R.id.textViewStatus);
 
         SetupLogoutButton();
         SetupDialButton();
         SetupWaitingCallButton();
+        myApplication.mPhone = new Phone(myApplication.mSpark);
+        this.isRegistered = true;
     }
 
     @Override
@@ -55,11 +58,11 @@ public class RegistryActivity extends AppCompatActivity {
         buttonWaiting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(RegistryActivity.this.isRegistered){
+                if (RegistryActivity.this.isRegistered) {
                     Intent intent = new Intent(RegistryActivity.this, CallActivity.class);
                     intent.putExtra(CallActivity.IS_WAITING_CALL, true);
                     startActivity(intent);
-                }else{
+                } else {
                     Toast.makeText(RegistryActivity.this, "Please wait for registration", Toast
                             .LENGTH_SHORT).show();
                 }
@@ -76,13 +79,13 @@ public class RegistryActivity extends AppCompatActivity {
     }
 
     private boolean exit = false;
+
     @Override
     public void onBackPressed() {
         if (exit) {
             logout();
-        }
-        else {
-            Toast.makeText(this, "Press Back again to Exit.",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Press Back again to Exit.", Toast.LENGTH_SHORT).show();
             exit = true;
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -90,24 +93,17 @@ public class RegistryActivity extends AppCompatActivity {
                     exit = false;
                 }
             }, 3 * 1000);
-
         }
-
     }
 
-
-    private void logout(){
+    private void logout() {
         Log.i(TAG, "logout: ->start");
-
         this.myApplication.mSpark.phone().deregister(new DeregisterListener() {
             @Override
             public void onSuccess() {
                 Toast.makeText(RegistryActivity.this, "Deregister successfully", Toast.LENGTH_SHORT)
                         .show();
-                //MainActivity.this.callStatus.setText(R.string.call_status_Deregistered);
-
                 RegistryActivity.this.finishAffinity();
-
                 System.exit(0);
             }
 
@@ -116,10 +112,9 @@ public class RegistryActivity extends AppCompatActivity {
                 Toast.makeText(RegistryActivity.this, "Deregister failed", Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
-    private void SetupLogoutButton(){
+    private void SetupLogoutButton() {
         Log.i(TAG, "SetupLogoutButton: ->start");
         buttonLogout = (Button) findViewById(R.id.buttonLogout);
         buttonLogout.setOnClickListener(new View.OnClickListener() {
@@ -130,20 +125,20 @@ public class RegistryActivity extends AppCompatActivity {
                         .show();
 
                 RegistryActivity.this.logout();
-                }
+            }
         });
     }
 
-    private void SetupDialButton(){
+    private void SetupDialButton() {
         Log.i(TAG, "SetupDialButton: ->start");
         buttonDial = (Button) findViewById(R.id.buttonDial);
         buttonDial.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Log.i(TAG, "buttonDial.onClick: ->start");
-                if(RegistryActivity.this.isRegistered){
+                if (RegistryActivity.this.isRegistered) {
                     Intent intent = new Intent(RegistryActivity.this, DialActivity.class);
                     RegistryActivity.this.startActivity(intent);
-                }else{
+                } else {
                     Toast.makeText(RegistryActivity.this, "Please wait for registration", Toast
                             .LENGTH_SHORT).show();
                 }
@@ -151,15 +146,16 @@ public class RegistryActivity extends AppCompatActivity {
         });
     }
 
-    private void registerToLocus(){
+    private void registerToLocus() {
         Log.i(TAG, "registerToLocus: ->start");
 
-        if(!this.isRegistered){
+        if (!this.isRegistered) {
 
             Log.i(TAG, "begin to register");
 
-            if (myApplication.mPhone != null) {
+            if (myApplication.mPhone == null) {
                 myApplication.mPhone = myApplication.mSpark.phone();
+
             }
             this.myApplication.mPhone.register(new RegisterListener() {
                 @Override
@@ -183,7 +179,7 @@ public class RegistryActivity extends AppCompatActivity {
             Toast.makeText(RegistryActivity.this, "registering", Toast.LENGTH_SHORT).show();
             RegistryActivity.this.viewStatus.setText("registering");
 
-        }else{
+        } else {
             Log.i(TAG, "already register");
         }
     }
