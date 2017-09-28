@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'org.greenrobot.greendao'
 
 android {
     compileSdkVersion 25
@@ -9,12 +11,16 @@ android {
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "android.support.test.agent.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
         multiDexEnabled true
-    }
 
+        buildConfigField "String", "CLIENT_ID", "\"C416dd36dd57b536a35816978e4f063a98849d285ca191f5566a32c0f0c3481ab\""
+        buildConfigField "String", "CLIENT_SEC", "\"bc851e0f4d4bd62c020a45de08e374101910200d43096f32d14b9e08164adac7\""
+        buildConfigField "String", "REDIRECT_URL", "\"KitchenSink://response\""
+        buildConfigField "String", "SCOPE", "\"spark:all\""
+    }
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'
@@ -22,12 +28,15 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
     }
-
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     dexOptions {
         preDexLibraries = false
@@ -54,14 +63,34 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    compile 'com.squareup.leakcanary:leakcanary-android:1.5'
     compile 'com.webex:wme4android-release:7.7.0@aar'
     compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support.constraint:constraint-layout:+'
-    compile 'com.android.support:support-v4:25.+'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support:support-v4:25.3.1'
     compile 'com.android.support:support-vector-drawable:25.3.1'
     compile 'com.android.support:design:25.3.1'
-    compile 'com.google.android.gms:play-services-plus:+'
+    compile 'com.google.android.gms:play-services-plus:11.0.4'
     compile 'com.android.support:cardview-v7:25.3.1'
-    compile 'com.ciscospark:android-sdk:0.0.1'
+    compile 'com.ciscospark:androidsdk:0.0.1-SNAPSHOT'
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.jakewharton:butterknife:8.8.1'
+    compile 'org.greenrobot:greendao:3.2.2'
+    testCompile 'junit:junit:4.12'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

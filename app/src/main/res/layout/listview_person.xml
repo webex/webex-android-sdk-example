@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
@@ -9,8 +8,9 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
         android:layout_marginLeft="10dp"
-        app:srcCompat="@drawable/google_contacts_android" />
+        android:src="@drawable/google_contacts_android" />
 
     <TextView
         android:id="@+id/person_name"
@@ -20,6 +20,9 @@
         android:layout_marginLeft="80dp"
         android:layout_marginTop="4dp"
         android:textColor="@android:color/black"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:maxWidth="200sp"
         android:textSize="18sp" />
 
     <TextView
@@ -27,8 +30,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="80dp"
         android:layout_below="@id/person_name"
+        android:layout_marginLeft="80dp"
         />
+
+    <ImageView
+        android:id="@+id/person_callicon"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dp"
+        android:src="@android:drawable/presence_video_online" />
 
 </RelativeLayout>

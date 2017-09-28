@@ -18,12 +18,14 @@ buildscript {
         classpath 'com.android.tools.build:gradle:2.3.3'
         classpath 'com.github.triplet.gradle:play-publisher:1.1.5'
         classpath 'me.tatarka:gradle-retrolambda:3.5.0'
+        classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2'
     }
 }
 
 allprojects {
     repositories {
         jcenter()
+        mavenLocal()
         maven {
             url 'https://maven.fabric.io/public'
         }
@@ -39,9 +41,11 @@ allprojects {
         maven {
             url 'http://engci-maven.cisco.com/artifactory/androidwb-group/'
         }
+        /*
         maven {
             url 'http://10.140.253.42:10081/nexus/content/repositories/thirdparty/'
         }
+        */
     }
 }
 

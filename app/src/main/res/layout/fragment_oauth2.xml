@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:elevation="5dp"
-    tools:context="com.cisco.sparksdk.sparkkitchensink.OAuth2Fragment">
+    tools:context="com.cisco.sparksdk.kitchensink.login.fragments.OAuth2Fragment">
 
     <WebView
         android:id="@+id/OAuthWebView"

@@ -1,42 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.cisco.sparksdk.sparkkitchensink.DialActivity">
+    android:layout_height="match_parent">
 
 
     <EditText
         android:id="@+id/editCallee"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="191dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:background="@drawable/underline"
         android:ems="10"
+        android:hint="Address for dial"
         android:inputType="textPersonName"
-        />
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/callButton"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/buttonVideoCall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/editCallee"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="54dp"
-        android:background="@android:color/holo_blue_bright"
-        android:textColor="@android:color/background_light"
-        android:text="VideoCall" />
-
-    <Button
-        android:id="@+id/buttonAudioCall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/buttonVideoCall"
-        android:layout_below="@+id/buttonVideoCall"
-        android:layout_marginTop="32dp"
-        android:background="@android:color/holo_blue_bright"
-        android:textColor="@android:color/background_light"
-        android:text="AudioCall" />
-</RelativeLayout>
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/callButton"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:clickable="true"
+        app:backgroundTint="@android:color/holo_green_light"
+        app:elevation="5dp"
+        app:fabSize="mini"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editCallee"
+        app:srcCompat="@android:drawable/presence_video_online" />
+</android.support.constraint.ConstraintLayout>
