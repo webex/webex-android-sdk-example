@@ -65,12 +65,11 @@ public class JwtFragment extends BaseFragment {
     @OnClick(R.id.buttonLogin)
     public void login() {
         String jwt = editTextJwt.getText().toString();
-        if (jwt.isEmpty()) {
-            jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMSIsIm5hbWUiOiJ1c2VyICMxIiwiaXNzIjoiY2Q1YzlhZjctOGVkMy00ZTE1LTk3MDUtMDI1ZWYzMGIxYjZhIn0.nQTlT_WwkHdWZTCNi4tVl2IA476nAWo34oxtuTlLSDk";
+        if (!jwt.isEmpty()) {
+            showBusyIndicator("Login", "Waiting for login ...");
+            //startLauncher();
+            new AppIdLoginAction(jwt).execute();
         }
-        showBusyIndicator("Login", "Waiting for login ...");
-        //startLauncher();
-        new AppIdLoginAction(jwt).execute();
     }
 
     @SuppressWarnings("unused")

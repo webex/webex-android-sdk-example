@@ -50,12 +50,10 @@ public class DialFragment extends BaseFragment {
     @OnClick(R.id.callButton)
     public void makeCall() {
         String callString = callee.getText().toString();
-        if (callString.isEmpty()) {
-            callString = "xionxiao@cisco.com";
+        if (!callString.isEmpty()) {
+            CallFragment fragment = CallFragment.newInstance(callString);
+            ((LauncherActivity)getActivity()).replace(fragment);
         }
-
-        CallFragment fragment = CallFragment.newInstance(callString);
-        ((LauncherActivity)getActivity()).replace(fragment);
     }
 
     public void setDialString(String dialString) {

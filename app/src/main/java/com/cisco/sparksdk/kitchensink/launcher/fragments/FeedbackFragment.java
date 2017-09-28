@@ -94,7 +94,7 @@ public class FeedbackFragment extends BaseFragment {
     public void sendEmail() {
         Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.setData(Uri.parse("mailto:"));
-        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"xionxiao@cisco.com"});
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"devsupport@ciscospark.com"});
         intent.putExtra(Intent.EXTRA_SUBJECT, topic.getSelectedItem().toString());
         intent.putExtra(Intent.EXTRA_TEXT, comment.getText());
         if (attachment != null)
