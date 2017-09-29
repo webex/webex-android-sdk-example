@@ -25,6 +25,7 @@ package com.cisco.sparksdk.kitchensink.launcher.fragments;
 
 
 import android.view.View;
+import android.widget.RadioButton;
 import android.widget.Switch;
 
 import com.cisco.sparksdk.kitchensink.R;
@@ -44,7 +45,22 @@ public class SetupFragment extends BaseFragment {
     private SparkAgent agent;
 
     @BindView(R.id.preview)
-    public View preview;
+    View preview;
+
+    @BindView(R.id.audioVideoCall)
+    RadioButton switchAudioVideo;
+
+    @BindView(R.id.audioCallOnly)
+    RadioButton switchAudioOnly;
+
+    @BindView(R.id.setupLoudSpeaker)
+    Switch switchLoudSpeaker;
+
+    @BindView(R.id.backCamera)
+    RadioButton switchBackCamera;
+
+    @BindView(R.id.frontCamera)
+    RadioButton switchFrontCamera;
 
     public SetupFragment() {
         // Required empty public constructor
@@ -55,7 +71,19 @@ public class SetupFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
         agent = SparkAgent.getInstance();
-        setFrontCamera();
+        setupWidgetStates();
+    }
+
+    private void setupWidgetStates() {
+        if (agent.getCallCapability().equals(SparkAgent.CallCap.AUDIO_ONLY))
+            switchAudioOnly.setChecked(true);
+        else
+            switchAudioVideo.setChecked(true);
+        switchLoudSpeaker.setChecked(agent.getSpeakerPhoneOn());
+        if (agent.getDefaultCamera().equals(SparkAgent.CameraCap.FRONT))
+            switchFrontCamera.setChecked(true);
+        else
+            switchBackCamera.setChecked(true);
     }
 
     @OnClick({R.id.audioCallOnly, R.id.audioVideoCall})

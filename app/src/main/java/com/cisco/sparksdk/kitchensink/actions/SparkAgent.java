@@ -48,15 +48,15 @@ import static com.cisco.sparksdk.kitchensink.actions.events.SparkAgentEvent.post
 
 public class SparkAgent {
 
-    public enum CallCap {
-        AUDIO_ONLY,
-        AUDIO_VIDEO
-    }
+    public enum CallCap { AUDIO_ONLY, AUDIO_VIDEO }
+
+    public enum CameraCap { FRONT, BACK }
 
     private Spark spark;
     private Phone phone;
     private Call activeCall;
     private Call incomingCall;
+    private boolean isSpeakerOn = true;
 
     private static SparkAgent instance;
     private final CallObserver callObserver = new EventPubCallObserver();
@@ -81,6 +81,14 @@ public class SparkAgent {
         return phone;
     }
 
+    public boolean getSpeakerPhoneOn() {
+        return isSpeakerOn;
+    }
+
+    public void setSpeakerPhoneOn(boolean on) {
+        isSpeakerOn = on;
+    }
+
     public void register(Authenticator authenticator) {
         spark = new Spark(getApplication(), authenticator);
         phone = spark.phone();
@@ -101,6 +109,10 @@ public class SparkAgent {
 
     public void setCallCapability(CallCap cap) {
         callCap = cap;
+    }
+
+    public CallCap getCallCapability() {
+        return callCap;
     }
 
     public void dial(String callee, View localView, View remoteView) {
@@ -154,6 +166,13 @@ public class SparkAgent {
             phone.setDefaultFacingMode(Phone.FacingMode.ENVIROMENT);
         else
             activeCall.setFacingMode(Phone.FacingMode.ENVIROMENT);
+    }
+
+    public CameraCap getDefaultCamera() {
+        if (phone.getDefaultFacingMode() == Phone.FacingMode.USER)
+            return CameraCap.FRONT;
+        else
+            return CameraCap.BACK;
     }
 
     public void sendVideo(boolean b) {

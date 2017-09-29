@@ -25,15 +25,12 @@ package com.cisco.sparksdk.kitchensink.launcher.fragments;
 
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v13.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.view.Surface;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
@@ -53,7 +50,6 @@ import com.cisco.sparksdk.kitchensink.actions.events.OnRingingEvent;
 import com.cisco.sparksdk.kitchensink.launcher.LauncherActivity;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 import com.cisco.sparksdk.kitchensink.ui.FullScreenSwitcher;
-import com.github.benoitdion.ln.Ln;
 
 import butterknife.BindView;
 import butterknife.OnCheckedChanged;
@@ -69,16 +65,19 @@ public class CallFragment extends BaseFragment {
     private FullScreenSwitcher screenSwitcher;
 
     @BindView(R.id.localView)
-    public View localView;
+    View localView;
 
     @BindView(R.id.remoteView)
-    public View remoteView;
+    View remoteView;
 
     @BindView(R.id.buttonHangup)
-    public Button buttonHangup;
+    Button buttonHangup;
 
     @BindView(R.id.buttonDTMF)
-    public Button buttonDTMF;
+    Button buttonDTMF;
+
+    @BindView(R.id.switchLoudSpeaker)
+    Switch switchLoudSpeaker;
 
     @BindView(R.id.radioFrontCam)
     RadioButton radioFrontCam;
@@ -111,17 +110,25 @@ public class CallFragment extends BaseFragment {
         super.onStart();
         requirePermission();
         agent = SparkAgent.getInstance();
-        screenSwitcher = new FullScreenSwitcher(getActivity(), layout, remoteView);
+        setupWidgetStates();
         makeCall();
+    }
+
+    private void setupWidgetStates() {
+        if (agent.getDefaultCamera().equals(SparkAgent.CameraCap.FRONT))
+            radioFrontCam.setChecked(true);
+        else
+            radioBackCam.setChecked(true);
+        switchLoudSpeaker.setChecked(agent.getSpeakerPhoneOn());
+        screenSwitcher = new FullScreenSwitcher(getActivity(), layout, remoteView);
     }
 
     private void requirePermission() {
         int permissionCheck = ContextCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.CAMERA);
+        String[] permissions = { Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
-                    0);
+            ActivityCompat.requestPermissions(getActivity(), permissions, 0);
         }
     }
 
@@ -209,31 +216,6 @@ public class CallFragment extends BaseFragment {
         ((LauncherActivity) getActivity()).replace(fm);
     }
 
-
-    public static void setCameraDisplayOrientation(Activity activity,
-                                                   int cameraId, android.hardware.Camera camera) {
-        android.hardware.Camera.CameraInfo info =
-                new android.hardware.Camera.CameraInfo();
-        android.hardware.Camera.getCameraInfo(cameraId, info);
-        int rotation = activity.getWindowManager().getDefaultDisplay()
-                .getRotation();
-        int degrees = 0;
-        switch (rotation) {
-            case Surface.ROTATION_0: degrees = 0; break;
-            case Surface.ROTATION_90: degrees = 90; break;
-            case Surface.ROTATION_180: degrees = 180; break;
-            case Surface.ROTATION_270: degrees = 270; break;
-        }
-
-        int result;
-        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            result = (info.orientation + degrees) % 360;
-            result = (360 - result) % 360;  // compensate the mirror
-        } else {  // back-facing
-            result = (info.orientation - degrees + 360) % 360;
-        }
-        camera.setDisplayOrientation(result);
-    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {

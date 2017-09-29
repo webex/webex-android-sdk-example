@@ -181,7 +181,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="0dp"
                     android:layout_weight="1"
-                    android:checked="true"
+                    android:checked="false"
                     android:text="Front camera"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/labelCamera" />

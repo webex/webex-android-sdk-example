@@ -26,6 +26,7 @@ package com.cisco.sparksdk.kitchensink.actions.commands;
 import android.content.Context;
 
 import com.cisco.sparksdk.kitchensink.actions.IAction;
+import com.cisco.sparksdk.kitchensink.actions.SparkAgent;
 
 
 /**
@@ -46,5 +47,6 @@ public class toggleSpeakerAction implements IAction {
         android.media.AudioManager am = (android.media.AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         am.setMode(android.media.AudioManager.MODE_IN_COMMUNICATION);
         am.setSpeakerphoneOn(on);
+        SparkAgent.getInstance().setSpeakerPhoneOn(on);
     }
 }
