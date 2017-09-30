@@ -80,10 +80,13 @@ public class SetupFragment extends BaseFragment {
         else
             switchAudioVideo.setChecked(true);
         switchLoudSpeaker.setChecked(agent.getSpeakerPhoneOn());
-        if (agent.getDefaultCamera().equals(SparkAgent.CameraCap.FRONT))
+        if (agent.getDefaultCamera().equals(SparkAgent.CameraCap.FRONT)) {
             switchFrontCamera.setChecked(true);
-        else
+            setFrontCamera();
+        } else {
             switchBackCamera.setChecked(true);
+            setBackCamera();
+        }
     }
 
     @OnClick({R.id.audioCallOnly, R.id.audioVideoCall})

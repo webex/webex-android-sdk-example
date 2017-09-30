@@ -126,7 +126,7 @@ public class CallFragment extends BaseFragment {
     private void requirePermission() {
         int permissionCheck = ContextCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.CAMERA);
-        String[] permissions = { Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
+        String[] permissions = {Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(), permissions, 0);
         }
@@ -135,7 +135,6 @@ public class CallFragment extends BaseFragment {
     @Override
     public void onStop() {
         super.onStop();
-        agent.hangup();
     }
 
     private void setButtonsEnable(boolean enable) {
@@ -191,6 +190,17 @@ public class CallFragment extends BaseFragment {
         agent.setFrontCamera(false);
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        screenSwitcher.updateOnRotation();
+    }
+
+    @Override
+    public void onBackPressed() {
+        agent.hangup();
+    }
+
     private void makeCall() {
         String callee = getCallee();
         if (callee.isEmpty())
@@ -214,13 +224,6 @@ public class CallFragment extends BaseFragment {
     private void feedback() {
         BaseFragment fm = new CallFeedbackFragment();
         ((LauncherActivity) getActivity()).replace(fm);
-    }
-
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        screenSwitcher.updateOnRotation();
     }
 
     @SuppressWarnings("unused")

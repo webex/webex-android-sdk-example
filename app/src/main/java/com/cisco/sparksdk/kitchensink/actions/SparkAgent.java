@@ -35,7 +35,7 @@ import com.ciscospark.androidsdk.Spark;
 import com.ciscospark.androidsdk.auth.Authenticator;
 import com.ciscospark.androidsdk.phone.Call;
 import com.ciscospark.androidsdk.phone.CallObserver;
-import com.ciscospark.androidsdk.phone.CallOption;
+import com.ciscospark.androidsdk.phone.MediaOption;
 import com.ciscospark.androidsdk.phone.Phone;
 
 import static com.cisco.sparksdk.kitchensink.KitchenSinkApp.getApplication;
@@ -103,6 +103,7 @@ public class SparkAgent {
     private void setupIncomingCallListener() {
         phone.setIncomingCallListener(call -> {
             incomingCall = call;
+            incomingCall.setObserver(callObserver);
             postEvent(new OnIncomingCallEvent(call));
         });
     }
@@ -125,25 +126,28 @@ public class SparkAgent {
         });
     }
 
-    private CallOption genCallOption(View localView, View remoteView) {
+    private MediaOption genCallOption(View localView, View remoteView) {
         if (callCap.equals(CallCap.AUDIO_ONLY))
-            return CallOption.audioOnly();
+            return MediaOption.audioOnly();
         else
-            return CallOption.audioVideo(localView, remoteView);
+            return MediaOption.audioVideo(localView, remoteView);
     }
 
     public void reject() {
         incomingCall.reject(r -> new RejectEvent(r).post());
+        incomingCall = null;
     }
 
     public void hangup() {
         activeCall.hangup(r -> new HangupEvent(r).post());
+        activeCall = null;
     }
 
     public void answer(View localView, View remoteView) {
         activeCall = incomingCall;
+        incomingCall = null;
         activeCall.setObserver(callObserver);
-        activeCall.answer(CallOption.audioVideo(localView, remoteView), r -> new AnswerEvent(r).post());
+        activeCall.answer(MediaOption.audioVideo(localView, remoteView), r -> new AnswerEvent(r).post());
     }
 
     public void startPreview(View view) {

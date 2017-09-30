@@ -50,6 +50,8 @@ public class LauncherActivity extends Activity {
 
     public void goBackStack() {
         FragmentManager manager = getFragmentManager();
+        BaseFragment fm = (BaseFragment)getFragment();
+        fm.onBackPressed();
         if (manager.getBackStackEntryCount() == 1) {
             manager.popBackStackImmediate();
             super.onBackPressed();

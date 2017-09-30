@@ -113,6 +113,10 @@ public class BaseFragment extends Fragment {
         super.onStop();
     }
 
+    public void onBackPressed() {
+
+    }
+
     /* for activity */
     public void replace(Activity activity, int resourceId) {
         FragmentTransaction transaction;
