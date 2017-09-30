@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">SparkKitchenSink</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="waiting">waiting for incoming call</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="feedback_email">To: devsupport@ciscospark.com</string>
+
+    <string-array name="country_arrays">
+        <item>UI</item>
+        <item>SDK</item>
+        <item>Supported devices</item>
+        <item>Feature request</item>
+    </string-array>
+</resources>
