@@ -32,13 +32,11 @@ import com.cisco.sparksdk.kitchensink.actions.events.LoginEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.OnIncomingCallEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.RejectEvent;
 import com.ciscospark.androidsdk.Spark;
-import com.ciscospark.androidsdk.auth.Authenticator;
 import com.ciscospark.androidsdk.phone.Call;
 import com.ciscospark.androidsdk.phone.CallObserver;
 import com.ciscospark.androidsdk.phone.MediaOption;
 import com.ciscospark.androidsdk.phone.Phone;
 
-import static com.cisco.sparksdk.kitchensink.KitchenSinkApp.getApplication;
 import static com.cisco.sparksdk.kitchensink.actions.events.SparkAgentEvent.postEvent;
 
 
@@ -48,15 +46,16 @@ import static com.cisco.sparksdk.kitchensink.actions.events.SparkAgentEvent.post
 
 public class SparkAgent {
 
-    public enum CallCap { AUDIO_ONLY, AUDIO_VIDEO }
+    public enum CallCap {AUDIO_ONLY, AUDIO_VIDEO}
 
-    public enum CameraCap { FRONT, BACK }
+    public enum CameraCap {FRONT, BACK}
 
     private Spark spark;
     private Phone phone;
     private Call activeCall;
     private Call incomingCall;
     private boolean isSpeakerOn = true;
+    private boolean isDialing = false;
 
     private static SparkAgent instance;
     private final CallObserver callObserver = new EventPubCallObserver();
@@ -89,8 +88,7 @@ public class SparkAgent {
         isSpeakerOn = on;
     }
 
-    public void register(Authenticator authenticator) {
-        spark = new Spark(getApplication(), authenticator);
+    public void register() {
         phone = spark.phone();
         phone.register(r -> {
             if (r.isSuccessful()) {
@@ -117,11 +115,17 @@ public class SparkAgent {
     }
 
     public void dial(String callee, View localView, View remoteView) {
+        isDialing = true;
         phone.dial(callee, genCallOption(localView, remoteView), (result) -> {
             if (result.isSuccessful()) {
                 activeCall = result.getData();
-                activeCall.setObserver(callObserver);
+                if (isDialing == false) {
+                    hangup();
+                } else {
+                    activeCall.setObserver(callObserver);
+                }
             }
+            isDialing = false;
             new DialEvent(result).post();
         });
     }
@@ -139,8 +143,11 @@ public class SparkAgent {
     }
 
     public void hangup() {
-        activeCall.hangup(r -> new HangupEvent(r).post());
-        activeCall = null;
+        isDialing = false;
+        if (activeCall != null) {
+            activeCall.hangup(r -> new HangupEvent(r).post());
+            activeCall = null;
+        }
     }
 
     public void answer(View localView, View remoteView) {

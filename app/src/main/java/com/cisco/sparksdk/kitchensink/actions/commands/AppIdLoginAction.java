@@ -24,7 +24,11 @@
 package com.cisco.sparksdk.kitchensink.actions.commands;
 
 import com.cisco.sparksdk.kitchensink.actions.IAction;
+import com.cisco.sparksdk.kitchensink.actions.SparkAgent;
+import com.ciscospark.androidsdk.Spark;
 import com.ciscospark.androidsdk.auth.JWTAuthenticator;
+
+import static com.cisco.sparksdk.kitchensink.KitchenSinkApp.getApplication;
 
 /**
  * Created on 19/09/2017.
@@ -40,6 +44,8 @@ public class AppIdLoginAction implements IAction {
     @Override
     public void execute() {
         JWTAuthenticator jwtAuthenticator = new JWTAuthenticator();
+        Spark spark = new Spark(getApplication(), jwtAuthenticator);
+        SparkAgent.getInstance().setSpark(spark);
         jwtAuthenticator.authorize(jwt);
         new RegisterAction(jwtAuthenticator).execute();
     }

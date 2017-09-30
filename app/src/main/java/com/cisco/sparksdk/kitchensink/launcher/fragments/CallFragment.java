@@ -61,6 +61,7 @@ public class CallFragment extends BaseFragment {
     private static final String INCOMING_CALL = "incoming";
     private SparkAgent agent;
     private FullScreenSwitcher screenSwitcher;
+    private boolean isConnected = false;
 
     @BindView(R.id.localView)
     View localView;
@@ -189,7 +190,8 @@ public class CallFragment extends BaseFragment {
 
     @Override
     public void onBackPressed() {
-        agent.hangup();
+        if (isConnected)
+            agent.hangup();
     }
 
     private void makeCall() {
@@ -236,6 +238,7 @@ public class CallFragment extends BaseFragment {
 
     @SuppressWarnings("unused")
     public void onEventMainThread(OnConnectEvent event) {
+        isConnected = true;
         setButtonsEnable(true);
     }
 

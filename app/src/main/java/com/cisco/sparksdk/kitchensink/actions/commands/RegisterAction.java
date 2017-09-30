@@ -40,6 +40,6 @@ public class RegisterAction implements IAction {
 
     @Override
     public void execute() {
-        SparkAgent.getInstance().register(authenticator);
+        SparkAgent.getInstance().register();
     }
 }
