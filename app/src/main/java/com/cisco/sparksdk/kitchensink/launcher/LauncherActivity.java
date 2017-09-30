@@ -30,8 +30,10 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.cisco.sparksdk.kitchensink.R;
+import com.cisco.sparksdk.kitchensink.actions.commands.RequirePermissionAction;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 import com.cisco.sparksdk.kitchensink.launcher.fragments.LauncherFragment;
+import com.github.benoitdion.ln.Ln;
 
 public class LauncherActivity extends Activity {
 
@@ -68,5 +70,11 @@ public class LauncherActivity extends Activity {
 
     public Fragment getFragment() {
         return getFragmentManager().findFragmentById(R.id.launcher);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        Ln.e("permission required");
+        RequirePermissionAction.PermissionsRequired(requestCode, grantResults);
     }
 }

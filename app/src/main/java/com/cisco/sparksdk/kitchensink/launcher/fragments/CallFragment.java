@@ -24,13 +24,9 @@
 package com.cisco.sparksdk.kitchensink.launcher.fragments;
 
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
-import android.support.v13.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
@@ -48,6 +44,7 @@ import com.cisco.sparksdk.kitchensink.actions.events.OnConnectEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.OnDisconnectEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.OnMediaChangeEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.OnRingingEvent;
+import com.cisco.sparksdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.cisco.sparksdk.kitchensink.launcher.LauncherActivity;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 import com.cisco.sparksdk.kitchensink.ui.FullScreenSwitcher;
@@ -111,8 +108,6 @@ public class CallFragment extends BaseFragment {
         super.onStart();
         agent = SparkAgent.getInstance();
         requirePermission();
-        setupWidgetStates();
-        makeCall();
     }
 
     private void setupWidgetStates() {
@@ -251,5 +246,11 @@ public class CallFragment extends BaseFragment {
 
     @SuppressWarnings("unused")
     public void onEventMainThread(OnMediaChangeEvent event) {
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(PermissionAcquiredEvent event) {
+        setupWidgetStates();
+        makeCall();
     }
 }

@@ -1,7 +1,7 @@
 # Cisco Spark Android SDK Example
 
 > This demo employs Cisco Spark service through [Spark Android SDK](https://sqbu-github.cisco.com/S4D/spark-android-sdk).
-> This demo support Android device with **Android 5.0** or later
+> This demo support Android device with **Android 6.0** or later
 
 ## Table of Contents
 
@@ -37,7 +37,9 @@
 2. Import project 
 In Android Studio,open "File" -> "Open", select project.
 
-3. Build & Run
+3. Connect your device with debug enabled
+
+4. Build & Run
 
 ## Usage
 

@@ -32,6 +32,7 @@ import com.cisco.sparksdk.kitchensink.R;
 import com.cisco.sparksdk.kitchensink.actions.SparkAgent;
 import com.cisco.sparksdk.kitchensink.actions.commands.RequirePermissionAction;
 import com.cisco.sparksdk.kitchensink.actions.commands.toggleSpeakerAction;
+import com.cisco.sparksdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 
 import butterknife.BindView;
@@ -63,6 +64,9 @@ public class SetupFragment extends BaseFragment {
     @BindView(R.id.frontCamera)
     RadioButton switchFrontCamera;
 
+    @BindView(R.id.closePreview)
+    RadioButton radioClosePreview;
+
     public SetupFragment() {
         // Required empty public constructor
         setLayout(R.layout.fragment_setup);
@@ -73,7 +77,6 @@ public class SetupFragment extends BaseFragment {
         super.onStart();
         agent = SparkAgent.getInstance();
         requirePermission();
-        setupWidgetStates();
     }
 
     private void requirePermission() {
@@ -86,6 +89,9 @@ public class SetupFragment extends BaseFragment {
         else
             switchAudioVideo.setChecked(true);
         switchLoudSpeaker.setChecked(agent.getSpeakerPhoneOn());
+        radioClosePreview.setEnabled(true);
+        switchFrontCamera.setEnabled(true);
+        switchBackCamera.setEnabled(true);
         if (agent.getDefaultCamera().equals(SparkAgent.CameraCap.FRONT)) {
             switchFrontCamera.setChecked(true);
             setFrontCamera();
@@ -142,5 +148,10 @@ public class SetupFragment extends BaseFragment {
         preview.setVisibility(View.VISIBLE);
         agent.setFrontCamera(true);
         agent.startPreview(preview);
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(PermissionAcquiredEvent event) {
+        setupWidgetStates();
     }
 }

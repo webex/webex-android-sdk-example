@@ -24,7 +24,7 @@ buildscript {
 
 allprojects {
     repositories {
-        jcenter()
+        /*
         mavenLocal()
         maven {
             url 'https://maven.fabric.io/public'
@@ -46,6 +46,10 @@ allprojects {
             url 'http://10.140.253.42:10081/nexus/content/repositories/thirdparty/'
         }
         */
+        mavenCentral()
+        maven {
+            url 'https://oss.sonatype.org/content/groups/public/'
+        }
     }
 }
 

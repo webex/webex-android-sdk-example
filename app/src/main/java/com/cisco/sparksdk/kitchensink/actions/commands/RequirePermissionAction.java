@@ -26,10 +26,14 @@ package com.cisco.sparksdk.kitchensink.actions.commands;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
-import android.support.v13.app.ActivityCompat;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 import com.cisco.sparksdk.kitchensink.actions.IAction;
+import com.cisco.sparksdk.kitchensink.actions.events.PermissionAcquiredEvent;
+
+import static com.cisco.sparksdk.kitchensink.actions.events.SparkAgentEvent.postEvent;
 
 /**
  * Created on 30/09/2017.
@@ -46,12 +50,23 @@ public class RequirePermissionAction implements IAction {
     public void execute() {
         int permissionCheck = ContextCompat.checkSelfPermission(activity,
                 Manifest.permission.CAMERA);
-        String[] permissions = {
-                Manifest.permission.CAMERA,
-                Manifest.permission.RECORD_AUDIO
-        };
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            String[] permissions = {
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO
+            };
             ActivityCompat.requestPermissions(activity, permissions, 0);
+        } else {
+            postEvent(new PermissionAcquiredEvent());
+        }
+    }
+
+    public static void PermissionsRequired(int requestCode, int[] grantResults) {
+
+        if (requestCode == 0 && grantResults.length == 2
+            && grantResults[0] == PackageManager.PERMISSION_GRANTED
+            && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+            postEvent(new PermissionAcquiredEvent());
         }
     }
 }

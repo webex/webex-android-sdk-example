@@ -110,6 +110,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:enabled="false"
                 android:text="Close" />
 
             <RadioButton
@@ -118,6 +119,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:checked="true"
+                android:enabled="false"
                 android:text="Front" />
 
             <RadioButton
@@ -125,6 +127,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:enabled="false"
                 android:text="Back" />
         </RadioGroup>
 
