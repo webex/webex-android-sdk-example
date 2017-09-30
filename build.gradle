@@ -24,32 +24,7 @@ buildscript {
 
 allprojects {
     repositories {
-        /*
-        mavenLocal()
-        maven {
-            url 'https://maven.fabric.io/public'
-        }
-        maven {
-            url 'http://engci-maven.cisco.com/artifactory/webex-cca-thirdparty'
-        }
-        maven {
-            url 'http://engci-maven.cisco.com/artifactory/webex-cca-release'
-        }
-        maven {
-            url 'http://engci-maven.cisco.com/artifactory/webex-cca-group'
-        }
-        maven {
-            url 'http://engci-maven.cisco.com/artifactory/androidwb-group/'
-        }
-        /*
-        maven {
-            url 'http://10.140.253.42:10081/nexus/content/repositories/thirdparty/'
-        }
-        */
         mavenCentral()
-        maven {
-            url 'https://oss.sonatype.org/content/groups/public/'
-        }
     }
 }
 
