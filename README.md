@@ -13,9 +13,11 @@
 ## Setup
 
 - Install Java SE Development Kit 7u45 or later (Java 8 is OK)
+
   http://www.oracle.com/technetwork/java/javase/downloads/index.html
 
 - Android Studio 2.3 or later
+
   https://developer.android.com/sdk/installing/studio.html
 
 - Select tools->Android->SDK Manager in Anroid Studio, and install the following packages:
