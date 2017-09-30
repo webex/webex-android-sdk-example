@@ -1,6 +1,6 @@
 # Cisco Spark Android SDK Example
 
-> This demo employs Cisco Spark service through [Spark Android SDK](https://sqbu-github.cisco.com/S4D/spark-android-sdk).
+> This demo employs Cisco Spark service through [Spark Android SDK](https://github.com/ciscospark/spark-android-sdk).
 > This demo support Android device with **Android 6.0** or later
 
 ## Table of Contents
@@ -31,7 +31,7 @@
 
 1.  Clone or download project to your computer.
     ```
-    git clone https://sqbu-github.cisco.com/S4D/spark-android-sdk-example.git
+    git clone https://github.com/ciscospark/spark-android-sdk-example
     ```
 
 2. Import project 
