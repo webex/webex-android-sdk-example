@@ -30,6 +30,7 @@ import android.widget.Switch;
 
 import com.cisco.sparksdk.kitchensink.R;
 import com.cisco.sparksdk.kitchensink.actions.SparkAgent;
+import com.cisco.sparksdk.kitchensink.actions.commands.RequirePermissionAction;
 import com.cisco.sparksdk.kitchensink.actions.commands.toggleSpeakerAction;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 
@@ -71,7 +72,12 @@ public class SetupFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
         agent = SparkAgent.getInstance();
+        requirePermission();
         setupWidgetStates();
+    }
+
+    private void requirePermission() {
+        new RequirePermissionAction(getActivity()).execute();
     }
 
     private void setupWidgetStates() {

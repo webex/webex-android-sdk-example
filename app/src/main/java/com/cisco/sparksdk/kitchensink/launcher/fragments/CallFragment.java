@@ -39,6 +39,7 @@ import android.widget.Switch;
 import com.cisco.sparksdk.kitchensink.R;
 import com.cisco.sparksdk.kitchensink.actions.SparkAgent;
 import com.cisco.sparksdk.kitchensink.actions.commands.AddCallHistoryAction;
+import com.cisco.sparksdk.kitchensink.actions.commands.RequirePermissionAction;
 import com.cisco.sparksdk.kitchensink.actions.commands.toggleSpeakerAction;
 import com.cisco.sparksdk.kitchensink.actions.events.AnswerEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.DialEvent;
@@ -108,8 +109,8 @@ public class CallFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
-        requirePermission();
         agent = SparkAgent.getInstance();
+        requirePermission();
         setupWidgetStates();
         makeCall();
     }
@@ -124,12 +125,7 @@ public class CallFragment extends BaseFragment {
     }
 
     private void requirePermission() {
-        int permissionCheck = ContextCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.CAMERA);
-        String[] permissions = {Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), permissions, 0);
-        }
+        new RequirePermissionAction(getActivity()).execute();
     }
 
     @Override
