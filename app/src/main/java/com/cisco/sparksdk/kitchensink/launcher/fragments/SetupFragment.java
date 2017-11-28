@@ -35,6 +35,8 @@ import com.cisco.sparksdk.kitchensink.actions.commands.toggleSpeakerAction;
 import com.cisco.sparksdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import butterknife.BindView;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
@@ -151,6 +153,7 @@ public class SetupFragment extends BaseFragment {
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEventMainThread(PermissionAcquiredEvent event) {
         setupWidgetStates();
     }

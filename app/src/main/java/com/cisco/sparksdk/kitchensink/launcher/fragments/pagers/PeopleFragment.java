@@ -49,6 +49,8 @@ import com.ciscospark.androidsdk.people.Person;
 import com.github.benoitdion.ln.Ln;
 import com.squareup.picasso.Picasso;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -164,6 +166,7 @@ public class PeopleFragment extends BaseFragment {
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEventMainThread(SearchCompleteEvent event) {
         dismissBusyIndicator();
         if (event.isSuccessful()) {

@@ -26,7 +26,8 @@ package com.cisco.sparksdk.kitchensink.actions.events;
 import com.ciscospark.androidsdk.Result;
 import com.ciscospark.androidsdk.SparkError;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+
 
 /**
  * Created on 15/09/2017.

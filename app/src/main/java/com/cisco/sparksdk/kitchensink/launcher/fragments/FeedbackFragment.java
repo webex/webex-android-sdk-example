@@ -34,7 +34,6 @@ import android.widget.TextView;
 
 import com.cisco.sparksdk.kitchensink.R;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
-import com.github.benoitdion.ln.Ln;
 
 import butterknife.BindView;
 import butterknife.OnClick;

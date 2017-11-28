@@ -49,6 +49,8 @@ import com.cisco.sparksdk.kitchensink.launcher.LauncherActivity;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 import com.cisco.sparksdk.kitchensink.ui.FullScreenSwitcher;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import butterknife.BindView;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
@@ -220,38 +222,46 @@ public class CallFragment extends BaseFragment {
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEventMainThread(DialEvent event) {
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEventMainThread(AnswerEvent event) {
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEventMainThread(HangupEvent event) {
         setButtonsEnable(false);
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEventMainThread(OnRingingEvent event) {
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEventMainThread(OnConnectEvent event) {
         isConnected = true;
         setButtonsEnable(true);
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEventMainThread(OnDisconnectEvent event) {
         feedback();
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEventMainThread(OnMediaChangeEvent event) {
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEventMainThread(PermissionAcquiredEvent event) {
         setupWidgetStates();
         makeCall();

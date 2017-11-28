@@ -34,6 +34,8 @@ import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 import com.cisco.sparksdk.kitchensink.launcher.LauncherActivity;
 import com.cisco.sparksdk.kitchensink.actions.events.LoginEvent;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import butterknife.BindView;
 import butterknife.OnClick;
 
@@ -73,6 +75,7 @@ public class JwtFragment extends BaseFragment {
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEventMainThread(LoginEvent event) {
         dismissBusyIndicator();
         if (event.isSuccessful()) {

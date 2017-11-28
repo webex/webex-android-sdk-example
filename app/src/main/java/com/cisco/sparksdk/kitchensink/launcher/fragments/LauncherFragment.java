@@ -32,6 +32,8 @@ import com.cisco.sparksdk.kitchensink.launcher.LauncherActivity;
 import com.cisco.sparksdk.kitchensink.login.LoginActivity;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import butterknife.OnClick;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
@@ -82,6 +84,7 @@ public class LauncherFragment extends BaseFragment {
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEventMainThread(LogoutEvent event) {
         dismissBusyIndicator();
         toast("Logout success");

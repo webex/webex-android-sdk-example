@@ -34,11 +34,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.cisco.sparksdk.kitchensink.actions.events.SparkAgentEvent;
-import com.github.benoitdion.ln.Ln;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import butterknife.ButterKnife;
-import de.greenrobot.event.EventBus;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -144,6 +143,7 @@ public class BaseFragment extends Fragment {
 
     /* Only use for debug */
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEvent(Object event) {
     }
 }

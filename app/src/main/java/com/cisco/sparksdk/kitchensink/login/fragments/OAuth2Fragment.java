@@ -34,6 +34,8 @@ import com.cisco.sparksdk.kitchensink.launcher.LauncherActivity;
 import com.cisco.sparksdk.kitchensink.actions.events.LoginEvent;
 import com.github.benoitdion.ln.Ln;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import butterknife.BindView;
 
 
@@ -75,6 +77,7 @@ public class OAuth2Fragment extends BaseFragment {
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEventMainThread(LoginEvent event) {
         if (event.isSuccessful()) {
             toast("OAuth2 logged in.");

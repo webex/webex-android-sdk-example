@@ -38,6 +38,8 @@ import com.cisco.sparksdk.kitchensink.launcher.LauncherActivity;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 import com.github.benoitdion.ln.Ln;
 
+import org.greenrobot.eventbus.Subscribe;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -83,22 +85,26 @@ public class WaitingCallFragment extends BaseFragment {
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEventMainThread(OnIncomingCallEvent event) {
         showButton(true);
         new AddCallHistoryAction(event.call.getFrom().getEmail(), "in").execute();
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEventMainThread(AnswerEvent event) {
         showButton(false);
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEventMainThread(RejectEvent event) {
         showButton(false);
     }
 
     @SuppressWarnings("unused")
+    @Subscribe
     public void onEventMainThread(OnDisconnectEvent event) {
         showButton(false);
     }
