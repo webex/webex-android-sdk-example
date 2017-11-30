@@ -124,9 +124,9 @@ public class CallFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
         agent = SparkAgent.getInstance();
-        requirePermission();
         screenSwitcher = new FullScreenSwitcher(getActivity(), layout, remoteView);
         setViewAndChildrenEnabled(layout, false);
+        requirePermission();
     }
 
     private static void setViewAndChildrenEnabled(View view, boolean enabled) {
@@ -192,9 +192,12 @@ public class CallFragment extends BaseFragment {
     public void onSwitchCallAbility(Switch s) {
         switch (s.getId()) {
             case R.id.switchSendVideo:
-                agent.setFrontCamera();
-                localView.setVisibility(View.VISIBLE);
-                radioFrontCam.setChecked(true);
+                if (radioBackCam.isChecked())
+                    agent.setBackCamera();
+                else {
+                    radioFrontCam.setChecked(true);
+                    agent.setFrontCamera();
+                }
                 agent.sendVideo(s.isChecked());
                 break;
             case R.id.switchSendAudio:
