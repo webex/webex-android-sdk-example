@@ -148,7 +148,5 @@ public class BaseFragment extends Fragment {
     @SuppressWarnings("unused")
     @Subscribe
     public void onEvent(Object event) {
-        SparkAgent agent = SparkAgent.getInstance();
-        Ln.e(event.getClass().getSimpleName() + " " + agent.isReceivingAudio() + " " + event.toString());
     }
 }

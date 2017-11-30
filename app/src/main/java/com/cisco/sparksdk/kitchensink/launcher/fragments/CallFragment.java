@@ -126,6 +126,7 @@ public class CallFragment extends BaseFragment {
         super.onStart();
         agent = SparkAgent.getInstance();
         requirePermission();
+        screenSwitcher = new FullScreenSwitcher(getActivity(), layout, remoteView);
         setViewAndChildrenEnabled(layout, false);
     }
 
@@ -157,7 +158,6 @@ public class CallFragment extends BaseFragment {
         switchSendingAudio.setChecked(agent.isSendingAudio());
         switchReceiveVideo.setChecked(agent.isReceivingVideo());
         switchReceiveAudio.setChecked(agent.isReceivingAudio());
-        screenSwitcher = new FullScreenSwitcher(getActivity(), layout, remoteView);
     }
 
     private void requirePermission() {
@@ -194,6 +194,7 @@ public class CallFragment extends BaseFragment {
         switch (s.getId()) {
             case R.id.switchSendVideo:
                 agent.setFrontCamera();
+                localView.setVisibility(View.VISIBLE);
                 radioFrontCam.setChecked(true);
                 agent.sendVideo(s.isChecked());
                 break;
@@ -290,7 +291,6 @@ public class CallFragment extends BaseFragment {
         setViewAndChildrenEnabled(layout, true);
         if (agent.getDefaultCamera().equals(SparkAgent.CameraCap.CLOSE))
             agent.sendVideo(false);
-        Ln.e("On ConnectEvent " + agent.isReceivingAudio());
         setupWidgetStates();
     }
 
@@ -303,7 +303,6 @@ public class CallFragment extends BaseFragment {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnMediaChangeEvent event) {
-        Ln.e("media changed");
     }
 
     @SuppressWarnings("unused")
