@@ -238,7 +238,7 @@ public class SparkAgent {
 
     public boolean isReceivingAudio() {
         if (activeCall != null)
-            return !activeCall.isReceivingAudio();
+            return activeCall.isReceivingAudio();
         return false;
     }
 }
