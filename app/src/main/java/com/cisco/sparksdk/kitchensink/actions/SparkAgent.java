@@ -48,7 +48,7 @@ public class SparkAgent {
 
     public enum CallCap {AUDIO_ONLY, AUDIO_VIDEO}
 
-    public enum CameraCap {FRONT, BACK}
+    public enum CameraCap {FRONT, BACK, CLOSE}
 
     private Spark spark;
     private Phone phone;
@@ -60,6 +60,7 @@ public class SparkAgent {
     private static SparkAgent instance;
     private final CallObserver callObserver = new EventPubCallObserver();
     private CallCap callCap = CallCap.AUDIO_VIDEO;
+    private CameraCap cameraCap = CameraCap.FRONT;
 
     public static SparkAgent getInstance() {
         if (instance == null) {
@@ -158,6 +159,7 @@ public class SparkAgent {
     }
 
     public void startPreview(View view) {
+        cameraCap = getDefaultCamera();
         phone.startPreview(view);
     }
 
@@ -165,40 +167,78 @@ public class SparkAgent {
         phone.stopPreview();
     }
 
-    public void setFrontCamera(boolean isDefault) {
-        if (isDefault)
-            phone.setDefaultFacingMode(Phone.FacingMode.USER);
-        else
-            activeCall.setFacingMode(Phone.FacingMode.USER);
+    public void setFrontCamera() {
+        if (activeCall != null) activeCall.setFacingMode(Phone.FacingMode.USER);
     }
 
-    public void setBackCamera(boolean isDefault) {
-        if (isDefault)
-            phone.setDefaultFacingMode(Phone.FacingMode.ENVIROMENT);
-        else
-            activeCall.setFacingMode(Phone.FacingMode.ENVIROMENT);
+    public void setBackCamera() {
+        if (activeCall != null) activeCall.setFacingMode(Phone.FacingMode.ENVIROMENT);
+    }
+
+    public void setDefaultCamera(CameraCap cap) {
+        cameraCap = cap;
+        switch (cap) {
+            case FRONT:
+                phone.setDefaultFacingMode(Phone.FacingMode.USER);
+                break;
+            case BACK:
+                phone.setDefaultFacingMode(Phone.FacingMode.ENVIROMENT);
+                break;
+            case CLOSE:
+                break;
+        }
     }
 
     public CameraCap getDefaultCamera() {
-        if (phone.getDefaultFacingMode() == Phone.FacingMode.USER)
+        if (cameraCap.equals(CameraCap.CLOSE))
+            return CameraCap.CLOSE;
+        if (phone.getDefaultFacingMode().equals(Phone.FacingMode.USER))
             return CameraCap.FRONT;
         else
             return CameraCap.BACK;
     }
 
     public void sendVideo(boolean b) {
-        activeCall.setSendingVideo(b);
+        if (activeCall != null)
+            activeCall.setSendingVideo(b);
     }
 
     public void sendAudio(boolean b) {
-        activeCall.setSendingAudio(b);
+        if (activeCall != null)
+            activeCall.setSendingAudio(b);
     }
 
     public void receiveVideo(boolean b) {
-        activeCall.setReceivingVideo(b);
+        if (activeCall != null)
+            activeCall.setReceivingVideo(b);
     }
 
     public void receiveAudio(boolean b) {
-        activeCall.setReceivingAudio(b);
+        if (activeCall != null)
+            activeCall.setReceivingAudio(b);
+    }
+
+    public boolean isSendingVideo() {
+        if (activeCall != null)
+            return activeCall.isSendingVideo();
+        return false;
+    }
+
+    public boolean isSendingAudio() {
+        if (activeCall != null)
+            return activeCall.isSendingAudio();
+        return false;
+    }
+
+    public boolean isReceivingVideo() {
+        if (activeCall != null)
+            return activeCall.isReceivingVideo();
+        return false;
+    }
+
+    public boolean isReceivingAudio() {
+        if (activeCall != null)
+            return activeCall.isReceivingAudio();
+        return false;
     }
 }

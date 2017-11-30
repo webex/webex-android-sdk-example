@@ -61,10 +61,10 @@ public class SetupFragment extends BaseFragment {
     Switch switchLoudSpeaker;
 
     @BindView(R.id.backCamera)
-    RadioButton switchBackCamera;
+    RadioButton radioBackCamera;
 
     @BindView(R.id.frontCamera)
-    RadioButton switchFrontCamera;
+    RadioButton radioFrontCamera;
 
     @BindView(R.id.closePreview)
     RadioButton radioClosePreview;
@@ -86,20 +86,32 @@ public class SetupFragment extends BaseFragment {
     }
 
     private void setupWidgetStates() {
+        // Setup loud speaker radio button
+        switchLoudSpeaker.setEnabled(true);
+        switchLoudSpeaker.setChecked(agent.getSpeakerPhoneOn());
+
+        // Setup Call capability radio buttons
         if (agent.getCallCapability().equals(SparkAgent.CallCap.AUDIO_ONLY))
             switchAudioOnly.setChecked(true);
         else
             switchAudioVideo.setChecked(true);
-        switchLoudSpeaker.setChecked(agent.getSpeakerPhoneOn());
+
+        // Setup camera radio buttons
+        radioFrontCamera.setEnabled(true);
+        radioBackCamera.setEnabled(true);
         radioClosePreview.setEnabled(true);
-        switchFrontCamera.setEnabled(true);
-        switchBackCamera.setEnabled(true);
-        if (agent.getDefaultCamera().equals(SparkAgent.CameraCap.FRONT)) {
-            switchFrontCamera.setChecked(true);
-            setFrontCamera();
-        } else {
-            switchBackCamera.setChecked(true);
-            setBackCamera();
+        switch (agent.getDefaultCamera()) {
+            case FRONT:
+                radioFrontCamera.setChecked(true);
+                setFrontCamera();
+                break;
+            case BACK:
+                radioBackCamera.setChecked(true);
+                setBackCamera();
+                break;
+            case CLOSE:
+                radioClosePreview.setChecked(true);
+                break;
         }
     }
 
@@ -125,7 +137,7 @@ public class SetupFragment extends BaseFragment {
                 setBackCamera();
                 break;
             case R.id.closePreview:
-                stopPreview();
+                closeCamera();
                 break;
         }
     }
@@ -135,20 +147,21 @@ public class SetupFragment extends BaseFragment {
         new toggleSpeakerAction(getActivity(), s.isChecked() ? true : false).execute();
     }
 
-    private void stopPreview() {
+    private void closeCamera() {
+        agent.setDefaultCamera(SparkAgent.CameraCap.CLOSE);
         agent.stopPreview();
         preview.setVisibility(View.GONE);
     }
 
     private void setBackCamera() {
         preview.setVisibility(View.VISIBLE);
-        agent.setBackCamera(true);
+        agent.setDefaultCamera(SparkAgent.CameraCap.BACK);
         agent.startPreview(preview);
     }
 
     private void setFrontCamera() {
         preview.setVisibility(View.VISIBLE);
-        agent.setFrontCamera(true);
+        agent.setDefaultCamera(SparkAgent.CameraCap.FRONT);
         agent.startPreview(preview);
     }
 

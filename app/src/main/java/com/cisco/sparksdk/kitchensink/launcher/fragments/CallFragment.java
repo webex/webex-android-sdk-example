@@ -28,6 +28,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.Switch;
@@ -48,8 +49,10 @@ import com.cisco.sparksdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.cisco.sparksdk.kitchensink.launcher.LauncherActivity;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 import com.cisco.sparksdk.kitchensink.ui.FullScreenSwitcher;
+import com.github.benoitdion.ln.Ln;
 
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.OnCheckedChanged;
@@ -80,6 +83,18 @@ public class CallFragment extends BaseFragment {
     @BindView(R.id.switchLoudSpeaker)
     Switch switchLoudSpeaker;
 
+    @BindView(R.id.switchSendVideo)
+    Switch switchSendingVideo;
+
+    @BindView(R.id.switchSendAudio)
+    Switch switchSendingAudio;
+
+    @BindView(R.id.switchReceiveVideo)
+    Switch switchReceiveVideo;
+
+    @BindView(R.id.switchReceiveAudio)
+    Switch switchReceiveAudio;
+
     @BindView(R.id.radioFrontCam)
     RadioButton radioFrontCam;
 
@@ -89,8 +104,8 @@ public class CallFragment extends BaseFragment {
     @BindView(R.id.call_layout)
     ConstraintLayout layout;
 
+    // Required empty public constructor
     public CallFragment() {
-        // Required empty public constructor
     }
 
     public static CallFragment newAnswerCallInstance() {
@@ -111,14 +126,37 @@ public class CallFragment extends BaseFragment {
         super.onStart();
         agent = SparkAgent.getInstance();
         requirePermission();
+        setViewAndChildrenEnabled(layout, false);
+    }
+
+    private static void setViewAndChildrenEnabled(View view, boolean enabled) {
+        view.setEnabled(enabled);
+        if (view instanceof ViewGroup) {
+            ViewGroup viewGroup = (ViewGroup) view;
+            for (int i = 0; i < viewGroup.getChildCount(); i++) {
+                View child = viewGroup.getChildAt(i);
+                setViewAndChildrenEnabled(child, enabled);
+            }
+        }
     }
 
     private void setupWidgetStates() {
-        if (agent.getDefaultCamera().equals(SparkAgent.CameraCap.FRONT))
-            radioFrontCam.setChecked(true);
-        else
-            radioBackCam.setChecked(true);
+        switch (agent.getDefaultCamera()) {
+            case FRONT:
+                radioFrontCam.setChecked(true);
+                break;
+            case BACK:
+                radioBackCam.setChecked(true);
+                break;
+            case CLOSE:
+                localView.setVisibility(View.GONE);
+                break;
+        }
         switchLoudSpeaker.setChecked(agent.getSpeakerPhoneOn());
+        switchSendingVideo.setChecked(agent.isSendingVideo());
+        switchSendingAudio.setChecked(agent.isSendingAudio());
+        switchReceiveVideo.setChecked(agent.isReceivingVideo());
+        switchReceiveAudio.setChecked(agent.isReceivingAudio());
         screenSwitcher = new FullScreenSwitcher(getActivity(), layout, remoteView);
     }
 
@@ -155,6 +193,8 @@ public class CallFragment extends BaseFragment {
     public void onSwitchCallAbility(Switch s) {
         switch (s.getId()) {
             case R.id.switchSendVideo:
+                agent.setFrontCamera();
+                radioFrontCam.setChecked(true);
                 agent.sendVideo(s.isChecked());
                 break;
             case R.id.switchSendAudio:
@@ -176,12 +216,12 @@ public class CallFragment extends BaseFragment {
 
     @OnClick(R.id.radioBackCam)
     public void onBackCamRadioClicked() {
-        agent.setBackCamera(false);
+        agent.setBackCamera();
     }
 
     @OnClick(R.id.radioFrontCam)
     public void onFrontCamRadioClicked() {
-        agent.setFrontCamera(false);
+        agent.setFrontCamera();
     }
 
     @Override
@@ -209,6 +249,7 @@ public class CallFragment extends BaseFragment {
 
         agent.dial(callee, localView, remoteView);
         new AddCallHistoryAction(callee, "out").execute();
+        setButtonsEnable(true);
     }
 
     private String getCallee() {
@@ -222,48 +263,52 @@ public class CallFragment extends BaseFragment {
     }
 
     @SuppressWarnings("unused")
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(DialEvent event) {
     }
 
     @SuppressWarnings("unused")
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(AnswerEvent event) {
     }
 
     @SuppressWarnings("unused")
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(HangupEvent event) {
         setButtonsEnable(false);
     }
 
     @SuppressWarnings("unused")
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnRingingEvent event) {
     }
 
     @SuppressWarnings("unused")
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnConnectEvent event) {
         isConnected = true;
-        setButtonsEnable(true);
+        setViewAndChildrenEnabled(layout, true);
+        if (agent.getDefaultCamera().equals(SparkAgent.CameraCap.CLOSE))
+            agent.sendVideo(false);
+        Ln.e("On ConnectEvent " + agent.isReceivingAudio());
+        setupWidgetStates();
     }
 
     @SuppressWarnings("unused")
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnDisconnectEvent event) {
         feedback();
     }
 
     @SuppressWarnings("unused")
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnMediaChangeEvent event) {
+        Ln.e("media changed");
     }
 
     @SuppressWarnings("unused")
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(PermissionAcquiredEvent event) {
-        setupWidgetStates();
         makeCall();
     }
 }

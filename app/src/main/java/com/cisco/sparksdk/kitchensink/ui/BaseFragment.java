@@ -34,6 +34,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.cisco.sparksdk.kitchensink.actions.SparkAgent;
+import com.github.benoitdion.ln.Ln;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -145,5 +148,7 @@ public class BaseFragment extends Fragment {
     @SuppressWarnings("unused")
     @Subscribe
     public void onEvent(Object event) {
+        SparkAgent agent = SparkAgent.getInstance();
+        Ln.e(event.getClass().getSimpleName() + " " + agent.isReceivingAudio() + " " + event.toString());
     }
 }

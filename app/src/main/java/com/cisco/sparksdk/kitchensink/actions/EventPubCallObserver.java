@@ -25,6 +25,7 @@ package com.cisco.sparksdk.kitchensink.actions;
 
 import com.cisco.sparksdk.kitchensink.actions.events.OnConnectEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.OnDisconnectEvent;
+import com.cisco.sparksdk.kitchensink.actions.events.OnMediaChangeEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.OnRingingEvent;
 import com.ciscospark.androidsdk.phone.Call;
 import com.ciscospark.androidsdk.phone.CallObserver;
@@ -54,7 +55,7 @@ public class EventPubCallObserver implements CallObserver {
 
     @Override
     public void onMediaChanged(MediaChangedEvent mediaChangedEvent) {
-        postEvent(mediaChangedEvent);
+        postEvent(new OnMediaChangeEvent(mediaChangedEvent));
     }
 
     private void postEvent(Object event) {
