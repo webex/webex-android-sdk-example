@@ -36,14 +36,9 @@ import com.cisco.sparksdk.kitchensink.actions.events.OnIncomingCallEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.RejectEvent;
 import com.cisco.sparksdk.kitchensink.launcher.LauncherActivity;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
-import com.github.benoitdion.ln.Ln;
 
 import org.greenrobot.eventbus.Subscribe;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -81,30 +76,34 @@ public class WaitingCallFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
-        SparkAgent.getInstance();
+        if (SparkAgent.getInstance().isCallIncoming()) {
+            showButton(true);
+        } else {
+            showButton(false);
+        }
     }
 
     @SuppressWarnings("unused")
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnIncomingCallEvent event) {
         showButton(true);
         new AddCallHistoryAction(event.call.getFrom().getEmail(), "in").execute();
     }
 
     @SuppressWarnings("unused")
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(AnswerEvent event) {
         showButton(false);
     }
 
     @SuppressWarnings("unused")
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(RejectEvent event) {
         showButton(false);
     }
 
     @SuppressWarnings("unused")
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnDisconnectEvent event) {
         showButton(false);
     }

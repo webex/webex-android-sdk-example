@@ -107,6 +107,10 @@ public class SparkAgent {
         });
     }
 
+    public boolean isCallIncoming() {
+        return incomingCall != null;
+    }
+
     public void setCallCapability(CallCap cap) {
         callCap = cap;
     }
