@@ -123,9 +123,12 @@ public class CallFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
-        agent = SparkAgent.getInstance();
-        screenSwitcher = new FullScreenSwitcher(getActivity(), layout, remoteView);
-        setViewAndChildrenEnabled(layout, false);
+        if (agent == null)
+            agent = SparkAgent.getInstance();
+        if (screenSwitcher == null)
+            screenSwitcher = new FullScreenSwitcher(getActivity(), layout, remoteView);
+        if (!isConnected)
+            setViewAndChildrenEnabled(layout, false);
         requirePermission();
     }
 
