@@ -19,6 +19,19 @@
 - Android Studio 2.3 or later
 
   https://developer.android.com/sdk/installing/studio.html
+  
+- Android Plugin for Gradle 2.3.3
+  
+  If you upgrade your gradle plugin newer than 3.0.0, make sure to add google repository and remove retrolambda plugin in your build.gradle file:
+  ```
+  allprojects {
+    repositories {
+        jcenter()
+        google()
+        ...
+    }
+  }
+  ```
 
 - Select tools->Android->SDK Manager in Anroid Studio, and install the following packages:
   * Android SDK Tools
@@ -26,7 +39,8 @@
   * Android SDK Build-Tools (latest)
   * Android 7.1.1 (latest)
   * Support Repository: Android Support Repository
-  * Support Repository: ConstraintLayout fro Android
+  * Support Repository: ConstraintLayout for Android
+  * Support Repository: Google Repository
 
 
 ## Install
