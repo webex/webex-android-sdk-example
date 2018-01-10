@@ -40,13 +40,12 @@ import android.widget.TextView;
 
 import com.cisco.sparksdk.kitchensink.R;
 import com.cisco.sparksdk.kitchensink.actions.commands.SearchPeopleAction;
-import com.cisco.sparksdk.kitchensink.actions.events.SearchCompleteEvent;
+import com.cisco.sparksdk.kitchensink.actions.events.SearchPersonCompleteEvent;
 import com.cisco.sparksdk.kitchensink.launcher.LauncherActivity;
 import com.cisco.sparksdk.kitchensink.launcher.fragments.DialPagersFragment;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 import com.cisco.sparksdk.kitchensink.ui.CircleTransform;
 import com.ciscospark.androidsdk.people.Person;
-import com.github.benoitdion.ln.Ln;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -167,7 +166,7 @@ public class PeopleFragment extends BaseFragment {
 
     @SuppressWarnings("unused")
     @Subscribe
-    public void onEventMainThread(SearchCompleteEvent event) {
+    public void onEventMainThread(SearchPersonCompleteEvent event) {
         dismissBusyIndicator();
         if (event.isSuccessful()) {
             List<Person> result = (List<Person>) event.getResult().getData();

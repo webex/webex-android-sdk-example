@@ -32,12 +32,14 @@ import com.cisco.sparksdk.kitchensink.R;
 import com.cisco.sparksdk.kitchensink.launcher.fragments.pagers.DialFragment;
 import com.cisco.sparksdk.kitchensink.launcher.fragments.pagers.HistoryFragment;
 import com.cisco.sparksdk.kitchensink.launcher.fragments.pagers.PeopleFragment;
+import com.cisco.sparksdk.kitchensink.launcher.fragments.pagers.RoomFragment;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 import com.cisco.sparksdk.kitchensink.ui.ListPageAdapter;
 
 import butterknife.BindView;
 
 import static android.R.drawable.ic_menu_call;
+import static android.R.drawable.ic_menu_myplaces;
 import static android.R.drawable.ic_menu_recent_history;
 import static android.R.drawable.ic_menu_search;
 
@@ -74,6 +76,7 @@ public class DialPagersFragment extends BaseFragment {
         adapter.add(new HistoryFragment());
         adapter.add(new PeopleFragment());
         adapter.add(new DialFragment());
+        adapter.add(new RoomFragment());
         pager.setAdapter(adapter);
     }
 
@@ -81,5 +84,6 @@ public class DialPagersFragment extends BaseFragment {
         tabs.getTabAt(0).setIcon(ic_menu_recent_history);
         tabs.getTabAt(1).setIcon(ic_menu_search);
         tabs.getTabAt(2).setIcon(ic_menu_call);
+        tabs.getTabAt(3).setIcon(ic_menu_myplaces);
     }
 }

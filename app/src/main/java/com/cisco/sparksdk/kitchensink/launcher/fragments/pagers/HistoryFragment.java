@@ -130,11 +130,11 @@ public class HistoryFragment extends BaseFragment {
             }
 
             if (history.getDirection().equals("in")) {
-                ImageView icon = (ImageView) view.findViewById(R.id.person_callicon);
+                ImageView icon = (ImageView) view.findViewById(R.id.person_call_icon);
                 icon.setImageResource(sym_call_incoming);
             }
             if (history.getDirection().equals("out")) {
-                ImageView icon = (ImageView) view.findViewById(R.id.person_callicon);
+                ImageView icon = (ImageView) view.findViewById(R.id.person_call_icon);
                 icon.setImageResource(sym_call_outgoing);
             }
             return view;

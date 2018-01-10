@@ -21,29 +21,12 @@
  *
  */
 
-package com.cisco.sparksdk.kitchensink.actions.commands;
+package com.cisco.sparksdk.kitchensink.actions.events;
 
-import com.cisco.sparksdk.kitchensink.actions.IAction;
-import com.cisco.sparksdk.kitchensink.actions.SparkAgent;
-import com.cisco.sparksdk.kitchensink.actions.events.SearchPersonCompleteEvent;
+import com.ciscospark.androidsdk.Result;
 
-/**
- * Created on 19/09/2017.
- */
-
-public class SearchPeopleAction implements IAction {
-    private String email;
-    private String name;
-
-    public SearchPeopleAction(String email, String name) {
-        this.email = email;
-        this.name = name;
-    }
-
-    @Override
-    public void execute() {
-        SparkAgent agent = SparkAgent.getInstance();
-        agent.getSpark().people().list(email, name, 10,
-                result -> new SearchPersonCompleteEvent(result).post());
+public class SearchRoomCompleteEvent extends SparkAgentEvent {
+    public SearchRoomCompleteEvent(Result result) {
+        super(result);
     }
 }

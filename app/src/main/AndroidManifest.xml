@@ -24,7 +24,6 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.GET_TASKS" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <application
         android:name=".KitchenSinkApp"
@@ -36,7 +35,6 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".login.LoginActivity"
-            android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
@@ -47,7 +45,6 @@
 
         <activity
             android:name=".launcher.LauncherActivity"
-            android:screenOrientation="portrait"
             android:configChanges="screenSize|orientation" />
 
     </application>

@@ -58,6 +58,11 @@ public class EventPubCallObserver implements CallObserver {
         postEvent(new OnMediaChangeEvent(mediaChangedEvent));
     }
 
+    @Override
+    public void onCallMembershipChanged(CallMembershipChangedEvent event) {
+
+    }
+
     private void postEvent(Object event) {
         EventBus.getDefault().post(event);
     }

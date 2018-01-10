@@ -29,8 +29,8 @@ import com.ciscospark.androidsdk.Result;
  * Created on 18/09/2017.
  */
 
-public class SearchCompleteEvent extends SparkAgentEvent {
-    public SearchCompleteEvent(Result result) {
+public class SearchPersonCompleteEvent extends SparkAgentEvent {
+    public SearchPersonCompleteEvent(Result result) {
         super(result);
     }
 }

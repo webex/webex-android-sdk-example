@@ -25,7 +25,6 @@ package com.cisco.sparksdk.kitchensink.ui;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.content.res.Configuration;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.view.View;
@@ -94,15 +93,9 @@ public class FullScreenSwitcher {
         if (isFullScreen) {
             int width = activity.getResources().getDisplayMetrics().widthPixels;
             int height = activity.getResources().getDisplayMetrics().heightPixels;
-            int orientation = activity.getResources().getConfiguration().orientation;
 
-            if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                fullScreenSet.constrainWidth(view.getId(), width);
-                fullScreenSet.constrainHeight(view.getId(), height);
-            } else {
-                fullScreenSet.constrainWidth(view.getId(), width);
-                fullScreenSet.constrainHeight(view.getId(), height);
-            }
+            fullScreenSet.constrainWidth(view.getId(), width);
+            fullScreenSet.constrainHeight(view.getId(), height);
             fullScreenSet.applyTo(layout);
         }
     }
