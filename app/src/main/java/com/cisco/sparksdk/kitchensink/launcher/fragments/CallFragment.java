@@ -49,6 +49,7 @@ import com.cisco.sparksdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.cisco.sparksdk.kitchensink.launcher.LauncherActivity;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 import com.cisco.sparksdk.kitchensink.ui.FullScreenSwitcher;
+import com.github.benoitdion.ln.Ln;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -56,6 +57,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import butterknife.BindView;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
+
+import static com.ciscospark.androidsdk.phone.CallObserver.RemoteSendingScreenShareEvent;
 
 /**
  * A simple {@link BaseFragment} subclass.
@@ -72,6 +75,9 @@ public class CallFragment extends BaseFragment {
 
     @BindView(R.id.remoteView)
     View remoteView;
+
+    @BindView(R.id.screenShare)
+    View screenShare;
 
     @BindView(R.id.buttonHangup)
     Button buttonHangup;
@@ -125,6 +131,7 @@ public class CallFragment extends BaseFragment {
         super.onStart();
         agent = SparkAgent.getInstance();
         screenSwitcher = new FullScreenSwitcher(getActivity(), layout, remoteView);
+        updateScreenShareView();
         if (!isConnected) {
             setViewAndChildrenEnabled(layout, false);
             requirePermission();
@@ -161,6 +168,10 @@ public class CallFragment extends BaseFragment {
         switchReceiveAudio.setChecked(agent.isReceivingAudio());
     }
 
+    private void updateScreenShareView() {
+        screenShare.setVisibility(agent.isScreenSharing() ? View.VISIBLE : View.INVISIBLE);
+    }
+
     private void requirePermission() {
         new RequirePermissionAction(getActivity()).execute();
     }
@@ -187,6 +198,7 @@ public class CallFragment extends BaseFragment {
     @OnClick(R.id.remoteView)
     public void onRemoteViewClicked() {
         screenSwitcher.toggleFullScreen();
+        updateScreenShareView();
     }
 
     @OnCheckedChanged({R.id.switchSendVideo, R.id.switchSendAudio,
@@ -233,6 +245,7 @@ public class CallFragment extends BaseFragment {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         screenSwitcher.updateOnRotation();
+        updateScreenShareView();
     }
 
     @Override
@@ -252,7 +265,7 @@ public class CallFragment extends BaseFragment {
             return;
         }
 
-        agent.dial(callee, localView, remoteView);
+        agent.dial(callee, localView, remoteView, screenShare);
         new AddCallHistoryAction(callee, "out").execute();
         setButtonsEnable(true);
     }
@@ -307,6 +320,9 @@ public class CallFragment extends BaseFragment {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnMediaChangeEvent event) {
+        if (event.callEvent instanceof RemoteSendingScreenShareEvent) {
+            updateScreenShareView();
+        }
     }
 
     @SuppressWarnings("unused")

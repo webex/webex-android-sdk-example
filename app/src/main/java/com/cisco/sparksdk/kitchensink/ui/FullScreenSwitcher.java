@@ -57,6 +57,7 @@ public class FullScreenSwitcher {
         fullScreenSet.setMargin(view.getId(), ConstraintSet.RIGHT, 0);
         fullScreenSet.setMargin(view.getId(), ConstraintSet.TOP, 0);
         fullScreenSet.setMargin(view.getId(), ConstraintSet.BOTTOM, 0);
+        fullScreenSet.setElevation(view.getId(), 0);
         fullScreenSet.connect(view.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
     }
 

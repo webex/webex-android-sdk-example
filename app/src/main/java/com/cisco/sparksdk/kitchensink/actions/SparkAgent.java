@@ -23,8 +23,10 @@
 
 package com.cisco.sparksdk.kitchensink.actions;
 
+import android.util.Pair;
 import android.view.View;
 
+import com.cisco.spark.android.lyra.model.LyraSpaceSessionSupported;
 import com.cisco.sparksdk.kitchensink.actions.events.AnswerEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.DialEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.HangupEvent;
@@ -119,9 +121,9 @@ public class SparkAgent {
         return callCap;
     }
 
-    public void dial(String callee, View localView, View remoteView) {
+    public void dial(String callee, View localView, View remoteView, View screenSharing) {
         isDialing = true;
-        phone.dial(callee, genCallOption(localView, remoteView), (result) -> {
+        phone.dial(callee, genCallOption(localView, remoteView, screenSharing), (result) -> {
             if (result.isSuccessful()) {
                 activeCall = result.getData();
                 if (isDialing == false) {
@@ -135,11 +137,12 @@ public class SparkAgent {
         });
     }
 
-    private MediaOption genCallOption(View localView, View remoteView) {
+    private MediaOption genCallOption(View localView, View remoteView, View screenSharing) {
         if (callCap.equals(CallCap.AUDIO_ONLY))
             return MediaOption.audioOnly();
         else
-            return MediaOption.audioVideo(localView, remoteView);
+            return MediaOption.audioVideoScreenShare(new Pair<>(localView, remoteView), screenSharing);
+            //return MediaOption.audioVideo(localView, remoteView);
     }
 
     public void reject() {
@@ -243,6 +246,13 @@ public class SparkAgent {
     public boolean isReceivingAudio() {
         if (activeCall != null)
             return activeCall.isReceivingAudio();
+        return false;
+    }
+
+    public boolean isScreenSharing() {
+        if (activeCall != null) {
+            return activeCall.isRemoteSendingScreenShare();
+        }
         return false;
     }
 }
