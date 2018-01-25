@@ -28,8 +28,10 @@ import com.cisco.sparksdk.kitchensink.actions.SparkAgent;
 import com.cisco.sparksdk.kitchensink.models.CallHistory;
 import com.cisco.sparksdk.kitchensink.models.CallHistoryDao;
 import com.cisco.sparksdk.kitchensink.models.DaoSession;
+import com.ciscospark.androidsdk.people.Person;
 
 import java.util.Date;
+import java.util.List;
 
 import static com.cisco.sparksdk.kitchensink.KitchenSinkApp.getApplication;
 
@@ -56,8 +58,11 @@ public class AddCallHistoryAction implements IAction {
         SparkAgent agent = SparkAgent.getInstance();
         agent.getSpark().people().list(history.getEmail(), null, 1, result -> {
             if (result.isSuccessful()) {
-                history.setPerson(result.getData().get(0).toString());
-                dao.update(history);
+                List<Person> personList = result.getData();
+                if (personList.size() > 0) {
+                    history.setPerson(personList.get(0).toString());
+                    dao.update(history);
+                }
             }
         });
         dao.insert(history);
