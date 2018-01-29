@@ -26,7 +26,6 @@ package com.cisco.sparksdk.kitchensink.actions;
 import android.util.Pair;
 import android.view.View;
 
-import com.cisco.spark.android.lyra.model.LyraSpaceSessionSupported;
 import com.cisco.sparksdk.kitchensink.actions.events.AnswerEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.DialEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.HangupEvent;
@@ -81,6 +80,10 @@ public class SparkAgent {
 
     public Phone getPhone() {
         return phone;
+    }
+
+    public Call getActiveCall() {
+        return activeCall;
     }
 
     public boolean getSpeakerPhoneOn() {
@@ -141,8 +144,7 @@ public class SparkAgent {
         if (callCap.equals(CallCap.AUDIO_ONLY))
             return MediaOption.audioOnly();
         else
-            return MediaOption.audioVideoScreenShare(new Pair<>(localView, remoteView), screenSharing);
-            //return MediaOption.audioVideo(localView, remoteView);
+            return MediaOption.audioVideoShare(new Pair<>(localView, remoteView), screenSharing);
     }
 
     public void reject() {
@@ -251,7 +253,7 @@ public class SparkAgent {
 
     public boolean isScreenSharing() {
         if (activeCall != null) {
-            return activeCall.isRemoteSendingScreenShare();
+            return activeCall.isRemoteSendingShare();
         }
         return false;
     }

@@ -49,7 +49,6 @@ import com.cisco.sparksdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.cisco.sparksdk.kitchensink.launcher.LauncherActivity;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 import com.cisco.sparksdk.kitchensink.ui.FullScreenSwitcher;
-import com.github.benoitdion.ln.Ln;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -58,7 +57,7 @@ import butterknife.BindView;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 
-import static com.ciscospark.androidsdk.phone.CallObserver.RemoteSendingScreenShareEvent;
+import static com.ciscospark.androidsdk.phone.CallObserver.RemoteSendingShareEvent;
 
 /**
  * A simple {@link BaseFragment} subclass.
@@ -314,13 +313,15 @@ public class CallFragment extends BaseFragment {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnDisconnectEvent event) {
-        feedback();
+        if (agent.getActiveCall() == null || event.getCall().equals(agent.getActiveCall())) {
+            feedback();
+        }
     }
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnMediaChangeEvent event) {
-        if (event.callEvent instanceof RemoteSendingScreenShareEvent) {
+        if (event.callEvent instanceof RemoteSendingShareEvent) {
             updateScreenShareView();
         }
     }
