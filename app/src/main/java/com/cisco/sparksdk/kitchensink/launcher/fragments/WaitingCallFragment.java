@@ -64,8 +64,9 @@ public class WaitingCallFragment extends BaseFragment {
 
     @OnClick(R.id.answer)
     public void answerCall() {
-        showButton(false);
-        ((LauncherActivity) getActivity()).replace(CallFragment.newAnswerCallInstance());
+        if (SparkAgent.getInstance().isCallIncoming()) {
+            ((LauncherActivity) getActivity()).replace(CallFragment.newAnswerCallInstance());
+        }
     }
 
     @OnClick(R.id.reject)

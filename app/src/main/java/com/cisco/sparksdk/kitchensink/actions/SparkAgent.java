@@ -113,7 +113,8 @@ public class SparkAgent {
     }
 
     public boolean isCallIncoming() {
-        return incomingCall != null;
+        Boolean rst = incomingCall != null && !incomingCall.getStatus().equals(Call.CallStatus.DISCONNECTED);
+        return rst;
     }
 
     public void setCallCapability(CallCap cap) {
