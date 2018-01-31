@@ -27,6 +27,7 @@ import android.app.Activity;
 import android.os.Bundle;
 
 import com.cisco.sparksdk.kitchensink.R;
+import com.cisco.sparksdk.kitchensink.actions.commands.RequirePermissionAction;
 import com.cisco.sparksdk.kitchensink.login.fragments.JwtFragment;
 import com.cisco.sparksdk.kitchensink.login.fragments.OAuth2Fragment;
 
@@ -38,6 +39,7 @@ public class LoginActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        new RequirePermissionAction(this).execute();
         setContentView(R.layout.fragment_login);
         ButterKnife.bind(this);
     }

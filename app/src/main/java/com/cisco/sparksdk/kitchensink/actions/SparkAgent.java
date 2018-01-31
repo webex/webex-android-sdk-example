@@ -37,6 +37,7 @@ import com.ciscospark.androidsdk.phone.Call;
 import com.ciscospark.androidsdk.phone.CallObserver;
 import com.ciscospark.androidsdk.phone.MediaOption;
 import com.ciscospark.androidsdk.phone.Phone;
+import com.github.benoitdion.ln.Ln;
 
 import static com.cisco.sparksdk.kitchensink.actions.events.SparkAgentEvent.postEvent;
 
@@ -114,6 +115,7 @@ public class SparkAgent {
 
     public boolean isCallIncoming() {
         Boolean rst = incomingCall != null && !incomingCall.getStatus().equals(Call.CallStatus.DISCONNECTED);
+        if (incomingCall != null) Ln.e(incomingCall.getStatus().toString());
         return rst;
     }
 
@@ -161,11 +163,13 @@ public class SparkAgent {
         }
     }
 
-    public void answer(View localView, View remoteView) {
-        activeCall = incomingCall;
-        incomingCall = null;
-        activeCall.setObserver(callObserver);
-        activeCall.answer(MediaOption.audioVideo(localView, remoteView), r -> new AnswerEvent(r).post());
+    public void answer(View localView, View remoteView, View screenShare) {
+        if (isCallIncoming()) {
+            activeCall = incomingCall;
+            incomingCall = null;
+            activeCall.setObserver(callObserver);
+            activeCall.answer(MediaOption.audioVideoShare(new Pair<>(localView, remoteView), screenShare), r -> new AnswerEvent(r).post());
+        }
     }
 
     public void startPreview(View view) {

@@ -187,7 +187,11 @@ public class CallFragment extends BaseFragment {
 
     @OnClick(R.id.buttonHangup)
     public void onHangup() {
-        agent.hangup();
+        if (isConnected) {
+            agent.hangup();
+        } else {
+            ((LauncherActivity)getActivity()).goBackStack();
+        }
     }
 
     @OnClick(R.id.buttonDTMF)
@@ -260,7 +264,7 @@ public class CallFragment extends BaseFragment {
 
         if (callee.equals(INCOMING_CALL)) {
             setButtonsEnable(false);
-            agent.answer(localView, remoteView);
+            agent.answer(localView, remoteView, screenShare);
             return;
         }
 
