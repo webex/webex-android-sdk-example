@@ -57,7 +57,7 @@ import butterknife.BindView;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 
-import static com.ciscospark.androidsdk.phone.CallObserver.RemoteSendingShareEvent;
+import static com.ciscospark.androidsdk.phone.CallObserver.RemoteSendingSharingEvent;
 
 /**
  * A simple {@link BaseFragment} subclass.
@@ -325,7 +325,7 @@ public class CallFragment extends BaseFragment {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnMediaChangeEvent event) {
-        if (event.callEvent instanceof RemoteSendingShareEvent) {
+        if (event.callEvent instanceof RemoteSendingSharingEvent) {
             updateScreenShareView();
         }
     }

@@ -147,7 +147,7 @@ public class SparkAgent {
         if (callCap.equals(CallCap.AUDIO_ONLY))
             return MediaOption.audioOnly();
         else
-            return MediaOption.audioVideoShare(new Pair<>(localView, remoteView), screenSharing);
+            return MediaOption.audioVideoSharing(new Pair<>(localView, remoteView), screenSharing);
     }
 
     public void reject() {
@@ -168,7 +168,7 @@ public class SparkAgent {
             activeCall = incomingCall;
             incomingCall = null;
             activeCall.setObserver(callObserver);
-            activeCall.answer(MediaOption.audioVideoShare(new Pair<>(localView, remoteView), screenShare), r -> new AnswerEvent(r).post());
+            activeCall.answer(MediaOption.audioVideoSharing(new Pair<>(localView, remoteView), screenShare), r -> new AnswerEvent(r).post());
         }
     }
 
@@ -258,7 +258,7 @@ public class SparkAgent {
 
     public boolean isScreenSharing() {
         if (activeCall != null) {
-            return activeCall.isRemoteSendingShare();
+            return activeCall.isRemoteSendingSharing();
         }
         return false;
     }
