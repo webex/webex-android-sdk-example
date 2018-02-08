@@ -26,7 +26,6 @@ package com.cisco.sparksdk.kitchensink.actions;
 import android.util.Pair;
 import android.view.View;
 
-import com.cisco.spark.android.lyra.model.LyraSpaceSessionSupported;
 import com.cisco.sparksdk.kitchensink.actions.events.AnswerEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.DialEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.HangupEvent;
@@ -38,6 +37,7 @@ import com.ciscospark.androidsdk.phone.Call;
 import com.ciscospark.androidsdk.phone.CallObserver;
 import com.ciscospark.androidsdk.phone.MediaOption;
 import com.ciscospark.androidsdk.phone.Phone;
+import com.github.benoitdion.ln.Ln;
 
 import static com.cisco.sparksdk.kitchensink.actions.events.SparkAgentEvent.postEvent;
 
@@ -83,6 +83,10 @@ public class SparkAgent {
         return phone;
     }
 
+    public Call getActiveCall() {
+        return activeCall;
+    }
+
     public boolean getSpeakerPhoneOn() {
         return isSpeakerOn;
     }
@@ -110,7 +114,9 @@ public class SparkAgent {
     }
 
     public boolean isCallIncoming() {
-        return incomingCall != null;
+        Boolean rst = incomingCall != null && !incomingCall.getStatus().equals(Call.CallStatus.DISCONNECTED);
+        if (incomingCall != null) Ln.e(incomingCall.getStatus().toString());
+        return rst;
     }
 
     public void setCallCapability(CallCap cap) {
@@ -141,8 +147,7 @@ public class SparkAgent {
         if (callCap.equals(CallCap.AUDIO_ONLY))
             return MediaOption.audioOnly();
         else
-            return MediaOption.audioVideoScreenShare(new Pair<>(localView, remoteView), screenSharing);
-            //return MediaOption.audioVideo(localView, remoteView);
+            return MediaOption.audioVideoShare(new Pair<>(localView, remoteView), screenSharing);
     }
 
     public void reject() {
@@ -158,11 +163,13 @@ public class SparkAgent {
         }
     }
 
-    public void answer(View localView, View remoteView) {
-        activeCall = incomingCall;
-        incomingCall = null;
-        activeCall.setObserver(callObserver);
-        activeCall.answer(MediaOption.audioVideo(localView, remoteView), r -> new AnswerEvent(r).post());
+    public void answer(View localView, View remoteView, View screenShare) {
+        if (isCallIncoming()) {
+            activeCall = incomingCall;
+            incomingCall = null;
+            activeCall.setObserver(callObserver);
+            activeCall.answer(MediaOption.audioVideoShare(new Pair<>(localView, remoteView), screenShare), r -> new AnswerEvent(r).post());
+        }
     }
 
     public void startPreview(View view) {
@@ -251,7 +258,7 @@ public class SparkAgent {
 
     public boolean isScreenSharing() {
         if (activeCall != null) {
-            return activeCall.isRemoteSendingScreenShare();
+            return activeCall.isRemoteSendingShare();
         }
         return false;
     }

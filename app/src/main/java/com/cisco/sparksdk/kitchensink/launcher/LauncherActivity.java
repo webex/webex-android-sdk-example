@@ -31,9 +31,8 @@ import android.os.Bundle;
 
 import com.cisco.sparksdk.kitchensink.R;
 import com.cisco.sparksdk.kitchensink.actions.commands.RequirePermissionAction;
-import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 import com.cisco.sparksdk.kitchensink.launcher.fragments.LauncherFragment;
-import com.github.benoitdion.ln.Ln;
+import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 
 public class LauncherActivity extends Activity {
 
@@ -52,7 +51,7 @@ public class LauncherActivity extends Activity {
 
     public void goBackStack() {
         FragmentManager manager = getFragmentManager();
-        BaseFragment fm = (BaseFragment)getFragment();
+        BaseFragment fm = (BaseFragment) getFragment();
         fm.onBackPressed();
         if (manager.getBackStackEntryCount() == 1) {
             manager.popBackStackImmediate();
@@ -74,7 +73,6 @@ public class LauncherActivity extends Activity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        Ln.e("permission required");
         RequirePermissionAction.PermissionsRequired(requestCode, grantResults);
     }
 }

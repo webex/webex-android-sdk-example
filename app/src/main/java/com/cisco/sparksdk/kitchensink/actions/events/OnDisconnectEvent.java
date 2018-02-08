@@ -23,6 +23,7 @@
 
 package com.cisco.sparksdk.kitchensink.actions.events;
 
+import com.ciscospark.androidsdk.phone.Call;
 import com.ciscospark.androidsdk.phone.CallObserver.CallDisconnectedEvent;
 
 /**
@@ -34,5 +35,9 @@ public class OnDisconnectEvent {
 
     public OnDisconnectEvent(CallDisconnectedEvent event) {
         this.callEvent = event;
+    }
+
+    public Call getCall() {
+        return callEvent != null ? callEvent.getCall() : null;
     }
 }

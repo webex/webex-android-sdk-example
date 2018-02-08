@@ -64,12 +64,15 @@ public class WaitingCallFragment extends BaseFragment {
 
     @OnClick(R.id.answer)
     public void answerCall() {
-        showButton(false);
-        ((LauncherActivity) getActivity()).replace(CallFragment.newAnswerCallInstance());
+        if (SparkAgent.getInstance().isCallIncoming()) {
+            showButton(false);
+            ((LauncherActivity) getActivity()).replace(CallFragment.newAnswerCallInstance());
+        }
     }
 
     @OnClick(R.id.reject)
     public void rejectCall() {
+        showButton(false);
         SparkAgent.getInstance().reject();
     }
 
@@ -93,12 +96,14 @@ public class WaitingCallFragment extends BaseFragment {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(AnswerEvent event) {
+        // if (event.isSuccessful())
         showButton(false);
     }
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(RejectEvent event) {
+        // if (event.isSuccessful())
         showButton(false);
     }
 

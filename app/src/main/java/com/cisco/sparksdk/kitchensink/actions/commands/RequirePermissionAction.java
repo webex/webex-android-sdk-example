@@ -26,7 +26,6 @@ package com.cisco.sparksdk.kitchensink.actions.commands;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
@@ -62,10 +61,9 @@ public class RequirePermissionAction implements IAction {
     }
 
     public static void PermissionsRequired(int requestCode, int[] grantResults) {
-
         if (requestCode == 0 && grantResults.length == 2
-            && grantResults[0] == PackageManager.PERMISSION_GRANTED
-            && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
             postEvent(new PermissionAcquiredEvent());
         }
     }
