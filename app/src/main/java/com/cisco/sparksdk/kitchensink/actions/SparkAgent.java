@@ -129,7 +129,7 @@ public class SparkAgent {
 
     public void dial(String callee, View localView, View remoteView, View screenSharing) {
         isDialing = true;
-        phone.dial(callee, genCallOption(localView, remoteView, screenSharing), (result) -> {
+        phone.dial(callee, getMediaOption(localView, remoteView, screenSharing), (result) -> {
             if (result.isSuccessful()) {
                 activeCall = result.getData();
                 if (isDialing == false) {
@@ -143,7 +143,7 @@ public class SparkAgent {
         });
     }
 
-    private MediaOption genCallOption(View localView, View remoteView, View screenSharing) {
+    private MediaOption getMediaOption(View localView, View remoteView, View screenSharing) {
         if (callCap.equals(CallCap.AUDIO_ONLY))
             return MediaOption.audioOnly();
         else
@@ -168,7 +168,7 @@ public class SparkAgent {
             activeCall = incomingCall;
             incomingCall = null;
             activeCall.setObserver(callObserver);
-            activeCall.answer(MediaOption.audioVideoSharing(new Pair<>(localView, remoteView), screenShare), r -> new AnswerEvent(r).post());
+            activeCall.answer(getMediaOption(localView, remoteView, screenShare), r -> new AnswerEvent(r).post());
         }
     }
 
