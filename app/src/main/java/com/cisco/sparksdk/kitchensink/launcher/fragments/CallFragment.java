@@ -165,6 +165,7 @@ public class CallFragment extends BaseFragment {
         switchSendingAudio.setChecked(agent.isSendingAudio());
         switchReceiveVideo.setChecked(agent.isReceivingVideo());
         switchReceiveAudio.setChecked(agent.isReceivingAudio());
+        updateScreenShareView();
     }
 
     private void updateScreenShareView() {
