@@ -63,5 +63,5 @@ In Android Studio,open "File" -> "Open", select project.
 **Spark ID**
 If you have a Spark ID (your email address), you can choose "**Spark ID**" to authorize your device.
 
-**APP ID**
-If you have a APP ID (a string token), choose "**App ID**" in the first page, then you need to enter your App JWT token and login.
+**Guest ID**
+If you have a Guest ID (a string token), choose "**Guest ID**" in the first page, then you need to enter your App JWT token and login.
