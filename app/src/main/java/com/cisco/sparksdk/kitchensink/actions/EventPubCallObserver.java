@@ -23,6 +23,7 @@
 
 package com.cisco.sparksdk.kitchensink.actions;
 
+import com.cisco.sparksdk.kitchensink.actions.events.OnCallMembershipEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.OnConnectEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.OnDisconnectEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.OnMediaChangeEvent;
@@ -60,7 +61,7 @@ public class EventPubCallObserver implements CallObserver {
 
     @Override
     public void onCallMembershipChanged(CallMembershipChangedEvent event) {
-
+        postEvent(new OnCallMembershipEvent(event));
     }
 
     private void postEvent(Object event) {

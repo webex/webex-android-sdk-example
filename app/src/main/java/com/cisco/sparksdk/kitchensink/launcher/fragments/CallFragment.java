@@ -24,9 +24,15 @@
 package com.cisco.sparksdk.kitchensink.launcher.fragments;
 
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -49,6 +55,8 @@ import com.cisco.sparksdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.cisco.sparksdk.kitchensink.launcher.LauncherActivity;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 import com.cisco.sparksdk.kitchensink.ui.FullScreenSwitcher;
+import com.ciscospark.androidsdk.phone.CallObserver;
+import com.github.benoitdion.ln.Ln;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -58,11 +66,12 @@ import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 
 import static com.ciscospark.androidsdk.phone.CallObserver.RemoteSendingSharingEvent;
-
+import static com.ciscospark.androidsdk.phone.CallObserver.SendingSharingEvent;
 /**
  * A simple {@link BaseFragment} subclass.
  */
 public class CallFragment extends BaseFragment {
+    protected static final int MEDIA_PROJECTION_REQUEST = 2;
     private static final String CALLEE = "callee";
     private static final String INCOMING_CALL = "incoming";
     private SparkAgent agent;
@@ -107,6 +116,9 @@ public class CallFragment extends BaseFragment {
 
     @BindView(R.id.call_layout)
     ConstraintLayout layout;
+
+    @BindView(R.id.switchShareContent)
+    Switch switchShareContent;
 
     // Required empty public constructor
     public CallFragment() {
@@ -206,7 +218,7 @@ public class CallFragment extends BaseFragment {
     }
 
     @OnCheckedChanged({R.id.switchSendVideo, R.id.switchSendAudio,
-            R.id.switchReceiveVideo, R.id.switchReceiveAudio})
+            R.id.switchReceiveVideo, R.id.switchReceiveAudio, R.id.switchShareContent})
     public void onSwitchCallAbility(Switch s) {
         switch (s.getId()) {
             case R.id.switchSendVideo:
@@ -220,13 +232,19 @@ public class CallFragment extends BaseFragment {
                 break;
             case R.id.switchSendAudio:
                 agent.sendAudio(s.isChecked());
-                break;
             case R.id.switchReceiveVideo:
                 agent.receiveVideo(s.isChecked());
                 break;
             case R.id.switchReceiveAudio:
                 agent.receiveAudio(s.isChecked());
                 break;
+            case R.id.switchShareContent:
+                if (s.isChecked())
+                    agent.getActiveCall().startSharing(r -> {Ln.d("startSharing result: " + r);});
+                else
+                    agent.getActiveCall().stopSharing(r -> {Ln.d("stopSharing result: " + r);});
+                break;
+
         }
     }
 
@@ -327,7 +345,14 @@ public class CallFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnMediaChangeEvent event) {
         if (event.callEvent instanceof RemoteSendingSharingEvent) {
+            Ln.d("RemoteSendingSharingEvent: " + ((RemoteSendingSharingEvent)event.callEvent).isSending());
             updateScreenShareView();
+        } else if (event.callEvent instanceof SendingSharingEvent) {
+            Ln.d("SendingSharingEvent: " + ((SendingSharingEvent)event.callEvent).isSending());
+            if (((SendingSharingEvent)event.callEvent).isSending()){
+                sendNotification();
+                backToHome();
+            }
         }
     }
 
@@ -335,5 +360,27 @@ public class CallFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(PermissionAcquiredEvent event) {
         makeCall();
+    }
+
+    private void backToHome() {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        this.startActivity(intent);
+    }
+
+    private void sendNotification(){
+        Intent appIntent = new Intent(getActivity(), LauncherActivity.class);
+        appIntent.setAction(Intent.ACTION_MAIN);
+        appIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        appIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        PendingIntent contentIntent = PendingIntent.getActivity(getActivity(), 0,appIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationManager notifyManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getActivity())
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("Cisco Kichensink")
+                .setContentText("I'm sharing content")
+                .setContentIntent(contentIntent);
+        notifyManager.notify(1, builder.build());
     }
 }
