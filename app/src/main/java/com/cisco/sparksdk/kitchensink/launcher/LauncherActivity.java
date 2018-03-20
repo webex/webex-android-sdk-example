@@ -105,6 +105,7 @@ public class LauncherActivity extends Activity {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnMediaChangeEvent event) {
+        Ln.d("OnMediaChangeEvent: " + event.callEvent);
         if (event.callEvent instanceof CallObserver.SendingSharingEvent) {
             Ln.d("Activity SendingSharingEvent: " + ((CallObserver.SendingSharingEvent)event.callEvent).isSending());
             if (!((CallObserver.SendingSharingEvent)event.callEvent).isSending()){

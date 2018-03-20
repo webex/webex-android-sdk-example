@@ -232,6 +232,7 @@ public class CallFragment extends BaseFragment {
                 break;
             case R.id.switchSendAudio:
                 agent.sendAudio(s.isChecked());
+                break;
             case R.id.switchReceiveVideo:
                 agent.receiveVideo(s.isChecked());
                 break;
