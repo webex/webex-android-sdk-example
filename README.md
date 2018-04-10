@@ -33,7 +33,7 @@
   }
   ```
 
-- Select tools->Android->SDK Manager in Anroid Studio, and install the following packages:
+- Select tools->Android->SDK Manager in Android Studio, and install the following packages:
   * Android SDK Tools
   * Android SDK Platform-Tools
   * Android SDK Build-Tools (latest)
