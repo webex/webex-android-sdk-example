@@ -1,7 +1,7 @@
 # Cisco Spark Android SDK Example
 
-> This demo employs Cisco Spark service through [Spark Android SDK](https://github.com/ciscospark/spark-android-sdk).
-> This demo support Android device with **Android 6.0** or later
+This demo employs Cisco Spark service through [Spark Android SDK](https://github.com/ciscospark/spark-android-sdk).
+This demo support Android device with **Android 6.0** or later
 
 ## Table of Contents
 
