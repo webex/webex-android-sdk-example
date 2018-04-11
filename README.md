@@ -1,7 +1,7 @@
 # Cisco Spark Android SDK Example
 
-> This demo employs Cisco Spark service through [Spark Android SDK](https://github.com/ciscospark/spark-android-sdk).
-> This demo support Android device with **Android 6.0** or later
+This demo employs Cisco Spark service through [Spark Android SDK](https://github.com/ciscospark/spark-android-sdk).
+This demo support Android device with **Android 6.0** or later
 
 ## Table of Contents
 
@@ -33,7 +33,7 @@
   }
   ```
 
-- Select tools->Android->SDK Manager in Anroid Studio, and install the following packages:
+- Select tools->Android->SDK Manager in Android Studio, and install the following packages:
   * Android SDK Tools
   * Android SDK Platform-Tools
   * Android SDK Build-Tools (latest)
@@ -63,5 +63,5 @@ In Android Studio,open "File" -> "Open", select project.
 **Spark ID**
 If you have a Spark ID (your email address), you can choose "**Spark ID**" to authorize your device.
 
-**APP ID**
-If you have a APP ID (a string token), choose "**App ID**" in the first page, then you need to enter your App JWT token and login.
+**Guest ID**
+If you have a Guest ID (a string token), choose "**Guest ID**" in the first page, then you need to enter your App JWT token and login.
