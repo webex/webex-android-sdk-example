@@ -96,6 +96,19 @@ public class SparkAgent {
         isSpeakerOn = on;
     }
 
+    public void setMaxBandWidth(int maxBandWidth) {
+        if (phone != null) {
+            phone.setVideoMaxBandwidth(maxBandWidth);
+        }
+    }
+
+    public int getMaxBandWidth() {
+        if (phone != null) {
+            return phone.getVideoMaxBandwidth();
+        }
+        return -1;
+    }
+
     public void register() {
         phone = spark.phone();
         phone.register(r -> {
