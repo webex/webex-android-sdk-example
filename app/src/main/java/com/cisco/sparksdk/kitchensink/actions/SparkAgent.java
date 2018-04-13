@@ -32,6 +32,7 @@ import com.cisco.sparksdk.kitchensink.actions.events.HangupEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.LoginEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.OnIncomingCallEvent;
 import com.cisco.sparksdk.kitchensink.actions.events.RejectEvent;
+import com.ciscospark.androidsdk.Result;
 import com.ciscospark.androidsdk.Spark;
 import com.ciscospark.androidsdk.phone.Call;
 import com.ciscospark.androidsdk.phone.CallObserver;
@@ -129,10 +130,10 @@ public class SparkAgent {
 
     public void dial(String callee, View localView, View remoteView, View screenSharing) {
         isDialing = true;
-        phone.dial(callee, getMediaOption(localView, remoteView, screenSharing), (result) -> {
+        phone.dial(callee, getMediaOption(localView, remoteView, screenSharing), (Result<Call> result) -> {
             if (result.isSuccessful()) {
                 activeCall = result.getData();
-                if (isDialing == false) {
+                if (!isDialing || activeCall == null) {
                     hangup();
                 } else {
                     activeCall.setObserver(callObserver);

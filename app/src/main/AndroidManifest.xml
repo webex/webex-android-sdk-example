@@ -45,7 +45,8 @@
 
         <activity
             android:name=".launcher.LauncherActivity"
-            android:configChanges="screenSize|orientation" />
+            android:screenOrientation="unspecified"
+            android:configChanges="orientation|screenSize" />
 
     </application>
 
