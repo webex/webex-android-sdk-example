@@ -35,7 +35,6 @@ import com.cisco.sparksdk.kitchensink.actions.commands.RequirePermissionAction;
 import com.cisco.sparksdk.kitchensink.actions.commands.toggleSpeakerAction;
 import com.cisco.sparksdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
-import com.github.benoitdion.ln.Ln;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -126,9 +125,7 @@ public class SetupFragment extends BaseFragment {
 
         // Setup max bandwidth
         int bw = agent.getMaxBandWidth();
-        Ln.e("======== get max bandwidth: " + bw);
         int index = Arrays.binarySearch(BANDWIDTH, bw);
-        Ln.e("" + index);
         if (index == -1) {
             // default max bandwidth 2000000
             index = 4;
@@ -188,9 +185,7 @@ public class SetupFragment extends BaseFragment {
 
     @OnItemSelected(R.id.spinnerBandWidth)
     public void onMaxBandWidthSpinnerSelected(Spinner spinner, int position) {
-        Ln.e("======== select position: " + position);
         agent.setMaxBandWidth(BANDWIDTH[position]);
-        Ln.e("======== echo " + agent.getMaxBandWidth());
     }
 
     @SuppressWarnings("unused")
