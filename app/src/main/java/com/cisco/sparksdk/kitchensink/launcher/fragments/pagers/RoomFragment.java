@@ -32,85 +32,91 @@ import butterknife.OnItemClick;
 
 public class RoomFragment extends BaseFragment {
 
-	@BindView(R.id.room_list)
-	public ListView listView;
+    @BindView(R.id.room_list)
+    public ListView listView;
 
-	private List<Room> roomList;
+    private List<Room> roomList;
 
-	public RoomFragment() {
-		// Required empty public constructor
-		setLayout(R.layout.fragment_room);
-		roomList = new ArrayList<>();
-	}
+    public RoomFragment() {
+        // Required empty public constructor
+        setLayout(R.layout.fragment_room);
+        roomList = new ArrayList<>();
+    }
 
-	@Override
-	public void onStart() {
-		super.onStart();
-		new SearchRoomAction().execute();
-	}
+    @Override
+    public void onStart() {
+        super.onStart();
+        //new SearchRoomAction().execute();
+    }
 
-	@OnItemClick(R.id.room_list)
-	public void roomListItemClicked(int position) {
-		final Room p = roomList.get(position);
-		Fragment fm = ((LauncherActivity) getActivity()).getFragment();
-		((DialPagersFragment) fm).gotoDialPage(p.getId());
-	}
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        new SearchRoomAction().execute();
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
 
-	@Override
-	public void onActivityCreated(Bundle saved) {
-		super.onActivityCreated(saved);
-		RoomFragment.RoomAdapter adapter = new RoomFragment.RoomAdapter(getActivity(), R.layout.listview_person, roomList);
-		listView.setAdapter(adapter);
-	}
+    @OnItemClick(R.id.room_list)
+    public void roomListItemClicked(int position) {
+        final Room p = roomList.get(position);
+        Fragment fm = ((LauncherActivity) getActivity()).getFragment();
+        ((DialPagersFragment) fm).gotoDialPage(p.getId());
+    }
 
-	class RoomAdapter extends ArrayAdapter<Room> {
+    @Override
+    public void onActivityCreated(Bundle saved) {
+        super.onActivityCreated(saved);
+        RoomFragment.RoomAdapter adapter = new RoomFragment.RoomAdapter(getActivity(), R.layout.listview_person, roomList);
+        listView.setAdapter(adapter);
+    }
 
-		private int resourceId;
+    class RoomAdapter extends ArrayAdapter<Room> {
+
+        private int resourceId;
 
 
-		public RoomAdapter(Context context, int textViewResourceId,
-						   List<Room> objects) {
-			super(context, textViewResourceId, objects);
-			resourceId = textViewResourceId;
-		}
+        public RoomAdapter(Context context, int textViewResourceId,
+                           List<Room> objects) {
+            super(context, textViewResourceId, objects);
+            resourceId = textViewResourceId;
+        }
 
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			View view = LayoutInflater.from(getContext()).inflate(resourceId, null);
-			RoomFragment.ViewHolder holder = new RoomFragment.ViewHolder(view);
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view = LayoutInflater.from(getContext()).inflate(resourceId, null);
+            RoomFragment.ViewHolder holder = new RoomFragment.ViewHolder(view);
 
-			Room room = getItem(position);
+            Room room = getItem(position);
 
-			holder.name.setText(room.getTitle());
-			holder.email.setText(room.getType().toString());
-			return view;
-		}
-	}
+            holder.name.setText(room.getTitle());
+            holder.email.setText(room.getType().toString());
+            return view;
+        }
+    }
 
-	static class ViewHolder {
-		@BindView(R.id.person_name)
-		TextView name;
+    static class ViewHolder {
+        @BindView(R.id.person_name)
+        TextView name;
 
-		@BindView(R.id.person_email)
-		TextView email;
+        @BindView(R.id.person_email)
+        TextView email;
 
-		@BindView(R.id.person_icon)
-		ImageView avatar;
+        @BindView(R.id.person_icon)
+        ImageView avatar;
 
-		public ViewHolder(View view) {
-			ButterKnife.bind(this, view);
-		}
-	}
+        public ViewHolder(View view) {
+            ButterKnife.bind(this, view);
+        }
+    }
 
-	@SuppressWarnings("unused")
-	@Subscribe
-	public void onEventMainThread(SearchRoomCompleteEvent event) {
-		dismissBusyIndicator();
-		if (event.isSuccessful()) {
-			List<Room> result = (List<Room>) event.getResult().getData();
-			roomList.clear();
-			roomList.addAll(result);
-			((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
-		}
-	}
+    @SuppressWarnings("unused")
+    @Subscribe
+    public void onEventMainThread(SearchRoomCompleteEvent event) {
+        dismissBusyIndicator();
+        if (event.isSuccessful()) {
+            List<Room> result = (List<Room>) event.getResult().getData();
+            roomList.clear();
+            roomList.addAll(result);
+            ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
+        }
+    }
 }

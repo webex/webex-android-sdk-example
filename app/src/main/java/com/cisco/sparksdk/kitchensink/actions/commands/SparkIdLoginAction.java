@@ -30,6 +30,7 @@ import com.cisco.sparksdk.kitchensink.actions.IAction;
 import com.cisco.sparksdk.kitchensink.actions.SparkAgent;
 import com.cisco.sparksdk.kitchensink.actions.events.LoginEvent;
 import com.ciscospark.androidsdk.Spark;
+import com.ciscospark.androidsdk.auth.OAuthTestUserAuthenticator;
 import com.ciscospark.androidsdk.auth.OAuthWebViewAuthenticator;
 
 import static com.cisco.sparksdk.kitchensink.KitchenSinkApp.getApplication;
