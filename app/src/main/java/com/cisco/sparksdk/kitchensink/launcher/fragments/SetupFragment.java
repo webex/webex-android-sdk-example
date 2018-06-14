@@ -26,6 +26,7 @@ package com.cisco.sparksdk.kitchensink.launcher.fragments;
 
 import android.view.View;
 import android.widget.RadioButton;
+import android.widget.Spinner;
 import android.widget.Switch;
 
 import com.cisco.sparksdk.kitchensink.R;
@@ -37,14 +38,19 @@ import com.cisco.sparksdk.kitchensink.ui.BaseFragment;
 
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.Arrays;
+
 import butterknife.BindView;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
+import butterknife.OnItemSelected;
 
 /**
- * A simple {@link BaseFragment} subclass.
+ * Setup fragment, {@link BaseFragment} subclass.
  */
 public class SetupFragment extends BaseFragment {
+
+    final private int BANDWIDTH[] = {64000, 177000, 384000, 768000, 2000000, 3000000, 4000000};
 
     private SparkAgent agent;
 
@@ -68,6 +74,9 @@ public class SetupFragment extends BaseFragment {
 
     @BindView(R.id.closePreview)
     RadioButton radioClosePreview;
+
+    @BindView(R.id.spinnerBandWidth)
+    Spinner maxBandwidth;
 
     public SetupFragment() {
         // Required empty public constructor
@@ -113,6 +122,15 @@ public class SetupFragment extends BaseFragment {
                 radioClosePreview.setChecked(true);
                 break;
         }
+
+        // Setup max bandwidth
+        int bw = agent.getMaxBandWidth();
+        int index = Arrays.binarySearch(BANDWIDTH, bw);
+        if (index == -1) {
+            // default max bandwidth 2000000
+            index = 4;
+        }
+        maxBandwidth.setSelection(index);
     }
 
     @OnClick({R.id.audioCallOnly, R.id.audioVideoCall})
@@ -163,6 +181,11 @@ public class SetupFragment extends BaseFragment {
         preview.setVisibility(View.VISIBLE);
         agent.setDefaultCamera(SparkAgent.CameraCap.FRONT);
         agent.startPreview(preview);
+    }
+
+    @OnItemSelected(R.id.spinnerBandWidth)
+    public void onMaxBandWidthSpinnerSelected(Spinner spinner, int position) {
+        agent.setMaxBandWidth(BANDWIDTH[position]);
     }
 
     @SuppressWarnings("unused")

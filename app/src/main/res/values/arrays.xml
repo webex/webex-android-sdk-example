@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="maxBandWidth">
+        <item>64K bps</item>
+        <item>177K bps</item>
+        <item>384K bps</item>
+        <item>768K bps</item>
+        <item>2M bps</item>
+        <item>3M bps</item>
+        <item>4M bps</item>
+    </string-array>
+</resources>

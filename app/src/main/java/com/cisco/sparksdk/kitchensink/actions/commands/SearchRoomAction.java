@@ -26,7 +26,6 @@ package com.cisco.sparksdk.kitchensink.actions.commands;
 import com.cisco.sparksdk.kitchensink.actions.IAction;
 import com.cisco.sparksdk.kitchensink.actions.SparkAgent;
 import com.cisco.sparksdk.kitchensink.actions.events.SearchRoomCompleteEvent;
-import com.github.benoitdion.ln.Ln;
 
 
 public class SearchRoomAction implements IAction {
@@ -34,7 +33,6 @@ public class SearchRoomAction implements IAction {
 	public void execute() {
 		SparkAgent agent = SparkAgent.getInstance();
 		agent.getSpark().rooms().list(null, 0, null, null, result -> {
-			Ln.e(result.getData().toString());
 			new SearchRoomCompleteEvent(result).post();
 		});
 	}
