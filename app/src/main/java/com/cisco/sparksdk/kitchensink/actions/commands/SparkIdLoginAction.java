@@ -58,16 +58,11 @@ public class SparkIdLoginAction implements IAction {
 
     @Override
     public void execute() {
-        OAuthTestUserAuthenticator oAuth2;
-        oAuth2 = new OAuthTestUserAuthenticator(clientId, clientSec, scope, redirect,
-                "sparksdktestuser16@tropo.com", "sparksdktestuser16", "Test(123)");
-        /*
         OAuthWebViewAuthenticator oAuth2;
-        oAuth2 = new OAuthWebViewAuthenticator(clientId, clientSec, redirect, scope);
-        */
+        oAuth2 = new OAuthWebViewAuthenticator(clientId, clientSec, scope, redirect);
         Spark spark = new Spark(getApplication(), oAuth2);
         SparkAgent.getInstance().setSpark(spark);
-        oAuth2.authorize(/*view, */result -> {
+        oAuth2.authorize(view, result -> {
             if (result.isSuccessful()) {
                 new RegisterAction(oAuth2).execute();
             } else {
