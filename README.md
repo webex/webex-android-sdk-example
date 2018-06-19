@@ -1,6 +1,6 @@
-# Cisco Spark Android SDK Example
+# Cisco Webex Android SDK Example
 
-This demo employs Cisco Spark service through [Spark Android SDK](https://github.com/ciscospark/spark-android-sdk).
+This demo employs Cisco Webex service through [Webex Android SDK](https://github.com/webex/webex-android-sdk).
 This demo support Android device with **Android 6.0** or later
 
 ## Table of Contents
@@ -47,7 +47,7 @@ This demo support Android device with **Android 6.0** or later
 
 1.  Clone or download project to your computer.
     ```
-    git clone https://github.com/ciscospark/spark-android-sdk-example
+    git clone https://github.com/webex/webex-android-sdk-example
     ```
 
 2. Import project 
@@ -60,8 +60,8 @@ In Android Studio,open "File" -> "Open", select project.
 ## Usage
 
 ### Authorize
-**Spark ID**
-If you have a Spark ID (your email address), you can choose "**Spark ID**" to authorize your device.
+**Webex ID**
+If you have a Webex ID (your email address), you can choose "**Webex ID**" to authorize your device.
 
 **Guest ID**
 If you have a Guest ID (a string token), choose "**Guest ID**" in the first page, then you need to enter your App JWT token and login.

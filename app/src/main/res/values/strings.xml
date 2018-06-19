@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SparkKitchenSink</string>
+    <string name="app_name">WebexKitchenSink</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="waiting">waiting for incoming call</string>

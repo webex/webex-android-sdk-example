@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground"
     android:elevation="10dp"
-    tools:context="com.cisco.sparksdk.kitchensink.JWTActivity">
+    tools:context="com.ciscowebex.androidsdk.kitchensink.JWTActivity">
 
     <ImageView
         android:layout_width="135dp"
@@ -24,7 +24,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.021"
-        android:src="@drawable/spark" />
+        android:src="@drawable/webex" />
 
     <TextView
         android:layout_width="303dp"

@@ -14,12 +14,12 @@
         android:layout_height="match_parent">
 
         <ImageView
-            android:id="@+id/imageSparkLogo"
+            android:id="@+id/imageWebexLogo"
             android:layout_width="72dp"
             android:layout_height="66dp"
             android:layout_marginTop="32dp"
             android:background="@android:color/transparent"
-            android:src="@drawable/spark"
+            android:src="@drawable/webex"
             app:layout_constraintHorizontal_bias="0.499"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -38,7 +38,7 @@
             app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageSparkLogo" />
+            app:layout_constraintTop_toBottomOf="@+id/imageWebexLogo" />
 
         <Button
             android:id="@+id/buttonSetup"

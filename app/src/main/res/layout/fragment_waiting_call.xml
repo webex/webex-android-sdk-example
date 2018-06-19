@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:elevation="10dp"
     android:background="@color/cardview_light_background"
-    tools:context="com.cisco.sparksdk.kitchensink.com.cisco.sparksdk.kitchensink.InComingCallFragment">
+    tools:context="com.ciscowebex.androidsdk.kitchensink.com.ciscowebex.androidsdk.kitchensink.InComingCallFragment">
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/reject"
