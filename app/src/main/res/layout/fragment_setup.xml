@@ -132,7 +132,7 @@
                 android:text="@string/back" />
         </RadioGroup>
 
-        <com.ciscowebex.androidsdk.phone.MediaRenderView
+        <com.webex.wseclient.WseSurfaceView
             android:id="@+id/preview"
             android:layout_width="150dp"
             android:layout_height="200dp"
