@@ -13,12 +13,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.ciscowebex.androidsdk.kitchensink.R;
-import com.ciscowebex.androidsdk.kitchensink.actions.commands.SearchRoomAction;
-import com.ciscowebex.androidsdk.kitchensink.actions.events.SearchRoomCompleteEvent;
+import com.ciscowebex.androidsdk.kitchensink.actions.commands.SearchSpaceAction;
+import com.ciscowebex.androidsdk.kitchensink.actions.events.SearchSpaceCompleteEvent;
 import com.ciscowebex.androidsdk.kitchensink.launcher.LauncherActivity;
 import com.ciscowebex.androidsdk.kitchensink.launcher.fragments.DialPagersFragment;
 import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
-import com.ciscowebex.androidsdk.room.Room;
+import com.ciscowebex.androidsdk.space.Space;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -30,34 +30,34 @@ import butterknife.ButterKnife;
 import butterknife.OnItemClick;
 
 
-public class RoomFragment extends BaseFragment {
+public class SpaceFragment extends BaseFragment {
 
-    @BindView(R.id.room_list)
+    @BindView(R.id.space_list)
     public ListView listView;
 
-    private List<Room> roomList;
+    private List<Space> spaceList;
 
-    public RoomFragment() {
+    public SpaceFragment() {
         // Required empty public constructor
-        setLayout(R.layout.fragment_room);
-        roomList = new ArrayList<>();
+        setLayout(R.layout.fragment_space);
+        spaceList = new ArrayList<>();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        //new SearchRoomAction().execute();
+        //new SearchSpaceAction().execute();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        new SearchRoomAction().execute();
+        new SearchSpaceAction().execute();
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
-    @OnItemClick(R.id.room_list)
-    public void roomListItemClicked(int position) {
-        final Room p = roomList.get(position);
+    @OnItemClick(R.id.space_list)
+    public void spaceListItemClicked(int position) {
+        final Space p = spaceList.get(position);
         Fragment fm = ((LauncherActivity) getActivity()).getFragment();
         ((DialPagersFragment) fm).gotoDialPage(p.getId());
     }
@@ -65,17 +65,17 @@ public class RoomFragment extends BaseFragment {
     @Override
     public void onActivityCreated(Bundle saved) {
         super.onActivityCreated(saved);
-        RoomFragment.RoomAdapter adapter = new RoomFragment.RoomAdapter(getActivity(), R.layout.listview_person, roomList);
+        SpaceAdapter adapter = new SpaceAdapter(getActivity(), R.layout.listview_person, spaceList);
         listView.setAdapter(adapter);
     }
 
-    class RoomAdapter extends ArrayAdapter<Room> {
+    class SpaceAdapter extends ArrayAdapter<Space> {
 
         private int resourceId;
 
 
-        public RoomAdapter(Context context, int textViewResourceId,
-                           List<Room> objects) {
+        public SpaceAdapter(Context context, int textViewResourceId,
+                            List<Space> objects) {
             super(context, textViewResourceId, objects);
             resourceId = textViewResourceId;
         }
@@ -83,12 +83,12 @@ public class RoomFragment extends BaseFragment {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View view = LayoutInflater.from(getContext()).inflate(resourceId, null);
-            RoomFragment.ViewHolder holder = new RoomFragment.ViewHolder(view);
+            SpaceFragment.ViewHolder holder = new SpaceFragment.ViewHolder(view);
 
-            Room room = getItem(position);
+            Space space = getItem(position);
 
-            holder.name.setText(room.getTitle());
-            holder.email.setText(room.getType().toString());
+            holder.name.setText(space.getTitle());
+            holder.email.setText(space.getType().toString());
             return view;
         }
     }
@@ -110,12 +110,12 @@ public class RoomFragment extends BaseFragment {
 
     @SuppressWarnings("unused")
     @Subscribe
-    public void onEventMainThread(SearchRoomCompleteEvent event) {
+    public void onEventMainThread(SearchSpaceCompleteEvent event) {
         dismissBusyIndicator();
         if (event.isSuccessful()) {
-            List<Room> result = (List<Room>) event.getResult().getData();
-            roomList.clear();
-            roomList.addAll(result);
+            List<Space> result = (List<Space>) event.getResult().getData();
+            spaceList.clear();
+            spaceList.addAll(result);
             ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
         }
     }

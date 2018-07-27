@@ -32,7 +32,7 @@ import com.ciscowebex.androidsdk.kitchensink.R;
 import com.ciscowebex.androidsdk.kitchensink.launcher.fragments.pagers.DialFragment;
 import com.ciscowebex.androidsdk.kitchensink.launcher.fragments.pagers.HistoryFragment;
 import com.ciscowebex.androidsdk.kitchensink.launcher.fragments.pagers.PeopleFragment;
-import com.ciscowebex.androidsdk.kitchensink.launcher.fragments.pagers.RoomFragment;
+import com.ciscowebex.androidsdk.kitchensink.launcher.fragments.pagers.SpaceFragment;
 import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
 import com.ciscowebex.androidsdk.kitchensink.ui.ListPageAdapter;
 
@@ -76,7 +76,7 @@ public class DialPagersFragment extends BaseFragment {
         adapter.add(new HistoryFragment());
         adapter.add(new PeopleFragment());
         adapter.add(new DialFragment());
-        adapter.add(new RoomFragment());
+        adapter.add(new SpaceFragment());
         pager.setAdapter(adapter);
     }
 

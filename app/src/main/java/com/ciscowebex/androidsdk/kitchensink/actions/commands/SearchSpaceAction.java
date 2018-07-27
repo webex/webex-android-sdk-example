@@ -21,12 +21,19 @@
  *
  */
 
-package com.ciscowebex.androidsdk.kitchensink.actions.events;
+package com.ciscowebex.androidsdk.kitchensink.actions.commands;
 
-import com.ciscowebex.androidsdk.Result;
+import com.ciscowebex.androidsdk.kitchensink.actions.IAction;
+import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
+import com.ciscowebex.androidsdk.kitchensink.actions.events.SearchSpaceCompleteEvent;
 
-public class SearchRoomCompleteEvent extends WebexAgentEvent {
-    public SearchRoomCompleteEvent(Result result) {
-        super(result);
-    }
+
+public class SearchSpaceAction implements IAction {
+	@Override
+	public void execute() {
+		WebexAgent agent = WebexAgent.getInstance();
+		agent.getWebex().spaces().list(null, 0, null, null, result -> {
+			new SearchSpaceCompleteEvent(result).post();
+		});
+	}
 }
