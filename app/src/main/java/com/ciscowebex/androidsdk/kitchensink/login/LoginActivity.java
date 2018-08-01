@@ -39,7 +39,7 @@ public class LoginActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        new RequirePermissionAction(this).execute();
+        //new RequirePermissionAction(this).execute();
         setContentView(R.layout.fragment_login);
         ButterKnife.bind(this);
     }

@@ -35,7 +35,7 @@ import java.util.List;
  * Created on 16/09/2017.
  */
 
-public class ListPageAdapter<T extends Fragment> extends FragmentPagerAdapter {
+public class ListPageAdapter<T extends BaseFragment> extends FragmentPagerAdapter {
     private List<T> fragments;
 
     public ListPageAdapter(FragmentManager fm) {

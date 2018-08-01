@@ -23,9 +23,11 @@
 
 package com.ciscowebex.androidsdk.kitchensink.actions;
 
+import android.net.Uri;
 import android.util.Pair;
 import android.view.View;
 
+import com.ciscowebex.androidsdk.CompletionHandler;
 import com.ciscowebex.androidsdk.Result;
 import com.ciscowebex.androidsdk.Webex;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.AnswerEvent;
@@ -34,11 +36,19 @@ import com.ciscowebex.androidsdk.kitchensink.actions.events.HangupEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.LoginEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnIncomingCallEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.RejectEvent;
+import com.ciscowebex.androidsdk.membership.MembershipClient;
+import com.ciscowebex.androidsdk.message.LocalFile;
+import com.ciscowebex.androidsdk.message.Mention;
+import com.ciscowebex.androidsdk.message.Message;
+import com.ciscowebex.androidsdk.message.MessageClient;
+import com.ciscowebex.androidsdk.message.RemoteFile;
 import com.ciscowebex.androidsdk.phone.Call;
 import com.ciscowebex.androidsdk.phone.CallObserver;
 import com.ciscowebex.androidsdk.phone.MediaOption;
 import com.ciscowebex.androidsdk.phone.Phone;
 import com.github.benoitdion.ln.Ln;
+
+import java.io.File;
 
 import static com.ciscowebex.androidsdk.kitchensink.actions.events.WebexAgentEvent.postEvent;
 
@@ -55,6 +65,7 @@ public class WebexAgent {
 
     private Webex webex;
     private Phone phone;
+    private MessageClient messageClient;
     private Call activeCall;
     private Call incomingCall;
     private boolean isSpeakerOn = true;
@@ -127,10 +138,13 @@ public class WebexAgent {
         });
     }
 
+    public void getMembership(String roomId, CompletionHandler handler) {
+        MembershipClient client = webex.memberships();
+        client.list(roomId, null, null, 0, handler);
+    }
+
     public boolean isCallIncoming() {
-        Boolean rst = incomingCall != null && !incomingCall.getStatus().equals(Call.CallStatus.DISCONNECTED);
-        if (incomingCall != null) Ln.e(incomingCall.getStatus().toString());
-        return rst;
+        return incomingCall != null && !incomingCall.getStatus().equals(Call.CallStatus.DISCONNECTED);
     }
 
     public void setCallCapability(CallCap cap) {
@@ -141,6 +155,27 @@ public class WebexAgent {
         return callCap;
     }
 
+    public MessageClient getMessageClient() {
+        if (messageClient == null) {
+            messageClient = webex.messages();
+        }
+        return messageClient;
+    }
+
+    public void sendMessage(String idOrEmail, String message, Mention[] mentions, LocalFile[] files,
+                            CompletionHandler<Message> handler) {
+        getMessageClient().post(idOrEmail, message, mentions, files, handler);
+    }
+
+
+    public void downloadThumbnail(RemoteFile file, File saveTo, MessageClient.ProgressHandler handler, CompletionHandler<Uri> completionHandler) {
+        getMessageClient().downloadThumbnail(file, saveTo == null ? null : saveTo.getPath(), handler, completionHandler);
+    }
+
+    public void downloadFile(RemoteFile file, File saveTo, MessageClient.ProgressHandler handler, CompletionHandler<Uri> completionHandler) {
+        getMessageClient().downloadFile(file, saveTo == null ? null : saveTo.getPath(), handler, completionHandler);
+    }
+
     public void dial(String callee, View localView, View remoteView, View screenSharing) {
         isDialing = true;
         phone.dial(callee, getMediaOption(localView, remoteView, screenSharing), (Result<Call> result) -> {
@@ -149,7 +184,7 @@ public class WebexAgent {
                 if (!isDialing || activeCall == null) {
                     hangup();
                 } else {
-                    activeCall.setObserver(callObserver);
+                    if (activeCall != null) activeCall.setObserver(callObserver);
                 }
             }
             isDialing = false;

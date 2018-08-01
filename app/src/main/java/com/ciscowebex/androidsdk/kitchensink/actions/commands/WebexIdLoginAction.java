@@ -57,7 +57,7 @@ public class WebexIdLoginAction implements IAction {
     @Override
     public void execute() {
         OAuthWebViewAuthenticator oAuth2;
-        oAuth2 = new OAuthWebViewAuthenticator(clientId, clientSec, redirect, scope);
+        oAuth2 = new OAuthWebViewAuthenticator(clientId, clientSec, scope, redirect);
         Webex webex = new Webex(KitchenSinkApp.getApplication(), oAuth2);
         WebexAgent.getInstance().setWebex(webex);
         oAuth2.authorize(view, result -> {

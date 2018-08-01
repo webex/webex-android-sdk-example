@@ -59,22 +59,22 @@ public class LauncherFragment extends BaseFragment {
 
     @OnClick(R.id.buttonSetup)
     public void setup() {
-        ((LauncherActivity)getActivity()).replace(setupFragment);
+        ((LauncherActivity) getActivity()).replace(setupFragment);
     }
 
-    @OnClick(R.id.buttonDial)
+    @OnClick({R.id.buttonDial, R.id.buttonMessaging})
     public void dial() {
-        ((LauncherActivity)getActivity()).replace(dialFragment);
+        ((LauncherActivity) getActivity()).replace(dialFragment);
     }
 
     @OnClick(R.id.buttonWaitingCall)
     public void waitingCall() {
-        ((LauncherActivity)getActivity()).replace(waitingCallFragment);
+        ((LauncherActivity) getActivity()).replace(waitingCallFragment);
     }
 
     @OnClick(R.id.buttonFeedback)
     public void sendFeedback() {
-        ((LauncherActivity)getActivity()).replace(feedbackFragment);
+        ((LauncherActivity) getActivity()).replace(feedbackFragment);
     }
 
     @OnClick(R.id.buttonLogout)

@@ -34,6 +34,8 @@ import com.ciscowebex.androidsdk.kitchensink.KitchenSinkApp;
 import java.util.Date;
 import java.util.List;
 
+import static com.ciscowebex.androidsdk.kitchensink.KitchenSinkApp.getApplication;
+
 /**
  * Created on 22/09/2017.
  */
@@ -43,13 +45,13 @@ public class AddCallHistoryAction implements IAction {
     CallHistoryDao dao;
 
     public AddCallHistoryAction(String email, String direction) {
-        DaoSession daoSession = KitchenSinkApp.getApplication().getDaoSession();
+        DaoSession daoSession = getApplication().getDaoSession();
         dao = daoSession.getCallHistoryDao();
 
         history = new CallHistory();
         history.setEmail(email);
         history.setDirection(direction);
-        history.setData(new Date());
+        history.setDate(new Date());
     }
 
     @Override

@@ -24,11 +24,13 @@
 package com.ciscowebex.androidsdk.kitchensink.launcher.fragments.pagers;
 
 
+import android.text.TextUtils;
 import android.widget.EditText;
 
 import com.ciscowebex.androidsdk.kitchensink.R;
 import com.ciscowebex.androidsdk.kitchensink.launcher.LauncherActivity;
 import com.ciscowebex.androidsdk.kitchensink.launcher.fragments.CallFragment;
+import com.ciscowebex.androidsdk.kitchensink.launcher.fragments.MessageFragment;
 import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
 
 import butterknife.BindView;
@@ -49,10 +51,19 @@ public class DialFragment extends BaseFragment {
 
     @OnClick(R.id.callButton)
     public void makeCall() {
-        String callString = callee.getText().toString();
-        if (!callString.isEmpty()) {
-            CallFragment fragment = CallFragment.newInstance(callString);
+        String id = callee.getText().toString();
+        if (!TextUtils.isEmpty(id)) {
+            CallFragment fragment = CallFragment.newInstance(id);
             ((LauncherActivity)getActivity()).replace(fragment);
+        }
+    }
+
+    @OnClick(R.id.messageButton)
+    public void sendMessage() {
+        String id = callee.getText().toString();
+        if (!TextUtils.isEmpty(id)) {
+            MessageFragment fragment = MessageFragment.newInstance(id);
+            ((LauncherActivity) getActivity()).replace(fragment);
         }
     }
 

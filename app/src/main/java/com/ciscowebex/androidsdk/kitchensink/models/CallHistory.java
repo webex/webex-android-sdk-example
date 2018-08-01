@@ -38,21 +38,21 @@ public class CallHistory {
 
     private String person;
 
-    private Date data;
+    private Date date;
 
     private String direction;
 
-    @Generated(hash = 2122720955)
-    public CallHistory(Long id, String email, String person, Date data,
+    @Generated()
+    public CallHistory(Long id, String email, String person, Date date,
             String direction) {
         this.id = id;
         this.email = email;
         this.person = person;
-        this.data = data;
+        this.date = date;
         this.direction = direction;
     }
 
-    @Generated(hash = 390849564)
+    @Generated()
     public CallHistory() {
     }
 
@@ -72,12 +72,12 @@ public class CallHistory {
         this.person = person;
     }
 
-    public Date getData() {
-        return this.data;
+    public Date getDate() {
+        return this.date;
     }
 
-    public void setData(Date data) {
-        this.data = data;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public String getDirection() {

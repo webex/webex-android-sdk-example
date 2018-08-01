@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.ciscowebex.androidsdk.kitchensink.R;
 import com.ciscowebex.androidsdk.kitchensink.actions.commands.RequirePermissionAction;
@@ -94,6 +95,11 @@ public class LauncherActivity extends Activity {
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         RequirePermissionAction.PermissionsRequired(requestCode, grantResults);
     }
@@ -102,16 +108,15 @@ public class LauncherActivity extends Activity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnMediaChangeEvent event) {
         Ln.d("OnMediaChangeEvent: " + event.callEvent);
-        //TODO Uncomment after merging SDK content sharing - jidiao
-//        if (event.callEvent instanceof CallObserver.SendingSharingEvent) {
-//            Ln.d("Activity SendingSharingEvent: " + ((CallObserver.SendingSharingEvent)event.callEvent).isSending());
-//            if (!((CallObserver.SendingSharingEvent)event.callEvent).isSending()){
-//                cancelNotication();
-//                moveToFront();
-//                updateSharingSwitch(false);
-//                Toast.makeText(this, "Stop to share content", Toast.LENGTH_SHORT).show();
-//            }
-//        }
+        if (event.callEvent instanceof CallObserver.SendingSharingEvent) {
+            Ln.d("Activity SendingSharingEvent: " + ((CallObserver.SendingSharingEvent) event.callEvent).isSending());
+            if (!((CallObserver.SendingSharingEvent) event.callEvent).isSending()) {
+                cancelNotification();
+                moveToFront();
+                updateSharingSwitch(false);
+                Toast.makeText(this, "Stop to share content", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @SuppressWarnings("unused")
@@ -135,12 +140,12 @@ public class LauncherActivity extends Activity {
         }
     }
 
-    private void cancelNotication(){
+    private void cancelNotification() {
         NotificationManager notifyManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         notifyManager.cancel(1);
     }
 
-    private void updateSharingSwitch(boolean flag){
+    private void updateSharingSwitch(boolean flag) {
         Switch shareSwitch = (Switch) findViewById(R.id.switchShareContent);
         if (shareSwitch != null && shareSwitch.isChecked())
             shareSwitch.setChecked(flag);

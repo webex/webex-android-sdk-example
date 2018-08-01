@@ -10,7 +10,7 @@
     tools:layout_editor_absoluteX="8dp"
     tools:layout_editor_absoluteY="8dp">
 
-    <com.webex.wseclient.WseSurfaceView
+    <com.ciscowebex.androidsdk.phone.MediaRenderView
         android:id="@+id/localView"
         android:layout_width="60dp"
         android:layout_height="80dp"
@@ -22,7 +22,7 @@
         app:layout_constraintTop_toTopOf="@+id/remoteView"
         tools:ignore="MissingRegistered" />
 
-    <com.webex.wseclient.WseSurfaceView
+    <com.ciscowebex.androidsdk.phone.MediaRenderView
         android:id="@+id/screenShare"
         android:layout_width="60dp"
         android:layout_height="80dp"
@@ -35,7 +35,7 @@
         app:layout_constraintTop_toBottomOf="@+id/localView"
         tools:ignore="MissingRegistered" />
 
-    <com.webex.wseclient.WseSurfaceView
+    <com.ciscowebex.androidsdk.phone.MediaRenderView
         android:id="@+id/remoteView"
         android:layout_width="0dp"
         android:layout_height="200dp"

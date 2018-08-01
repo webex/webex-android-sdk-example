@@ -85,7 +85,7 @@ public class HistoryFragment extends BaseFragment {
     }
 
     public void update() {
-        List<CallHistory> list = dao.queryBuilder().list();
+        List<CallHistory> list = dao.queryBuilder().orderDesc(CallHistoryDao.Properties.Date).list();
         callList.clear();
         callList.addAll(list);
         ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
@@ -112,13 +112,13 @@ public class HistoryFragment extends BaseFragment {
         public View getView(int position, View convertView, ViewGroup parent) {
             CallHistory history = getItem(position);
             View view = LayoutInflater.from(getContext()).inflate(resourceId, null);
-            TextView name = (TextView) view.findViewById(R.id.person_name);
+            TextView name = view.findViewById(R.id.person_name);
             name.setText(history.getEmail());
-            TextView email = (TextView) view.findViewById(R.id.person_email);
+            TextView email = view.findViewById(R.id.person_email);
             SimpleDateFormat spf = new SimpleDateFormat("MMM dd, yyyy hh:mm:ss");
-            email.setText(spf.format(history.getData()));
+            email.setText(spf.format(history.getDate()));
 
-            ImageView image = (ImageView) view.findViewById(R.id.person_icon);
+            ImageView image = view.findViewById(R.id.person_icon);
             if (history.getPerson() != null && !history.getPerson().isEmpty()) {
                 Gson gson = new Gson();
                 Person person = gson.fromJson(history.getPerson(), Person.class);
@@ -128,13 +128,12 @@ public class HistoryFragment extends BaseFragment {
             } else {
                 image.setImageResource(google_contacts_android);
             }
-
             if (history.getDirection().equals("in")) {
-                ImageView icon = (ImageView) view.findViewById(R.id.person_call_icon);
+                ImageView icon = view.findViewById(R.id.person_call_icon);
                 icon.setImageResource(sym_call_incoming);
             }
             if (history.getDirection().equals("out")) {
-                ImageView icon = (ImageView) view.findViewById(R.id.person_call_icon);
+                ImageView icon = view.findViewById(R.id.person_call_icon);
                 icon.setImageResource(sym_call_outgoing);
             }
             return view;

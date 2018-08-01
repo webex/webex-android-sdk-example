@@ -32,6 +32,8 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -54,6 +56,8 @@ import com.ciscowebex.androidsdk.kitchensink.actions.events.PermissionAcquiredEv
 import com.ciscowebex.androidsdk.kitchensink.launcher.LauncherActivity;
 import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
 import com.ciscowebex.androidsdk.kitchensink.ui.FullScreenSwitcher;
+import com.ciscowebex.androidsdk.phone.CallObserver;
+import com.github.benoitdion.ln.Ln;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -62,6 +66,8 @@ import butterknife.BindView;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 
+import static com.ciscowebex.androidsdk.phone.CallObserver.RemoteSendingSharingEvent;
+import static com.ciscowebex.androidsdk.phone.CallObserver.SendingSharingEvent;
 /**
  * A simple {@link BaseFragment} subclass.
  */
@@ -123,11 +129,11 @@ public class CallFragment extends BaseFragment {
         return CallFragment.newInstance(INCOMING_CALL);
     }
 
-    public static CallFragment newInstance(String callee) {
+    public static CallFragment newInstance(String id) {
         CallFragment fragment = new CallFragment();
         Bundle args = new Bundle();
         args.putInt(LAYOUT, R.layout.fragment_call);
-        args.putString(CALLEE, callee);
+        args.putString(CALLEE, id);
         fragment.setArguments(args);
         return fragment;
     }
@@ -140,7 +146,10 @@ public class CallFragment extends BaseFragment {
         updateScreenShareView();
         if (!isConnected) {
             setViewAndChildrenEnabled(layout, false);
-            requirePermission();
+            ((SurfaceView)localView).setZOrderMediaOverlay(true);
+            ((SurfaceView)screenShare).setZOrderMediaOverlay(true);
+            //requirePermission();
+            makeCall();
         }
     }
 
@@ -198,7 +207,7 @@ public class CallFragment extends BaseFragment {
         if (isConnected) {
             agent.hangup();
         } else {
-            ((LauncherActivity)getActivity()).goBackStack();
+            ((LauncherActivity) getActivity()).goBackStack();
         }
     }
 
@@ -235,11 +244,10 @@ public class CallFragment extends BaseFragment {
                 agent.receiveAudio(s.isChecked());
                 break;
             case R.id.switchShareContent:
-                //TODO Uncomment after merging SDK content sharing - jidiao
-//                if (s.isChecked())
-//                    agent.getActiveCall().startSharing(r -> {Ln.d("startSharing result: " + r);});
-//                else
-//                    agent.getActiveCall().stopSharing(r -> {Ln.d("stopSharing result: " + r);});
+                if (s.isChecked())
+                    agent.getActiveCall().startSharing(r -> {Ln.d("startSharing result: " + r);});
+                else
+                    agent.getActiveCall().stopSharing(r -> {Ln.d("stopSharing result: " + r);});
                 break;
 
         }
@@ -341,17 +349,16 @@ public class CallFragment extends BaseFragment {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnMediaChangeEvent event) {
-//        if (event.callEvent instanceof RemoteSendingSharingEvent) {
-//            Ln.d("RemoteSendingSharingEvent: " + ((RemoteSendingSharingEvent)event.callEvent).isSending());
-//            updateScreenShareView();
-//        }
-//        else if (event.callEvent instanceof SendingSharingEvent) {
-//            Ln.d("SendingSharingEvent: " + ((SendingSharingEvent)event.callEvent).isSending());
-//            if (((SendingSharingEvent)event.callEvent).isSending()){
-//                sendNotification();
-//                backToHome();
-//            }
-//        } //TODO Uncomment after merging SDK content sharing - jidiao
+        if (event.callEvent instanceof RemoteSendingSharingEvent) {
+            Ln.d("RemoteSendingSharingEvent: " + ((RemoteSendingSharingEvent)event.callEvent).isSending());
+            updateScreenShareView();
+        } else if (event.callEvent instanceof SendingSharingEvent) {
+            Ln.d("SendingSharingEvent: " + ((SendingSharingEvent)event.callEvent).isSending());
+            if (((SendingSharingEvent)event.callEvent).isSending()){
+                sendNotification();
+                backToHome();
+            }
+        }
     }
 
     @SuppressWarnings("unused")

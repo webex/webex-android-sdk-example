@@ -29,6 +29,7 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,6 +53,10 @@ public class BaseFragment extends Fragment {
 
     public BaseFragment() {
         // Required empty public constructor
+    }
+
+    public String getName() {
+        return this.getClass().getSimpleName();
     }
 
     /**
@@ -139,6 +144,10 @@ public class BaseFragment extends Fragment {
 
     public void toast(String message) {
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+    }
+
+    public static boolean isValidEmail(CharSequence target) {
+        return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
     }
 
     /* Only use for debug */

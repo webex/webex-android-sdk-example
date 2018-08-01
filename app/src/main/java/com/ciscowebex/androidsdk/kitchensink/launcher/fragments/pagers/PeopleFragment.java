@@ -73,10 +73,6 @@ public class PeopleFragment extends BaseFragment {
         persons = new ArrayList<>();
     }
 
-    public final static boolean isValidEmail(CharSequence target) {
-        return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
-    }
-
 
     @OnItemClick(R.id.people_list)
     public void peopleListItemClicked(int position) {
