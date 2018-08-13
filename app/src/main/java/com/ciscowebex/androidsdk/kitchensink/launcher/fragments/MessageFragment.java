@@ -150,13 +150,13 @@ public class MessageFragment extends BaseFragment {
             for (File f : selectedFile) {
                 if (f.exists()) {
                     LocalFile localFile = new LocalFile(f);
-                    localFile.progressHandler = x -> {
-                        textStatus.setText("sending " + localFile.name + "...  " + x + "%");
-                    };
-                    localFile.thumbnail = new LocalFile.Thumbnail();
-                    localFile.thumbnail.path = f.getPath();
-                    localFile.thumbnail.width = 622;
-                    localFile.thumbnail.height = 492;
+                    localFile.setProgressHandler(x -> {
+                        textStatus.setText("sending " + localFile.getName() + "...  " + x + "%");
+                    });
+                    localFile.setThumbnail(new LocalFile.Thumbnail());
+                    localFile.getThumbnail().setPath(f.getPath());
+                    localFile.getThumbnail().setWidth(622);
+                    localFile.getThumbnail().setHeight(492);
                     arrayList.add(localFile);
                 }
             }
@@ -287,7 +287,7 @@ public class MessageFragment extends BaseFragment {
         @Override
         public void onBindViewHolder(FilesAdapter.FilesViewHolder holder, int position) {
             RemoteFile file = mData.get(position);
-            holder.textFilename.setText(file.displayName);
+            holder.textFilename.setText(file.getDisplayName());
             agent.downloadThumbnail(file, null, null, (uri) -> {
                 holder.imageFile.setImageURI(uri.getData());
                 holder.progressBarDownload.setVisibility(View.GONE);
@@ -367,7 +367,7 @@ public class MessageFragment extends BaseFragment {
                 Ln.e("JSONObject parse error");
                 holder.textPayload.setText(message.toString());
             }
-            if (message.isSelfMentioned) {
+            if (message.isSelfMentioned()) {
                 holder.textMention.setVisibility(View.VISIBLE);
             } else {
                 holder.textMention.setVisibility(View.GONE);
