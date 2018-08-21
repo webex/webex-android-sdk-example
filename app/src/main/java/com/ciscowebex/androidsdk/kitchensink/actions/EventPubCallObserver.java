@@ -27,6 +27,7 @@ import com.ciscowebex.androidsdk.kitchensink.actions.events.OnCallMembershipEven
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnConnectEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnDisconnectEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnMediaChangeEvent;
+import com.ciscowebex.androidsdk.kitchensink.actions.events.OnRemoteAuxVideoEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnRingingEvent;
 import com.ciscowebex.androidsdk.phone.Call;
 import com.ciscowebex.androidsdk.phone.CallObserver;
@@ -62,6 +63,11 @@ public class EventPubCallObserver implements CallObserver {
     @Override
     public void onCallMembershipChanged(CallMembershipChangedEvent event) {
         postEvent(new OnCallMembershipEvent(event));
+    }
+
+    @Override
+    public void onRemoteAuxVideoChanged(RemoteAuxVideoChangeEvent event) {
+        postEvent(new OnRemoteAuxVideoEvent(event));
     }
 
     private void postEvent(Object event) {

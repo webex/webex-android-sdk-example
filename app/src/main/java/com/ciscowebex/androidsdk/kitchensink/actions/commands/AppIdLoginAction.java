@@ -23,11 +23,17 @@
 
 package com.ciscowebex.androidsdk.kitchensink.actions.commands;
 
+import com.ciscowebex.androidsdk.CompletionHandler;
+import com.ciscowebex.androidsdk.Result;
 import com.ciscowebex.androidsdk.Webex;
 import com.ciscowebex.androidsdk.auth.JWTAuthenticator;
+import com.ciscowebex.androidsdk.auth.OAuthTestUserAuthenticator;
+import com.ciscowebex.androidsdk.kitchensink.BuildConfig;
 import com.ciscowebex.androidsdk.kitchensink.actions.IAction;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
 import com.ciscowebex.androidsdk.kitchensink.KitchenSinkApp;
+import com.ciscowebex.androidsdk.kitchensink.actions.events.LoginEvent;
+import com.github.benoitdion.ln.Ln;
 
 /**
  * Created on 19/09/2017.
@@ -42,10 +48,28 @@ public class AppIdLoginAction implements IAction {
 
     @Override
     public void execute() {
-        JWTAuthenticator jwtAuthenticator = new JWTAuthenticator();
-        Webex webex = new Webex(KitchenSinkApp.getApplication(), jwtAuthenticator);
+//        JWTAuthenticator jwtAuthenticator = new JWTAuthenticator();
+//        Webex webex = new Webex(KitchenSinkApp.getApplication(), jwtAuthenticator);
+//        WebexAgent.getInstance().setWebex(webex);
+//        jwtAuthenticator.authorize(jwt);
+//        new RegisterAction(jwtAuthenticator).execute();
+
+        OAuthTestUserAuthenticator oAuth2;
+        String password = Integer.valueOf(jwt) <= 10 ? "Test123@cisco" : "Test(123)";
+        jwt = "sparksdktestuser"+jwt+"@tropo.com";
+        oAuth2 = new OAuthTestUserAuthenticator(BuildConfig.CLIENT_ID, BuildConfig.CLIENT_SEC, BuildConfig.SCOPE,BuildConfig.REDIRECT_URL,jwt,jwt,password);
+        Webex webex = new Webex(KitchenSinkApp.getApplication(), oAuth2);
         WebexAgent.getInstance().setWebex(webex);
-        jwtAuthenticator.authorize(jwt);
-        new RegisterAction(jwtAuthenticator).execute();
+        oAuth2.authorize(new CompletionHandler<Void>() {
+            @Override
+            public void onComplete(Result<Void> result) {
+                Ln.d("====Spark ID login complated:"+ result.isSuccessful()+"====");
+                if (result.isSuccessful()) {
+                    new RegisterAction(oAuth2).execute();
+                } else {
+                    new LoginEvent(result).post();
+                }
+            }
+        });
     }
 }
