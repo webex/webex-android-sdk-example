@@ -42,7 +42,7 @@ public class CallHistory {
 
     private String direction;
 
-    @Generated(hash = 939102572)
+    @Generated()
     public CallHistory(Long id, String email, String person, Date date,
             String direction) {
         this.id = id;
@@ -52,7 +52,7 @@ public class CallHistory {
         this.direction = direction;
     }
 
-    @Generated(hash = 390849564)
+    @Generated()
     public CallHistory() {
     }
 

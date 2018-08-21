@@ -66,54 +66,6 @@
         </TableRow>
     </TableLayout>
 
-    <!--<com.ciscowebex.androidsdk.phone.MediaRenderView-->
-        <!--android:id="@+id/subview1"-->
-        <!--android:layout_width="60dp"-->
-        <!--android:layout_height="80dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--android:background="@drawable/border"-->
-        <!--android:elevation="8dp"-->
-        <!--app:layout_constraintLeft_toLeftOf="@+id/remoteView"-->
-        <!--app:layout_constraintTop_toBottomOf="@+id/remoteView"-->
-        <!--tools:ignore="MissingRegistered" />-->
-
-    <!--<com.ciscowebex.androidsdk.phone.MediaRenderView-->
-        <!--android:id="@+id/subview2"-->
-        <!--android:layout_width="60dp"-->
-        <!--android:layout_height="80dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--android:background="@drawable/border"-->
-        <!--android:elevation="8dp"-->
-        <!--app:layout_constraintLeft_toRightOf="@+id/subview1"-->
-        <!--app:layout_constraintTop_toBottomOf="@+id/remoteView"-->
-        <!--tools:ignore="MissingRegistered" />-->
-
-    <!--<com.ciscowebex.androidsdk.phone.MediaRenderView-->
-        <!--android:id="@+id/subview3"-->
-        <!--android:layout_width="60dp"-->
-        <!--android:layout_height="80dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--android:background="@drawable/border"-->
-        <!--android:elevation="8dp"-->
-        <!--app:layout_constraintLeft_toRightOf="@+id/subview2"-->
-        <!--app:layout_constraintTop_toBottomOf="@+id/remoteView"-->
-        <!--tools:ignore="MissingRegistered" />-->
-
-    <!--<com.ciscowebex.androidsdk.phone.MediaRenderView-->
-        <!--android:id="@+id/subview4"-->
-        <!--android:layout_width="60dp"-->
-        <!--android:layout_height="80dp"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="8dp"-->
-        <!--android:background="@drawable/border"-->
-        <!--android:elevation="8dp"-->
-        <!--app:layout_constraintLeft_toRightOf="@+id/subview3"-->
-        <!--app:layout_constraintTop_toBottomOf="@+id/remoteView"-->
-        <!--tools:ignore="MissingRegistered" />-->
-
     <ScrollView
         android:id="@+id/scrollView2"
         android:layout_width="0dp"
