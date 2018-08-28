@@ -475,6 +475,18 @@ public class CallFragment extends BaseFragment {
             String personId = membership.getPersonId();
             if (personId == null || personId.isEmpty()) return;
             participantsAdapter.updateActiveSpeaker(personId);
+            if (membership.isSendingVideo()){
+                remoteAvatar.setVisibility(View.GONE);
+            }else {
+                remoteAvatar.setVisibility(View.VISIBLE);
+                String avatar = _remoteAuxAvatarMap.get(membership.getPersonId());
+                if (avatar == null || avatar.isEmpty()){
+                    remoteAvatar.setImageResource(R.drawable.google_contacts_android);
+                }else {
+                    Picasso.with(getActivity()).cancelRequest(remoteAvatar);
+                    Picasso.with(getActivity()).load(_remoteAuxAvatarMap.get(membership.getPersonId())).fit().into(remoteAvatar);
+                }
+            }
         } else if (event.callEvent instanceof CallObserver.RemoteAuxVideosCountChanged) {
             int newCount = ((CallObserver.RemoteAuxVideosCountChanged) event.callEvent).getCount();
             Ln.d("RemoteAuxVideosCount: " + newCount);
@@ -573,8 +585,13 @@ public class CallFragment extends BaseFragment {
                     remoteAvatar.setVisibility(View.GONE);
                 }else {
                     remoteAvatar.setVisibility(View.VISIBLE);
-                    Picasso.with(getActivity()).cancelRequest(remoteAvatar);
-                    Picasso.with(getActivity()).load(_remoteAuxAvatarMap.get(callMembership.getPersonId())).fit().into(remoteAvatar);
+                    String avatar = _remoteAuxAvatarMap.get(callMembership.getPersonId());
+                    if (avatar == null || avatar.isEmpty()){
+                        remoteAvatar.setImageResource(R.drawable.google_contacts_android);
+                    }else {
+                        Picasso.with(getActivity()).cancelRequest(remoteAvatar);
+                        Picasso.with(getActivity()).load(_remoteAuxAvatarMap.get(callMembership.getPersonId())).fit().into(remoteAvatar);
+                    }
                 }
             }
         }
