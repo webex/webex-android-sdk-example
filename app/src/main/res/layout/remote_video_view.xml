@@ -1,35 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="wrap_content"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_gravity="fill"
+    android:layout_columnSpan="1"
+    android:layout_rowSpan="1">
 
-    <TextView
-        android:id="@+id/name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/gray_dark_2"/>
+    <RelativeLayout
+        android:layout_width="100dp"
+        android:layout_height="150dp"
+        android:gravity="center_horizontal">
 
-    <com.ciscowebex.androidsdk.phone.MediaRenderView
-        android:id="@+id/subview"
-        android:layout_width="60dp"
-        android:layout_height="80dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/border"
-        android:elevation="8dp" />
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:singleLine="true"
+            android:gravity="center_horizontal"
+            android:visibility="visible"
+            android:text="Waiting..."/>
 
-    <CheckBox
-        android:id="@+id/receiving"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="receiving"
-        android:checked="true"/>
+        <com.ciscowebex.androidsdk.phone.MediaRenderView
+            android:id="@+id/view_video"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/name"/>
 
-    <CheckBox
-        android:id="@+id/sending"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="sending"
-        android:enabled="false"/>
-</LinearLayout>
+        <ImageView
+            android:id="@+id/view_avatar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:src="@android:color/darker_gray"
+            android:visibility="visible"
+            android:layout_above="@id/name"/>
+
+    </RelativeLayout>
+
+</FrameLayout>

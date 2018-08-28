@@ -70,6 +70,10 @@ public class FullScreenSwitcher {
         }
     }
 
+    public boolean isFullScreen(){
+        return isFullScreen;
+    }
+
     private void fullScreen() {
         activity.getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -95,6 +99,7 @@ public class FullScreenSwitcher {
             int width = activity.getResources().getDisplayMetrics().widthPixels;
             int height = activity.getResources().getDisplayMetrics().heightPixels;
 
+            view.bringToFront();
             fullScreenSet.constrainWidth(view.getId(), width);
             fullScreenSet.constrainHeight(view.getId(), height);
             fullScreenSet.applyTo(layout);
