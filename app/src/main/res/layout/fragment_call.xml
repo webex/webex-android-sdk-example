@@ -82,8 +82,7 @@
             android:text="Call Control"
             android:textSize="10sp"
             android:gravity="center"
-            android:drawableTop="@drawable/ic_file_audio"
-            android:src="@drawable/ic_file_audio"/>
+            android:drawableTop="@drawable/ic_file_word" />
 
         <TextView
             android:id="@+id/tab_aux_video"
@@ -93,8 +92,7 @@
             android:text="Auxiliary Videos"
             android:textSize="10sp"
             android:gravity="center"
-            android:drawableTop="@drawable/ic_file_audio"
-            android:src="@drawable/ic_file_audio"/>
+            android:drawableTop="@drawable/ic_file_excel" />
 
         <TextView
             android:id="@+id/tab_participants"
@@ -104,8 +102,7 @@
             android:text="Participants"
             android:textSize="10sp"
             android:gravity="center"
-            android:drawableTop="@drawable/ic_file_audio"
-            android:src="@drawable/ic_file_audio"/>
+            android:drawableTop="@drawable/ic_file_zip"/>
     </LinearLayout>
 
     <GridLayout
