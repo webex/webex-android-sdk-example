@@ -8,8 +8,8 @@
     android:layout_rowSpan="1">
 
     <RelativeLayout
-        android:layout_width="100dp"
-        android:layout_height="150dp"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
         android:gravity="center_horizontal">
 
         <TextView

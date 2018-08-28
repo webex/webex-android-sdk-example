@@ -105,18 +105,29 @@
             android:drawableTop="@drawable/ic_file_zip"/>
     </LinearLayout>
 
-    <GridLayout
-        android:id="@+id/view_aux_videos"
+    <ScrollView
+        android:id="@+id/view_aux_videos_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="@+id/remoteView"
         app:layout_constraintTop_toBottomOf="@+id/remoteView"
-        app:layout_constraintBottom_toTopOf="@id/view_bottom_bar"
-        android:useDefaultMargins="true"
-        android:columnCount="2"
-        android:rowCount="2">
-    </GridLayout>
+        app:layout_constraintBottom_toTopOf="@id/view_bottom_bar">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <GridLayout
+                android:id="@+id/view_aux_videos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:useDefaultMargins="true"
+                android:columnCount="2">
+            </GridLayout>
+        </LinearLayout>
+
+    </ScrollView>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/view_participants"

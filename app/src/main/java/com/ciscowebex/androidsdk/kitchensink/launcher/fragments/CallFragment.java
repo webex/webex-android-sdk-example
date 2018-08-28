@@ -124,6 +124,9 @@ public class CallFragment extends BaseFragment {
     @BindView(R.id.view_call_control)
     View viewCallControl;
 
+    @BindView(R.id.view_aux_videos_container)
+    GridLayout viewRemoteAuxVideosContainer;
+
     @BindView(R.id.view_aux_videos)
     GridLayout viewRemoteAuxVideos;
 
@@ -357,17 +360,17 @@ public class CallFragment extends BaseFragment {
         switch (view.getId()){
             case R.id.tab_callcontrol:
                 viewCallControl.setVisibility(View.VISIBLE);
-                viewRemoteAuxVideos.setVisibility(View.GONE);
+                viewRemoteAuxVideosContainer.setVisibility(View.GONE);
                 viewParticipants.setVisibility(View.GONE);
                 break;
             case R.id.tab_aux_video:
                 viewCallControl.setVisibility(View.GONE);
-                viewRemoteAuxVideos.setVisibility(View.VISIBLE);
+                viewRemoteAuxVideosContainer.setVisibility(View.VISIBLE);
                 viewParticipants.setVisibility(View.GONE);
                 break;
             case R.id.tab_participants:
                 viewCallControl.setVisibility(View.GONE);
-                viewRemoteAuxVideos.setVisibility(View.GONE);
+                viewRemoteAuxVideosContainer.setVisibility(View.GONE);
                 viewParticipants.setVisibility(View.VISIBLE);
                 break;
             default:
