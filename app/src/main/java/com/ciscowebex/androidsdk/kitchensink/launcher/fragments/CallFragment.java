@@ -125,7 +125,7 @@ public class CallFragment extends BaseFragment {
     View viewCallControl;
 
     @BindView(R.id.view_aux_videos_container)
-    GridLayout viewRemoteAuxVideosContainer;
+    View viewRemoteAuxVideosContainer;
 
     @BindView(R.id.view_aux_videos)
     GridLayout viewRemoteAuxVideos;
