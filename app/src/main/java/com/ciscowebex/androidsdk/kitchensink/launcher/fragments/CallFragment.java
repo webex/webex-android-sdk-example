@@ -29,22 +29,15 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -63,7 +56,7 @@ import com.ciscowebex.androidsdk.kitchensink.actions.events.OnCallMembershipEven
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnConnectEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnDisconnectEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnMediaChangeEvent;
-import com.ciscowebex.androidsdk.kitchensink.actions.events.OnRemoteAuxVideoEvent;
+import com.ciscowebex.androidsdk.kitchensink.actions.events.OnAuxStreamEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnRingingEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.ciscowebex.androidsdk.kitchensink.launcher.LauncherActivity;
@@ -71,21 +64,17 @@ import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
 import com.ciscowebex.androidsdk.kitchensink.ui.FullScreenSwitcher;
 import com.ciscowebex.androidsdk.kitchensink.ui.ParticipantsAdapter;
 import com.ciscowebex.androidsdk.people.Person;
+import com.ciscowebex.androidsdk.phone.AuxStream;
 import com.ciscowebex.androidsdk.phone.CallMembership;
 import com.ciscowebex.androidsdk.phone.CallObserver;
 import com.ciscowebex.androidsdk.phone.MediaRenderView;
-import com.ciscowebex.androidsdk.phone.RemoteAuxVideo;
+import com.ciscowebex.androidsdk.phone.MultiStreamObserver;
 import com.github.benoitdion.ln.Ln;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -93,6 +82,7 @@ import butterknife.BindView;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 
+import static com.ciscowebex.androidsdk.kitchensink.actions.events.WebexAgentEvent.postEvent;
 import static com.ciscowebex.androidsdk.phone.CallObserver.RemoteSendingSharingEvent;
 import static com.ciscowebex.androidsdk.phone.CallObserver.SendingSharingEvent;
 /**
@@ -105,9 +95,8 @@ public class CallFragment extends BaseFragment {
     private WebexAgent agent;
     private FullScreenSwitcher screenSwitcher;
     private boolean isConnected = false;
-    private List<RemoteAuxVideo> _remoteAuxVideoList = new ArrayList<>();
-    private HashMap<Long, RemoteAuxVideoViewHolder> _remoteAuxVideoViewMap = new HashMap<>();
-    private HashMap<String, String> _remoteAuxAvatarMap = new HashMap<>();
+    private HashMap<View, AuxStreamViewHolder> _auxStreamViewMap = new HashMap<>();
+    private HashMap<String, String> _auxAvatarMap = new HashMap<>();
 
     @BindView(R.id.localView)
     View localView;
@@ -125,10 +114,10 @@ public class CallFragment extends BaseFragment {
     View viewCallControl;
 
     @BindView(R.id.view_aux_videos_container)
-    View viewRemoteAuxVideosContainer;
+    View viewAuxVideosContainer;
 
     @BindView(R.id.view_aux_videos)
-    GridLayout viewRemoteAuxVideos;
+    GridLayout viewAuxVideos;
 
     @BindView(R.id.view_participants)
     RecyclerView viewParticipants;
@@ -170,13 +159,13 @@ public class CallFragment extends BaseFragment {
 
     // Required empty public constructor
 
-    class RemoteAuxVideoViewHolder{
+    class AuxStreamViewHolder {
         View item;
         MediaRenderView mediaRenderView;
         ImageView viewAvatar;
         TextView textView;
 
-        RemoteAuxVideoViewHolder(View item){
+        AuxStreamViewHolder(View item){
             this.item = item;
             this.mediaRenderView = item.findViewById(R.id.view_video);
             this.viewAvatar = item.findViewById(R.id.view_avatar);
@@ -259,7 +248,7 @@ public class CallFragment extends BaseFragment {
             agent.getWebex().people().get(personId, r -> {
                 if (r == null || !r.isSuccessful() || r.getData() == null) return;
                 Person person = r.getData();
-                _remoteAuxAvatarMap.put(personId, person.getAvatar());
+                _auxAvatarMap.put(personId, person.getAvatar());
                 participantsAdapter.addItem(new ParticipantsAdapter.CallMembershipEntity(personId, person.getDisplayName(), person.getAvatar(), callMembership.isSendingAudio(), callMembership.isSendingVideo()));
             });
         }
@@ -360,17 +349,17 @@ public class CallFragment extends BaseFragment {
         switch (view.getId()){
             case R.id.tab_callcontrol:
                 viewCallControl.setVisibility(View.VISIBLE);
-                viewRemoteAuxVideosContainer.setVisibility(View.GONE);
+                viewAuxVideosContainer.setVisibility(View.GONE);
                 viewParticipants.setVisibility(View.GONE);
                 break;
             case R.id.tab_aux_video:
                 viewCallControl.setVisibility(View.GONE);
-                viewRemoteAuxVideosContainer.setVisibility(View.VISIBLE);
+                viewAuxVideosContainer.setVisibility(View.VISIBLE);
                 viewParticipants.setVisibility(View.GONE);
                 break;
             case R.id.tab_participants:
                 viewCallControl.setVisibility(View.GONE);
-                viewRemoteAuxVideosContainer.setVisibility(View.GONE);
+                viewAuxVideosContainer.setVisibility(View.GONE);
                 viewParticipants.setVisibility(View.VISIBLE);
                 break;
             default:
@@ -447,15 +436,35 @@ public class CallFragment extends BaseFragment {
             agent.sendVideo(false);
         setupWidgetStates();
         updateParticipants();
+        event.call.setMultiStreamObserver(new MultiStreamObserver() {
+            @Override
+            public void onAuxStreamChanged(AuxStreamChangedEvent event) {
+                postEvent(new OnAuxStreamEvent(event));
+            }
+
+            @Override
+            public View onAuxStreamAvailable() {
+                Ln.d("onAuxStreamAvailable");
+                View auxStreamView = LayoutInflater.from(getActivity()).inflate(R.layout.remote_video_view, null);
+                AuxStreamViewHolder auxStreamViewHolder = new AuxStreamViewHolder(auxStreamView);
+                _auxStreamViewMap.put(auxStreamViewHolder.mediaRenderView, auxStreamViewHolder);
+                return auxStreamViewHolder.mediaRenderView;
+            }
+
+            @Override
+            public View onAuxStreamUnavailable() {
+                Ln.d("onAuxStreamUnavailable");
+                return null;
+            }
+        });
     }
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnDisconnectEvent event) {
         if (agent.getActiveCall() == null || event.getCall().equals(agent.getActiveCall())) {
-            _remoteAuxVideoList.clear();
-            _remoteAuxVideoViewMap.clear();
-            _remoteAuxAvatarMap.clear();
+            _auxStreamViewMap.clear();
+            _auxAvatarMap.clear();
             feedback();
         }
     }
@@ -482,43 +491,12 @@ public class CallFragment extends BaseFragment {
                 remoteAvatar.setVisibility(View.GONE);
             }else {
                 remoteAvatar.setVisibility(View.VISIBLE);
-                String avatar = _remoteAuxAvatarMap.get(membership.getPersonId());
+                String avatar = _auxAvatarMap.get(membership.getPersonId());
                 if (avatar == null || avatar.isEmpty()){
                     remoteAvatar.setImageResource(R.drawable.google_contacts_android);
                 }else {
                     Picasso.with(getActivity()).cancelRequest(remoteAvatar);
-                    Picasso.with(getActivity()).load(_remoteAuxAvatarMap.get(membership.getPersonId())).fit().into(remoteAvatar);
-                }
-            }
-        } else if (event.callEvent instanceof CallObserver.RemoteAuxVideosCountChanged) {
-            int newCount = ((CallObserver.RemoteAuxVideosCountChanged) event.callEvent).getCount();
-            Ln.d("RemoteAuxVideosCount: " + newCount);
-            int currCount = _remoteAuxVideoList.size();
-            if (newCount > currCount) {
-                for (int i = currCount; i < newCount; i++) {
-                    View remoteAuxVideoView = LayoutInflater.from(getActivity()).inflate(R.layout.remote_video_view, null);
-                    RemoteAuxVideoViewHolder remoteAuxVideoViewHolder = new RemoteAuxVideoViewHolder(remoteAuxVideoView);
-                    agent.getActiveCall().subscribeRemoteAuxVideo(remoteAuxVideoViewHolder.mediaRenderView, r -> {
-                        Ln.d("subscribeVideoTrack: " + r.isSuccessful());
-                        if (!r.isSuccessful() || r.getData() == null) return;
-                        RemoteAuxVideo remoteAuxVideo = r.getData();
-                        remoteAuxVideoViewHolder.viewAvatar.setVisibility(View.GONE);
-                        _remoteAuxVideoList.add(remoteAuxVideo);
-                        _remoteAuxVideoViewMap.put(remoteAuxVideo.getVid(), remoteAuxVideoViewHolder);
-                        viewRemoteAuxVideos.addView(remoteAuxVideoView);
-                    });
-                }
-            } else {
-                for (int i = _remoteAuxVideoList.size() - 1; i >= newCount; i--) {
-                    RemoteAuxVideo remoteAuxVideo = _remoteAuxVideoList.get(i);
-                    agent.getActiveCall().unsubscribeRemoteAuxVideo(remoteAuxVideo, r -> {
-                        Ln.d("unsubscribeRemoteAuxVideo: " + r.isSuccessful());
-                        if (!r.isSuccessful()) return;
-                        RemoteAuxVideoViewHolder remoteAuxVideoViewHolder = _remoteAuxVideoViewMap.get(remoteAuxVideo.getVid());
-                        _remoteAuxVideoList.remove(remoteAuxVideo);
-                        _remoteAuxVideoViewMap.remove(remoteAuxVideo.getVid());
-                        viewRemoteAuxVideos.removeView(remoteAuxVideoViewHolder.item);
-                    });
+                    Picasso.with(getActivity()).load(_auxAvatarMap.get(membership.getPersonId())).fit().into(remoteAvatar);
                 }
             }
         }
@@ -527,38 +505,57 @@ public class CallFragment extends BaseFragment {
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(OnRemoteAuxVideoEvent event) {
-        Ln.d("OnRemoteAuxVideoEvent: " + event.callEvent.getRemoteAuxVideo().getVid());
-        RemoteAuxVideo remoteAuxVideo = event.callEvent.getRemoteAuxVideo();
-        RemoteAuxVideoViewHolder remoteAuxVideoViewHolder = _remoteAuxVideoViewMap.get(remoteAuxVideo.getVid());
-        if (event.callEvent instanceof CallObserver.RemoteAuxSendingVideoEvent) {
-            Ln.d("remoteAuxSendingVideoEvent: " + remoteAuxVideo.isSendingVideo());
-            if (remoteAuxVideo.isSendingVideo()) {
-                remoteAuxVideoViewHolder.viewAvatar.setVisibility(View.GONE);
+    public void onEventMainThread(OnAuxStreamEvent event) {
+        Ln.d("OnAuxStreamEvent: " + event.callEvent.getAuxStream());
+        AuxStream auxStream = event.callEvent.getAuxStream();
+        if (event.callEvent instanceof MultiStreamObserver.AuxStreamOpenedEvent) {
+            MultiStreamObserver.AuxStreamOpenedEvent openEvent = (MultiStreamObserver.AuxStreamOpenedEvent)event.callEvent;
+            if (openEvent.isSuccessful()){
+                Ln.d("AuxStreamOpenedEvent successful");
+                viewAuxVideos.addView(_auxStreamViewMap.get(openEvent.getRenderView()).item);
+            }else{
+                Ln.d("AuxStreamOpenedEvent failed: " + openEvent.getError());
+                _auxStreamViewMap.remove(openEvent.getRenderView());
+            }
+        } else if (event.callEvent instanceof MultiStreamObserver.AuxStreamClosedEvent) {
+            MultiStreamObserver.AuxStreamClosedEvent closeEvent = (MultiStreamObserver.AuxStreamClosedEvent)event.callEvent;
+            if (closeEvent.isSuccessful()){
+                Ln.d("AuxStreamClosedEvent successful");
+                AuxStreamViewHolder auxStreamViewHolder = _auxStreamViewMap.get(closeEvent.getRenderView());
+                _auxStreamViewMap.remove(closeEvent.getRenderView());
+                viewAuxVideos.removeView(auxStreamViewHolder.item);
+            }else{
+                Ln.d("AuxStreamClosedEvent failed: " + closeEvent.getError());
+            }
+        } else if (event.callEvent instanceof MultiStreamObserver.AuxStreamSendingVideoEvent) {
+            Ln.d("AuxStreamSendingVideoEvent: " + auxStream.isSendingVideo());
+            AuxStreamViewHolder auxStreamViewHolder = _auxStreamViewMap.get(auxStream.getRenderView());
+            if (auxStream.isSendingVideo()) {
+                auxStreamViewHolder.viewAvatar.setVisibility(View.GONE);
             } else {
-                remoteAuxVideoViewHolder.viewAvatar.setVisibility(View.VISIBLE);
-                String avatar = _remoteAuxAvatarMap.get(remoteAuxVideo.getPerson().getPersonId());
+                auxStreamViewHolder.viewAvatar.setVisibility(View.VISIBLE);
+                String avatar = _auxAvatarMap.get(auxStream.getPerson().getPersonId());
                 if (avatar == null){
-                    remoteAuxVideoViewHolder.viewAvatar.setImageResource(android.R.color.darker_gray);
+                    auxStreamViewHolder.viewAvatar.setImageResource(android.R.color.darker_gray);
                 }else{
-                    Picasso.with(getActivity()).cancelRequest(remoteAuxVideoViewHolder.viewAvatar);
-                    Picasso.with(getActivity()).load(avatar).fit().into(remoteAuxVideoViewHolder.viewAvatar);
+                    Picasso.with(getActivity()).cancelRequest(auxStreamViewHolder.viewAvatar);
+                    Picasso.with(getActivity()).load(avatar).fit().into(auxStreamViewHolder.viewAvatar);
                 }
             }
-        } else if (event.callEvent instanceof CallObserver.RemoteAuxVideoPersonChangedEvent) {
-            Ln.d("remoteAuxVideoPersonChangedEvent: " + remoteAuxVideo.getPerson());
-            if (remoteAuxVideo.getPerson() == null){
-                _remoteAuxVideoList.remove(remoteAuxVideo);
-                _remoteAuxVideoViewMap.remove(remoteAuxVideo.getVid());
-                viewRemoteAuxVideos.removeView(remoteAuxVideoViewHolder.item);
+        } else if (event.callEvent instanceof MultiStreamObserver.AuxStreamPersonChangedEvent) {
+            Ln.d("AuxStreamPersonChangedEvent: " + auxStream.getPerson());
+            AuxStreamViewHolder auxStreamViewHolder = _auxStreamViewMap.get(auxStream.getRenderView());
+            if (auxStream.getPerson() == null){
+                _auxStreamViewMap.remove(auxStream.getRenderView());
+                viewAuxVideos.removeView(auxStreamViewHolder.item);
             } else {
-                String personId = remoteAuxVideo.getPerson().getPersonId();
+                String personId = auxStream.getPerson().getPersonId();
                 agent.getWebex().people().get(personId, r -> {
                     if (!r.isSuccessful() || r.getData() == null) return;
                     Person person = r.getData();
-                    remoteAuxVideoViewHolder.textView.setText(r.getData().getDisplayName());
-                    if (_remoteAuxAvatarMap.get(personId) != null) return;
-                    _remoteAuxAvatarMap.put(personId, person.getAvatar());
+                    auxStreamViewHolder.textView.setText(r.getData().getDisplayName());
+                    if (_auxAvatarMap.get(personId) != null) return;
+                    _auxAvatarMap.put(personId, person.getAvatar());
                 });
             }
         }
@@ -588,12 +585,12 @@ public class CallFragment extends BaseFragment {
                     remoteAvatar.setVisibility(View.GONE);
                 }else {
                     remoteAvatar.setVisibility(View.VISIBLE);
-                    String avatar = _remoteAuxAvatarMap.get(callMembership.getPersonId());
+                    String avatar = _auxAvatarMap.get(callMembership.getPersonId());
                     if (avatar == null || avatar.isEmpty()){
                         remoteAvatar.setImageResource(R.drawable.google_contacts_android);
                     }else {
                         Picasso.with(getActivity()).cancelRequest(remoteAvatar);
-                        Picasso.with(getActivity()).load(_remoteAuxAvatarMap.get(callMembership.getPersonId())).fit().into(remoteAvatar);
+                        Picasso.with(getActivity()).load(_auxAvatarMap.get(callMembership.getPersonId())).fit().into(remoteAvatar);
                     }
                 }
             }

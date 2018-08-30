@@ -34,7 +34,7 @@
             android:layout_height="match_parent"
             android:scaleType="fitXY"
             android:src="@android:color/darker_gray"
-            android:visibility="visible"
+            android:visibility="gone"
             android:layout_above="@id/name"/>
 
     </RelativeLayout>
