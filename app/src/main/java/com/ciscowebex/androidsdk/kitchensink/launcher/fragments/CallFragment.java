@@ -483,21 +483,26 @@ public class CallFragment extends BaseFragment {
             }
         } else if (event.callEvent instanceof CallObserver.ActiveSpeakerChangedEvent){
             CallMembership membership = ((CallObserver.ActiveSpeakerChangedEvent) event.callEvent).to();
-            Ln.d("ActiveSpeakerChangedEvent: ");
-            String personId = membership.getPersonId();
-            if (personId == null || personId.isEmpty()) return;
-            participantsAdapter.updateActiveSpeaker(personId);
-            if (membership.isSendingVideo()){
-                remoteAvatar.setVisibility(View.GONE);
-            }else {
-                remoteAvatar.setVisibility(View.VISIBLE);
-                String avatar = _auxAvatarMap.get(membership.getPersonId());
-                if (avatar == null || avatar.isEmpty()){
-                    remoteAvatar.setImageResource(R.drawable.google_contacts_android);
-                }else {
-                    Picasso.with(getActivity()).cancelRequest(remoteAvatar);
-                    Picasso.with(getActivity()).load(_auxAvatarMap.get(membership.getPersonId())).fit().into(remoteAvatar);
+            Ln.d("ActiveSpeakerChangedEvent: " + membership);
+            if (membership != null) {
+                String personId = membership.getPersonId();
+                if (personId == null || personId.isEmpty()) return;
+                participantsAdapter.updateActiveSpeaker(personId);
+                if (membership.isSendingVideo()) {
+                    remoteAvatar.setVisibility(View.GONE);
+                } else {
+                    remoteAvatar.setVisibility(View.VISIBLE);
+                    String avatar = _auxAvatarMap.get(membership.getPersonId());
+                    if (avatar == null || avatar.isEmpty()) {
+                        remoteAvatar.setImageResource(R.drawable.google_contacts_android);
+                    } else {
+                        Picasso.with(getActivity()).cancelRequest(remoteAvatar);
+                        Picasso.with(getActivity()).load(_auxAvatarMap.get(membership.getPersonId())).fit().into(remoteAvatar);
+                    }
                 }
+            } else {
+                remoteAvatar.setVisibility(View.VISIBLE);
+                remoteAvatar.setImageResource(android.R.color.darker_gray);
             }
         }
     }
