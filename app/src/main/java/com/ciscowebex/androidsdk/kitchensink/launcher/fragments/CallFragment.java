@@ -447,6 +447,7 @@ public class CallFragment extends BaseFragment {
         if (agent == null || agent.getActiveCall() == null) return;
         List<CallMembership> callMemberships = agent.getActiveCall().getMemberships();
         if (callMemberships == null) return;
+        Ln.d("updateParticipants: " + callMemberships.size());
         for (CallMembership membership : callMemberships){
             String personId = membership.getPersonId();
             if (membership.getState() != CallMembership.State.JOINED || personId == null || personId.isEmpty() || membership.getEmail() == null || membership.getEmail().isEmpty()) continue;
@@ -636,9 +637,11 @@ public class CallFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnCallMembershipEvent event) {
         CallMembership membership = event.callEvent.getCallMembership();
+        Ln.d("OnCallMembershipEvent: " + membership);
         if (membership == null || membership.getPersonId() == null || membership.getPersonId().isEmpty()) return;
         String personId = membership.getPersonId();
         if (event.callEvent instanceof CallObserver.MembershipJoinedEvent){
+            Ln.d("MembershipJoinedEvent: ");
             if (membership.getState() != CallMembership.State.JOINED || personId == null || personId.isEmpty() || membership.getEmail() == null || membership.getEmail().isEmpty()) return;
             participantsAdapter.addItem(new ParticipantsAdapter.CallMembershipEntity(personId, membership.getEmail(), "", membership.isSendingAudio(), membership.isSendingVideo()));
             agent.getWebex().people().get(personId, r -> {
@@ -646,10 +649,13 @@ public class CallFragment extends BaseFragment {
                 updatePersonInfoForParticipants(personId, r.getData());
             });
         } else if (event.callEvent instanceof CallObserver.MembershipLeftEvent){
+            Ln.d("MembershipLeftEvent: ");
             participantsAdapter.removeItem(personId);
         } else if (event.callEvent instanceof CallObserver.MembershipSendingAudioEvent){
+            Ln.d("MembershipSendingAudioEvent: " + membership.isSendingAudio());
             participantsAdapter.updateSendingAudioStatus(personId, membership.isSendingAudio());
         } else if (event.callEvent instanceof CallObserver.MembershipSendingVideoEvent){
+            Ln.d("MembershipSendingVideoEvent: " + membership.isSendingVideo());
             participantsAdapter.updateSendingVideoStatus(personId, membership.isSendingVideo());
             if (participantsAdapter.getActiveSpeaker() != null && participantsAdapter.getActiveSpeaker().equals(personId)){
                 if (membership.isSendingVideo()){
