@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ciscowebex.androidsdk.kitchensink.R;
+import com.ciscowebex.androidsdk.phone.CallMembership;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -128,6 +129,21 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
         return true;
     }
 
+    public boolean updateName(String personId, String name){
+        int pos = findItem(personId);
+        if (pos == -1) return false;
+        mDataset.get(pos).mName = name;
+        notifyDataSetChanged();
+        return true;
+    }
+
+    public boolean updateAvatar(String personId, String avatar){
+        int pos = findItem(personId);
+        if (pos == -1) return false;
+        mDataset.get(pos).mAvatarUrl = avatar;
+        notifyDataSetChanged();
+        return true;
+    }
     public boolean updateSendingAudioStatus(String personId, boolean sendingAudio){
         int pos = findItem(personId);
         if (pos == -1) return false;
@@ -154,7 +170,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
     }
 
     private int findItem(String personId){
-        if (mDataset == null) return -1;
+        if (mDataset == null || personId == null) return -1;
         int pos = -1;
         for (int i=0; i<mDataset.size(); i++){
             if (mDataset.get(i).mPersonId.equals(personId)){
