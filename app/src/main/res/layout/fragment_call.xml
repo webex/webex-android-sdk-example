@@ -144,8 +144,8 @@
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="8dp"
-            android:paddingRight="16dp">
+            android:paddingStart="8dp"
+            android:paddingEnd="16dp">
 
             <TextView
                 android:id="@+id/labelCamera"
