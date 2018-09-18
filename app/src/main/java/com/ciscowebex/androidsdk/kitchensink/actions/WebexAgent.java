@@ -65,7 +65,6 @@ public class WebexAgent {
 
     private Webex webex;
     private Phone phone;
-    private MessageClient messageClient;
     private Call activeCall;
     private Call incomingCall;
     private boolean isSpeakerOn = true;
@@ -156,10 +155,7 @@ public class WebexAgent {
     }
 
     public MessageClient getMessageClient() {
-        if (messageClient == null) {
-            messageClient = webex.messages();
-        }
-        return messageClient;
+        return webex.messages();
     }
 
     public void sendMessage(String idOrEmail, String message, Mention[] mentions, LocalFile[] files,
