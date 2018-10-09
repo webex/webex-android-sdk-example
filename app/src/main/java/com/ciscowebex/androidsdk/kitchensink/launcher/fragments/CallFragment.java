@@ -195,8 +195,10 @@ public class CallFragment extends BaseFragment {
         agent = WebexAgent.getInstance();
         screenSwitcher = new FullScreenSwitcher(getActivity(), layout, remoteView);
         updateScreenShareView();
-        participantsAdapter = new ParticipantsAdapter(null);
-        viewParticipants.setAdapter(participantsAdapter);
+        if (participantsAdapter == null){
+            participantsAdapter = new ParticipantsAdapter(null);
+            viewParticipants.setAdapter(participantsAdapter);
+        }
         if (!isConnected) {
             setViewAndChildrenEnabled(layout, false);
             ((SurfaceView)localView).setZOrderMediaOverlay(true);
