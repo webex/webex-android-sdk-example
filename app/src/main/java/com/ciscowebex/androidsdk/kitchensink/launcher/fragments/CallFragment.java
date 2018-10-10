@@ -612,6 +612,8 @@ public class CallFragment extends BaseFragment {
                 CallMembership membership = auxStream.getPerson();
                 if (membership == null || membership.getPersonId() == null || membership.getPersonId().isEmpty()) return;
                 String personId = membership.getPersonId();
+                participantsAdapter.updateSendingAudioStatus(personId, membership.isSendingAudio());
+                participantsAdapter.updateSendingVideoStatus(personId, membership.isSendingVideo());
                 Person person = mIdPersonMap.get(personId);
                 auxStreamViewHolder.viewAvatar.setVisibility(membership.isSendingVideo() ? View.GONE : View.VISIBLE);
                 if (person == null){
