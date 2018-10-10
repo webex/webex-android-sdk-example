@@ -49,6 +49,7 @@
         android:elevation="1dp"
         android:visibility="gone"
         android:scaleType="centerInside"
+        android:background="#ffffff"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
