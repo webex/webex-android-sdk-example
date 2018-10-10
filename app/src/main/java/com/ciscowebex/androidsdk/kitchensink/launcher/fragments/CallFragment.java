@@ -273,6 +273,7 @@ public class CallFragment extends BaseFragment {
 
     @OnClick(R.id.remoteView)
     public void onRemoteViewClicked() {
+        if (remoteAvatar.getVisibility() == View.VISIBLE) return;
         screenSwitcher.toggleFullScreen();
         updateFullScreenLayout();
     }
