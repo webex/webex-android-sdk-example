@@ -43,6 +43,7 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ciscowebex.androidsdk.kitchensink.R;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
@@ -396,6 +397,10 @@ public class CallFragment extends BaseFragment {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(DialEvent event) {
+        if (!event.isSuccessful()){
+            Toast.makeText(getActivity(), "Dial failed!", Toast.LENGTH_SHORT).show();
+            feedback();
+        }
     }
 
     @SuppressWarnings("unused")
