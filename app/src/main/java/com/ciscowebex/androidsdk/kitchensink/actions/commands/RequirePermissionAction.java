@@ -47,11 +47,10 @@ public class RequirePermissionAction implements IAction {
     @Override
     public void execute() {
         int permissionCheck = ContextCompat.checkSelfPermission(activity,
-                Manifest.permission.CAMERA);
+                Manifest.permission.READ_EXTERNAL_STORAGE);
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
             String[] permissions = {
-                    Manifest.permission.CAMERA,
-                    Manifest.permission.RECORD_AUDIO
+                Manifest.permission.READ_EXTERNAL_STORAGE
             };
             ActivityCompat.requestPermissions(activity, permissions, 0);
         } else {
@@ -60,9 +59,8 @@ public class RequirePermissionAction implements IAction {
     }
 
     public static void PermissionsRequired(int requestCode, int[] grantResults) {
-        if (requestCode == 0 && grantResults.length == 2
-                && grantResults[0] == PackageManager.PERMISSION_GRANTED
-                && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == 0 && grantResults.length == 1
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             WebexAgentEvent.postEvent(new PermissionAcquiredEvent());
         }
     }
