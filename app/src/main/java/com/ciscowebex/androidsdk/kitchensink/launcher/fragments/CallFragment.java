@@ -261,11 +261,8 @@ public class CallFragment extends BaseFragment {
 
     @OnClick(R.id.buttonHangup)
     public void onHangup() {
-        if (isConnected) {
-            agent.hangup();
-        } else {
-            ((LauncherActivity) getActivity()).goBackStack();
-        }
+        agent.hangup();
+        ((LauncherActivity) getActivity()).goBackStack();
     }
 
     @OnClick(R.id.buttonDTMF)
