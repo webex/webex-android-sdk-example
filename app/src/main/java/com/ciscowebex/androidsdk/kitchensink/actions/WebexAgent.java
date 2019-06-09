@@ -37,16 +37,12 @@ import com.ciscowebex.androidsdk.kitchensink.actions.events.LoginEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnIncomingCallEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.RejectEvent;
 import com.ciscowebex.androidsdk.membership.MembershipClient;
-import com.ciscowebex.androidsdk.message.LocalFile;
-import com.ciscowebex.androidsdk.message.Mention;
-import com.ciscowebex.androidsdk.message.Message;
 import com.ciscowebex.androidsdk.message.MessageClient;
 import com.ciscowebex.androidsdk.message.RemoteFile;
 import com.ciscowebex.androidsdk.phone.Call;
 import com.ciscowebex.androidsdk.phone.CallObserver;
 import com.ciscowebex.androidsdk.phone.MediaOption;
 import com.ciscowebex.androidsdk.phone.Phone;
-import com.github.benoitdion.ln.Ln;
 
 import java.io.File;
 
@@ -88,6 +84,7 @@ public class WebexAgent {
 
     public void setWebex(Webex webex) {
         this.webex = webex;
+        //this.webex.setLogLevel(Webex.LogLevel.ALL);
     }
 
     public Phone getPhone() {
@@ -157,19 +154,12 @@ public class WebexAgent {
     public MessageClient getMessageClient() {
         return webex.messages();
     }
-
-    public void sendMessage(String idOrEmail, String message, Mention[] mentions, LocalFile[] files,
-                            CompletionHandler<Message> handler) {
-        getMessageClient().post(idOrEmail, message, mentions, files, handler);
-    }
-
-
     public void downloadThumbnail(RemoteFile file, File saveTo, MessageClient.ProgressHandler handler, CompletionHandler<Uri> completionHandler) {
-        getMessageClient().downloadThumbnail(file, saveTo == null ? null : saveTo.getPath(), handler, completionHandler);
+        getMessageClient().downloadThumbnail(file,  saveTo, handler, completionHandler);
     }
 
     public void downloadFile(RemoteFile file, File saveTo, MessageClient.ProgressHandler handler, CompletionHandler<Uri> completionHandler) {
-        getMessageClient().downloadFile(file, saveTo == null ? null : saveTo.getPath(), handler, completionHandler);
+        getMessageClient().downloadFile(file, saveTo, handler, completionHandler);
     }
 
     public void dial(String callee, View localView, View remoteView, View screenSharing) {

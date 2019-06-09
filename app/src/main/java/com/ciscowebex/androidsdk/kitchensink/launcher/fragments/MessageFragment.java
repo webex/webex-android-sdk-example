@@ -116,17 +116,17 @@ public class MessageFragment extends BaseFragment {
         recyclerMessage.setAdapter(adapterMessage);
 
         messageClient.setMessageObserver(evt -> {
-            if (evt instanceof MessageObserver.MessageArrived) {
-                MessageObserver.MessageArrived event = (MessageObserver.MessageArrived) evt;
-                Ln.e("message: " + event.getMessage().toString());
+            if (evt instanceof MessageObserver.MessageReceived) {
+                MessageObserver.MessageReceived event = (MessageObserver.MessageReceived) evt;
+                Ln.i("message: " + event.getMessage());
                 adapterMessage.mData.add(event.getMessage());
                 adapterMessage.notifyDataSetChanged();
                 //if (event.getMessage().getPersonEmail().equals("sparksdktestuser16@tropo.com")) {
                 textStatus.setText("");
                 //}
-            } else {
+            } else if (evt instanceof MessageObserver.MessageDeleted){
                 MessageObserver.MessageDeleted event = (MessageObserver.MessageDeleted) evt;
-                Ln.e("message deleted " + event.getMessageId());
+                Ln.i("message deleted " + event.getMessageId());
             }
         });
 
@@ -157,14 +157,8 @@ public class MessageFragment extends BaseFragment {
         if (selectedFile != null) {
             for (File f : selectedFile) {
                 if (f.exists()) {
-                    LocalFile localFile = new LocalFile(f);
-                    localFile.setProgressHandler(x -> {
-                        textStatus.setText("sending " + localFile.getName() + "...  " + x + "%");
-                    });
-                    localFile.setThumbnail(new LocalFile.Thumbnail());
-                    localFile.getThumbnail().setPath(f.getPath());
-                    localFile.getThumbnail().setWidth(622);
-                    localFile.getThumbnail().setHeight(492);
+                    Ln.i("select file: " + f);
+                    LocalFile localFile = new LocalFile(f, null, null, v -> textStatus.setText(String.format("sending %s...  %s%%", f.getName(), v)));
                     arrayList.add(localFile);
                 }
             }
@@ -175,19 +169,18 @@ public class MessageFragment extends BaseFragment {
     }
 
     private Mention[] generateMentions() {
-        Mention.MentionAll mentionAll = new Mention.MentionAll();
+        Mention.All mentionAll = new Mention.All();
         ArrayList<Mention> mentionList = new ArrayList<>();
         for (Membership m : this.mentionedMembershipList) {
             if (m instanceof MembershipAll) {
                 mentionList.add(mentionAll);
             } else {
-                Mention.MentionPerson person = new Mention.MentionPerson(m.getPersonId());
-                mentionList.add(person);
+                mentionList.add(new Mention.Person(m.getPersonId()));
             }
         }
-        Mention[] mention_array = new Mention[mentionList.size()];
-        mentionList.toArray(mention_array);
-        return mention_array;
+        Mention[] mentionArray = new Mention[mentionList.size()];
+        mentionList.toArray(mentionArray);
+        return mentionArray;
     }
 
     private void hideSoftKeyboard() {
@@ -204,15 +197,11 @@ public class MessageFragment extends BaseFragment {
     public void sendMessage(View btn) {
         if (!TextUtils.isEmpty(textMessage.getText())) {
             btn.setEnabled(false);
-            agent.sendMessage(targetId,
-                    textMessage.getText().toString(),
-                    generateMentions(),
-                    generateLocalFiles(),
-                    rst -> {
-                        Ln.e("posted:" + rst.toString());
-                        selectedFile.clear();
-                        btn.setEnabled(true);
-                    });
+            messageClient.postToSpace(targetId, textMessage.getText().toString(), generateMentions(), generateLocalFiles(), rst -> {
+                Ln.e("posted:" + rst);
+                selectedFile.clear();
+                btn.setEnabled(true);
+            });
             textStatus.setText("sending ...");
             textMessage.setText("");
         }
