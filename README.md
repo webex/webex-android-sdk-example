@@ -20,7 +20,7 @@ This demo support Android device with **Android 6.0** or later
 
   https://developer.android.com/sdk/installing/studio.html
   
-- Android Plugin for Gradle 2.3.3
+- Android Plugin for Gradle 3 or later
   
   If you upgrade your gradle plugin newer than 3.0.0, make sure to add google repository and remove retrolambda plugin in your build.gradle file:
   ```
