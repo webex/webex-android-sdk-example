@@ -24,6 +24,8 @@
 package com.ciscowebex.androidsdk.kitchensink.actions;
 
 import android.net.Uri;
+import android.os.Environment;
+import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 
@@ -36,15 +38,19 @@ import com.ciscowebex.androidsdk.kitchensink.actions.events.HangupEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.LoginEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnIncomingCallEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.RejectEvent;
+import com.ciscowebex.androidsdk.kitchensink.login.LoginActivity;
 import com.ciscowebex.androidsdk.membership.MembershipClient;
+import com.ciscowebex.androidsdk.message.Message;
 import com.ciscowebex.androidsdk.message.MessageClient;
 import com.ciscowebex.androidsdk.message.RemoteFile;
 import com.ciscowebex.androidsdk.phone.Call;
 import com.ciscowebex.androidsdk.phone.CallObserver;
 import com.ciscowebex.androidsdk.phone.MediaOption;
 import com.ciscowebex.androidsdk.phone.Phone;
+import com.github.benoitdion.ln.Ln;
 
 import java.io.File;
+import java.util.List;
 
 import static com.ciscowebex.androidsdk.kitchensink.actions.events.WebexAgentEvent.postEvent;
 
@@ -164,7 +170,9 @@ public class WebexAgent {
 
     public void dial(String callee, View localView, View remoteView, View screenSharing) {
         isDialing = true;
+        //phone.setEnableHardwareAcceleration(false);
         phone.dial(callee, getMediaOption(localView, remoteView, screenSharing), (Result<Call> result) -> {
+            Log.d("Kitchensink", String.valueOf(result));
             if (result.isSuccessful()) {
                 activeCall = result.getData();
                 if (!isDialing || activeCall == null) {

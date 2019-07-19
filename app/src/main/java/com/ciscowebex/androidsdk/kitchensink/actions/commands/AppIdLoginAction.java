@@ -23,11 +23,16 @@
 
 package com.ciscowebex.androidsdk.kitchensink.actions.commands;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.support.v13.app.ActivityCompat;
 import com.ciscowebex.androidsdk.CompletionHandler;
 import com.ciscowebex.androidsdk.Result;
 import com.ciscowebex.androidsdk.Webex;
 import com.ciscowebex.androidsdk.auth.JWTAuthenticator;
 import com.ciscowebex.androidsdk.auth.OAuthTestUserAuthenticator;
+import com.ciscowebex.androidsdk.auth.internal.TokenAuthenticator;
 import com.ciscowebex.androidsdk.kitchensink.BuildConfig;
 import com.ciscowebex.androidsdk.kitchensink.actions.IAction;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
@@ -48,10 +53,13 @@ public class AppIdLoginAction implements IAction {
 
     @Override
     public void execute() {
-        JWTAuthenticator jwtAuthenticator = new JWTAuthenticator();
+        TokenAuthenticator jwtAuthenticator = new TokenAuthenticator();
+        //JWTAuthenticator jwtAuthenticator = new JWTAuthenticator();
         Webex webex = new Webex(KitchenSinkApp.getApplication(), jwtAuthenticator);
         WebexAgent.getInstance().setWebex(webex);
-        jwtAuthenticator.authorize(jwt);
+        jwtAuthenticator.authorize(jwt, 1000000);
         new RegisterAction(jwtAuthenticator).execute();
     }
+
+
 }

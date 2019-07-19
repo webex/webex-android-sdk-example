@@ -62,6 +62,16 @@ public class LauncherActivity extends Activity {
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
