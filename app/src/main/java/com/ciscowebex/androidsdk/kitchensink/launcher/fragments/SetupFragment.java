@@ -32,7 +32,7 @@ import android.widget.Switch;
 import com.ciscowebex.androidsdk.kitchensink.R;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
 import com.ciscowebex.androidsdk.kitchensink.actions.commands.RequirePermissionAction;
-import com.ciscowebex.androidsdk.kitchensink.actions.commands.toggleSpeakerAction;
+import com.ciscowebex.androidsdk.kitchensink.actions.commands.ToggleSpeakerAction;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
 
@@ -162,7 +162,7 @@ public class SetupFragment extends BaseFragment {
 
     @OnCheckedChanged(R.id.setupLoudSpeaker)
     public void onSetupLoadSpeakerChanged(Switch s) {
-        new toggleSpeakerAction(getActivity(), s.isChecked() ? true : false).execute();
+        new ToggleSpeakerAction(getActivity(), s.isChecked() ? true : false).execute();
     }
 
     private void closeCamera() {

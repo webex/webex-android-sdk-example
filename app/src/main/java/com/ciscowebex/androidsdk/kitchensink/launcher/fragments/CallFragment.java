@@ -49,7 +49,7 @@ import com.ciscowebex.androidsdk.kitchensink.R;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
 import com.ciscowebex.androidsdk.kitchensink.actions.commands.AddCallHistoryAction;
 import com.ciscowebex.androidsdk.kitchensink.actions.commands.RequirePermissionAction;
-import com.ciscowebex.androidsdk.kitchensink.actions.commands.toggleSpeakerAction;
+import com.ciscowebex.androidsdk.kitchensink.actions.commands.ToggleSpeakerAction;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.AnswerEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.DialEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.HangupEvent;
@@ -316,7 +316,7 @@ public class CallFragment extends BaseFragment {
 
     @OnCheckedChanged(R.id.switchLoudSpeaker)
     public void onSwitchLoudSpeakerChanged(Switch s) {
-        new toggleSpeakerAction(getActivity(), s.isChecked()).execute();
+        new ToggleSpeakerAction(getActivity(), s.isChecked()).execute();
     }
 
     @OnClick(R.id.radioBackCam)
