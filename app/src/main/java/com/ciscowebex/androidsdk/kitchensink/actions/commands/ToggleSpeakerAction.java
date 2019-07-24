@@ -33,11 +33,11 @@ import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
  * Created on 19/09/2017.
  */
 
-public class toggleSpeakerAction implements IAction {
+public class ToggleSpeakerAction implements IAction {
     private boolean on;
     private Context context;
 
-    public toggleSpeakerAction(Context context, boolean on) {
+    public ToggleSpeakerAction(Context context, boolean on) {
         this.context = context;
         this.on = on;
     }
