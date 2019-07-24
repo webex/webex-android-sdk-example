@@ -53,11 +53,12 @@ public class AppIdLoginAction implements IAction {
 
     @Override
     public void execute() {
-        TokenAuthenticator jwtAuthenticator = new TokenAuthenticator();
-        //JWTAuthenticator jwtAuthenticator = new JWTAuthenticator();
+        //TokenAuthenticator jwtAuthenticator = new TokenAuthenticator();
+        JWTAuthenticator jwtAuthenticator = new JWTAuthenticator();
         Webex webex = new Webex(KitchenSinkApp.getApplication(), jwtAuthenticator);
         WebexAgent.getInstance().setWebex(webex);
-        jwtAuthenticator.authorize(jwt, 1000000);
+        //jwtAuthenticator.authorize(jwt, 1000000);
+        jwtAuthenticator.authorize(jwt);
         new RegisterAction(jwtAuthenticator).execute();
     }
 
