@@ -61,6 +61,7 @@ import com.ciscowebex.androidsdk.kitchensink.actions.events.OnAuxStreamEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnRingingEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.ciscowebex.androidsdk.kitchensink.launcher.LauncherActivity;
+import com.ciscowebex.androidsdk.kitchensink.service.AwakeService;
 import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
 import com.ciscowebex.androidsdk.kitchensink.ui.FullScreenSwitcher;
 import com.ciscowebex.androidsdk.kitchensink.ui.ParticipantsAdapter;
@@ -420,6 +421,7 @@ public class CallFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnConnectEvent event) {
         isConnected = true;
+        startAwakeService();
         setViewAndChildrenEnabled(layout, true);
         if (agent.getDefaultCamera().equals(WebexAgent.CameraCap.CLOSE))
             agent.sendVideo(false);
@@ -496,6 +498,7 @@ public class CallFragment extends BaseFragment {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnDisconnectEvent event) {
+        stopAwakeService();
         if (agent.getActiveCall() == null || event.getCall().equals(agent.getActiveCall())) {
             mAuxStreamViewMap.clear();
             mIdPersonMap.clear();
@@ -719,4 +722,17 @@ public class CallFragment extends BaseFragment {
         notifyManager.notify(1, builder.build());
     }
 
+    private void startAwakeService() {
+        getActivity().startService(new Intent(getActivity(), AwakeService.class));
+    }
+
+    private void stopAwakeService() {
+        getActivity().stopService(new Intent(getActivity(), AwakeService.class));
+    }
+
+    @Override
+    public void onDestroy() {
+        stopAwakeService();
+        super.onDestroy();
+    }
 }
