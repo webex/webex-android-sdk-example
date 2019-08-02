@@ -24,12 +24,16 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.ciscowebex.androidsdk.WebexEventPayload;
+import com.ciscowebex.androidsdk.internal.WebexEvent;
 import com.ciscowebex.androidsdk.kitchensink.R;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
 import com.ciscowebex.androidsdk.kitchensink.actions.commands.RequirePermissionAction;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
 import com.ciscowebex.androidsdk.membership.Membership;
+import com.ciscowebex.androidsdk.membership.MembershipClient;
+import com.ciscowebex.androidsdk.membership.MembershipObserver;
 import com.ciscowebex.androidsdk.message.LocalFile;
 import com.ciscowebex.androidsdk.message.Mention;
 import com.ciscowebex.androidsdk.message.Message;
@@ -82,6 +86,8 @@ public class MessageFragment extends BaseFragment {
 
     MessageClient messageClient = agent.getMessageClient();
 
+    MembershipClient membershipClient = agent.getMembershipClient();
+
     ArrayList<File> selectedFile;
 
     ArrayList<Membership> mentionedMembershipList;
@@ -124,10 +130,15 @@ public class MessageFragment extends BaseFragment {
                 //if (event.getMessage().getPersonEmail().equals("sparksdktestuser16@tropo.com")) {
                 textStatus.setText("");
                 //}
-            } else if (evt instanceof MessageObserver.MessageDeleted){
+            } else if (evt instanceof MessageObserver.MessageDeleted) {
                 MessageObserver.MessageDeleted event = (MessageObserver.MessageDeleted) evt;
                 Ln.i("message deleted " + event.getMessageId());
             }
+        });
+
+        membershipClient.setMembershipObserver(evt -> {
+            adapterMessage.mData.add(evt);
+            adapterMessage.notifyDataSetChanged();
         });
 
         recyclerMembership.setLayoutManager(new LinearLayoutManager(this.getActivity()));
@@ -344,7 +355,7 @@ public class MessageFragment extends BaseFragment {
     class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
         private final LayoutInflater mLayoutInflater;
         private final Context mContext;
-        private ArrayList<Message> mData;
+        private ArrayList<Object> mData;
 
         MessageAdapter(Context context) {
             mContext = context;
@@ -360,28 +371,52 @@ public class MessageFragment extends BaseFragment {
 
         @Override
         public void onBindViewHolder(MessageViewHolder holder, int position) {
-            Message message = mData.get(position);
-            holder.textDate.setText(message.getCreated().toString());
-            holder.textMessage.setText(message.getText());
-            try {
-                JSONObject json = new JSONObject(message.toString());
-                holder.textPayload.setText(json.toString(4));
-            } catch (JSONException e) {
-                Ln.e("JSONObject parse error");
-                holder.textPayload.setText(message.toString());
-            }
-            if (message.isSelfMentioned()) {
-                holder.textMention.setVisibility(View.VISIBLE);
-            } else {
+            Object object = mData.get(position);
+            if (object instanceof Message) {
+                Message message = (Message) object;
+                holder.textDate.setText(message.getCreated().toString());
+                holder.textMessage.setText(message.getText());
+                try {
+                    JSONObject json = new JSONObject(message.toString());
+                    holder.textPayload.setText(json.toString(4));
+                } catch (JSONException e) {
+                    Ln.e("JSONObject parse error");
+                    holder.textPayload.setText(message.toString());
+                }
+                if (message.isSelfMentioned()) {
+                    holder.textMention.setVisibility(View.VISIBLE);
+                } else {
+                    holder.textMention.setVisibility(View.GONE);
+                }
+                List<RemoteFile> list = message.getRemoteFiles();
+                if (list != null && list.size() > 0) {
+                    FilesAdapter adapter = new FilesAdapter(mContext);
+                    holder.recyclerFiles.setLayoutManager(new LinearLayoutManager(mContext));
+                    holder.recyclerFiles.setAdapter(adapter);
+                    adapter.mData.addAll(list);
+                    adapter.notifyDataSetChanged();
+                }
+            } else if (object instanceof WebexEvent) {
+                WebexEvent webexEvent = (WebexEvent) object;
+                WebexEventPayload eventPayload = webexEvent.getEventPayload();
+                holder.textPayload.setText(eventPayload.toString());
+                holder.textDate.setText(eventPayload.getCreated().toString());
+                String text = "";
+                if (webexEvent instanceof MembershipObserver.MembershipCreated) {
+                    Ln.i("MembershipObserver.MembershipCreated");
+                    text = "MembershipCreated -- " + ((MembershipObserver.MembershipCreated) webexEvent).getMembership().getPersonDisplayName();
+                } else if (webexEvent instanceof MembershipObserver.MembershipDeleted) {
+                    Ln.i("MembershipObserver.MembershipDeleted");
+                    text = "MembershipDeleted -- " + ((MembershipObserver.MembershipDeleted) webexEvent).getMembership().getPersonDisplayName();
+                } else if (webexEvent instanceof MembershipObserver.MembershipUpdated) {
+                    Ln.i("MembershipObserver.MembershipUpdated");
+                    text = "MembershipUpdated -- " + ((MembershipObserver.MembershipUpdated) webexEvent).getMembership().getPersonDisplayName();
+                } else if (webexEvent instanceof MembershipObserver.MembershipSeen) {
+                    Ln.i("MembershipObserver.MembershipSeen");
+                    text = "MembershipSeen -- lastSeenMessageId=" + (((MembershipObserver.MembershipSeen) webexEvent).getLastSeenMessageId().substring(0, 8)) + "...";
+                }
+                holder.textMessage.setText(text);
                 holder.textMention.setVisibility(View.GONE);
-            }
-            List<RemoteFile> list = message.getRemoteFiles();
-            if (list != null && list.size() > 0) {
-                FilesAdapter adapter = new FilesAdapter(mContext);
-                holder.recyclerFiles.setLayoutManager(new LinearLayoutManager(mContext));
-                holder.recyclerFiles.setAdapter(adapter);
-                adapter.mData.addAll(list);
-                adapter.notifyDataSetChanged();
             }
         }
 
