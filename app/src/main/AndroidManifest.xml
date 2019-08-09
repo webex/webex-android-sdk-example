@@ -51,6 +51,7 @@
             android:screenOrientation="unspecified"
             android:configChanges="orientation|screenSize" />
 
+        <service android:name=".service.AwakeService" />
     </application>
 
 </manifest>
