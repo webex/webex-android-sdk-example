@@ -87,6 +87,7 @@ import butterknife.OnClick;
 import static com.ciscowebex.androidsdk.kitchensink.actions.events.WebexAgentEvent.postEvent;
 import static com.ciscowebex.androidsdk.phone.CallObserver.RemoteSendingSharingEvent;
 import static com.ciscowebex.androidsdk.phone.CallObserver.SendingSharingEvent;
+
 /**
  * A simple {@link BaseFragment} subclass.
  */
@@ -167,7 +168,7 @@ public class CallFragment extends BaseFragment {
         ImageView viewAvatar;
         TextView textView;
 
-        AuxStreamViewHolder(View item){
+        AuxStreamViewHolder(View item) {
             this.item = item;
             this.mediaRenderView = item.findViewById(R.id.view_video);
             this.viewAvatar = item.findViewById(R.id.view_avatar);
@@ -197,16 +198,20 @@ public class CallFragment extends BaseFragment {
         agent = WebexAgent.getInstance();
         screenSwitcher = new FullScreenSwitcher(getActivity(), layout, remoteView);
         updateScreenShareView();
-        if (participantsAdapter == null){
+        if (participantsAdapter == null) {
             participantsAdapter = new ParticipantsAdapter(null);
             viewParticipants.setAdapter(participantsAdapter);
         }
         if (!isConnected) {
             setViewAndChildrenEnabled(layout, false);
-            ((SurfaceView)localView).setZOrderMediaOverlay(true);
-            ((SurfaceView)screenShare).setZOrderMediaOverlay(true);
+            ((SurfaceView) localView).setZOrderMediaOverlay(true);
+            ((SurfaceView) screenShare).setZOrderMediaOverlay(true);
             //requirePermission();
             makeCall();
+        } else {
+            if (!agent.getDefaultCamera().equals(WebexAgent.CameraCap.CLOSE))
+                if (!agent.isSendingVideo())
+                    agent.sendVideo(true);
         }
     }
 
@@ -253,6 +258,10 @@ public class CallFragment extends BaseFragment {
     @Override
     public void onStop() {
         super.onStop();
+        if (isConnected)
+            if (!agent.getDefaultCamera().equals(WebexAgent.CameraCap.CLOSE))
+                if (agent.isSendingVideo())
+                    agent.sendVideo(false);
     }
 
     private void setButtonsEnable(boolean enable) {
@@ -277,9 +286,9 @@ public class CallFragment extends BaseFragment {
         updateFullScreenLayout();
     }
 
-    private void updateFullScreenLayout(){
+    private void updateFullScreenLayout() {
         updateScreenShareView();
-        ((SurfaceView)remoteView).setZOrderMediaOverlay(screenSwitcher.isFullScreen());
+        ((SurfaceView) remoteView).setZOrderMediaOverlay(screenSwitcher.isFullScreen());
         localView.setVisibility(screenSwitcher.isFullScreen() ? View.GONE : View.VISIBLE);
     }
 
@@ -307,9 +316,13 @@ public class CallFragment extends BaseFragment {
                 break;
             case R.id.switchShareContent:
                 if (s.isChecked())
-                    agent.getActiveCall().startSharing(r -> {Ln.d("startSharing result: " + r);});
+                    agent.getActiveCall().startSharing(r -> {
+                        Ln.d("startSharing result: " + r);
+                    });
                 else
-                    agent.getActiveCall().stopSharing(r -> {Ln.d("stopSharing result: " + r);});
+                    agent.getActiveCall().stopSharing(r -> {
+                        Ln.d("stopSharing result: " + r);
+                    });
                 break;
 
         }
@@ -331,8 +344,8 @@ public class CallFragment extends BaseFragment {
     }
 
     @OnClick({R.id.tab_callcontrol, R.id.tab_aux_video, R.id.tab_participants})
-    public void onTabClick(View view){
-        switch (view.getId()){
+    public void onTabClick(View view) {
+        switch (view.getId()) {
             case R.id.tab_callcontrol:
                 viewCallControl.setVisibility(View.VISIBLE);
                 viewAuxVideosContainer.setVisibility(View.GONE);
@@ -395,7 +408,7 @@ public class CallFragment extends BaseFragment {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(DialEvent event) {
-        if (!event.isSuccessful()){
+        if (!event.isSuccessful()) {
             Toast.makeText(getActivity(), "Dial failed!", Toast.LENGTH_SHORT).show();
             feedback();
         }
@@ -450,14 +463,15 @@ public class CallFragment extends BaseFragment {
         });
     }
 
-    private void updateParticipants(){
+    private void updateParticipants() {
         if (agent == null || agent.getActiveCall() == null) return;
         List<CallMembership> callMemberships = agent.getActiveCall().getMemberships();
         if (callMemberships == null) return;
         Ln.d("updateParticipants: " + callMemberships.size());
-        for (CallMembership membership : callMemberships){
+        for (CallMembership membership : callMemberships) {
             String personId = membership.getPersonId();
-            if (membership.getState() != CallMembership.State.JOINED || personId == null || personId.isEmpty() || membership.getEmail() == null || membership.getEmail().isEmpty()) continue;
+            if (membership.getState() != CallMembership.State.JOINED || personId == null || personId.isEmpty() || membership.getEmail() == null || membership.getEmail().isEmpty())
+                continue;
             participantsAdapter.addItem(new ParticipantsAdapter.CallMembershipEntity(personId, membership.getEmail(), "", membership.isSendingAudio(), membership.isSendingVideo()));
             agent.getWebex().people().get(personId, r -> {
                 if (r == null || !r.isSuccessful() || r.getData() == null) return;
@@ -467,13 +481,14 @@ public class CallFragment extends BaseFragment {
         }
     }
 
-    private void updatePersonInfoForParticipants(String personId, Person person){
+    private void updatePersonInfoForParticipants(String personId, Person person) {
         participantsAdapter.updateName(personId, person.getDisplayName());
         participantsAdapter.updateAvatar(personId, person.getAvatar());
     }
 
-    private void updatePersonInfoForActiveSpeaker(String personId, Person person){
-        if (participantsAdapter.getActiveSpeaker() == null || personId == null || person == null || !participantsAdapter.getActiveSpeaker().equals(personId)) return;
+    private void updatePersonInfoForActiveSpeaker(String personId, Person person) {
+        if (participantsAdapter.getActiveSpeaker() == null || personId == null || person == null || !participantsAdapter.getActiveSpeaker().equals(personId))
+            return;
         String avatar = person.getAvatar();
         if (avatar == null || avatar.isEmpty()) {
             remoteAvatar.setImageResource(R.drawable.google_contacts_android);
@@ -483,8 +498,9 @@ public class CallFragment extends BaseFragment {
         }
     }
 
-    private void updatePersonInfoForAuxStream(String personId, Person person, AuxStreamViewHolder auxStreamViewHolder){
-        if (personId == null || personId.isEmpty() || person == null || auxStreamViewHolder == null) return;
+    private void updatePersonInfoForAuxStream(String personId, Person person, AuxStreamViewHolder auxStreamViewHolder) {
+        if (personId == null || personId.isEmpty() || person == null || auxStreamViewHolder == null)
+            return;
         auxStreamViewHolder.textView.setText(person.getDisplayName());
         String avatar = person.getAvatar();
         if (avatar == null || avatar.isEmpty()) {
@@ -498,6 +514,7 @@ public class CallFragment extends BaseFragment {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnDisconnectEvent event) {
+        isConnected = false;
         stopAwakeService();
         if (agent.getActiveCall() == null || event.getCall().equals(agent.getActiveCall())) {
             mAuxStreamViewMap.clear();
@@ -510,15 +527,15 @@ public class CallFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnMediaChangeEvent event) {
         if (event.callEvent instanceof RemoteSendingSharingEvent) {
-            Ln.d("RemoteSendingSharingEvent: " + ((RemoteSendingSharingEvent)event.callEvent).isSending());
+            Ln.d("RemoteSendingSharingEvent: " + ((RemoteSendingSharingEvent) event.callEvent).isSending());
             updateScreenShareView();
         } else if (event.callEvent instanceof SendingSharingEvent) {
-            Ln.d("SendingSharingEvent: " + ((SendingSharingEvent)event.callEvent).isSending());
-            if (((SendingSharingEvent)event.callEvent).isSending()){
+            Ln.d("SendingSharingEvent: " + ((SendingSharingEvent) event.callEvent).isSending());
+            if (((SendingSharingEvent) event.callEvent).isSending()) {
                 sendNotification();
                 backToHome();
             }
-        } else if (event.callEvent instanceof CallObserver.ActiveSpeakerChangedEvent){
+        } else if (event.callEvent instanceof CallObserver.ActiveSpeakerChangedEvent) {
             CallMembership membership = ((CallObserver.ActiveSpeakerChangedEvent) event.callEvent).to();
             Ln.d("ActiveSpeakerChangedEvent: " + membership);
             if (membership != null && membership.getPersonId() != null && !membership.getPersonId().isEmpty()) {
@@ -529,7 +546,7 @@ public class CallFragment extends BaseFragment {
                 } else {
                     remoteAvatar.setVisibility(View.VISIBLE);
                     Person person = mIdPersonMap.get(personId);
-                    if (person == null){
+                    if (person == null) {
                         remoteAvatar.setImageResource(R.drawable.google_contacts_android);
                         agent.getWebex().people().get(personId, r -> {
                             if (!r.isSuccessful() || r.getData() == null) return;
@@ -560,22 +577,22 @@ public class CallFragment extends BaseFragment {
         Ln.d("OnAuxStreamEvent: " + event.callEvent.getAuxStream());
         AuxStream auxStream = event.callEvent.getAuxStream();
         if (event.callEvent instanceof MultiStreamObserver.AuxStreamOpenedEvent) {
-            MultiStreamObserver.AuxStreamOpenedEvent openEvent = (MultiStreamObserver.AuxStreamOpenedEvent)event.callEvent;
-            if (openEvent.isSuccessful()){
+            MultiStreamObserver.AuxStreamOpenedEvent openEvent = (MultiStreamObserver.AuxStreamOpenedEvent) event.callEvent;
+            if (openEvent.isSuccessful()) {
                 Ln.d("AuxStreamOpenedEvent successful");
                 viewAuxVideos.addView(mAuxStreamViewMap.get(openEvent.getRenderView()).item);
-            }else{
+            } else {
                 Ln.d("AuxStreamOpenedEvent failed: " + openEvent.getError());
                 mAuxStreamViewMap.remove(openEvent.getRenderView());
             }
         } else if (event.callEvent instanceof MultiStreamObserver.AuxStreamClosedEvent) {
-            MultiStreamObserver.AuxStreamClosedEvent closeEvent = (MultiStreamObserver.AuxStreamClosedEvent)event.callEvent;
-            if (closeEvent.isSuccessful()){
+            MultiStreamObserver.AuxStreamClosedEvent closeEvent = (MultiStreamObserver.AuxStreamClosedEvent) event.callEvent;
+            if (closeEvent.isSuccessful()) {
                 Ln.d("AuxStreamClosedEvent successful");
                 AuxStreamViewHolder auxStreamViewHolder = mAuxStreamViewMap.get(closeEvent.getRenderView());
                 mAuxStreamViewMap.remove(closeEvent.getRenderView());
                 viewAuxVideos.removeView(auxStreamViewHolder.item);
-            }else{
+            } else {
                 Ln.d("AuxStreamClosedEvent failed: " + closeEvent.getError());
             }
         } else if (event.callEvent instanceof MultiStreamObserver.AuxStreamSendingVideoEvent) {
@@ -586,11 +603,12 @@ public class CallFragment extends BaseFragment {
                 auxStreamViewHolder.viewAvatar.setVisibility(View.GONE);
             } else {
                 CallMembership membership = auxStream.getPerson();
-                if (membership == null || membership.getPersonId() == null || membership.getPersonId().isEmpty()) return;
+                if (membership == null || membership.getPersonId() == null || membership.getPersonId().isEmpty())
+                    return;
                 String personId = membership.getPersonId();
                 auxStreamViewHolder.viewAvatar.setVisibility(View.VISIBLE);
                 Person person = mIdPersonMap.get(personId);
-                if (person == null){
+                if (person == null) {
                     auxStreamViewHolder.viewAvatar.setImageResource(R.drawable.google_contacts_android);
                     agent.getWebex().people().get(personId, r -> {
                         if (!r.isSuccessful() || r.getData() == null) return;
@@ -610,18 +628,19 @@ public class CallFragment extends BaseFragment {
         } else if (event.callEvent instanceof MultiStreamObserver.AuxStreamPersonChangedEvent) {
             Ln.d("AuxStreamPersonChangedEvent: " + auxStream.getPerson());
             AuxStreamViewHolder auxStreamViewHolder = mAuxStreamViewMap.get(auxStream.getRenderView());
-            if (auxStream.getPerson() == null){
+            if (auxStream.getPerson() == null) {
                 mAuxStreamViewMap.remove(auxStream.getRenderView());
                 viewAuxVideos.removeView(auxStreamViewHolder.item);
             } else {
                 CallMembership membership = auxStream.getPerson();
-                if (membership == null || membership.getPersonId() == null || membership.getPersonId().isEmpty()) return;
+                if (membership == null || membership.getPersonId() == null || membership.getPersonId().isEmpty())
+                    return;
                 String personId = membership.getPersonId();
                 participantsAdapter.updateSendingAudioStatus(personId, membership.isSendingAudio());
                 participantsAdapter.updateSendingVideoStatus(personId, membership.isSendingVideo());
                 Person person = mIdPersonMap.get(personId);
                 auxStreamViewHolder.viewAvatar.setVisibility(membership.isSendingVideo() ? View.GONE : View.VISIBLE);
-                if (person == null){
+                if (person == null) {
                     auxStreamViewHolder.textView.setText(membership.getEmail());
                     auxStreamViewHolder.viewAvatar.setImageResource(R.drawable.google_contacts_android);
                     agent.getWebex().people().get(personId, r -> {
@@ -648,32 +667,34 @@ public class CallFragment extends BaseFragment {
     public void onEventMainThread(OnCallMembershipEvent event) {
         CallMembership membership = event.callEvent.getCallMembership();
         Ln.d("OnCallMembershipEvent: " + membership);
-        if (membership == null || membership.getPersonId() == null || membership.getPersonId().isEmpty()) return;
+        if (membership == null || membership.getPersonId() == null || membership.getPersonId().isEmpty())
+            return;
         String personId = membership.getPersonId();
-        if (event.callEvent instanceof CallObserver.MembershipJoinedEvent){
+        if (event.callEvent instanceof CallObserver.MembershipJoinedEvent) {
             Ln.d("MembershipJoinedEvent: ");
-            if (membership.getState() != CallMembership.State.JOINED || personId == null || personId.isEmpty() || membership.getEmail() == null || membership.getEmail().isEmpty()) return;
+            if (membership.getState() != CallMembership.State.JOINED || personId == null || personId.isEmpty() || membership.getEmail() == null || membership.getEmail().isEmpty())
+                return;
             participantsAdapter.addItem(new ParticipantsAdapter.CallMembershipEntity(personId, membership.getEmail(), "", membership.isSendingAudio(), membership.isSendingVideo()));
             agent.getWebex().people().get(personId, r -> {
                 if (r == null || !r.isSuccessful() || r.getData() == null) return;
                 updatePersonInfoForParticipants(personId, r.getData());
             });
-        } else if (event.callEvent instanceof CallObserver.MembershipLeftEvent){
+        } else if (event.callEvent instanceof CallObserver.MembershipLeftEvent) {
             Ln.d("MembershipLeftEvent: ");
             participantsAdapter.removeItem(personId);
-        } else if (event.callEvent instanceof CallObserver.MembershipSendingAudioEvent){
+        } else if (event.callEvent instanceof CallObserver.MembershipSendingAudioEvent) {
             Ln.d("MembershipSendingAudioEvent: " + membership.isSendingAudio());
             participantsAdapter.updateSendingAudioStatus(personId, membership.isSendingAudio());
-        } else if (event.callEvent instanceof CallObserver.MembershipSendingVideoEvent){
+        } else if (event.callEvent instanceof CallObserver.MembershipSendingVideoEvent) {
             Ln.d("MembershipSendingVideoEvent: " + membership.isSendingVideo());
             participantsAdapter.updateSendingVideoStatus(personId, membership.isSendingVideo());
-            if (participantsAdapter.getActiveSpeaker() != null && participantsAdapter.getActiveSpeaker().equals(personId)){
-                if (membership.isSendingVideo()){
+            if (participantsAdapter.getActiveSpeaker() != null && participantsAdapter.getActiveSpeaker().equals(personId)) {
+                if (membership.isSendingVideo()) {
                     remoteAvatar.setVisibility(View.GONE);
-                }else {
+                } else {
                     remoteAvatar.setVisibility(View.VISIBLE);
                     Person person = mIdPersonMap.get(personId);
-                    if (person == null){
+                    if (person == null) {
                         remoteAvatar.setImageResource(R.drawable.google_contacts_android);
                         agent.getWebex().people().get(personId, r -> {
                             if (!r.isSuccessful() || r.getData() == null) return;
@@ -706,12 +727,12 @@ public class CallFragment extends BaseFragment {
         this.startActivity(intent);
     }
 
-    private void sendNotification(){
+    private void sendNotification() {
         Intent appIntent = new Intent(getActivity(), LauncherActivity.class);
         appIntent.setAction(Intent.ACTION_MAIN);
         appIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        appIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        PendingIntent contentIntent = PendingIntent.getActivity(getActivity(), 0,appIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+        appIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        PendingIntent contentIntent = PendingIntent.getActivity(getActivity(), 0, appIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationManager notifyManager = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getActivity())
