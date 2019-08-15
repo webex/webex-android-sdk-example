@@ -23,4 +23,28 @@
         <item>Supported devices</item>
         <item>Feature request</item>
     </string-array>
+
+    <string name="digit_0">0</string>
+    <string name="digit_1">1</string>
+    <string name="digit_2">2</string>
+    <string name="digit_3">3</string>
+    <string name="digit_4">4</string>
+    <string name="digit_5">5</string>
+    <string name="digit_6">6</string>
+    <string name="digit_7">7</string>
+    <string name="digit_8">8</string>
+    <string name="digit_9">9</string>
+    <string name="digit_asterisk">*</string>
+    <string name="digit_hash">#</string>
+
+    <string name="digit_0_text">+</string>
+    <string name="digit_1_text"/>
+    <string name="digit_2_text">ABC</string>
+    <string name="digit_3_text">DEF</string>
+    <string name="digit_4_text">GHI</string>
+    <string name="digit_5_text">JKL</string>
+    <string name="digit_6_text">MNO</string>
+    <string name="digit_7_text">PQRS</string>
+    <string name="digit_8_text">TUV</string>
+    <string name="digit_9_text">WXYZ</string>
 </resources>
