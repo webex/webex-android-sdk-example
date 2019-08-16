@@ -40,6 +40,7 @@ import com.ciscowebex.androidsdk.message.Message;
 import com.ciscowebex.androidsdk.message.MessageClient;
 import com.ciscowebex.androidsdk.message.MessageObserver;
 import com.ciscowebex.androidsdk.message.RemoteFile;
+import com.ciscowebex.androidsdk.space.SpaceClient;
 import com.github.benoitdion.ln.Ln;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -87,6 +88,8 @@ public class MessageFragment extends BaseFragment {
     MessageClient messageClient = agent.getMessageClient();
 
     MembershipClient membershipClient = agent.getMembershipClient();
+
+    SpaceClient spaceClient = agent.getSpaceClient();
 
     ArrayList<File> selectedFile;
 
@@ -139,6 +142,10 @@ public class MessageFragment extends BaseFragment {
         membershipClient.setMembershipObserver(evt -> {
             adapterMessage.mData.add(evt);
             adapterMessage.notifyDataSetChanged();
+        });
+
+        spaceClient.setSpaceObserver(evt -> {
+
         });
 
         recyclerMembership.setLayoutManager(new LinearLayoutManager(this.getActivity()));
