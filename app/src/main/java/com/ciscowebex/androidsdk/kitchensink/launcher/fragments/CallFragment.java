@@ -317,6 +317,7 @@ public class CallFragment extends BaseFragment {
     @OnCheckedChanged(R.id.switchLoudSpeaker)
     public void onSwitchLoudSpeakerChanged(Switch s) {
         new ToggleSpeakerAction(getActivity(), s.isChecked()).execute();
+        agent.resetView(localView, remoteView);
     }
 
     @OnClick(R.id.radioBackCam)

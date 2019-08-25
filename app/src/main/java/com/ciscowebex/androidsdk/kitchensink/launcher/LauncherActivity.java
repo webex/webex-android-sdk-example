@@ -67,6 +67,10 @@ public class LauncherActivity extends Activity {
         EventBus.getDefault().unregister(this);
     }
 
+    public  void onStop() {
+        super.onStop();
+    }
+
     @Override
     public void onBackPressed() {
         goBackStack();
