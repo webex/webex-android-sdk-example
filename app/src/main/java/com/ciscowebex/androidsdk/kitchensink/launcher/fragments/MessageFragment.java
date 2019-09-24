@@ -30,12 +30,14 @@ import com.ciscowebex.androidsdk.kitchensink.actions.commands.RequirePermissionA
 import com.ciscowebex.androidsdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
 import com.ciscowebex.androidsdk.membership.Membership;
+import com.ciscowebex.androidsdk.membership.MembershipClient;
 import com.ciscowebex.androidsdk.message.LocalFile;
 import com.ciscowebex.androidsdk.message.Mention;
 import com.ciscowebex.androidsdk.message.Message;
 import com.ciscowebex.androidsdk.message.MessageClient;
 import com.ciscowebex.androidsdk.message.MessageObserver;
 import com.ciscowebex.androidsdk.message.RemoteFile;
+import com.ciscowebex.androidsdk.space.SpaceClient;
 import com.github.benoitdion.ln.Ln;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -82,9 +84,13 @@ public class MessageFragment extends BaseFragment {
 
     MessageClient messageClient = agent.getMessageClient();
 
+    MembershipClient membershipClient = agent.getMembershipClient();
+
+    SpaceClient spaceClient = agent.getSpaceClient();
+
     ArrayList<File> selectedFile;
 
-    ArrayList<Membership> mentionedMembershipList;
+    ArrayList<Object> mentionedMembershipList;
 
     String targetId;
 
@@ -132,7 +138,7 @@ public class MessageFragment extends BaseFragment {
 
         recyclerMembership.setLayoutManager(new LinearLayoutManager(this.getActivity()));
         adapterMembership = new MembershipAdapter(this.getActivity());
-        adapterMembership.mData.add(new MembershipAll());
+        adapterMembership.mData.add("ALL");
         recyclerMembership.setAdapter(adapterMembership);
     }
 
@@ -171,11 +177,11 @@ public class MessageFragment extends BaseFragment {
     private Mention[] generateMentions() {
         Mention.All mentionAll = new Mention.All();
         ArrayList<Mention> mentionList = new ArrayList<>();
-        for (Membership m : this.mentionedMembershipList) {
-            if (m instanceof MembershipAll) {
+        for (Object o : this.mentionedMembershipList) {
+            if (o instanceof String) {
                 mentionList.add(mentionAll);
             } else {
-                mentionList.add(new Mention.Person(m.getPersonId()));
+                mentionList.add(new Mention.Person(((Membership)o).getPersonId()));
             }
         }
         Mention[] mentionArray = new Mention[mentionList.size()];
@@ -241,7 +247,7 @@ public class MessageFragment extends BaseFragment {
             if (result.isSuccessful()) {
                 List<Membership> list = (List<Membership>) result.getData();
                 adapterMembership.mData.clear();
-                adapterMembership.mData.add(new MembershipAll());
+                adapterMembership.mData.add("ALL");
                 adapterMembership.mData.addAll(list);
                 adapterMembership.notifyDataSetChanged();
             }
@@ -430,18 +436,19 @@ public class MessageFragment extends BaseFragment {
         }
     }
 
-    // fake membership implements ALL
-    private class MembershipAll extends Membership {
-        @Override
-        public String getPersonDisplayName() {
-            return "ALL";
-        }
-    }
+//    // fake membership implements ALL
+//    private class MembershipAll extends Membership {
+//
+//        @Override
+//        public String getPersonDisplayName() {
+//            return "ALL";
+//        }
+//    }
 
     class MembershipAdapter extends RecyclerView.Adapter<MembershipAdapter.MembershipViewHolder> {
         private final LayoutInflater mLayoutInflater;
         private final Context mContext;
-        private final ArrayList<Membership> mData;
+        private final ArrayList<Object> mData;
 
         MembershipAdapter(Context context) {
             mContext = context;
@@ -458,11 +465,11 @@ public class MessageFragment extends BaseFragment {
 
         @Override
         public void onBindViewHolder(@NonNull MembershipViewHolder holder, int position) {
-            Membership membership = mData.get(position);
-            if (membership instanceof MembershipAll) {
+            Object object = mData.get(position);
+            if (object instanceof String) {
                 holder.textContent.setText("ALL");
-            } else {
-                holder.textContent.setText(membership.getPersonDisplayName());
+            } else if (object instanceof Membership){
+                holder.textContent.setText(((Membership) object).getPersonDisplayName());
             }
         }
 
@@ -479,11 +486,11 @@ public class MessageFragment extends BaseFragment {
             @OnClick(R.id.text_content)
             void onMembershipClick() {
                 int pos = getAdapterPosition();
-                Membership membership = mData.get(pos);
+                Object object = mData.get(pos);
                 recyclerMembership.setVisibility(View.GONE);
                 recyclerMessage.setVisibility(View.VISIBLE);
-                mentionedMembershipList.add(membership);
-                textMessage.getText().append("@" + membership.getPersonDisplayName()).append(" ");
+                mentionedMembershipList.add(object);
+                textMessage.getText().append("@").append(object instanceof String ? ((String) object) : ((Membership) object).getPersonDisplayName()).append(" ");
             }
 
             MembershipViewHolder(View itemView) {
