@@ -29,6 +29,7 @@ import android.os.Looper;
 import android.util.Pair;
 import android.view.View;
 
+import com.cisco.spark.android.core.LoggingInterceptor;
 import com.ciscowebex.androidsdk.CompletionHandler;
 import com.ciscowebex.androidsdk.Result;
 import com.ciscowebex.androidsdk.Webex;
@@ -45,6 +46,7 @@ import com.ciscowebex.androidsdk.phone.Call;
 import com.ciscowebex.androidsdk.phone.CallObserver;
 import com.ciscowebex.androidsdk.phone.MediaOption;
 import com.ciscowebex.androidsdk.phone.Phone;
+import com.ciscowebex.androidsdk.space.SpaceClient;
 import com.ciscowebex.androidsdk.space.SpaceReadStatus;
 
 import java.io.File;
@@ -57,6 +59,8 @@ import static com.ciscowebex.androidsdk.kitchensink.actions.events.WebexAgentEve
  */
 
 public class WebexAgent {
+
+
 
     public enum CallCap {AUDIO_ONLY, AUDIO_VIDEO}
 
@@ -87,7 +91,7 @@ public class WebexAgent {
 
     public void setWebex(Webex webex) {
         this.webex = webex;
-        //this.webex.setLogLevel(Webex.LogLevel.ALL);
+        this.webex.setLogLevel(Webex.LogLevel.DEBUG_NO_HTTP_DETAILS);
     }
 
     public Phone getPhone() {
@@ -174,6 +178,15 @@ public class WebexAgent {
     public MessageClient getMessageClient() {
         return webex.messages();
     }
+
+    public MembershipClient getMembershipClient() {
+        return webex.memberships();
+    }
+
+    public SpaceClient getSpaceClient() {
+        return webex.spaces();
+    }
+
     public void downloadThumbnail(RemoteFile file, File saveTo, MessageClient.ProgressHandler handler, CompletionHandler<Uri> completionHandler) {
         getMessageClient().downloadThumbnail(file,  saveTo, handler, completionHandler);
     }
