@@ -84,10 +84,6 @@ public class MessageFragment extends BaseFragment {
 
     MessageClient messageClient = agent.getMessageClient();
 
-    MembershipClient membershipClient = agent.getMembershipClient();
-
-    SpaceClient spaceClient = agent.getSpaceClient();
-
     ArrayList<File> selectedFile;
 
     ArrayList<Object> mentionedMembershipList;
