@@ -43,6 +43,7 @@ import com.ciscowebex.androidsdk.phone.Call;
 import com.ciscowebex.androidsdk.phone.CallObserver;
 import com.ciscowebex.androidsdk.phone.MediaOption;
 import com.ciscowebex.androidsdk.phone.Phone;
+import com.ciscowebex.androidsdk.space.SpaceClient;
 
 import java.io.File;
 
@@ -154,6 +155,15 @@ public class WebexAgent {
     public MessageClient getMessageClient() {
         return webex.messages();
     }
+
+    public SpaceClient getSpaceClient() {
+        return webex.spaces();
+    }
+
+    public MembershipClient getMembershipClient() {
+        return webex.memberships();
+    }
+
     public void downloadThumbnail(RemoteFile file, File saveTo, MessageClient.ProgressHandler handler, CompletionHandler<Uri> completionHandler) {
         getMessageClient().downloadThumbnail(file,  saveTo, handler, completionHandler);
     }
