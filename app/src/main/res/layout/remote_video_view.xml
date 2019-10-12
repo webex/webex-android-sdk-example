@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     android:layout_gravity="fill"
     android:layout_columnSpan="1"
-    android:layout_rowSpan="1">
+    android:layout_rowSpan="1"
+    android:id="@+id/frameLayout">
 
     <RelativeLayout
         android:layout_width="150dp"
@@ -26,6 +27,12 @@
             android:id="@+id/view_video"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_above="@id/name"/>
+
+        <com.ciscowebex.androidsdk.phone.MediaRenderView
+            android:id="@+id/view_video2"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
             android:layout_above="@id/name"/>
 
         <ImageView
