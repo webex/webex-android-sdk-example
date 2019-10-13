@@ -47,7 +47,6 @@ import com.ciscowebex.androidsdk.phone.CallObserver;
 import com.ciscowebex.androidsdk.phone.MediaOption;
 import com.ciscowebex.androidsdk.phone.Phone;
 import com.ciscowebex.androidsdk.space.SpaceClient;
-import com.ciscowebex.androidsdk.space.SpaceReadStatus;
 
 import java.io.File;
 
@@ -91,7 +90,7 @@ public class WebexAgent {
 
     public void setWebex(Webex webex) {
         this.webex = webex;
-        this.webex.setLogLevel(Webex.LogLevel.DEBUG_NO_HTTP_DETAILS);
+        this.webex.setLogLevel(Webex.LogLevel.ALL);
     }
 
     public Phone getPhone() {
@@ -138,8 +137,6 @@ public class WebexAgent {
         runOnUiThread(() -> phone.register(r -> {
             if (r.isSuccessful()) {
                 setupIncomingCallListener();
-
-                webex.spaces().getWithReadStatus("Y2lzY29zcGFyazovL3VzL1JPT00vN2YzMTEwNDAtYTkxNS0xMWU5LThjZTEtOTE5MTU2M2I3Nzk0", System.out::println);
             }
             new LoginEvent(r).post();
         }));

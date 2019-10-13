@@ -34,10 +34,14 @@ import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
 import com.ciscowebex.androidsdk.kitchensink.launcher.LauncherActivity;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.LoginEvent;
 
+import okhttp3.*;
 import org.greenrobot.eventbus.Subscribe;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+
+import java.io.IOException;
+import java.util.Collections;
 
 /**
  * A simple {@link Fragment} subclass.

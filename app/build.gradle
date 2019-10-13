@@ -14,7 +14,7 @@ android {
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
         ndk {
-            abiFilters "armeabi-v7a"
+            abiFilters "armeabi-v7a", "x86"
         }
         buildConfigField "String", "CLIENT_ID", "\"C338457876c27e853fb5e4dc85c6087164073e1e2bf415c081b600fe654d7af60\""
         buildConfigField "String", "CLIENT_SEC", "\"0dc8b9c77c8b5597e7eef4b72c7dfaf8d5b834fdba24cf0a0b55eb85ae209b31\""
@@ -51,7 +51,7 @@ repositories {
 }
 
 dependencies {
-    implementation('com.ciscowebex:androidsdk:2.3.0-SNAPSHOT@aar', {
+    implementation('com.ciscowebex:androidsdk:2.3.1-SNAPSHOT@aar', {
         transitive = true
         changing = true
     })
