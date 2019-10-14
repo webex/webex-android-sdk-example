@@ -19,13 +19,17 @@ import android.widget.FrameLayout;
 
 import com.ciscowebex.androidsdk.kitchensink.R;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
+import com.ciscowebex.androidsdk.kitchensink.actions.events.OnDisconnectEvent;
+import com.github.benoitdion.ln.Ln;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
 public class FloatWindowService extends Service {
     private WindowManager windowManager;
-    private WindowManager.LayoutParams layoutParams;
-    private LayoutInflater layoutInflater;
     private View floatingView;
     private WebexAgent agent;
 
@@ -41,6 +45,12 @@ public class FloatWindowService extends Service {
         }
     }
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        EventBus.getDefault().register(this);
+    }
+
     public void setAgent(WebexAgent agent) {
         this.agent = agent;
         initWindow();
@@ -49,7 +59,7 @@ public class FloatWindowService extends Service {
 
     private void initWindow() {
         windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-        layoutParams = new WindowManager.LayoutParams();
+        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
         } else {
@@ -66,7 +76,7 @@ public class FloatWindowService extends Service {
         layoutParams.gravity = Gravity.LEFT | Gravity.TOP;
         layoutParams.x = windowManager.getDefaultDisplay().getWidth();
         layoutParams.y = 210;
-        layoutInflater = LayoutInflater.from(getApplicationContext());
+        LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
         floatingView = layoutInflater.inflate(R.layout.remote_video_view, null);
         View remoteView = floatingView.findViewById(R.id.view_video);
         View localView = floatingView.findViewById(R.id.view_video2);
@@ -84,6 +94,16 @@ public class FloatWindowService extends Service {
         super.onDestroy();
         if (null != windowManager && null != floatingView)
             windowManager.removeView(floatingView);
+        EventBus.getDefault().unregister(this);
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe
+    public void onEvent(OnDisconnectEvent event) {
+        if (isRunningForeground(getApplicationContext()))
+            return;
+        setTopApp(getApplicationContext());
+        new Handler().postDelayed(() -> EventBus.getDefault().post(event), 500);
     }
 
     public static void setTopApp(Context context) {

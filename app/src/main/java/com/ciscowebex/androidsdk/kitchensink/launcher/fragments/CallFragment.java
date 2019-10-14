@@ -587,6 +587,8 @@ public class CallFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnDisconnectEvent event) {
         isConnected = false;
+        if (isFloatingBind)
+            return;
         keypad.setVisibility(View.GONE);
         stopAwakeService();
         floatButton.setVisibility(View.GONE);
