@@ -26,6 +26,7 @@ package com.ciscowebex.androidsdk.kitchensink.actions;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 import android.view.View;
 
@@ -235,6 +236,10 @@ public class WebexAgent {
             activeCall.setObserver(callObserver);
             activeCall.answer(getMediaOption(localView, remoteView, screenShare), r -> new AnswerEvent(r).post());
         }
+    }
+
+    public void setVideoRenderViews(@Nullable Pair<View, View> videoRenderViews){
+        activeCall.setVideoRenderViews(videoRenderViews);
     }
 
     public void startPreview(View view) {

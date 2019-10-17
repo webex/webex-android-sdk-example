@@ -42,6 +42,16 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
+        android:id="@+id/floatButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="2dp"
+        app:layout_constraintLeft_toLeftOf="@id/remoteView"
+        app:layout_constraintTop_toTopOf="@id/remoteView"
+        android:src="@mipmap/ic_window"
+        android:visibility="gone"/>
+
+    <ImageView
         android:id="@+id/viewRemoteAvatar"
         android:layout_width="0dp"
         android:layout_height="200dp"

@@ -26,6 +26,7 @@
     <uses-permission android:name="android.permission.REORDER_TASKS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:name="com.ciscowebex.androidsdk.kitchensink.KitchenSinkApp"
@@ -52,6 +53,7 @@
             android:configChanges="orientation|screenSize" />
 
         <service android:name=".service.AwakeService" />
+        <service android:name=".service.FloatWindowService" />
     </application>
 
 </manifest>
