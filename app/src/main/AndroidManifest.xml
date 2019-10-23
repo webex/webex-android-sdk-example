@@ -50,7 +50,9 @@
         <activity
             android:name="com.ciscowebex.androidsdk.kitchensink.launcher.LauncherActivity"
             android:screenOrientation="unspecified"
-            android:configChanges="orientation|screenSize" />
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
+            android:supportsPictureInPicture="true"
+            android:resizeableActivity="true"/>
 
         <service android:name=".service.AwakeService" />
         <service android:name=".service.FloatWindowService" />

@@ -27,10 +27,12 @@ package com.ciscowebex.androidsdk.kitchensink.launcher.fragments;
 import android.app.AppOpsManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.PictureInPictureParams;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Binder;
@@ -39,10 +41,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
+import android.util.Rational;
 import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
@@ -395,10 +399,28 @@ public class CallFragment extends BaseFragment {
 
     @OnClick(R.id.floatButton)
     void showFloatingWindow() {
-        if (checkFloatPermission(getActivity())) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                && getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)) {
+            enterPicInPic();
+        } else if (checkFloatPermission(getActivity())) {
             startFloating();
         } else
             requestSettingCanDrawOverlays();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void enterPicInPic() {
+        PictureInPictureParams.Builder builder = new PictureInPictureParams.Builder();
+        Rational aspectRatio = new Rational(remoteView.getWidth(), remoteView.getHeight());
+        builder.setAspectRatio(aspectRatio);
+        getActivity().enterPictureInPictureMode(builder.build());
+    }
+
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        floatButton.setVisibility(isInPictureInPictureMode ? View.GONE : View.VISIBLE);
+        localView.setVisibility(isInPictureInPictureMode ? View.GONE : View.VISIBLE);
     }
 
     private ServiceConnection floatingConnection = new ServiceConnection() {
