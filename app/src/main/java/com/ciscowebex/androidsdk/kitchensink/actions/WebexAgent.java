@@ -178,7 +178,7 @@ public class WebexAgent {
                 if (!isDialing || activeCall == null) {
                     hangup();
                 } else {
-                    if (activeCall != null) activeCall.setObserver(callObserver);
+                    activeCall.setObserver(callObserver);
                 }
             }
             isDialing = false;
