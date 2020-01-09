@@ -43,6 +43,7 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
@@ -71,7 +72,7 @@ import com.ciscowebex.androidsdk.kitchensink.actions.events.OnAuxStreamEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnCallMembershipEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnConnectEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnDisconnectEvent;
-import com.ciscowebex.androidsdk.kitchensink.actions.events.OnInLobbyEvent;
+import com.ciscowebex.androidsdk.kitchensink.actions.events.OnWaitingEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnMediaChangeEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnRingingEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.PermissionAcquiredEvent;
@@ -184,6 +185,7 @@ public class CallFragment extends BaseFragment {
     ImageView floatButton;
 
     private ParticipantsAdapter participantsAdapter;
+    private Snackbar snackbar;
 
     // Required empty public constructor
 
@@ -228,7 +230,13 @@ public class CallFragment extends BaseFragment {
             participantsAdapter.setOnLetInClickListener(new ParticipantsAdapter.OnLetInClickListener() {
                 @Override
                 public void onLetInClick(ParticipantsAdapter.CallMembershipEntity entity) {
-                    agent.getActiveCall().admitParticipant(entity.getPersonId());
+                    for (CallMembership callMembership : agent.getActiveCall().getMemberships()) {
+                        if (callMembership.getPersonId().equals(entity.getPersonId())) {
+                            agent.getActiveCall().letIn(callMembership);
+                            break;
+                        }
+                    }
+
                 }
             });
             viewParticipants.setAdapter(participantsAdapter);
@@ -532,10 +540,14 @@ public class CallFragment extends BaseFragment {
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(OnInLobbyEvent event) {
-//        updateParticipants();
+    public void onEventMainThread(OnWaitingEvent event) {
+        String text = "Waiting in lobby:" + event.waitReason.name();
+        if (snackbar != null) {
+            snackbar.setText(text);
+        } else
+            snackbar = Snackbar.make(layout, text, Snackbar.LENGTH_INDEFINITE);
+        snackbar.show();
     }
-
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -569,6 +581,8 @@ public class CallFragment extends BaseFragment {
                 return null;
             }
         });
+        if (snackbar != null)
+            snackbar.dismiss();
     }
 
     private void updateParticipants() {
@@ -633,6 +647,8 @@ public class CallFragment extends BaseFragment {
             mIdPersonMap.clear();
             feedback();
         }
+        if (snackbar != null)
+            snackbar.dismiss();
     }
 
     @SuppressWarnings("unused")
@@ -824,9 +840,9 @@ public class CallFragment extends BaseFragment {
                     }
                 }
             }
-        } else if (event.callEvent instanceof CallObserver.MembershipJoinedLobbyEvent) {
+        } else if (event.callEvent instanceof CallObserver.MembershipWaitingEvent) {
             Ln.d("MembershipJoinedLobbyEvent: ");
-            if (membership.getState() != CallMembership.State.INLOBBY || personId == null || personId.isEmpty() || membership.getEmail() == null || membership.getEmail().isEmpty())
+            if (membership.getState() != CallMembership.State.WAITING || personId == null || personId.isEmpty() || membership.getEmail() == null || membership.getEmail().isEmpty())
                 return;
             participantsAdapter.addOrUpdateItem(new ParticipantsAdapter.CallMembershipEntity(personId, membership.getEmail(), "", membership.isSendingAudio(), membership.isSendingVideo(), membership.getState()));
             agent.getWebex().people().get(personId, r -> {

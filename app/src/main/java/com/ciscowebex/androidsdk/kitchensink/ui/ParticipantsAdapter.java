@@ -22,7 +22,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class ParticipantsAdapter extends RecyclerView.Adapter {
-    private List<CallMembershipEntity> mDataset;
+    private List<CallMembershipEntity> mDataSet;
     private String activeSpeakerId = null;
     private OnLetInClickListener onLetInClickListener;
 
@@ -129,7 +129,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter {
     }
 
     public ParticipantsAdapter(List<CallMembershipEntity> data) {
-        mDataset = data;
+        mDataSet = data;
     }
 
     @NonNull
@@ -148,7 +148,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        CallMembershipEntity entity = mDataset.get(position);
+        CallMembershipEntity entity = mDataSet.get(position);
         if (holder instanceof MyViewHolder) {
             MyViewHolder myViewHolder = (MyViewHolder) holder;
             myViewHolder.setName(entity.mName);
@@ -156,7 +156,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter {
             myViewHolder.setSendingAudio(entity.mSendingAudio);
             myViewHolder.setSendingVideo(entity.mSendingVideo);
             myViewHolder.setAvatar(entity.mAvatarUrl);
-            myViewHolder.mLetIn.setVisibility(entity.mState == CallMembership.State.INLOBBY ? View.VISIBLE : View.GONE);
+            myViewHolder.mLetIn.setVisibility(entity.mState == CallMembership.State.WAITING ? View.VISIBLE : View.GONE);
             if (onLetInClickListener != null) {
                 myViewHolder.mLetIn.setOnClickListener(v -> onLetInClickListener.onLetInClick(entity));
             }
@@ -168,28 +168,27 @@ public class ParticipantsAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int position) {
-        CallMembershipEntity entity = mDataset.get(position);
+        CallMembershipEntity entity = mDataSet.get(position);
         return entity.mIsHeader ? 0 : 1;
     }
 
 
     @Override
     public int getItemCount() {
-        return mDataset == null ? 0 : mDataset.size();
+        return mDataSet == null ? 0 : mDataSet.size();
     }
 
     public boolean addOrUpdateItem(CallMembershipEntity entity) {
         if (entity == null) return false;
-        if (mDataset == null) {
-            mDataset = new ArrayList<>();
+        if (mDataSet == null) {
+            mDataSet = new ArrayList<>();
         }
         int pos = findItem(entity.mPersonId);
         if (pos == -1) {
-            mDataset.add(entity);
+            mDataSet.add(entity);
         } else {
-            mDataset.set(pos, entity);
+            mDataSet.set(pos, entity);
         }
-        Collections.sort(mDataset, new MComparator());
         makeData();
         notifyDataSetChanged();
         return true;
@@ -198,35 +197,36 @@ public class ParticipantsAdapter extends RecyclerView.Adapter {
     private void makeData() {
         CallMembership.State lastState = null;
         List<CallMembershipEntity> dataSet = new ArrayList<>();
-        for (CallMembershipEntity entity:mDataset){
+        for (CallMembershipEntity entity: mDataSet){
             if (entity.mIsHeader)
                 dataSet.add(entity);
         }
-        mDataset.removeAll(dataSet);
+        mDataSet.removeAll(dataSet);
+        Collections.sort(mDataSet, new MComparator());
         dataSet.clear();
-        for (CallMembershipEntity entity : mDataset) {
+        for (CallMembershipEntity entity : mDataSet) {
             if (null == lastState) {
                 CallMembershipEntity e = new CallMembershipEntity();
-                e.mName = entity.mState == CallMembership.State.JOINED ? "In Meeting" : entity.mState == CallMembership.State.INLOBBY ? "In Lobby" : "Not in Meeting";
+                e.mName = entity.mState == CallMembership.State.JOINED ? "In Meeting" : entity.mState == CallMembership.State.WAITING ? "In Lobby" : "Not in Meeting";
                 e.mIsHeader = true;
                 dataSet.add(e);
             } else if (lastState != entity.mState) {
                 CallMembershipEntity e = new CallMembershipEntity();
-                e.mName = entity.mState == CallMembership.State.JOINED ? "In Meeting" : entity.mState == CallMembership.State.INLOBBY ? "In Lobby" : "Not in Meeting";
+                e.mName = entity.mState == CallMembership.State.JOINED ? "In Meeting" : entity.mState == CallMembership.State.WAITING ? "In Lobby" : "Not in Meeting";
                 e.mIsHeader = true;
                 dataSet.add(e);
             }
             dataSet.add(entity);
             lastState = entity.mState;
         }
-        mDataset.clear();
-        mDataset.addAll(dataSet);
+        mDataSet.clear();
+        mDataSet.addAll(dataSet);
     }
 
     public boolean removeItem(String personId) {
         int pos = findItem(personId);
         if (pos == -1) return false;
-        mDataset.remove(pos);
+        mDataSet.remove(pos);
         makeData();
         notifyDataSetChanged();
         return true;
@@ -235,7 +235,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter {
     public boolean updateName(String personId, String name) {
         int pos = findItem(personId);
         if (pos == -1) return false;
-        mDataset.get(pos).mName = name;
+        mDataSet.get(pos).mName = name;
         notifyDataSetChanged();
         return true;
     }
@@ -243,7 +243,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter {
     public boolean updateAvatar(String personId, String avatar) {
         int pos = findItem(personId);
         if (pos == -1) return false;
-        mDataset.get(pos).mAvatarUrl = avatar;
+        mDataSet.get(pos).mAvatarUrl = avatar;
         notifyDataSetChanged();
         return true;
     }
@@ -251,7 +251,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter {
     public boolean updateSendingAudioStatus(String personId, boolean sendingAudio) {
         int pos = findItem(personId);
         if (pos == -1) return false;
-        mDataset.get(pos).mSendingAudio = sendingAudio;
+        mDataSet.get(pos).mSendingAudio = sendingAudio;
         notifyDataSetChanged();
         return true;
     }
@@ -259,7 +259,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter {
     public boolean updateSendingVideoStatus(String personId, boolean sendingVideo) {
         int pos = findItem(personId);
         if (pos == -1) return false;
-        mDataset.get(pos).mSendingVideo = sendingVideo;
+        mDataSet.get(pos).mSendingVideo = sendingVideo;
         notifyDataSetChanged();
         return true;
     }
@@ -274,12 +274,12 @@ public class ParticipantsAdapter extends RecyclerView.Adapter {
     }
 
     private int findItem(String personId) {
-        if (mDataset == null || personId == null) return -1;
+        if (mDataSet == null || personId == null) return -1;
         int pos = -1;
-        for (int i = 0; i < mDataset.size(); i++) {
-            if (mDataset.get(i).mPersonId == null)
+        for (int i = 0; i < mDataSet.size(); i++) {
+            if (mDataSet.get(i).mPersonId == null)
                 continue;
-            if (mDataset.get(i).mPersonId.equals(personId)) {
+            if (mDataSet.get(i).mPersonId.equals(personId)) {
                 pos = i;
                 break;
             }
@@ -291,7 +291,16 @@ public class ParticipantsAdapter extends RecyclerView.Adapter {
 
         @Override
         public int compare(CallMembershipEntity o1, CallMembershipEntity o2) {
-            return o1.mState == CallMembership.State.INLOBBY ? -1 : o1.mState == CallMembership.State.JOINED ? 0 : 1;
+            if (o1.mState == o2.mState)
+                return 0;
+            if (o1.mState == CallMembership.State.WAITING)
+                return -1;
+            if (o2.mState == CallMembership.State.WAITING)
+                return 1;
+            if (o1.mState == CallMembership.State.JOINED)
+                return -1;
+            else
+                return 1;
         }
     }
 }
