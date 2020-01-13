@@ -156,12 +156,15 @@ public class WebexAgent {
     public MessageClient getMessageClient() {
         return webex.messages();
     }
-    public MembershipClient getMembershipClient(){
-        return webex.memberships();
-    }
-    public SpaceClient getSpaceClient(){
+
+    public SpaceClient getSpaceClient() {
         return webex.spaces();
     }
+
+    public MembershipClient getMembershipClient() {
+        return webex.memberships();
+    }
+
     public void downloadThumbnail(RemoteFile file, File saveTo, MessageClient.ProgressHandler handler, CompletionHandler<Uri> completionHandler) {
         getMessageClient().downloadThumbnail(file,  saveTo, handler, completionHandler);
     }
