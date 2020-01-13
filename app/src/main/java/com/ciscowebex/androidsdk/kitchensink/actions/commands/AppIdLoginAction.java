@@ -23,17 +23,11 @@
 
 package com.ciscowebex.androidsdk.kitchensink.actions.commands;
 
-import com.ciscowebex.androidsdk.CompletionHandler;
-import com.ciscowebex.androidsdk.Result;
 import com.ciscowebex.androidsdk.Webex;
 import com.ciscowebex.androidsdk.auth.JWTAuthenticator;
-import com.ciscowebex.androidsdk.auth.OAuthTestUserAuthenticator;
-import com.ciscowebex.androidsdk.kitchensink.BuildConfig;
+import com.ciscowebex.androidsdk.kitchensink.KitchenSinkApp;
 import com.ciscowebex.androidsdk.kitchensink.actions.IAction;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
-import com.ciscowebex.androidsdk.kitchensink.KitchenSinkApp;
-import com.ciscowebex.androidsdk.kitchensink.actions.events.LoginEvent;
-import com.github.benoitdion.ln.Ln;
 
 /**
  * Created on 19/09/2017.
