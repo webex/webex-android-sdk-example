@@ -24,15 +24,30 @@
 package com.ciscowebex.androidsdk.kitchensink.launcher.fragments;
 
 
+import android.app.AppOpsManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.PictureInPictureParams;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.net.Uri;
+import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.provider.Settings;
+import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Pair;
+import android.util.Rational;
 import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
@@ -45,8 +60,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ciscowebex.androidsdk.CompletionHandler;
-import com.ciscowebex.androidsdk.Result;
 import com.ciscowebex.androidsdk.kitchensink.R;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
 import com.ciscowebex.androidsdk.kitchensink.actions.commands.AddCallHistoryAction;
@@ -59,11 +72,13 @@ import com.ciscowebex.androidsdk.kitchensink.actions.events.OnAuxStreamEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnCallMembershipEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnConnectEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnDisconnectEvent;
+import com.ciscowebex.androidsdk.kitchensink.actions.events.OnWaitingEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnMediaChangeEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnRingingEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.ciscowebex.androidsdk.kitchensink.launcher.LauncherActivity;
 import com.ciscowebex.androidsdk.kitchensink.service.AwakeService;
+import com.ciscowebex.androidsdk.kitchensink.service.FloatWindowService;
 import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
 import com.ciscowebex.androidsdk.kitchensink.ui.FullScreenSwitcher;
 import com.ciscowebex.androidsdk.kitchensink.ui.ParticipantsAdapter;
@@ -79,6 +94,8 @@ import com.squareup.picasso.Picasso;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 
@@ -102,6 +119,7 @@ public class CallFragment extends BaseFragment {
     private boolean isConnected = false;
     private HashMap<View, AuxStreamViewHolder> mAuxStreamViewMap = new HashMap<>();
     private HashMap<String, Person> mIdPersonMap = new HashMap<>();
+    private boolean isFloatingBind = false;
 
     @BindView(R.id.localView)
     View localView;
@@ -163,7 +181,11 @@ public class CallFragment extends BaseFragment {
     @BindView(R.id.keypad)
     View keypad;
 
+    @BindView(R.id.floatButton)
+    ImageView floatButton;
+
     private ParticipantsAdapter participantsAdapter;
+    private Snackbar snackbar;
 
     // Required empty public constructor
 
@@ -205,6 +227,18 @@ public class CallFragment extends BaseFragment {
         updateScreenShareView();
         if (participantsAdapter == null) {
             participantsAdapter = new ParticipantsAdapter(null);
+            participantsAdapter.setOnLetInClickListener(new ParticipantsAdapter.OnLetInClickListener() {
+                @Override
+                public void onLetInClick(ParticipantsAdapter.CallMembershipEntity entity) {
+                    for (CallMembership callMembership : agent.getActiveCall().getMemberships()) {
+                        if (callMembership.getPersonId().equals(entity.getPersonId())) {
+                            agent.getActiveCall().letIn(callMembership);
+                            break;
+                        }
+                    }
+
+                }
+            });
             viewParticipants.setAdapter(participantsAdapter);
         }
         if (!isConnected) {
@@ -378,6 +412,68 @@ public class CallFragment extends BaseFragment {
         }
     }
 
+    @OnClick(R.id.floatButton)
+    void showFloatingWindow() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                && getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)) {
+            enterPicInPic();
+        } else if (checkFloatPermission(getActivity())) {
+            startFloating();
+        } else
+            requestSettingCanDrawOverlays();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void enterPicInPic() {
+        PictureInPictureParams.Builder builder = new PictureInPictureParams.Builder();
+        Rational aspectRatio = new Rational(remoteView.getWidth(), remoteView.getHeight());
+        builder.setAspectRatio(aspectRatio);
+        getActivity().enterPictureInPictureMode(builder.build());
+    }
+
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        floatButton.setVisibility(isInPictureInPictureMode ? View.GONE : View.VISIBLE);
+        localView.setVisibility(isInPictureInPictureMode ? View.GONE : View.VISIBLE);
+    }
+
+    private ServiceConnection floatingConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder binder) {
+            FloatWindowService.MyBinder myBinder = (FloatWindowService.MyBinder) binder;
+            FloatWindowService service = myBinder.getService();
+            service.setAgent(agent);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
+
+    private void startFloating() {
+        if (!isFloatingBind) {
+            Intent intent = new Intent(getActivity(), FloatWindowService.class);
+            isFloatingBind = getActivity().getApplicationContext().bindService(intent, floatingConnection, Context.BIND_AUTO_CREATE);
+            getActivity().moveTaskToBack(true);
+        }
+    }
+
+    private void stopFloating() {
+        if (isFloatingBind) {
+            getActivity().getApplicationContext().unbindService(floatingConnection);
+            isFloatingBind = false;
+            new Handler().postDelayed(() -> agent.setVideoRenderViews(new Pair<>(localView, remoteView)), 500);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        stopFloating();
+    }
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -444,9 +540,21 @@ public class CallFragment extends BaseFragment {
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(OnWaitingEvent event) {
+        String text = "Waiting in lobby:" + event.waitReason.name();
+        if (snackbar != null) {
+            snackbar.setText(text);
+        } else
+            snackbar = Snackbar.make(layout, text, Snackbar.LENGTH_INDEFINITE);
+        snackbar.show();
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnConnectEvent event) {
         isConnected = true;
         startAwakeService();
+        floatButton.setVisibility(View.VISIBLE);
         setViewAndChildrenEnabled(layout, true);
         if (agent.getDefaultCamera().equals(WebexAgent.CameraCap.CLOSE))
             agent.sendVideo(false);
@@ -473,6 +581,8 @@ public class CallFragment extends BaseFragment {
                 return null;
             }
         });
+        if (snackbar != null)
+            snackbar.dismiss();
     }
 
     private void updateParticipants() {
@@ -482,9 +592,9 @@ public class CallFragment extends BaseFragment {
         Ln.d("updateParticipants: " + callMemberships.size());
         for (CallMembership membership : callMemberships) {
             String personId = membership.getPersonId();
-            if (membership.getState() != CallMembership.State.JOINED || personId == null || personId.isEmpty() || membership.getEmail() == null || membership.getEmail().isEmpty())
+            if (/*membership.getState() != CallMembership.State.JOINED || */personId == null || personId.isEmpty() || membership.getEmail() == null || membership.getEmail().isEmpty())
                 continue;
-            participantsAdapter.addItem(new ParticipantsAdapter.CallMembershipEntity(personId, membership.getEmail(), "", membership.isSendingAudio(), membership.isSendingVideo()));
+            participantsAdapter.addOrUpdateItem(new ParticipantsAdapter.CallMembershipEntity(personId, membership.getEmail(), "", membership.isSendingAudio(), membership.isSendingVideo(), membership.getState()));
             agent.getWebex().people().get(personId, r -> {
                 if (r == null || !r.isSuccessful() || r.getData() == null) return;
                 mIdPersonMap.put(personId, r.getData());
@@ -527,13 +637,18 @@ public class CallFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnDisconnectEvent event) {
         isConnected = false;
+        if (isFloatingBind)
+            return;
         keypad.setVisibility(View.GONE);
         stopAwakeService();
+        floatButton.setVisibility(View.GONE);
         if (agent.getActiveCall() == null || event.getCall().equals(agent.getActiveCall())) {
             mAuxStreamViewMap.clear();
             mIdPersonMap.clear();
             feedback();
         }
+        if (snackbar != null)
+            snackbar.dismiss();
     }
 
     @SuppressWarnings("unused")
@@ -687,7 +802,7 @@ public class CallFragment extends BaseFragment {
             Ln.d("MembershipJoinedEvent: ");
             if (membership.getState() != CallMembership.State.JOINED || personId == null || personId.isEmpty() || membership.getEmail() == null || membership.getEmail().isEmpty())
                 return;
-            participantsAdapter.addItem(new ParticipantsAdapter.CallMembershipEntity(personId, membership.getEmail(), "", membership.isSendingAudio(), membership.isSendingVideo()));
+            participantsAdapter.addOrUpdateItem(new ParticipantsAdapter.CallMembershipEntity(personId, membership.getEmail(), "", membership.isSendingAudio(), membership.isSendingVideo(), membership.getState()));
             agent.getWebex().people().get(personId, r -> {
                 if (r == null || !r.isSuccessful() || r.getData() == null) return;
                 updatePersonInfoForParticipants(personId, r.getData());
@@ -725,6 +840,16 @@ public class CallFragment extends BaseFragment {
                     }
                 }
             }
+        } else if (event.callEvent instanceof CallObserver.MembershipWaitingEvent) {
+            Ln.d("MembershipJoinedLobbyEvent: ");
+            if (membership.getState() != CallMembership.State.WAITING || personId == null || personId.isEmpty() || membership.getEmail() == null || membership.getEmail().isEmpty())
+                return;
+            participantsAdapter.addOrUpdateItem(new ParticipantsAdapter.CallMembershipEntity(personId, membership.getEmail(), "", membership.isSendingAudio(), membership.isSendingVideo(), membership.getState()));
+            agent.getWebex().people().get(personId, r -> {
+                if (r == null || !r.isSuccessful() || r.getData() == null) return;
+                Ln.d("people: " + r.getData());
+                updatePersonInfoForParticipants(personId, r.getData());
+            });
         }
     }
 
@@ -767,6 +892,60 @@ public class CallFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         stopAwakeService();
+        stopFloating();
         super.onDestroy();
+    }
+
+    public static boolean checkFloatPermission(Context context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            try {
+                Class cls = Class.forName("android.content.Context");
+                Field declaredField = cls.getDeclaredField("APP_OPS_SERVICE");
+                declaredField.setAccessible(true);
+                Object obj = declaredField.get(cls);
+                if (!(obj instanceof String)) {
+                    return false;
+                }
+                String str2 = (String) obj;
+                obj = cls.getMethod("getSystemService", String.class).invoke(context, str2);
+                cls = Class.forName("android.app.AppOpsManager");
+                Field declaredField2 = cls.getDeclaredField("MODE_ALLOWED");
+                declaredField2.setAccessible(true);
+                Method checkOp = cls.getMethod("checkOp", Integer.TYPE, Integer.TYPE, String.class);
+                int result = (Integer) checkOp.invoke(obj, 24, Binder.getCallingUid(), context.getPackageName());
+                return result == declaredField2.getInt(cls);
+            } catch (Exception e) {
+                return false;
+            }
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                AppOpsManager appOpsMgr = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+                if (appOpsMgr == null)
+                    return false;
+                int mode = appOpsMgr.checkOpNoThrow("android:system_alert_window", android.os.Process.myUid(), context
+                        .getPackageName());
+                return Settings.canDrawOverlays(context) || mode == AppOpsManager.MODE_ALLOWED || mode == AppOpsManager.MODE_IGNORED;
+            } else {
+                return Settings.canDrawOverlays(context);
+            }
+        }
+    }
+
+    private void requestSettingCanDrawOverlays() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+            intent.setData(Uri.parse("package:" + getActivity().getPackageName()));
+            startActivityForResult(intent, 0x101);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 0x101)
+            if (checkFloatPermission(getActivity())) {
+                startFloating();
+            } else
+                Toast.makeText(getActivity(), "No float window permission", Toast.LENGTH_SHORT).show();
     }
 }

@@ -1,9 +1,11 @@
 package com.ciscowebex.androidsdk.kitchensink.ui;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,28 +14,64 @@ import com.ciscowebex.androidsdk.phone.CallMembership;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapter.MyViewHolder> {
-    private List<CallMembershipEntity>  mDataset;
+public class ParticipantsAdapter extends RecyclerView.Adapter {
+    private List<CallMembershipEntity> mDataSet;
     private String activeSpeakerId = null;
+    private OnLetInClickListener onLetInClickListener;
 
-    public static class CallMembershipEntity{
+    public interface OnLetInClickListener {
+        void onLetInClick(CallMembershipEntity entity);
+    }
+
+
+    public static class CallMembershipEntity {
         private String mPersonId;
         private String mName;
         private String mAvatarUrl;
         private boolean mSendingAudio;
         private boolean mSendingVideo;
+        private CallMembership.State mState;
+        private boolean mIsHeader = false;
 
-        public CallMembershipEntity(String personId, String name, String avatarUrl, boolean sendingAudio, boolean sendingVideo) {
+        private CallMembershipEntity() {
+        }
+
+        public CallMembershipEntity(String personId, String name, String avatarUrl, boolean sendingAudio, boolean sendingVideo, CallMembership.State state) {
             this.mPersonId = personId;
             this.mName = name;
             this.mAvatarUrl = avatarUrl;
             this.mSendingAudio = sendingAudio;
             this.mSendingVideo = sendingVideo;
+            this.mState = state;
+        }
+
+        public String getPersonId() {
+            return mPersonId;
+        }
+    }
+
+    public void setOnLetInClickListener(OnLetInClickListener onLetInClickListener) {
+        this.onLetInClickListener = onLetInClickListener;
+    }
+
+    static class MyHeaderViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.txt_header)
+        TextView mHeader;
+
+        MyHeaderViewHolder(View item) {
+            super(item);
+            ButterKnife.bind(this, item);
+        }
+
+        void setHeader(String header) {
+            mHeader.setText(header);
         }
     }
 
@@ -54,126 +92,194 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
         @BindView(R.id.img_video)
         ImageView mVideo;
 
+        @BindView(R.id.btn_let_in)
+        Button mLetIn;
+
         MyViewHolder(View item) {
             super(item);
             ButterKnife.bind(this, item);
         }
 
-        void setName(String name){ mName.setText(name); }
+        void setName(String name) {
+            mName.setText(name);
+        }
 
-        void setActiveSpeaker(boolean activeSpeaker){ mActiveSpeaker.setVisibility(activeSpeaker ? View.VISIBLE : View.GONE); }
+        void setActiveSpeaker(boolean activeSpeaker) {
+            mActiveSpeaker.setVisibility(activeSpeaker ? View.VISIBLE : View.GONE);
+        }
 
-        void setSendingAudio(boolean sendingAudio){
+        void setSendingAudio(boolean sendingAudio) {
             int res = sendingAudio ? android.R.drawable.presence_audio_online : android.R.drawable.presence_audio_away;
             mAudio.setImageResource(res);
         }
 
-        void setSendingVideo(boolean sendingVideo){
+        void setSendingVideo(boolean sendingVideo) {
             int res = sendingVideo ? android.R.drawable.presence_video_online : android.R.drawable.presence_video_away;
             mVideo.setImageResource(res);
         }
 
-        void setAvatar(String avatarUrl){
+        void setAvatar(String avatarUrl) {
             Picasso.with(itemView.getContext()).cancelRequest(mAvatar);
-            if (avatarUrl == null || avatarUrl.isEmpty()){
+            if (avatarUrl == null || avatarUrl.isEmpty()) {
                 mAvatar.setImageResource(R.drawable.google_contacts_android);
-            }else {
+            } else {
                 Picasso.with(itemView.getContext()).load(avatarUrl).fit().into(mAvatar);
             }
         }
     }
 
     public ParticipantsAdapter(List<CallMembershipEntity> data) {
-        mDataset = data;
+        mDataSet = data;
+    }
+
+    @NonNull
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == 1) {
+            View item = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_item_participant, parent, false);
+            MyViewHolder vh = new MyViewHolder(item);
+            return vh;
+        } else {
+            View item = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_item_participant_header, parent, false);
+            MyHeaderViewHolder vh = new MyHeaderViewHolder(item);
+            return vh;
+        }
     }
 
     @Override
-    public ParticipantsAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View item =  LayoutInflater.from(parent.getContext()).inflate(R.layout.view_item_participant, parent, false);
-        MyViewHolder vh = new MyViewHolder(item);
-        return vh;
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        CallMembershipEntity entity = mDataSet.get(position);
+        if (holder instanceof MyViewHolder) {
+            MyViewHolder myViewHolder = (MyViewHolder) holder;
+            myViewHolder.setName(entity.mName);
+            myViewHolder.setActiveSpeaker(activeSpeakerId != null && entity.mPersonId.equals(activeSpeakerId));
+            myViewHolder.setSendingAudio(entity.mSendingAudio);
+            myViewHolder.setSendingVideo(entity.mSendingVideo);
+            myViewHolder.setAvatar(entity.mAvatarUrl);
+            myViewHolder.mLetIn.setVisibility(entity.mState == CallMembership.State.WAITING ? View.VISIBLE : View.GONE);
+            if (onLetInClickListener != null) {
+                myViewHolder.mLetIn.setOnClickListener(v -> onLetInClickListener.onLetInClick(entity));
+            }
+        } else if (holder instanceof MyHeaderViewHolder) {
+            MyHeaderViewHolder myHeaderViewHolder = (MyHeaderViewHolder) holder;
+            myHeaderViewHolder.setHeader(entity.mName);
+        }
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
-        CallMembershipEntity entity = mDataset.get(position);
-        holder.setName(entity.mName);
-        holder.setActiveSpeaker(activeSpeakerId != null && entity.mPersonId.equals(activeSpeakerId));
-        holder.setSendingAudio(entity.mSendingAudio);
-        holder.setSendingVideo(entity.mSendingVideo);
-        holder.setAvatar(entity.mAvatarUrl);
+    public int getItemViewType(int position) {
+        CallMembershipEntity entity = mDataSet.get(position);
+        return entity.mIsHeader ? 0 : 1;
     }
+
 
     @Override
     public int getItemCount() {
-        return mDataset == null ? 0 : mDataset.size();
+        return mDataSet == null ? 0 : mDataSet.size();
     }
 
-    public boolean addItem(CallMembershipEntity entity){
+    public boolean addOrUpdateItem(CallMembershipEntity entity) {
         if (entity == null) return false;
-        int pos = findItem(entity.mPersonId);
-        if (pos != -1) return false;
-        if (mDataset == null){
-            mDataset = new ArrayList<>();
+        if (mDataSet == null) {
+            mDataSet = new ArrayList<>();
         }
-        mDataset.add(entity);
+        int pos = findItem(entity.mPersonId);
+        if (pos == -1) {
+            mDataSet.add(entity);
+        } else {
+            mDataSet.set(pos, entity);
+        }
+        makeData();
         notifyDataSetChanged();
         return true;
     }
 
-    public boolean removeItem(String personId){
+    private void makeData() {
+        CallMembership.State lastState = null;
+        List<CallMembershipEntity> dataSet = new ArrayList<>();
+        for (CallMembershipEntity entity: mDataSet){
+            if (entity.mIsHeader)
+                dataSet.add(entity);
+        }
+        mDataSet.removeAll(dataSet);
+        Collections.sort(mDataSet, new MComparator());
+        dataSet.clear();
+        for (CallMembershipEntity entity : mDataSet) {
+            if (null == lastState) {
+                CallMembershipEntity e = new CallMembershipEntity();
+                e.mName = entity.mState == CallMembership.State.JOINED ? "In Meeting" : entity.mState == CallMembership.State.WAITING ? "In Lobby" : "Not in Meeting";
+                e.mIsHeader = true;
+                dataSet.add(e);
+            } else if (lastState != entity.mState) {
+                CallMembershipEntity e = new CallMembershipEntity();
+                e.mName = entity.mState == CallMembership.State.JOINED ? "In Meeting" : entity.mState == CallMembership.State.WAITING ? "In Lobby" : "Not in Meeting";
+                e.mIsHeader = true;
+                dataSet.add(e);
+            }
+            dataSet.add(entity);
+            lastState = entity.mState;
+        }
+        mDataSet.clear();
+        mDataSet.addAll(dataSet);
+    }
+
+    public boolean removeItem(String personId) {
         int pos = findItem(personId);
         if (pos == -1) return false;
-        mDataset.remove(pos);
+        mDataSet.remove(pos);
+        makeData();
         notifyDataSetChanged();
         return true;
     }
 
-    public boolean updateName(String personId, String name){
+    public boolean updateName(String personId, String name) {
         int pos = findItem(personId);
         if (pos == -1) return false;
-        mDataset.get(pos).mName = name;
+        mDataSet.get(pos).mName = name;
         notifyDataSetChanged();
         return true;
     }
 
-    public boolean updateAvatar(String personId, String avatar){
+    public boolean updateAvatar(String personId, String avatar) {
         int pos = findItem(personId);
         if (pos == -1) return false;
-        mDataset.get(pos).mAvatarUrl = avatar;
-        notifyDataSetChanged();
-        return true;
-    }
-    public boolean updateSendingAudioStatus(String personId, boolean sendingAudio){
-        int pos = findItem(personId);
-        if (pos == -1) return false;
-        mDataset.get(pos).mSendingAudio = sendingAudio;
+        mDataSet.get(pos).mAvatarUrl = avatar;
         notifyDataSetChanged();
         return true;
     }
 
-    public boolean updateSendingVideoStatus(String personId, boolean sendingVideo){
+    public boolean updateSendingAudioStatus(String personId, boolean sendingAudio) {
         int pos = findItem(personId);
         if (pos == -1) return false;
-        mDataset.get(pos).mSendingVideo = sendingVideo;
+        mDataSet.get(pos).mSendingAudio = sendingAudio;
         notifyDataSetChanged();
         return true;
     }
 
-    public void updateActiveSpeaker(String personId){
+    public boolean updateSendingVideoStatus(String personId, boolean sendingVideo) {
+        int pos = findItem(personId);
+        if (pos == -1) return false;
+        mDataSet.get(pos).mSendingVideo = sendingVideo;
+        notifyDataSetChanged();
+        return true;
+    }
+
+    public void updateActiveSpeaker(String personId) {
         activeSpeakerId = personId;
         notifyDataSetChanged();
     }
 
-    public String getActiveSpeaker(){
+    public String getActiveSpeaker() {
         return activeSpeakerId;
     }
 
-    private int findItem(String personId){
-        if (mDataset == null || personId == null) return -1;
+    private int findItem(String personId) {
+        if (mDataSet == null || personId == null) return -1;
         int pos = -1;
-        for (int i=0; i<mDataset.size(); i++){
-            if (mDataset.get(i).mPersonId.equals(personId)){
+        for (int i = 0; i < mDataSet.size(); i++) {
+            if (mDataSet.get(i).mPersonId == null)
+                continue;
+            if (mDataSet.get(i).mPersonId.equals(personId)) {
                 pos = i;
                 break;
             }
@@ -181,4 +287,20 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
         return pos;
     }
 
+    class MComparator implements Comparator<CallMembershipEntity> {
+
+        @Override
+        public int compare(CallMembershipEntity o1, CallMembershipEntity o2) {
+            if (o1.mState == o2.mState)
+                return 0;
+            if (o1.mState == CallMembership.State.WAITING)
+                return -1;
+            if (o2.mState == CallMembership.State.WAITING)
+                return 1;
+            if (o1.mState == CallMembership.State.JOINED)
+                return -1;
+            else
+                return 1;
+        }
+    }
 }

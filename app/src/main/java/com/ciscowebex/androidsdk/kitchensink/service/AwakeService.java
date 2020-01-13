@@ -70,7 +70,7 @@ public class AwakeService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (null != wl)
+        if (null != wl && wl.isHeld())
             wl.release();
         stopForeground(true);
     }
