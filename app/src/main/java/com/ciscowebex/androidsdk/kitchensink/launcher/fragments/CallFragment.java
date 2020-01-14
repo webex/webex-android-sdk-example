@@ -611,26 +611,26 @@ public class CallFragment extends BaseFragment {
     private void updatePersonInfoForActiveSpeaker(String personId, Person person) {
         if (participantsAdapter.getActiveSpeaker() == null || personId == null || person == null || !participantsAdapter.getActiveSpeaker().equals(personId))
             return;
-//        String avatar = person.getAvatar();
-//        if (avatar == null || avatar.isEmpty()) {
-//            remoteAvatar.setImageResource(R.drawable.google_contacts_android);
-//        } else {
-//            Picasso.with(getActivity()).cancelRequest(remoteAvatar);
-//            Picasso.with(getActivity()).load(avatar).fit().into(remoteAvatar);
-//        }
+        String avatar = person.getAvatar();
+        if (avatar == null || avatar.isEmpty()) {
+            remoteAvatar.setImageResource(R.drawable.google_contacts_android);
+        } else {
+            Picasso.with(getActivity()).cancelRequest(remoteAvatar);
+            Picasso.with(getActivity()).load(avatar).fit().into(remoteAvatar);
+        }
     }
 
     private void updatePersonInfoForAuxStream(String personId, Person person, AuxStreamViewHolder auxStreamViewHolder) {
         if (personId == null || personId.isEmpty() || person == null || auxStreamViewHolder == null)
             return;
         auxStreamViewHolder.textView.setText(person.getDisplayName());
-//        String avatar = person.getAvatar();
-//        if (avatar == null || avatar.isEmpty()) {
-//            auxStreamViewHolder.viewAvatar.setImageResource(R.drawable.google_contacts_android);
-//        } else {
-//            Picasso.with(getActivity()).cancelRequest(auxStreamViewHolder.viewAvatar);
-//            Picasso.with(getActivity()).load(avatar).fit().into(auxStreamViewHolder.viewAvatar);
-//        }
+        String avatar = person.getAvatar();
+        if (avatar == null || avatar.isEmpty()) {
+            auxStreamViewHolder.viewAvatar.setImageResource(R.drawable.google_contacts_android);
+        } else {
+            Picasso.with(getActivity()).cancelRequest(auxStreamViewHolder.viewAvatar);
+            Picasso.with(getActivity()).load(avatar).fit().into(auxStreamViewHolder.viewAvatar);
+        }
     }
 
     @SuppressWarnings("unused")
@@ -672,25 +672,24 @@ public class CallFragment extends BaseFragment {
                 if (membership.isSendingVideo()) {
                     remoteAvatar.setVisibility(View.GONE);
                 } else {
-                    remoteAvatar.setVisibility(View.GONE);
-//                    remoteAvatar.setVisibility(View.VISIBLE);
-//                    Person person = mIdPersonMap.get(personId);
-//                    if (person == null) {
-//                        remoteAvatar.setImageResource(R.drawable.google_contacts_android);
-//                        agent.getWebex().people().get(personId, r -> {
-//                            if (!r.isSuccessful() || r.getData() == null) return;
-//                            mIdPersonMap.put(personId, r.getData());
-//                            updatePersonInfoForActiveSpeaker(personId, r.getData());
-//                        });
-//                    } else {
-//                        String avatar = person.getAvatar();
-//                        if (avatar == null || avatar.isEmpty()) {
-//                            remoteAvatar.setImageResource(R.drawable.google_contacts_android);
-//                        } else {
-//                            Picasso.with(getActivity()).cancelRequest(remoteAvatar);
-//                            Picasso.with(getActivity()).load(avatar).fit().into(remoteAvatar);
-//                        }
-//                    }
+                    remoteAvatar.setVisibility(View.VISIBLE);
+                    Person person = mIdPersonMap.get(personId);
+                    if (person == null) {
+                        remoteAvatar.setImageResource(R.drawable.google_contacts_android);
+                        agent.getWebex().people().get(personId, r -> {
+                            if (!r.isSuccessful() || r.getData() == null) return;
+                            mIdPersonMap.put(personId, r.getData());
+                            updatePersonInfoForActiveSpeaker(personId, r.getData());
+                        });
+                    } else {
+                        String avatar = person.getAvatar();
+                        if (avatar == null || avatar.isEmpty()) {
+                            remoteAvatar.setImageResource(R.drawable.google_contacts_android);
+                        } else {
+                            Picasso.with(getActivity()).cancelRequest(remoteAvatar);
+                            Picasso.with(getActivity()).load(avatar).fit().into(remoteAvatar);
+                        }
+                    }
                 }
             } else {
                 remoteAvatar.setVisibility(View.VISIBLE);
@@ -821,25 +820,24 @@ public class CallFragment extends BaseFragment {
                 if (membership.isSendingVideo()) {
                     remoteAvatar.setVisibility(View.GONE);
                 } else {
-                    remoteAvatar.setVisibility(View.GONE);
-//                    remoteAvatar.setVisibility(View.VISIBLE);
-//                    Person person = mIdPersonMap.get(personId);
-//                    if (person == null) {
-//                        remoteAvatar.setImageResource(R.drawable.google_contacts_android);
-//                        agent.getWebex().people().get(personId, r -> {
-//                            if (!r.isSuccessful() || r.getData() == null) return;
-//                            mIdPersonMap.put(personId, r.getData());
-//                            updatePersonInfoForActiveSpeaker(personId, r.getData());
-//                        });
-//                    } else {
-//                        String avatar = person.getAvatar();
-//                        if (avatar == null || avatar.isEmpty()) {
-//                            remoteAvatar.setImageResource(R.drawable.google_contacts_android);
-//                        } else {
-//                            Picasso.with(getActivity()).cancelRequest(remoteAvatar);
-//                            Picasso.with(getActivity()).load(avatar).fit().into(remoteAvatar);
-//                        }
-//                    }
+                    remoteAvatar.setVisibility(View.VISIBLE);
+                    Person person = mIdPersonMap.get(personId);
+                    if (person == null) {
+                        remoteAvatar.setImageResource(R.drawable.google_contacts_android);
+                        agent.getWebex().people().get(personId, r -> {
+                            if (!r.isSuccessful() || r.getData() == null) return;
+                            mIdPersonMap.put(personId, r.getData());
+                            updatePersonInfoForActiveSpeaker(personId, r.getData());
+                        });
+                    } else {
+                        String avatar = person.getAvatar();
+                        if (avatar == null || avatar.isEmpty()) {
+                            remoteAvatar.setImageResource(R.drawable.google_contacts_android);
+                        } else {
+                            Picasso.with(getActivity()).cancelRequest(remoteAvatar);
+                            Picasso.with(getActivity()).load(avatar).fit().into(remoteAvatar);
+                        }
+                    }
                 }
             }
         } else if (event.callEvent instanceof CallObserver.MembershipWaitingEvent) {

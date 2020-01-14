@@ -24,13 +24,10 @@
 package com.ciscowebex.androidsdk.kitchensink.actions;
 
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.Pair;
 import android.view.View;
 
-import com.cisco.spark.android.core.LoggingInterceptor;
 import com.ciscowebex.androidsdk.CompletionHandler;
 import com.ciscowebex.androidsdk.Result;
 import com.ciscowebex.androidsdk.Webex;
@@ -59,8 +56,6 @@ import static com.ciscowebex.androidsdk.kitchensink.actions.events.WebexAgentEve
  */
 
 public class WebexAgent {
-
-
 
     public enum CallCap {AUDIO_ONLY, AUDIO_VIDEO}
 
@@ -123,29 +118,14 @@ public class WebexAgent {
         return -1;
     }
 
-    public void deregister() {
-        phone = webex.phone();
-        phone.deregister(new CompletionHandler<Void>() {
-            @Override
-            public void onComplete(Result<Void> result) {
-
-            }
-        });
-    }
-
     public void register() {
         phone = webex.phone();
-        runOnUiThread(() -> phone.register(r -> {
+        phone.register(r -> {
             if (r.isSuccessful()) {
                 setupIncomingCallListener();
             }
             new LoginEvent(r).post();
-        }));
-    }
-
-    private void runOnUiThread(Runnable r) {
-        Handler mainHandler = new Handler(Looper.getMainLooper());
-        mainHandler.post(r);
+        });
     }
 
     private void setupIncomingCallListener() {
@@ -257,10 +237,6 @@ public class WebexAgent {
 
     public void setBackCamera() {
         if (activeCall != null) activeCall.setFacingMode(Phone.FacingMode.ENVIROMENT);
-    }
-
-    public void resetView(View localView, View remoteView) {
-        if (activeCall != null) activeCall.setVideoRenderViews(new Pair<>(localView, remoteView));
     }
 
     public void setDefaultCamera(CameraCap cap) {

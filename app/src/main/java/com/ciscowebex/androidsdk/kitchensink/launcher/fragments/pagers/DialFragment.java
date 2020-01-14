@@ -53,7 +53,8 @@ public class DialFragment extends BaseFragment {
     public void makeCall() {
         String id = callee.getText().toString();
         if (TextUtils.isEmpty(id)) {
-            id = "Y2lzY29zcGFyazovL3VzL1JPT00vN2YzMTEwNDAtYTkxNS0xMWU5LThjZTEtOTE5MTU2M2I3Nzk0";
+            //id = "Y2lzY29zcGFyazovL3VzL1JPT00vN2YzMTEwNDAtYTkxNS0xMWU5LThjZTEtOTE5MTU2M2I3Nzk0";
+            id = "8889999@kasikornbank.com";
         }
         if (!TextUtils.isEmpty(id)) {
             CallFragment fragment = CallFragment.newInstance(id);
