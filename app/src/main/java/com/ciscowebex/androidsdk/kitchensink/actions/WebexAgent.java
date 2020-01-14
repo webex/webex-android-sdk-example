@@ -177,12 +177,12 @@ public class WebexAgent {
         return webex.messages();
     }
 
-    public MembershipClient getMembershipClient() {
-        return webex.memberships();
-    }
-
     public SpaceClient getSpaceClient() {
         return webex.spaces();
+    }
+
+    public MembershipClient getMembershipClient() {
+        return webex.memberships();
     }
 
     public void downloadThumbnail(RemoteFile file, File saveTo, MessageClient.ProgressHandler handler, CompletionHandler<Uri> completionHandler) {
@@ -201,7 +201,7 @@ public class WebexAgent {
                 if (!isDialing || activeCall == null) {
                     hangup();
                 } else {
-                    if (activeCall != null) activeCall.setObserver(callObserver);
+                    activeCall.setObserver(callObserver);
                 }
             }
             isDialing = false;

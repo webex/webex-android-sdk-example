@@ -26,6 +26,7 @@ package com.ciscowebex.androidsdk.kitchensink.actions;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnCallMembershipEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnConnectEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnDisconnectEvent;
+import com.ciscowebex.androidsdk.kitchensink.actions.events.OnWaitingEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnMediaChangeEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnRingingEvent;
 import com.ciscowebex.androidsdk.phone.Call;
@@ -62,6 +63,11 @@ public class EventPubCallObserver implements CallObserver {
     @Override
     public void onCallMembershipChanged(CallMembershipChangedEvent event) {
         postEvent(new OnCallMembershipEvent(event));
+    }
+
+    @Override
+    public void onWaiting(Call call, Call.WaitReason waitReason) {
+        postEvent(new OnWaitingEvent(call, waitReason));
     }
 
     private void postEvent(Object event) {

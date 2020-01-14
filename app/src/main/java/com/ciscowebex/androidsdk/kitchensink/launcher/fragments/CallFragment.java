@@ -27,10 +27,12 @@ package com.ciscowebex.androidsdk.kitchensink.launcher.fragments;
 import android.app.AppOpsManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.PictureInPictureParams;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Binder;
@@ -39,10 +41,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
+import android.util.Rational;
 import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
@@ -67,6 +72,7 @@ import com.ciscowebex.androidsdk.kitchensink.actions.events.OnAuxStreamEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnCallMembershipEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnConnectEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnDisconnectEvent;
+import com.ciscowebex.androidsdk.kitchensink.actions.events.OnWaitingEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnMediaChangeEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnRingingEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.PermissionAcquiredEvent;
@@ -179,6 +185,7 @@ public class CallFragment extends BaseFragment {
     ImageView floatButton;
 
     private ParticipantsAdapter participantsAdapter;
+    private Snackbar snackbar;
 
     // Required empty public constructor
 
@@ -220,6 +227,18 @@ public class CallFragment extends BaseFragment {
         updateScreenShareView();
         if (participantsAdapter == null) {
             participantsAdapter = new ParticipantsAdapter(null);
+            participantsAdapter.setOnLetInClickListener(new ParticipantsAdapter.OnLetInClickListener() {
+                @Override
+                public void onLetInClick(ParticipantsAdapter.CallMembershipEntity entity) {
+                    for (CallMembership callMembership : agent.getActiveCall().getMemberships()) {
+                        if (callMembership.getPersonId().equals(entity.getPersonId())) {
+                            agent.getActiveCall().letIn(callMembership);
+                            break;
+                        }
+                    }
+
+                }
+            });
             viewParticipants.setAdapter(participantsAdapter);
         }
         if (!isConnected) {
@@ -395,10 +414,28 @@ public class CallFragment extends BaseFragment {
 
     @OnClick(R.id.floatButton)
     void showFloatingWindow() {
-        if (checkFloatPermission(getActivity())) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                && getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)) {
+            enterPicInPic();
+        } else if (checkFloatPermission(getActivity())) {
             startFloating();
         } else
             requestSettingCanDrawOverlays();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void enterPicInPic() {
+        PictureInPictureParams.Builder builder = new PictureInPictureParams.Builder();
+        Rational aspectRatio = new Rational(remoteView.getWidth(), remoteView.getHeight());
+        builder.setAspectRatio(aspectRatio);
+        getActivity().enterPictureInPictureMode(builder.build());
+    }
+
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        floatButton.setVisibility(isInPictureInPictureMode ? View.GONE : View.VISIBLE);
+        localView.setVisibility(isInPictureInPictureMode ? View.GONE : View.VISIBLE);
     }
 
     private ServiceConnection floatingConnection = new ServiceConnection() {
@@ -503,6 +540,17 @@ public class CallFragment extends BaseFragment {
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(OnWaitingEvent event) {
+        String text = "Waiting in lobby:" + event.waitReason.name();
+        if (snackbar != null) {
+            snackbar.setText(text);
+        } else
+            snackbar = Snackbar.make(layout, text, Snackbar.LENGTH_INDEFINITE);
+        snackbar.show();
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnConnectEvent event) {
         isConnected = true;
         startAwakeService();
@@ -533,6 +581,8 @@ public class CallFragment extends BaseFragment {
                 return null;
             }
         });
+        if (snackbar != null)
+            snackbar.dismiss();
     }
 
     private void updateParticipants() {
@@ -542,9 +592,9 @@ public class CallFragment extends BaseFragment {
         Ln.d("updateParticipants: " + callMemberships.size());
         for (CallMembership membership : callMemberships) {
             String personId = membership.getPersonId();
-            if (membership.getState() != CallMembership.State.JOINED || personId == null || personId.isEmpty() || membership.getEmail() == null || membership.getEmail().isEmpty())
+            if (/*membership.getState() != CallMembership.State.JOINED || */personId == null || personId.isEmpty() || membership.getEmail() == null || membership.getEmail().isEmpty())
                 continue;
-            participantsAdapter.addItem(new ParticipantsAdapter.CallMembershipEntity(personId, membership.getEmail(), "", membership.isSendingAudio(), membership.isSendingVideo()));
+            participantsAdapter.addOrUpdateItem(new ParticipantsAdapter.CallMembershipEntity(personId, membership.getEmail(), "", membership.isSendingAudio(), membership.isSendingVideo(), membership.getState()));
             agent.getWebex().people().get(personId, r -> {
                 if (r == null || !r.isSuccessful() || r.getData() == null) return;
                 mIdPersonMap.put(personId, r.getData());
@@ -597,6 +647,8 @@ public class CallFragment extends BaseFragment {
             mIdPersonMap.clear();
             feedback();
         }
+        if (snackbar != null)
+            snackbar.dismiss();
     }
 
     @SuppressWarnings("unused")
@@ -751,7 +803,7 @@ public class CallFragment extends BaseFragment {
             Ln.d("MembershipJoinedEvent: ");
             if (membership.getState() != CallMembership.State.JOINED || personId == null || personId.isEmpty() || membership.getEmail() == null || membership.getEmail().isEmpty())
                 return;
-            participantsAdapter.addItem(new ParticipantsAdapter.CallMembershipEntity(personId, membership.getEmail(), "", membership.isSendingAudio(), membership.isSendingVideo()));
+            participantsAdapter.addOrUpdateItem(new ParticipantsAdapter.CallMembershipEntity(personId, membership.getEmail(), "", membership.isSendingAudio(), membership.isSendingVideo(), membership.getState()));
             agent.getWebex().people().get(personId, r -> {
                 if (r == null || !r.isSuccessful() || r.getData() == null) return;
                 updatePersonInfoForParticipants(personId, r.getData());
@@ -790,6 +842,16 @@ public class CallFragment extends BaseFragment {
 //                    }
                 }
             }
+        } else if (event.callEvent instanceof CallObserver.MembershipWaitingEvent) {
+            Ln.d("MembershipJoinedLobbyEvent: ");
+            if (membership.getState() != CallMembership.State.WAITING || personId == null || personId.isEmpty() || membership.getEmail() == null || membership.getEmail().isEmpty())
+                return;
+            participantsAdapter.addOrUpdateItem(new ParticipantsAdapter.CallMembershipEntity(personId, membership.getEmail(), "", membership.isSendingAudio(), membership.isSendingVideo(), membership.getState()));
+            agent.getWebex().people().get(personId, r -> {
+                if (r == null || !r.isSuccessful() || r.getData() == null) return;
+                Ln.d("people: " + r.getData());
+                updatePersonInfoForParticipants(personId, r.getData());
+            });
         }
     }
 
