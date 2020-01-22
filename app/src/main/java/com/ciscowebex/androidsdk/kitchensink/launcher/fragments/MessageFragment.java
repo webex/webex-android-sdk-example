@@ -5,6 +5,8 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -24,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.cisco.spark.android.util.MimeUtils;
 import com.ciscowebex.androidsdk.kitchensink.R;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
 import com.ciscowebex.androidsdk.kitchensink.actions.commands.RequirePermissionAction;
@@ -46,6 +49,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -164,7 +168,13 @@ public class MessageFragment extends BaseFragment {
             for (File f : selectedFile) {
                 if (f.exists()) {
                     Ln.i("select file: " + f);
-                    LocalFile localFile = new LocalFile(f, null, null, v -> textStatus.setText(String.format("sending %s...  %s%%", f.getName(), v)));
+                    LocalFile.Thumbnail thumbnail = null;
+                    if (MimeUtils.getContentTypeByFilename(f.getName()) == MimeUtils.ContentType.IMAGE){
+                        Bitmap bitmap= BitmapFactory.decodeFile(f.getAbsolutePath());
+                        thumbnail = new LocalFile.Thumbnail(f, null, bitmap.getWidth(), bitmap.getHeight());
+                        bitmap.recycle();
+                    }
+                    LocalFile localFile = new LocalFile(f, null, thumbnail, v -> textStatus.setText(String.format("sending %s...  %s%%", f.getName(), v)));
                     arrayList.add(localFile);
                 }
             }
@@ -381,7 +391,7 @@ public class MessageFragment extends BaseFragment {
             } else {
                 holder.textMention.setVisibility(View.GONE);
             }
-            List<RemoteFile> list = message.getRemoteFiles();
+            List<RemoteFile> list = message.getFiles();
             if (list != null && list.size() > 0) {
                 FilesAdapter adapter = new FilesAdapter(mContext);
                 holder.recyclerFiles.setLayoutManager(new LinearLayoutManager(mContext));
