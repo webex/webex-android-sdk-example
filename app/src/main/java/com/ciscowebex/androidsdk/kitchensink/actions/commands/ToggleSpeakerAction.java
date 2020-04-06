@@ -27,6 +27,7 @@ import android.content.Context;
 
 import com.ciscowebex.androidsdk.kitchensink.actions.IAction;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
+import com.github.benoitdion.ln.Ln;
 
 
 /**
@@ -47,6 +48,8 @@ public class ToggleSpeakerAction implements IAction {
         android.media.AudioManager am = (android.media.AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         am.setMode(android.media.AudioManager.MODE_IN_COMMUNICATION);
         am.setSpeakerphoneOn(on);
+        Ln.i("###############: Mode2 " + am.getMode());
+        Ln.i("###############: Speaker2 " + am.isSpeakerphoneOn());
         WebexAgent.getInstance().setSpeakerPhoneOn(on);
     }
 }

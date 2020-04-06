@@ -32,6 +32,7 @@ import com.ciscowebex.androidsdk.kitchensink.actions.events.OnRingingEvent;
 import com.ciscowebex.androidsdk.phone.Call;
 import com.ciscowebex.androidsdk.phone.CallObserver;
 
+import com.github.benoitdion.ln.Ln;
 import org.greenrobot.eventbus.EventBus;
 
 
@@ -52,6 +53,7 @@ public class EventPubCallObserver implements CallObserver {
 
     @Override
     public void onDisconnected(CallDisconnectedEvent callDisconnectedEvent) {
+        Ln.i("#################: " + callDisconnectedEvent);
         postEvent(new OnDisconnectEvent(callDisconnectedEvent));
     }
 

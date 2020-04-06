@@ -530,6 +530,7 @@ public class CallFragment extends BaseFragment {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(HangupEvent event) {
+        Ln.i("####################: " + event) ;
         setButtonsEnable(false);
     }
 
