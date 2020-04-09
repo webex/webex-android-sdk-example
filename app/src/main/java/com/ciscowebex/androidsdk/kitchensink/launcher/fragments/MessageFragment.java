@@ -26,7 +26,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.cisco.spark.android.util.MimeUtils;
 import com.ciscowebex.androidsdk.kitchensink.R;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
 import com.ciscowebex.androidsdk.kitchensink.actions.commands.RequirePermissionAction;
@@ -41,6 +40,7 @@ import com.ciscowebex.androidsdk.message.MessageClient;
 import com.ciscowebex.androidsdk.message.MessageObserver;
 import com.ciscowebex.androidsdk.message.RemoteFile;
 import com.ciscowebex.androidsdk.space.SpaceClient;
+import com.ciscowebex.androidsdk.utils.MimeUtils;
 import com.github.benoitdion.ln.Ln;
 
 import org.greenrobot.eventbus.Subscribe;
