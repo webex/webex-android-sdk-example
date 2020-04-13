@@ -34,6 +34,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
@@ -184,6 +186,15 @@ public class CallFragment extends BaseFragment {
     @BindView(R.id.floatButton)
     ImageView floatButton;
 
+    @BindView(R.id.tab_callcontrol)
+    TextView tabCallControl;
+
+    @BindView(R.id.tab_aux_video)
+    TextView tabAuxVideo;
+
+    @BindView(R.id.tab_participants)
+    TextView tabParticipants;
+
     private ParticipantsAdapter participantsAdapter;
     private Snackbar snackbar;
 
@@ -222,6 +233,17 @@ public class CallFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
+        Drawable drawableCallControl = getResources().getDrawable(R.drawable.ic_file_word, null);
+        Drawable drawableAuxVideo = getResources().getDrawable(R.drawable.ic_file_excel, null);
+        Drawable drawableParticipants = getResources().getDrawable(R.drawable.ic_file_zip, null);
+        Rect bounds = new Rect(0, 0, 120, 120);
+        drawableCallControl.setBounds(bounds);
+        drawableAuxVideo.setBounds(bounds);
+        drawableParticipants.setBounds(bounds);
+        tabCallControl.setCompoundDrawables(null, drawableCallControl, null, null);
+        tabAuxVideo.setCompoundDrawables(null, drawableAuxVideo, null, null);
+        tabParticipants.setCompoundDrawables(null, drawableParticipants, null, null);
+
         agent = WebexAgent.getInstance();
         screenSwitcher = new FullScreenSwitcher(getActivity(), layout, remoteView);
         updateScreenShareView();

@@ -33,6 +33,7 @@ import com.ciscowebex.androidsdk.kitchensink.login.LoginActivity;
 import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
 
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.OnClick;
 
@@ -84,8 +85,8 @@ public class LauncherFragment extends BaseFragment {
     }
 
     @SuppressWarnings("unused")
-    @Subscribe
-    public void onEventMainThread(LogoutEvent event) {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(LogoutEvent event) {
         dismissBusyIndicator();
         toast("Logout success");
         Intent i = new Intent(getActivity(), LoginActivity.class);

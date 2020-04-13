@@ -68,39 +68,36 @@
         android:id="@+id/view_bottom_bar"
         android:layout_width="match_parent"
         android:orientation="horizontal"
-        android:layout_height="55dp"
+        android:layout_height="wrap_content"
         android:padding="5dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <TextView
             android:id="@+id/tab_callcontrol"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Call Control"
-            android:textSize="8sp"
-            android:gravity="center"
-            android:drawableTop="@drawable/ic_file_word" />
+            android:textSize="14sp"
+            android:gravity="center" />
 
         <TextView
             android:id="@+id/tab_aux_video"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Auxiliary Videos"
-            android:textSize="8sp"
-            android:gravity="center"
-            android:drawableTop="@drawable/ic_file_excel" />
+            android:textSize="14sp"
+            android:gravity="center" />
 
         <TextView
             android:id="@+id/tab_participants"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Participants"
-            android:textSize="8sp"
-            android:gravity="center"
-            android:drawableTop="@drawable/ic_file_zip"/>
+            android:textSize="14sp"
+            android:gravity="center"/>
     </LinearLayout>
 
     <ScrollView

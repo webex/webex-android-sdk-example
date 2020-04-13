@@ -25,6 +25,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ciscowebex.androidsdk.kitchensink.R;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
@@ -203,7 +204,7 @@ public class MessageFragment extends BaseFragment {
         InputMethodManager inputMethodManager =
                 (InputMethodManager) getActivity().getSystemService(
                         Activity.INPUT_METHOD_SERVICE);
-        if (inputMethodManager != null) {
+        if (inputMethodManager != null && getActivity().getCurrentFocus() != null) {
             inputMethodManager.hideSoftInputFromWindow(
                     getActivity().getCurrentFocus().getWindowToken(), 0);
         }
@@ -213,7 +214,9 @@ public class MessageFragment extends BaseFragment {
     public void sendMessage(View btn) {
         if (!TextUtils.isEmpty(textMessage.getText())) {
             btn.setEnabled(false);
-            messageClient.postToSpace(targetId, textMessage.getText().toString(), generateMentions(), generateLocalFiles(), rst -> {
+            messageClient.post(targetId, Message.draft(Message.Text.plain(textMessage.getText().toString()))
+                    .addMentions(generateMentions())
+                    .addAttachments(generateLocalFiles()), rst -> {
                 Ln.e("posted:" + rst);
                 selectedFile.clear();
                 btn.setEnabled(true);
