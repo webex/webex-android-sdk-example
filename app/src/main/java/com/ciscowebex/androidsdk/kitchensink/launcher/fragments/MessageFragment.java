@@ -175,7 +175,7 @@ public class MessageFragment extends BaseFragment {
                         thumbnail = new LocalFile.Thumbnail(f, null, bitmap.getWidth(), bitmap.getHeight());
                         bitmap.recycle();
                     }
-                    LocalFile localFile = new LocalFile(f, null, thumbnail, v -> textStatus.setText(String.format("sending %s...  %s%%", f.getName(), v)));
+                    LocalFile localFile = new LocalFile(f, null, thumbnail, v -> textStatus.setText(String.format("sending %s...  %s bytes", f.getName(), v)));
                     arrayList.add(localFile);
                 }
             }
@@ -220,6 +220,11 @@ public class MessageFragment extends BaseFragment {
                 Ln.e("posted:" + rst);
                 selectedFile.clear();
                 btn.setEnabled(true);
+                textStatus.setText("sent");
+                if (rst.isSuccessful()){
+                    adapterMessage.mData.add(rst.getData());
+                    adapterMessage.notifyDataSetChanged();
+                }
             });
             textStatus.setText("sending ...");
             textMessage.setText("");
