@@ -1,6 +1,7 @@
 # Cisco Webex Android SDK Example
 
-This demo employs Cisco Webex service through [Webex Android SDK](https://github.com/webex/webex-android-sdk).
+This "Kitchen Sink" demo employs Cisco Webex service through [Webex Android SDK](https://github.com/webex/webex-android-sdk).  It provides a developer friendly sample implementation of Webex client SDK and showcases all SDK features. It focuses on how to call and use "Webex-SDK" APIs. Developers could directly cut, paste, and use the code from this sample. It basically implements “Webex-SDK” APIs by sequence.
+
 This demo support Android device with **Android 6.0** or later
 
 ## Table of Contents
@@ -9,6 +10,19 @@ This demo support Android device with **Android 6.0** or later
 - [Install](#install)
 - [Usage](#usage)
 
+
+## Screenshots 
+<ul>
+<img src="https://github.com/webex/webex-android-sdk-example/blob/master/docs/Screenshot_Kitchensink_Android_MainPage.jpg" width="22%" height="23%">
+<img src="https://github.com/webex/webex-android-sdk-example/blob/master/docs/Screenshot_Kitchensink_Android_CallPage.jpg" width="22%" height="23%">
+<img src="https://github.com/webex/webex-android-sdk-example/blob/master/docs/Screenshot_20180907-164030.png" width="22%" height="23%">
+<img src="https://github.com/webex/webex-android-sdk-example/blob/master/docs/Screenshot_Kitchensink_Android_MessagePage.jpg" width="22%" height="23%">
+</ul>
+
+1. ScreenShot-1: Main page of Application, listing main functions of this demo.
+2. ScreenShot-2: Initiate call page, contains call configuration options.
+3. ScreenShot-3: Calling room with multi-stream view.
+4. ScreenShot-4: Show messaing APIs with present payloads.
 
 ## Setup
 
