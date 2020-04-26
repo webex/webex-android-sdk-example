@@ -13,10 +13,10 @@ This demo support Android device with **Android 6.0** or later
 
 ## Screenshots 
 <ul>
-<img src="https://github.com/jpjpjp/webex-android-sdk-example/blob/master/docs/Screenshot_Kitchensink_Android_MainPage.jpg" width="22%" height="23%">
-<img src="https://github.com/jpjpjp/webex-android-sdk-example/blob/master/docs/Screenshot_Kitchensink_Android_CallPage.jpg" width="22%" height="23%">
-<img src="https://github.com/jpjpjp/webex-android-sdk-example/blob/master/docs/Screenshot_20180907-164030.png" width="22%" height="23%">
-<img src="https://github.com/jpjpjp/webex-android-sdk-example/blob/master/docs/Screenshot_Kitchensink_Android_MessagePage.jpg" width="22%" height="23%">
+<img src="https://github.com/webex/webex-android-sdk-example/blob/master/docs/Screenshot_Kitchensink_Android_MainPage.jpg" width="22%" height="23%">
+<img src="https://github.com/webex/webex-android-sdk-example/blob/master/docs/Screenshot_Kitchensink_Android_CallPage.jpg" width="22%" height="23%">
+<img src="https://github.com/webex/webex-android-sdk-example/blob/master/docs/Screenshot_20180907-164030.png" width="22%" height="23%">
+<img src="https://github.com/webex/webex-android-sdk-example/blob/master/docs/Screenshot_Kitchensink_Android_MessagePage.jpg" width="22%" height="23%">
 </ul>
 
 1. ScreenShot-1: Main page of Application, listing main functions of this demo.
