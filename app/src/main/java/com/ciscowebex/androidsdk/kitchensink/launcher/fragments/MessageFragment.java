@@ -135,12 +135,26 @@ public class MessageFragment extends BaseFragment {
                 //if (event.getMessage().getPersonEmail().equals("sparksdktestuser16@tropo.com")) {
                 textStatus.setText("");
                 //}
-            } else if (evt instanceof MessageObserver.MessageDeleted){
+            } else if (evt instanceof MessageObserver.MessageDeleted) {
                 MessageObserver.MessageDeleted event = (MessageObserver.MessageDeleted) evt;
                 Ln.i("message deleted " + event.getMessageId());
+            } else if (evt instanceof MessageObserver.MessageUpdated) {
+                MessageObserver.MessageUpdated event = (MessageObserver.MessageUpdated) evt;
+                Ln.i("message updated " + event.getMessage());
+                int index = -1;
+                for (int i = 0; i < adapterMessage.mData.size(); i++) {
+                    Message message = adapterMessage.mData.get(i);
+                    if (message.getId().equals(event.getMessage().getId())) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index != -1) {
+                    adapterMessage.mData.set(index, event.getMessage());
+                    adapterMessage.notifyDataSetChanged();
+                }
             }
         });
-
         recyclerMembership.setLayoutManager(new LinearLayoutManager(this.getActivity()));
         adapterMembership = new MembershipAdapter(this.getActivity());
         adapterMembership.mData.add("ALL");
@@ -170,8 +184,8 @@ public class MessageFragment extends BaseFragment {
                 if (f.exists()) {
                     Ln.i("select file: " + f);
                     LocalFile.Thumbnail thumbnail = null;
-                    if (MimeUtils.getContentTypeByFilename(f.getName()) == MimeUtils.ContentType.IMAGE){
-                        Bitmap bitmap= BitmapFactory.decodeFile(f.getAbsolutePath());
+                    if (MimeUtils.getContentTypeByFilename(f.getName()) == MimeUtils.ContentType.IMAGE) {
+                        Bitmap bitmap = BitmapFactory.decodeFile(f.getAbsolutePath());
                         thumbnail = new LocalFile.Thumbnail(f, null, bitmap.getWidth(), bitmap.getHeight());
                         bitmap.recycle();
                     }
@@ -192,7 +206,7 @@ public class MessageFragment extends BaseFragment {
             if (o instanceof String) {
                 mentionList.add(mentionAll);
             } else {
-                mentionList.add(new Mention.Person(((Membership)o).getPersonId()));
+                mentionList.add(new Mention.Person(((Membership) o).getPersonId()));
             }
         }
         Mention[] mentionArray = new Mention[mentionList.size()];
@@ -212,7 +226,7 @@ public class MessageFragment extends BaseFragment {
 
     @OnClick(R.id.send_button)
     public void sendMessage(View btn) {
-        if (!TextUtils.isEmpty(textMessage.getText())) {
+        if (!TextUtils.isEmpty(textMessage.getText()) || (selectedFile != null && !selectedFile.isEmpty())) {
             btn.setEnabled(false);
             messageClient.post(targetId, Message.draft(Message.Text.plain(textMessage.getText().toString()))
                     .addMentions(generateMentions())
@@ -221,7 +235,7 @@ public class MessageFragment extends BaseFragment {
                 selectedFile.clear();
                 btn.setEnabled(true);
                 textStatus.setText("sent");
-                if (rst.isSuccessful()){
+                if (rst.isSuccessful()) {
                     adapterMessage.mData.add(rst.getData());
                     adapterMessage.notifyDataSetChanged();
                 }
@@ -486,7 +500,7 @@ public class MessageFragment extends BaseFragment {
             Object object = mData.get(position);
             if (object instanceof String) {
                 holder.textContent.setText("ALL");
-            } else if (object instanceof Membership){
+            } else if (object instanceof Membership) {
                 holder.textContent.setText(((Membership) object).getPersonDisplayName());
             }
         }
