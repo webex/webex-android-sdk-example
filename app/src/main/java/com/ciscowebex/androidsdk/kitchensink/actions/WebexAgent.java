@@ -86,7 +86,7 @@ public class WebexAgent {
 
     public void setWebex(Webex webex) {
         this.webex = webex;
-        //this.webex.setLogLevel(Webex.LogLevel.ALL);
+        this.webex.setLogLevel(Webex.LogLevel.ALL);
     }
 
     public Phone getPhone() {
@@ -105,15 +105,28 @@ public class WebexAgent {
         isSpeakerOn = on;
     }
 
-    public void setMaxBandWidth(int maxBandWidth) {
+    public void setMaxRxBandWidth(int maxBandWidth) {
         if (phone != null) {
-            phone.setVideoMaxBandwidth(maxBandWidth);
+            phone.setVideoMaxRxBandwidth(maxBandWidth);
         }
     }
 
-    public int getMaxBandWidth() {
+    public void setMaxTxBandWidth(int maxBandWidth) {
         if (phone != null) {
-            return phone.getVideoMaxBandwidth();
+            phone.setVideoMaxTxBandwidth(maxBandWidth);
+        }
+    }
+
+    public int getMaxRxBandWidth() {
+        if (phone != null) {
+            return phone.getVideoMaxRxBandwidth();
+        }
+        return -1;
+    }
+
+    public int getMaxTxBandWidth() {
+        if (phone != null) {
+            return phone.getVideoMaxTxBandwidth();
         }
         return -1;
     }

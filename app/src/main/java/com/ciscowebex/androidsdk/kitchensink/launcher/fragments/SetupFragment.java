@@ -36,6 +36,7 @@ import com.ciscowebex.androidsdk.kitchensink.actions.commands.ToggleSpeakerActio
 import com.ciscowebex.androidsdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
 
+import com.github.benoitdion.ln.Ln;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Arrays;
@@ -76,7 +77,10 @@ public class SetupFragment extends BaseFragment {
     RadioButton radioClosePreview;
 
     @BindView(R.id.spinnerBandWidth)
-    Spinner maxBandwidth;
+    Spinner maxRxBandwidth;
+
+    @BindView(R.id.spinnerTxBandWidth)
+    Spinner maxTxBandwidth;
 
     public SetupFragment() {
         // Required empty public constructor
@@ -124,13 +128,20 @@ public class SetupFragment extends BaseFragment {
         }
 
         // Setup max bandwidth
-        int bw = agent.getMaxBandWidth();
+        int bw = agent.getMaxRxBandWidth();
         int index = Arrays.binarySearch(BANDWIDTH, bw);
         if (index == -1) {
             // default max bandwidth 2000000
             index = 4;
         }
-        maxBandwidth.setSelection(index);
+        maxRxBandwidth.setSelection(index);
+        bw = agent.getMaxTxBandWidth();
+        index = Arrays.binarySearch(BANDWIDTH, bw);
+        if (index == -1) {
+            // default max bandwidth 2000000
+            index = 4;
+        }
+        maxTxBandwidth.setSelection(index);
     }
 
     @OnClick({R.id.audioCallOnly, R.id.audioVideoCall})
@@ -185,7 +196,12 @@ public class SetupFragment extends BaseFragment {
 
     @OnItemSelected(R.id.spinnerBandWidth)
     public void onMaxBandWidthSpinnerSelected(Spinner spinner, int position) {
-        agent.setMaxBandWidth(BANDWIDTH[position]);
+        agent.setMaxRxBandWidth(BANDWIDTH[position]);
+    }
+
+    @OnItemSelected(R.id.spinnerTxBandWidth)
+    public void onMaxTxBandWidthSpinnerSelected(Spinner spinner, int position) {
+        agent.setMaxTxBandWidth(BANDWIDTH[position]);
     }
 
     @SuppressWarnings("unused")

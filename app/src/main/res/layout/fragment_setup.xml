@@ -151,7 +151,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="32dp"
-            android:text="@string/max_bandwidth"
+            android:text="@string/max_rxBandwidth"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/radioGroup3" />
 
@@ -164,6 +164,26 @@
             app:layout_constraintBottom_toBottomOf="@+id/bandwidth"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/bandwidth" />
+
+        <TextView
+                android:id="@+id/txBandwidth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="24dp"
+                android:text="@string/max_txBandwidth"
+                app:layout_constraintStart_toStartOf="@+id/guideline"
+                app:layout_constraintTop_toBottomOf="@+id/bandwidth" />
+
+        <Spinner
+                android:id="@+id/spinnerTxBandWidth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:entries="@array/maxBandWidth"
+                app:layout_constraintBottom_toBottomOf="@+id/txBandwidth"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/txBandwidth" />
     </android.support.constraint.ConstraintLayout>
 
 </ScrollView>
