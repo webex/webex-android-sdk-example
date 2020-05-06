@@ -15,14 +15,12 @@ This demo support Android device with **Android 6.0** or later
 <ul>
 <img src="https://github.com/jpjpjp/webex-android-sdk-example/blob/master/docs/Screenshot_Kitchensink_Android_MainPage.jpg" width="22%" height="23%">
 <img src="https://github.com/jpjpjp/webex-android-sdk-example/blob/master/docs/Screenshot_Kitchensink_Android_CallPage.jpg" width="22%" height="23%">
-<img src="https://github.com/jpjpjp/webex-android-sdk-example/blob/master/docs/Screenshot_20180907-164030.png" width="22%" height="23%">
 <img src="https://github.com/jpjpjp/webex-android-sdk-example/blob/master/docs/Screenshot_Kitchensink_Android_MessagePage.jpg" width="22%" height="23%">
 </ul>
 
 1. ScreenShot-1: Main page of Application, listing main functions of this demo.
 2. ScreenShot-2: Initiate call page, contains call configuration options.
-3. ScreenShot-3: Calling room with multi-stream view.
-4. ScreenShot-4: Show messaing APIs with present payloads.
+3. ScreenShot-3: Show messaing APIs with present payloads.
 
 ## Setup
 
