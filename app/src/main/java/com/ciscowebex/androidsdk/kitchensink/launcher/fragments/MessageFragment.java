@@ -138,19 +138,21 @@ public class MessageFragment extends BaseFragment {
             } else if (evt instanceof MessageObserver.MessageDeleted) {
                 MessageObserver.MessageDeleted event = (MessageObserver.MessageDeleted) evt;
                 Ln.i("message deleted " + event.getMessageId());
-            } else if (evt instanceof MessageObserver.MessageUpdated) {
-                MessageObserver.MessageUpdated event = (MessageObserver.MessageUpdated) evt;
-                Ln.i("message updated " + event.getMessage());
+            } else if (evt instanceof MessageObserver.MessageFileThumbnailsUpdated) {
+                MessageObserver.MessageFileThumbnailsUpdated event = (MessageObserver.MessageFileThumbnailsUpdated) evt;
+                Ln.i("message updated, ID=" + event.getMessageId());
                 int index = -1;
                 for (int i = 0; i < adapterMessage.mData.size(); i++) {
                     Message message = adapterMessage.mData.get(i);
-                    if (message.getId().equals(event.getMessage().getId())) {
+                    if (message.getId().equals(event.getMessageId())) {
                         index = i;
                         break;
                     }
                 }
                 if (index != -1) {
-                    adapterMessage.mData.set(index, event.getMessage());
+                    Message message = adapterMessage.mData.get(index);
+                    message.setFiles(event.getFiles());
+                    adapterMessage.mData.set(index, message);
                     adapterMessage.notifyDataSetChanged();
                 }
             }
