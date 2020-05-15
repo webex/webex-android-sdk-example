@@ -74,9 +74,9 @@ import com.ciscowebex.androidsdk.kitchensink.actions.events.OnAuxStreamEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnCallMembershipEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnConnectEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnDisconnectEvent;
-import com.ciscowebex.androidsdk.kitchensink.actions.events.OnWaitingEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnMediaChangeEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnRingingEvent;
+import com.ciscowebex.androidsdk.kitchensink.actions.events.OnWaitingEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.ciscowebex.androidsdk.kitchensink.launcher.LauncherActivity;
 import com.ciscowebex.androidsdk.kitchensink.service.AwakeService;
@@ -674,7 +674,7 @@ public class CallFragment extends BaseFragment {
     }
 
     @SuppressWarnings("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void onEventMainThread(OnMediaChangeEvent event) {
         if (event.callEvent instanceof RemoteSendingSharingEvent) {
             Ln.d("RemoteSendingSharingEvent: " + ((RemoteSendingSharingEvent) event.callEvent).isSending());

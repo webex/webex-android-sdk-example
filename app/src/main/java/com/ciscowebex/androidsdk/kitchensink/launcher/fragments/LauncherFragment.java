@@ -88,10 +88,14 @@ public class LauncherFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(LogoutEvent event) {
         dismissBusyIndicator();
-        toast("Logout success");
-        Intent i = new Intent(getActivity(), LoginActivity.class);
-        i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(i);
-        getActivity().finish();
+        if (event.isSuccessful()) {
+            toast("Logout success");
+            Intent i = new Intent(getActivity(), LoginActivity.class);
+            i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(i);
+            getActivity().finish();
+        } else {
+            toast("Logout fail");
+        }
     }
 }

@@ -23,6 +23,8 @@
 
 package com.ciscowebex.androidsdk.kitchensink.actions;
 
+import com.ciscowebex.androidsdk.internal.reachability.BackgroundChecker;
+import com.ciscowebex.androidsdk.internal.reachability.ForegroundChecker;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnCallMembershipEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnConnectEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnDisconnectEvent;
@@ -31,6 +33,7 @@ import com.ciscowebex.androidsdk.kitchensink.actions.events.OnMediaChangeEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnRingingEvent;
 import com.ciscowebex.androidsdk.phone.Call;
 import com.ciscowebex.androidsdk.phone.CallObserver;
+import com.ciscowebex.androidsdk.utils.Utils;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -71,6 +74,10 @@ public class EventPubCallObserver implements CallObserver {
     }
 
     private void postEvent(Object event) {
-        EventBus.getDefault().post(event);
+        if (ForegroundChecker.getInstance().isForeground()) {
+            EventBus.getDefault().post(event);
+        } else {
+            EventBus.getDefault().postSticky(event);
+        }
     }
 }

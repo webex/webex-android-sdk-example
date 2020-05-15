@@ -35,6 +35,10 @@ public class LogoutAction implements IAction {
     @Override
     public void execute() {
         WebexAgent agent = WebexAgent.getInstance();
-        agent.getPhone().deregister(r -> new LogoutEvent(r).post());
+        agent.getPhone().deregister(r -> {
+            if (r.isSuccessful())
+                agent.getWebex().getAuthenticator().deauthorize();
+            new LogoutEvent(r).post();
+        });
     }
 }
