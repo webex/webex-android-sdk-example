@@ -31,6 +31,7 @@ import android.view.View;
 import com.ciscowebex.androidsdk.CompletionHandler;
 import com.ciscowebex.androidsdk.Result;
 import com.ciscowebex.androidsdk.Webex;
+import com.ciscowebex.androidsdk.WebexError;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.AnswerEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.DialEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.HangupEvent;
@@ -166,7 +167,7 @@ public class WebexAgent {
     }
 
     public void downloadThumbnail(RemoteFile file, File saveTo, MessageClient.ProgressHandler handler, CompletionHandler<Uri> completionHandler) {
-        getMessageClient().downloadThumbnail(file,  saveTo, handler, completionHandler);
+        getMessageClient().downloadThumbnail(file, saveTo, handler, completionHandler);
     }
 
     public void downloadFile(RemoteFile file, File saveTo, MessageClient.ProgressHandler handler, CompletionHandler<Uri> completionHandler) {
@@ -174,8 +175,12 @@ public class WebexAgent {
     }
 
     public void dial(String callee, View localView, View remoteView, View screenSharing) {
+        dial(callee, localView, remoteView, screenSharing, false, null);
+    }
+
+    public void dial(String callee, View localView, View remoteView, View screenSharing, boolean isModerator, String PIN){
         isDialing = true;
-        phone.dial(callee, getMediaOption(localView, remoteView, screenSharing), (Result<Call> result) -> {
+        phone.dial(callee, getMediaOption(localView, remoteView, screenSharing), isModerator, PIN, result -> {
             if (result.isSuccessful()) {
                 activeCall = result.getData();
                 if (!isDialing || activeCall == null) {
@@ -210,15 +215,19 @@ public class WebexAgent {
     }
 
     public void answer(View localView, View remoteView, View screenShare) {
+        answer(localView, remoteView, screenShare, false, null);
+    }
+
+    public void answer(View localView, View remoteView, View screenShare, boolean isModerator, String PIN){
         if (isCallIncoming()) {
             activeCall = incomingCall;
             incomingCall = null;
             activeCall.setObserver(callObserver);
-            activeCall.answer(getMediaOption(localView, remoteView, screenShare), r -> new AnswerEvent(r).post());
+            activeCall.answer(getMediaOption(localView, remoteView, screenShare), isModerator, PIN, r -> new AnswerEvent(r).post());
         }
     }
 
-    public void setVideoRenderViews(@Nullable Pair<View, View> videoRenderViews){
+    public void setVideoRenderViews(@Nullable Pair<View, View> videoRenderViews) {
         activeCall.setVideoRenderViews(videoRenderViews);
     }
 
