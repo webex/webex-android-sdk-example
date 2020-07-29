@@ -386,7 +386,7 @@ public class CallFragment extends BaseFragment {
                 if (s.isChecked())
                     agent.getActiveCall().startSharing(r -> {
                         Ln.d("startSharing result: " + r);
-                        if (!r.isSuccessful()){
+                        if (!r.isSuccessful()) {
                             switchShareContent.setChecked(false);
                         }
                     });

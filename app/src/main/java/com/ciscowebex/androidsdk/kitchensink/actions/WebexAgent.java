@@ -166,7 +166,7 @@ public class WebexAgent {
     }
 
     public void downloadThumbnail(RemoteFile file, File saveTo, MessageClient.ProgressHandler handler, CompletionHandler<Uri> completionHandler) {
-        getMessageClient().downloadThumbnail(file,  saveTo, handler, completionHandler);
+        getMessageClient().downloadThumbnail(file, saveTo, handler, completionHandler);
     }
 
     public void downloadFile(RemoteFile file, File saveTo, MessageClient.ProgressHandler handler, CompletionHandler<Uri> completionHandler) {
@@ -218,7 +218,7 @@ public class WebexAgent {
         }
     }
 
-    public void setVideoRenderViews(@Nullable Pair<View, View> videoRenderViews){
+    public void setVideoRenderViews(@Nullable Pair<View, View> videoRenderViews) {
         activeCall.setVideoRenderViews(videoRenderViews);
     }
 
