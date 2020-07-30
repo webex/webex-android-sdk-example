@@ -26,13 +26,14 @@ package com.ciscowebex.androidsdk.kitchensink.actions.commands;
 import com.ciscowebex.androidsdk.kitchensink.actions.IAction;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.SearchSpaceCompleteEvent;
+import com.ciscowebex.androidsdk.space.SpaceClient;
 
 
 public class SearchSpaceAction implements IAction {
 	@Override
 	public void execute() {
 		WebexAgent agent = WebexAgent.getInstance();
-		agent.getWebex().spaces().list(null, 0, null, null, result -> {
+		agent.getWebex().spaces().list(null, 0, null, SpaceClient.SortBy.LASTACTIVITY, result -> {
 			new SearchSpaceCompleteEvent(result).post();
 		});
 	}
