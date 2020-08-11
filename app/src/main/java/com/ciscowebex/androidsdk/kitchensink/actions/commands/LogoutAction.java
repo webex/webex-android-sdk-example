@@ -23,6 +23,7 @@
 
 package com.ciscowebex.androidsdk.kitchensink.actions.commands;
 
+import com.ciscowebex.androidsdk.WebexError;
 import com.ciscowebex.androidsdk.kitchensink.actions.IAction;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.LogoutEvent;
@@ -36,7 +37,7 @@ public class LogoutAction implements IAction {
     public void execute() {
         WebexAgent agent = WebexAgent.getInstance();
         agent.getPhone().deregister(r -> {
-            if (r.isSuccessful())
+            if (r.isSuccessful() || (r.getError()!= null && r.getError().getErrorCode() == WebexError.ErrorCode.NETWORK_ERROR.getCode()))
                 agent.getWebex().getAuthenticator().deauthorize();
             new LogoutEvent(r).post();
         });

@@ -24,6 +24,7 @@
 package com.ciscowebex.androidsdk.kitchensink.launcher.fragments;
 
 
+import android.app.AlertDialog;
 import android.app.AppOpsManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -48,6 +49,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.util.Rational;
 import android.view.LayoutInflater;
@@ -55,13 +57,16 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ciscowebex.androidsdk.WebexError;
 import com.ciscowebex.androidsdk.kitchensink.R;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
 import com.ciscowebex.androidsdk.kitchensink.actions.commands.AddCallHistoryAction;
@@ -386,7 +391,7 @@ public class CallFragment extends BaseFragment {
                 if (s.isChecked())
                     agent.getActiveCall().startSharing(r -> {
                         Ln.d("startSharing result: " + r);
-                        if (!r.isSuccessful()){
+                        if (!r.isSuccessful()) {
                             switchShareContent.setChecked(false);
                         }
                     });
@@ -519,11 +524,11 @@ public class CallFragment extends BaseFragment {
 
         if (callee.equals(INCOMING_CALL)) {
             setButtonsEnable(false);
-            agent.answer(localView, remoteView, screenShare);
+            agent.answer(localView, remoteView, screenShare, false, null);
             return;
         }
 
-        agent.dial(callee, localView, remoteView, screenShare);
+        agent.dial(callee, localView, remoteView, screenShare, false, null);
         new AddCallHistoryAction(callee, "out").execute();
         setButtonsEnable(true);
     }
@@ -542,9 +547,63 @@ public class CallFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(DialEvent event) {
         if (!event.isSuccessful()) {
-            Toast.makeText(getActivity(), "Dial failed!", Toast.LENGTH_SHORT).show();
-            feedback();
+            if (event.getError() != null && event.getError().getErrorCode() == WebexError.ErrorCode.HOST_PIN_OR_MEETING_PASSWORD_REQUIRED.getCode()) {
+                showPasswordDialog();
+            } else {
+                Toast.makeText(getActivity(), "Dial failed!", Toast.LENGTH_SHORT).show();
+                feedback();
+            }
         }
+    }
+
+    private void showPasswordDialog() {
+        EditText etKey = new EditText(getActivity());
+        etKey.setHint("Host Key");
+        EditText etPassword = new EditText(getActivity());
+        etPassword.setHint("Meeting Password");
+        LinearLayout layout = new LinearLayout(getActivity());
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.addView(etKey);
+        layout.addView(etPassword);
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Are you the host?")
+                .setMessage("If you are the host, please enter host key. Otherwise, enter the meeting password.")
+                .setView(layout)
+                .setPositiveButton("Confirm", (dialog, which) -> {
+                    String key = etKey.getText().toString();
+                    String password = etPassword.getText().toString();
+                    if (TextUtils.isEmpty(key) && TextUtils.isEmpty(password)) {
+                        Toast.makeText(getActivity(), "Please enter key or password.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (!TextUtils.isEmpty(key) && !TextUtils.isEmpty(password)) {
+                        Toast.makeText(getActivity(), "Please only enter key or password", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    boolean isModerator;
+                    String PIN;
+                    if (!TextUtils.isEmpty(key)) {
+                        isModerator = true;
+                        PIN = key;
+                    } else {
+                        isModerator = false;
+                        PIN = password;
+                    }
+                    String callee = getCallee();
+                    if (callee.isEmpty())
+                        return;
+                    if (callee.equals(INCOMING_CALL)) {
+                        setButtonsEnable(false);
+                        agent.answer(localView, remoteView, screenShare, isModerator, PIN);
+                        return;
+                    }
+                    agent.dial(callee, localView, remoteView, screenShare, isModerator, PIN);
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    Toast.makeText(getActivity(), "Dial failed!", Toast.LENGTH_SHORT).show();
+                    feedback();
+                })
+                .show();
     }
 
     @SuppressWarnings("unused")

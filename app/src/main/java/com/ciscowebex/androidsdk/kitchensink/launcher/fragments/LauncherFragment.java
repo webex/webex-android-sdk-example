@@ -25,6 +25,7 @@ package com.ciscowebex.androidsdk.kitchensink.launcher.fragments;
 
 import android.content.Intent;
 
+import com.ciscowebex.androidsdk.WebexError;
 import com.ciscowebex.androidsdk.kitchensink.R;
 import com.ciscowebex.androidsdk.kitchensink.actions.commands.LogoutAction;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.LogoutEvent;
@@ -88,7 +89,7 @@ public class LauncherFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(LogoutEvent event) {
         dismissBusyIndicator();
-        if (event.isSuccessful()) {
+        if (event.isSuccessful() || (event.getError()!= null && event.getError().getErrorCode() == WebexError.ErrorCode.NETWORK_ERROR.getCode())) {
             toast("Logout success");
             Intent i = new Intent(getActivity(), LoginActivity.class);
             i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
