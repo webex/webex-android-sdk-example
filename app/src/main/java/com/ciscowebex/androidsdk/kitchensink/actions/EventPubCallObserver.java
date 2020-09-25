@@ -28,6 +28,7 @@ import com.ciscowebex.androidsdk.internal.reachability.ForegroundChecker;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnCallMembershipEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnConnectEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnDisconnectEvent;
+import com.ciscowebex.androidsdk.kitchensink.actions.events.OnScheduleChangedEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnWaitingEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnMediaChangeEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnRingingEvent;
@@ -66,6 +67,11 @@ public class EventPubCallObserver implements CallObserver {
     @Override
     public void onCallMembershipChanged(CallMembershipChangedEvent event) {
         postEvent(new OnCallMembershipEvent(event));
+    }
+
+    @Override
+    public void onScheduleChanged(Call call) {
+        postEvent(new OnScheduleChangedEvent(call));
     }
 
     @Override

@@ -135,6 +135,8 @@ public class MessageFragment extends BaseFragment {
             if (evt instanceof MessageObserver.MessageReceived) {
                 MessageObserver.MessageReceived event = (MessageObserver.MessageReceived) evt;
                 Ln.i("message: " + event.getMessage());
+                Ln.i("isAllMentioned=" + event.getMessage().isAllMentioned());
+                Ln.i("mentioned list :" + event.getMessage().getMentions());
                 adapterMessage.mData.add(event.getMessage());
                 adapterMessage.notifyDataSetChanged();
                 //if (event.getMessage().getPersonEmail().equals("sparksdktestuser16@tropo.com")) {

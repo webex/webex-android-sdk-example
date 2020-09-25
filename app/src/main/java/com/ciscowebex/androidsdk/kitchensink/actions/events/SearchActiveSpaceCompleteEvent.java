@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Cisco Systems Inc
+ * Copyright 2016-2020 Cisco Systems Inc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,24 +21,12 @@
  *
  */
 
-package com.ciscowebex.androidsdk.kitchensink.actions.commands;
+package com.ciscowebex.androidsdk.kitchensink.actions.events;
 
-import com.ciscowebex.androidsdk.kitchensink.actions.IAction;
-import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
-import com.ciscowebex.androidsdk.kitchensink.actions.events.SearchActiveSpaceCompleteEvent;
-import com.ciscowebex.androidsdk.kitchensink.actions.events.SearchSpaceCompleteEvent;
-import com.ciscowebex.androidsdk.space.SpaceClient;
+import com.ciscowebex.androidsdk.Result;
 
-
-public class SearchSpaceAction implements IAction {
-    @Override
-    public void execute() {
-        WebexAgent agent = WebexAgent.getInstance();
-        agent.getWebex().spaces().list(null, 0, null, SpaceClient.SortBy.LASTACTIVITY, result -> {
-            new SearchSpaceCompleteEvent(result).post();
-            agent.getWebex().spaces().listWithActiveCalls(r ->
-                    new SearchActiveSpaceCompleteEvent(r).post());
-        });
-
+public class SearchActiveSpaceCompleteEvent extends WebexAgentEvent {
+    public SearchActiveSpaceCompleteEvent(Result result) {
+        super(result);
     }
 }

@@ -33,9 +33,11 @@ import com.ciscowebex.androidsdk.kitchensink.actions.commands.AddCallHistoryActi
 import com.ciscowebex.androidsdk.kitchensink.actions.events.AnswerEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnDisconnectEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnIncomingCallEvent;
+import com.ciscowebex.androidsdk.kitchensink.actions.events.OnScheduleChangedEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.RejectEvent;
 import com.ciscowebex.androidsdk.kitchensink.launcher.LauncherActivity;
 import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
+import com.github.benoitdion.ln.Ln;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -91,6 +93,12 @@ public class WaitingCallFragment extends BaseFragment {
     public void onEventMainThread(OnIncomingCallEvent event) {
         showButton(true);
         new AddCallHistoryAction(event.call.getFrom().getEmail(), "in").execute();
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(OnScheduleChangedEvent event){
+        Ln.d("OnScheduleChangedEvent: " + event);
     }
 
     @SuppressWarnings("unused")

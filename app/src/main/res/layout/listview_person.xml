@@ -19,20 +19,19 @@
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="80dp"
         android:layout_marginTop="4dp"
-        android:textColor="@android:color/black"
-        android:maxLines="1"
         android:ellipsize="end"
         android:maxWidth="200sp"
+        android:maxLines="1"
+        android:textColor="@android:color/black"
         android:textSize="18sp" />
 
     <TextView
         android:id="@+id/person_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
         android:layout_below="@id/person_name"
-        android:layout_marginLeft="80dp"
-        />
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="80dp" />
 
     <ImageView
         android:id="@+id/person_call_icon"
@@ -42,5 +41,18 @@
         android:layout_centerVertical="true"
         android:layout_marginRight="10dp"
         android:src="@android:drawable/presence_video_online" />
+
+    <TextView
+        android:id="@+id/ongoing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="5dp"
+        android:layout_toStartOf="@id/person_call_icon"
+        android:background="@android:color/holo_green_light"
+        android:text="ONGOING"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        android:visibility="gone" />
 
 </RelativeLayout>
