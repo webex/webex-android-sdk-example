@@ -53,7 +53,7 @@ repositories {
 }
 
 dependencies {
-    implementation('com.ciscowebex:androidsdk:2.6.0-SNAPSHOT@aar', {
+    implementation('com.ciscowebex:androidsdk:2.6.0@aar', {
         transitive = true
         changing = true
     })
