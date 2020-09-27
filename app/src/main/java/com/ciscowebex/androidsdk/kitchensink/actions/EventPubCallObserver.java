@@ -23,14 +23,18 @@
 
 package com.ciscowebex.androidsdk.kitchensink.actions;
 
+import com.ciscowebex.androidsdk.internal.reachability.BackgroundChecker;
+import com.ciscowebex.androidsdk.internal.reachability.ForegroundChecker;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnCallMembershipEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnConnectEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnDisconnectEvent;
+import com.ciscowebex.androidsdk.kitchensink.actions.events.OnScheduleChangedEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnWaitingEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnMediaChangeEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnRingingEvent;
 import com.ciscowebex.androidsdk.phone.Call;
 import com.ciscowebex.androidsdk.phone.CallObserver;
+import com.ciscowebex.androidsdk.utils.Utils;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -66,11 +70,20 @@ public class EventPubCallObserver implements CallObserver {
     }
 
     @Override
+    public void onScheduleChanged(Call call) {
+        postEvent(new OnScheduleChangedEvent(call));
+    }
+
+    @Override
     public void onWaiting(Call call, Call.WaitReason waitReason) {
         postEvent(new OnWaitingEvent(call, waitReason));
     }
 
     private void postEvent(Object event) {
-        EventBus.getDefault().post(event);
+        if (ForegroundChecker.getInstance().isForeground()) {
+            EventBus.getDefault().post(event);
+        } else {
+            EventBus.getDefault().postSticky(event);
+        }
     }
 }

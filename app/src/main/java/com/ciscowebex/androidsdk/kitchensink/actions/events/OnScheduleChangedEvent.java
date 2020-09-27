@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Cisco Systems Inc
+ * Copyright 2016-2020 Cisco Systems Inc
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,25 +21,18 @@
  *
  */
 
-package com.ciscowebex.androidsdk.kitchensink.actions.commands;
+package com.ciscowebex.androidsdk.kitchensink.actions.events;
 
-import com.ciscowebex.androidsdk.WebexError;
-import com.ciscowebex.androidsdk.kitchensink.actions.IAction;
-import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
-import com.ciscowebex.androidsdk.kitchensink.actions.events.LogoutEvent;
+import com.ciscowebex.androidsdk.phone.Call;
 
 /**
- * Created on 19/09/2017.
+ * Created on 24/09/2020.
  */
 
-public class LogoutAction implements IAction {
-    @Override
-    public void execute() {
-        WebexAgent agent = WebexAgent.getInstance();
-        agent.getPhone().deregister(r -> {
-            if (r.isSuccessful() || (r.getError()!= null && r.getError().getErrorCode() == WebexError.ErrorCode.NETWORK_ERROR.getCode()))
-                agent.getWebex().getAuthenticator().deauthorize();
-            new LogoutEvent(r).post();
-        });
+public class OnScheduleChangedEvent {
+    public Call call;
+
+    public OnScheduleChangedEvent(Call call) {
+        this.call = call;
     }
 }

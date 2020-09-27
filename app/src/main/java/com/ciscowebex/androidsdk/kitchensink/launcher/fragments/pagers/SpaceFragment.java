@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.ciscowebex.androidsdk.kitchensink.R;
 import com.ciscowebex.androidsdk.kitchensink.actions.commands.SearchSpaceAction;
+import com.ciscowebex.androidsdk.kitchensink.actions.events.SearchActiveSpaceCompleteEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.SearchSpaceCompleteEvent;
 import com.ciscowebex.androidsdk.kitchensink.launcher.LauncherActivity;
 import com.ciscowebex.androidsdk.kitchensink.launcher.fragments.DialPagersFragment;
@@ -117,6 +118,24 @@ public class SpaceFragment extends BaseFragment {
             spaceList.clear();
             spaceList.addAll(result);
             ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe
+    public void onEventMainThread(SearchActiveSpaceCompleteEvent event) {
+        if (event.isSuccessful()) {
+            List<String> result = (List<String>) event.getResult().getData();
+            if (result != null && !result.isEmpty()) {
+                for (String spaceId : result) {
+                    for (Space space : spaceList) {
+                        if (spaceId.equals(space.getId())) {
+                            int position = spaceList.indexOf(space);
+                            listView.getChildAt(position).findViewById(R.id.ongoing).setVisibility(View.VISIBLE);
+                        }
+                    }
+                }
+            }
         }
     }
 }
