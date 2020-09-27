@@ -228,6 +228,7 @@ public class MessageFragment extends BaseFragment {
                 selectedFile.clear();
                 btn.setEnabled(true);
                 textStatus.setText("sent");
+
                 if (rst.isSuccessful()) {
                     adapterMessage.mData.add(rst.getData());
                     adapterMessage.notifyDataSetChanged();
