@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.ciscowebex.androidsdk.kitchensink.R;
+import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
 import com.ciscowebex.androidsdk.kitchensink.actions.commands.SearchSpaceAction;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.SearchActiveSpaceCompleteEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.SearchSpaceCompleteEvent;
@@ -20,6 +21,7 @@ import com.ciscowebex.androidsdk.kitchensink.launcher.LauncherActivity;
 import com.ciscowebex.androidsdk.kitchensink.launcher.fragments.DialPagersFragment;
 import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
 import com.ciscowebex.androidsdk.space.Space;
+import com.ciscowebex.androidsdk.space.SpaceObserver;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -68,6 +70,14 @@ public class SpaceFragment extends BaseFragment {
         super.onActivityCreated(saved);
         SpaceAdapter adapter = new SpaceAdapter(getActivity(), R.layout.listview_person, spaceList);
         listView.setAdapter(adapter);
+        setObserver();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        WebexAgent webex = WebexAgent.getInstance();
+        webex.getWebex().spaces().setSpaceObserver(null);
     }
 
     class SpaceAdapter extends ArrayAdapter<Space> {
@@ -119,6 +129,29 @@ public class SpaceFragment extends BaseFragment {
             spaceList.addAll(result);
             ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
         }
+    }
+
+    private void setObserver() {
+        WebexAgent webex = WebexAgent.getInstance();
+        webex.getWebex().spaces().setSpaceObserver(event -> {
+            boolean ongoingVisible = false;
+            String spaceId = null;
+            if (event instanceof SpaceObserver.SpaceCallStarted) {
+                ongoingVisible = true;
+                spaceId = ((SpaceObserver.SpaceCallStarted) event).getSpaceId();
+            } else if (event instanceof SpaceObserver.SpaceCallEnded) {
+                ongoingVisible = false;
+                spaceId = ((SpaceObserver.SpaceCallEnded) event).getSpaceId();
+            }
+            if (spaceId != null) {
+                for (Space space : spaceList) {
+                    if (spaceId.equals(space.getId())) {
+                        int position = spaceList.indexOf(space);
+                        listView.getChildAt(position).findViewById(R.id.ongoing).setVisibility(ongoingVisible ? View.VISIBLE : View.GONE);
+                    }
+                }
+            }
+        });
     }
 
     @SuppressWarnings("unused")
