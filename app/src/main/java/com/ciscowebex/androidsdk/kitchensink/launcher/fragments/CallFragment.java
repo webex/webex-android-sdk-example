@@ -934,6 +934,13 @@ public class CallFragment extends BaseFragment {
                 Ln.d("people: " + r.getData());
                 updatePersonInfoForParticipants(personId, r.getData());
             });
+        } else if (event.callEvent instanceof CallObserver.MembershipAudioMutedControlledEvent) {
+            Ln.d("MembershipAudioMutedControlledEvent: ");
+            Ln.d(membership.getPersonId() + (membership.isAudioMutedControlled() ? " muted by " : " unmuted by ") + membership.audioModifiedBy());
+            if (membership.audioModifiedBy() != null) {
+                String text = membership.getEmail() + (membership.isAudioMutedControlled() ? " muted" : " unmuted") + " by others";
+                toast(text);
+            }
         }
     }
 
