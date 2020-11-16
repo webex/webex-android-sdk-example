@@ -23,10 +23,13 @@
 
 package com.ciscowebex.androidsdk.kitchensink.actions.commands;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 
 import com.ciscowebex.androidsdk.kitchensink.actions.IAction;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
+import com.ciscowebex.androidsdk.phone.Call;
+import com.ciscowebex.androidsdk.phone.internal.CallImpl;
 
 
 /**
@@ -36,17 +39,36 @@ import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
 public class ToggleSpeakerAction implements IAction {
     private boolean on;
     private Context context;
+    private CallImpl call;
 
-    public ToggleSpeakerAction(Context context, boolean on) {
+    public ToggleSpeakerAction(Context context, CallImpl call, boolean on) {
         this.context = context;
         this.on = on;
+        this.call = call;
     }
 
     @Override
     public void execute() {
-        android.media.AudioManager am = (android.media.AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        am.setMode(android.media.AudioManager.MODE_IN_COMMUNICATION);
-        am.setSpeakerphoneOn(on);
+        if (call != null) {
+            android.media.AudioManager am = (android.media.AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            if (on) {
+                call.switchAudioOutput(Call.AudioOutputMode.SPEAKER);
+            } else {
+                if (isBluetoothHeadsetConnected()) {
+                    call.switchAudioOutput(Call.AudioOutputMode.BLUETOOTH_HEADSET);
+                } else if (am.isWiredHeadsetOn()) {
+                    call.switchAudioOutput(Call.AudioOutputMode.HEADSET);
+                } else {
+                    call.switchAudioOutput(Call.AudioOutputMode.PHONE);
+                }
+            }
+        }
+
         WebexAgent.getInstance().setSpeakerPhoneOn(on);
+    }
+
+    private boolean isBluetoothHeadsetConnected() {
+        return BluetoothAdapter.getDefaultAdapter().getProfileConnectionState(android.bluetooth.BluetoothProfile.HEADSET)
+                != android.bluetooth.BluetoothProfile.STATE_DISCONNECTED;
     }
 }
