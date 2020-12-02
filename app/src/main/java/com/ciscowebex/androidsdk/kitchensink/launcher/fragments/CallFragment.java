@@ -29,6 +29,8 @@ import android.app.AppOpsManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.PictureInPictureParams;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -95,6 +97,7 @@ import com.ciscowebex.androidsdk.phone.CallMembership;
 import com.ciscowebex.androidsdk.phone.CallObserver;
 import com.ciscowebex.androidsdk.phone.MediaRenderView;
 import com.ciscowebex.androidsdk.phone.MultiStreamObserver;
+import com.ciscowebex.androidsdk.phone.internal.CallImpl;
 import com.github.benoitdion.ln.Ln;
 import com.squareup.picasso.Picasso;
 
@@ -406,7 +409,7 @@ public class CallFragment extends BaseFragment {
 
     @OnCheckedChanged(R.id.switchLoudSpeaker)
     public void onSwitchLoudSpeakerChanged(Switch s) {
-        new ToggleSpeakerAction(getActivity(), s.isChecked()).execute();
+        new ToggleSpeakerAction(getActivity(), (CallImpl) agent.getActiveCall(), s.isChecked()).execute();
     }
 
     @OnClick(R.id.radioBackCam)
@@ -549,6 +552,9 @@ public class CallFragment extends BaseFragment {
         if (!event.isSuccessful()) {
             if (event.getError() != null && event.getError().getErrorCode() == WebexError.ErrorCode.HOST_PIN_OR_MEETING_PASSWORD_REQUIRED.getCode()) {
                 showPasswordDialog();
+            } else if (event.getError() != null && event.getError().getErrorCode() == WebexError.ErrorCode.VIEW_H264_LICENSE.getCode()) {
+                Toast.makeText(getActivity(), "View license, stop dial", Toast.LENGTH_SHORT).show();
+                feedback();
             } else {
                 Toast.makeText(getActivity(), "Dial failed!", Toast.LENGTH_SHORT).show();
                 feedback();

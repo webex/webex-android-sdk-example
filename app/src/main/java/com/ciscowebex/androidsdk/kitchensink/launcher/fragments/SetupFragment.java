@@ -162,7 +162,7 @@ public class SetupFragment extends BaseFragment {
 
     @OnCheckedChanged(R.id.setupLoudSpeaker)
     public void onSetupLoadSpeakerChanged(Switch s) {
-        new ToggleSpeakerAction(getActivity(), s.isChecked() ? true : false).execute();
+        new ToggleSpeakerAction(getActivity(), null, s.isChecked()).execute();
     }
 
     private void closeCamera() {
