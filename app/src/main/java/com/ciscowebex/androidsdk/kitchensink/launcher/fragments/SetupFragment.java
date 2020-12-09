@@ -25,6 +25,7 @@ package com.ciscowebex.androidsdk.kitchensink.launcher.fragments;
 
 
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -35,6 +36,7 @@ import com.ciscowebex.androidsdk.kitchensink.actions.commands.RequirePermissionA
 import com.ciscowebex.androidsdk.kitchensink.actions.commands.ToggleSpeakerAction;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
+import com.ciscowebex.androidsdk.phone.Phone;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -77,6 +79,15 @@ public class SetupFragment extends BaseFragment {
 
     @BindView(R.id.spinnerBandWidth)
     Spinner maxBandwidth;
+
+    @BindView(R.id.setupBNR)
+    Switch switchBNR;
+
+    @BindView(R.id.bnr_hp)
+    RadioButton radioHP;
+
+    @BindView(R.id.bnr_lp)
+    RadioButton radioLP;
 
     public SetupFragment() {
         // Required empty public constructor
@@ -131,6 +142,14 @@ public class SetupFragment extends BaseFragment {
             index = 4;
         }
         maxBandwidth.setSelection(index);
+
+        // Setup Audio BNR
+        switchBNR.setEnabled(true);
+        switchBNR.setChecked(agent.isAudioBNREnable());
+        if (agent.getAudioBNRMode() != null) {
+            radioHP.setChecked(agent.getAudioBNRMode() == Phone.AudioBRNMode.HP);
+            radioLP.setChecked(agent.getAudioBNRMode() == Phone.AudioBRNMode.LP);
+        }
     }
 
     @OnClick({R.id.audioCallOnly, R.id.audioVideoCall})
@@ -163,6 +182,33 @@ public class SetupFragment extends BaseFragment {
     @OnCheckedChanged(R.id.setupLoudSpeaker)
     public void onSetupLoadSpeakerChanged(Switch s) {
         new ToggleSpeakerAction(getActivity(), null, s.isChecked()).execute();
+    }
+
+    @OnCheckedChanged(R.id.setupBNR)
+    public void onSetupBNRChanged(Switch s) {
+        radioHP.setEnabled(s.isChecked());
+        radioLP.setEnabled(s.isChecked());
+        agent.enableAudioBNR(s.isChecked());
+        if (s.isChecked()) {
+            if (agent.getAudioBNRMode() != null) {
+                radioHP.setChecked(agent.getAudioBNRMode() == Phone.AudioBRNMode.HP);
+                radioLP.setChecked(agent.getAudioBNRMode() == Phone.AudioBRNMode.LP);
+            }
+        }
+    }
+
+    @OnCheckedChanged({R.id.bnr_hp, R.id.bnr_lp})
+    public void onRadioBNRChanged(CompoundButton button, boolean isChecked) {
+        if (isChecked) {
+            switch (button.getId()) {
+                case R.id.bnr_hp:
+                    agent.setAudioBNRMode(Phone.AudioBRNMode.HP);
+                    break;
+                case R.id.bnr_lp:
+                    agent.setAudioBNRMode(Phone.AudioBRNMode.LP);
+                    break;
+            }
+        }
     }
 
     private void closeCamera() {
