@@ -27,12 +27,8 @@ allprojects {
     repositories {
         jcenter()
         google()
-        mavenLocal()
         maven {
             url 'https://devhub.cisco.com/artifactory/webexsdk/'
-        }
-        maven {
-            url 'https://devhub.cisco.com/artifactory/webexsdk-SNAPSHOT/'
         }
     }
 }
