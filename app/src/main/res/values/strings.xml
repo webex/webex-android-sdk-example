@@ -11,6 +11,10 @@
     <string name="audio_call">Audio call</string>
     <string name="audio_video_call">Audio/Video call</string>
     <string name="loud_speaker">Loud speaker</string>
+    <string name="audio_bnr">Audio BNR</string>
+    <string name="audio_bnr_mode">Audio BNR Mode</string>
+    <string name="hp">High Performance</string>
+    <string name="lp">Low Power</string>
     <string name="call_camera">Call camera</string>
     <string name="close">Close</string>
     <string name="front">Front</string>

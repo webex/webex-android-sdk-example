@@ -316,4 +316,30 @@ public class WebexAgent {
         }
         return false;
     }
+
+    public void enableAudioBNR(boolean enable) {
+        if (phone != null) {
+            phone.enableAudioBNR(enable);
+        }
+    }
+
+    public boolean isAudioBNREnable() {
+        if (phone != null) {
+            return phone.isAudioBNREnable();
+        }
+        return false;
+    }
+
+    public void setAudioBNRMode(Phone.AudioBRNMode mode) {
+        if (phone != null) {
+            phone.setAudioBNRMode(mode);
+        }
+    }
+
+    public Phone.AudioBRNMode getAudioBNRMode() {
+        if (phone != null) {
+            return phone.getAudioBNRMode();
+        }
+        return null;
+    }
 }
