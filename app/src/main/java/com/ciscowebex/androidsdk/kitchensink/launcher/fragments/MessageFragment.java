@@ -1,6 +1,7 @@
 package com.ciscowebex.androidsdk.kitchensink.launcher.fragments;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -18,16 +19,17 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.ciscowebex.androidsdk.kitchensink.R;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
@@ -55,8 +57,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,6 +85,9 @@ public class MessageFragment extends BaseFragment {
 
     @BindView(R.id.membership_recyclerview)
     RecyclerView recyclerMembership;
+
+    @BindView(R.id.send_button)
+    Button btnSend;
 
     MessageAdapter adapterMessage;
 
@@ -137,7 +140,7 @@ public class MessageFragment extends BaseFragment {
                 Ln.i("message: " + event.getMessage());
                 Ln.i("isAllMentioned=" + event.getMessage().isAllMentioned());
                 Ln.i("mentioned list :" + event.getMessage().getMentions());
-                adapterMessage.mData.add(event.getMessage());
+                adapterMessage.mData.add(new Pair<>(event.getMessage(), false));
                 adapterMessage.notifyDataSetChanged();
                 //if (event.getMessage().getPersonEmail().equals("sparksdktestuser16@tropo.com")) {
                 textStatus.setText("");
@@ -145,6 +148,18 @@ public class MessageFragment extends BaseFragment {
             } else if (evt instanceof MessageObserver.MessageDeleted) {
                 MessageObserver.MessageDeleted event = (MessageObserver.MessageDeleted) evt;
                 Ln.i("message deleted " + event.getMessageId());
+            } else if (evt instanceof MessageObserver.MessageEdited) {
+                MessageObserver.MessageEdited event = (MessageObserver.MessageEdited) evt;
+                String messageId = event.getMessageId();
+                for (int i = 0; i < adapterMessage.mData.size(); i++) {
+                    Message message = adapterMessage.mData.get(i).first;
+                    if (message.getId().equals(messageId)) {
+                        message.update(event);
+                        adapterMessage.notifyItemChanged(i, "");
+                        Ln.i("message edited " + messageId);
+                        break;
+                    }
+                }
             }
         });
 
@@ -225,12 +240,13 @@ public class MessageFragment extends BaseFragment {
                     .addMentions(generateMentions())
                     .addAttachments(generateLocalFiles()), rst -> {
                 Ln.e("posted:" + rst);
+                mentionedMembershipList.clear();
                 selectedFile.clear();
                 btn.setEnabled(true);
                 textStatus.setText("sent");
 
                 if (rst.isSuccessful()) {
-                    adapterMessage.mData.add(rst.getData());
+                    adapterMessage.mData.add(new Pair<>(rst.getData(), true));
                     adapterMessage.notifyDataSetChanged();
                 }
             });
@@ -376,7 +392,7 @@ public class MessageFragment extends BaseFragment {
     class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
         private final LayoutInflater mLayoutInflater;
         private final Context mContext;
-        private ArrayList<Message> mData;
+        private ArrayList<Pair<Message, Boolean>> mData;
 
         MessageAdapter(Context context) {
             mContext = context;
@@ -392,7 +408,8 @@ public class MessageFragment extends BaseFragment {
 
         @Override
         public void onBindViewHolder(MessageViewHolder holder, int position) {
-            Message message = mData.get(position);
+            Message message = mData.get(position).first;
+            boolean isSelfSent = mData.get(position).second;
             holder.textDate.setText(message.getCreated().toString());
             holder.textMessage.setText(message.getText());
             try {
@@ -415,6 +432,39 @@ public class MessageFragment extends BaseFragment {
                 adapter.mData.addAll(list);
                 adapter.notifyDataSetChanged();
             }
+            if (isSelfSent) {
+                holder.layoutMessage.setOnLongClickListener(v -> {
+                    EditText editText = new EditText(mContext);
+                    editText.setText(message.getText());
+                    editText.setSelection(message.getText().length());
+                    new AlertDialog.Builder(mContext).setTitle("Edit")
+                            .setView(editText)
+                            .setNegativeButton("Cancel", null)
+                            .setPositiveButton("OK", (dialog, which) -> {
+                                btnSend.setEnabled(false);
+                                messageClient.edit(message, Message.Text.plain(editText.getText().toString()), message.getMentions().toArray(new Mention[message.getMentions().size()]), rst -> {
+                                    Ln.e("edited:" + rst);
+                                    btnSend.setEnabled(true);
+                                    textStatus.setText("edited");
+                                    if (rst.isSuccessful()) {
+                                        message.update(rst.getData());
+                                        adapterMessage.notifyItemChanged(position, "");
+                                    }
+                                });
+                                textStatus.setText("editing...");
+                                textMessage.setText("");
+                            }).create().show();
+                    return true;
+                });
+            }
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull MessageViewHolder holder, int position, @NonNull List<Object> payloads) {
+            super.onBindViewHolder(holder, position, payloads);
+            if (!payloads.isEmpty()) {
+                holder.edited.setVisibility(View.VISIBLE);
+            }
         }
 
         @Override
@@ -425,6 +475,9 @@ public class MessageFragment extends BaseFragment {
         class MessageViewHolder extends RecyclerView.ViewHolder {
             @BindView(R.id.messageLayout)
             View layoutMessage;
+
+            @BindView(R.id.edited)
+            TextView edited;
 
             @BindView(R.id.message_item_text)
             TextView textMessage;
@@ -693,7 +746,6 @@ public class MessageFragment extends BaseFragment {
     }
 
     /**
-     *
      * @param uri
      * @param context
      * @param isDrive true if getting DriveFilePath, false if getting MediaFilePath on Android N
@@ -717,7 +769,7 @@ public class MessageFragment extends BaseFragment {
             int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
             cursor.moveToFirst();
             String name = (cursor.getString(nameIndex));
-            if (isDrive){
+            if (isDrive) {
                 file = new File(context.getCacheDir(), name);
             } else {
                 file = new File(context.getFilesDir(), name);
