@@ -1,0 +1,85 @@
+import com.ciscowebex.androidsdk.build.*
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'com.google.gms.google-services'  // Google Services plugin
+
+android {
+    compileSdkVersion Versions.compileSdk
+    buildToolsVersion Versions.buildTools
+    ndkVersion project.hasProperty("ndkVersion") ? project.property('ndkVersion') : Versions.ndkVersion
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+    defaultConfig {
+        applicationId "com.cisco.sdk_android"
+        minSdkVersion Versions.minSdk
+        targetSdkVersion Versions.targetSdk
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "CLIENT_ID", "${CLIENT_ID}"
+        buildConfigField "String", "CLIENT_SECRET", "${CLIENT_SECRET}"
+        buildConfigField "String", "REDIRECT_URI", "${REDIRECT_URI}"
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+    }
+    buildFeatures {
+        dataBinding true
+    }
+}
+
+dependencies {
+    implementation(project(path: ":sdk"))
+
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation Dependencies.kotlinStdLib
+    implementation Dependencies.coreKtx
+    implementation Dependencies.appCompat
+    implementation Dependencies.constraintLayout
+    implementation Dependencies.material
+    implementation Dependencies.recyclerview
+    implementation Dependencies.cardview
+    implementation Dependencies.viewpager2
+    implementation Dependencies.koin
+    implementation Dependencies.koinViewModel
+    implementation Dependencies.design
+    implementation Dependencies.swiperefresh
+    implementation Dependencies.media
+    implementation Dependencies.nimbusJosh
+
+    // RXJAVA
+    implementation Dependencies.rxjava
+    implementation Dependencies.rxandroid
+    implementation Dependencies.rxkotlin
+
+    testImplementation Dependencies.Test.junit
+    androidTestImplementation Dependencies.Test.androidxJunit
+    androidTestImplementation Dependencies.Test.espressoCore
+    androidTestImplementation Dependencies.Test.espressoContrib
+    androidTestImplementation Dependencies.Test.espressoWeb
+    androidTestImplementation Dependencies.Test.espressoIntents
+    androidTestImplementation Dependencies.Test.rules
+    androidTestImplementation Dependencies.Test.testExt
+    debugImplementation (Dependencies.Test.fragmentScenerio) {
+        exclude group: 'androidx.test', module: 'monitor'
+    }
+    implementation platform(Dependencies.firebaseBom)
+    implementation Dependencies.firebaseMessaging
+    implementation Dependencies.firebaseAnalytics
+    implementation Dependencies.gson
+
+}

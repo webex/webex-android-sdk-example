@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "468100402477",
+    "firebase_url": "https://teamssdkv3.firebaseio.com",
+    "project_id": "teamssdkv3",
+    "storage_bucket": "teamssdkv3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:468100402477:android:d326c9d539cf70a586d7a4",
+        "android_client_info": {
+          "package_name": "com.cisco.sdk_android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "468100402477-e7d2kn6673m423k59iug4hqg8pg77o49.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzKOloaqlZ2uuoo05KiQw8v4cu5aYWyu8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "468100402477-e7d2kn6673m423k59iug4hqg8pg77o49.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

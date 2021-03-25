@@ -1,0 +1,2 @@
+include ':kitchenSink'
+rootProject.name = "sdk-android"
