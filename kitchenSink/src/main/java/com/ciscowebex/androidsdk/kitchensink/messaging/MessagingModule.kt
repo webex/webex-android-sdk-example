@@ -45,5 +45,5 @@ val messagingModule = module {
 
     single { MessageComposerRepository(get()) }
 
-    viewModel { MessageComposerViewModel(get(), get()) }
+    viewModel { MessageComposerViewModel(get(), get(), get()) }
 }

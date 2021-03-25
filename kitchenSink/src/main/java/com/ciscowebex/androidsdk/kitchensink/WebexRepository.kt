@@ -22,6 +22,11 @@ import com.ciscowebex.androidsdk.phone.NotificationCallType
 class WebexRepository(val webex: Webex) : WebexDelegate {
     private val tag = "WebexRepository"
 
+    enum class CallCap {
+        Audio_Only,
+        Audio_Video
+    }
+
     enum class CucmEvent {
         ShowSSOLogin,
         ShowNonSSOLogin,
@@ -85,6 +90,9 @@ class WebexRepository(val webex: Webex) : WebexDelegate {
     var isLocalVideoMuted = true
     var isRemoteVideoMuted = true
     var isRemoteScreenShareON = false
+    var enableBgtoggle = true
+    var callCapability: CallCap = CallCap.Audio_Video
+    var scalingMode: Call.VideoRenderMode = Call.VideoRenderMode.Fit
 
     val participantMuteMap = hashMapOf<String, Boolean>()
     var isCUCMServerLoggedIn = false

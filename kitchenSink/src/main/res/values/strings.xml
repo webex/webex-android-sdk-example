@@ -4,14 +4,15 @@
     <string name="feedback">Feedback</string>
     <string name="webhooks">Webhooks</string>
     <string name="uc_login">UC Login</string>
+    <string name="setup">Setup</string>
     <string name="initiate_call">Initiate Call</string>
     <string name="waiting_call">Waiting Call</string>
     <string name="logout">Logout</string>
     <string name="common_fragment">Common Fragment</string>
     <string name="calling">Calling…</string>
     <string name="message">Message</string>
-    <string name="login_oauth">OAuth Login</string>
-    <string name="login_oauth_code">Login with Auth Code</string>
+    <string name="login_oauth">Web Auth Login</string>
+    <string name="login_oauth_code">Auth Code Login</string>
     <string name="auth_code">Auth Code</string>
     <string name="login_jwt">JWT Login</string>
     <string name="login">Login</string>
@@ -47,6 +48,8 @@
     <string name="post_message_email_empty">Empty email address</string>
     <string name="post_message_attach_permission_error">Permission not granted</string>
     <string name="post_message_invalid_message">Invalid Message</string>
+    <string name="edit_message_internal_error">Edit Message Internal Error</string>
+    <string name="message_edit_successful">Message edited successfully</string>
 
     <string name="uc_server_connected">UC Server Connected</string>
     <string name="uc_login_success">Login Successful</string>
@@ -233,4 +236,17 @@
     <string name="receiving_video">Receiving Video</string>
     <string name="receiving_audio">Receiving Audio</string>
     <string name="receiving_sharing">Receiving Sharing</string>
+    <string name="call_camera">Call camera</string>
+    <string name="enable_bg_stream">Enable Background Stream</string>
+    <string name="front">Front</string>
+    <string name="back">Back</string>
+    <string name="call_cap">Call capability</string>
+    <string name="audio_call">Audio Call</string>
+    <string name="audio_video_call">Audio/Video Call</string>
+    <string name="scaling_mode">Scaling Mode</string>
+    <string name="scaling_mode_fit">Fit</string>
+    <string name="scaling_mode_cropFill">CropFill</string>
+    <string name="scaling_mode_stretchFill">StretchFill</string>
+    <string name="scaling_mode_unknown">Unknown</string>
+    <string name="edit_message">Edit Message</string>
 </resources>

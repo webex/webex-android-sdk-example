@@ -1,24 +1,22 @@
 package com.ciscowebex.androidsdk.kitchensink.calling
 
 import android.app.Activity
-import android.content.Context.MEDIA_PROJECTION_SERVICE
+import android.app.AlertDialog
 import android.content.Intent
-import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import com.cisco.wme.appshare.ScreenShareContext
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.WebexViewModel
@@ -27,8 +25,6 @@ import com.ciscowebex.androidsdk.kitchensink.calling.ScreenShareForegroundServic
 import com.ciscowebex.androidsdk.kitchensink.calling.ScreenShareForegroundService.Companion.updateScreenShareForegroundService
 import com.ciscowebex.androidsdk.kitchensink.calling.participants.ParticipantsFragment
 import com.ciscowebex.androidsdk.kitchensink.databinding.FragmentCallControlsBinding
-import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpaceMessageModel
-import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.detail.MessageActionBottomSheetFragment
 import com.ciscowebex.androidsdk.kitchensink.person.PersonViewModel
 import com.ciscowebex.androidsdk.kitchensink.utils.AudioManagerUtils
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
@@ -41,6 +37,8 @@ import com.ciscowebex.androidsdk.phone.CallSchedule
 import com.ciscowebex.androidsdk.phone.Phone
 import org.koin.android.ext.android.inject
 import androidx.recyclerview.widget.RecyclerView
+import com.ciscowebex.androidsdk.internal.media.device.AudioDeviceConnectionManager
+import com.ciscowebex.androidsdk.internal.media.device.AudioManagerDelegate
 import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemCallMeetingBinding
 import java.util.Date
 
@@ -86,7 +84,6 @@ class CallControlsFragment : Fragment(), OnClickListener {
 
     private fun initAudioManager() {
         audioManagerUtils = AudioManagerUtils(requireContext())
-        audioManagerUtils?.initAudioManager()
     }
 
     override fun onResume() {
@@ -103,10 +100,26 @@ class CallControlsFragment : Fragment(), OnClickListener {
         binding.ibHoldCall.isSelected = isOnHold ?: false
     }
 
+    private fun getMediaOption(): MediaOption {
+        return if (webexViewModel.callCapability == WebexRepository.CallCap.Audio_Only) {
+            MediaOption.audioOnly()
+        } else {
+            MediaOption.audioVideoSharing(Pair(binding.localView, binding.remoteView), binding.screenShareView)
+           // MediaOption.audioVideo(Pair(binding.localView, binding.remoteView))
+        }
+    }
+
     fun dialOutgoingCall(callerId: String) {
         Log.d(TAG, "dialOutgoingCall")
-        //MediaOption.audioVideo(binding.localView as View, binding.remoteView as View)
-        webexViewModel.dial(callerId, MediaOption.audioOnly())
+        webexViewModel.dial(callerId, getMediaOption())
+    }
+
+    private fun checkLicenseAPIs() {
+        val license = webexViewModel.getVideoCodecLicense()
+        Log.d(TAG, "checkLicenseAPIs license $license")
+        val URL = webexViewModel.getVideoCodecLicenseURL()
+        Log.d(TAG, "checkLicenseAPIs license URL $URL")
+        webexViewModel.requestVideoCodecActivation(AlertDialog.Builder(activity))
     }
 
     private fun observerCallLiveData() {
@@ -176,6 +189,7 @@ class CallControlsFragment : Fragment(), OnClickListener {
                     }
                     WebexRepository.CallEvent.AnswerFailed -> {
                         Log.d(TAG, "answer Lambda failed $errorMessage")
+                        callEndedUIUpdate(call?.getCallId().orEmpty())
                     }
                     WebexRepository.CallEvent.OnScheduleChanged -> {
                         Log.d(TAG, "CallObserver OnScheduleChanged : " + call?.getCallId())
@@ -531,10 +545,21 @@ class CallControlsFragment : Fragment(), OnClickListener {
         personViewModel.getMe()
         videoViewState(true)
 
+        webexViewModel.enableBackgroundStream(webexViewModel.enableBgtoggle)
+        webexViewModel.enableAudioBNR(true)
+        webexViewModel.setAudioBNRMode(Phone.AudioBRNMode.HP)
+        webexViewModel.setDefaultFacingMode(Phone.FacingMode.USER)
+
         webexViewModel.setVideoMaxTxFPSSetting(5)
         webexViewModel.setShareMaxCaptureFPSSetting(5)
         webexViewModel.setVideoEnableCamera2Setting(true)
         webexViewModel.setVideoEnableDecoderMosaicSetting(true)
+
+        webexViewModel.setHardwareAccelerationEnabled(true)
+        webexViewModel.setVideoMaxRxBandwidth(Phone.DefaultBandwidth.MAX_BANDWIDTH_720P.getValue())
+        webexViewModel.setVideoMaxTxBandwidth(Phone.DefaultBandwidth.MAX_BANDWIDTH_720P.getValue())
+        webexViewModel.setSharingMaxRxBandwidth(Phone.DefaultBandwidth.MAX_BANDWIDTH_SESSION.getValue())
+        webexViewModel.setAudioMaxRxBandwidth(Phone.DefaultBandwidth.MAX_BANDWIDTH_AUDIO.getValue())
 
         val incomingCallEvent: (Call) -> Unit = { call ->
             Log.d(tag, "incomingCallEvent")
@@ -543,13 +568,12 @@ class CallControlsFragment : Fragment(), OnClickListener {
 
         val incomingCallPickEvent: (Call) -> Unit = { call ->
             Log.d(tag, "incomingCallPickEvent")
-            webexViewModel.answer(call)
+            webexViewModel.answer(call, getMediaOption())
         }
 
         val incomingCallCancelEvent: (Call) -> Unit = { call ->
             Log.d(tag, "incomingCallEndEvent")
             endIncomingCall(call.getCallId().orEmpty())
-            //callEndedUIUpdate(call.getCallId().orEmpty())
         }
 
         incomingInfoAdapter = IncomingInfoAdapter(incomingCallEvent, incomingCallPickEvent, incomingCallCancelEvent)
@@ -557,7 +581,8 @@ class CallControlsFragment : Fragment(), OnClickListener {
 
         callOptionsBottomSheetFragment = CallBottomSheetFragment({ call -> receivingVideoListener(call) },
                 { call -> receivingAudioListener(call) },
-                { call -> receivingSharingListener(call) })
+                { call -> receivingSharingListener(call) },
+                { call -> scalingModeClickListener(call) })
 
         callingActivity = activity?.intent?.getIntExtra(Constants.Intent.CALLING_ACTIVITY_ID, 0)!!
         if (callingActivity == 1) {
@@ -753,27 +778,6 @@ class CallControlsFragment : Fragment(), OnClickListener {
         endCall()
     }
 
-    fun onFragmentStop() {
-        webexViewModel.currentCallId?.let { stopVideoStreaming() }
-    }
-
-    fun onFragmentStart() {
-        resumeVideoStreaming()
-    }
-
-    private fun resumeVideoStreaming() {
-        if (onLockRemoteSharingStateON) {
-            onLockRemoteSharingStateON = false
-            webexViewModel.currentCallId?.let { onScreenShareVideoStreamInUseChanged(it) }
-        }
-
-        if (onLockSelfVideoMutedState) {
-            webexViewModel.currentCallId?.let { onVideoStreamingChanged(it) }
-        } else {
-            muteSelfVideo(false)
-        }
-    }
-
     private fun endCall() {
         if (isIncomingActivity) {
             endIncomingCall()
@@ -918,9 +922,6 @@ class CallControlsFragment : Fragment(), OnClickListener {
                 if (isIncomingActivity) {
                     if (callId == webexViewModel.currentCallId) {
                         binding.videoCallLayout.visibility = View.VISIBLE
-                        webexViewModel.addSelfVideoView(callId, binding.localView)
-                        webexViewModel.addRemoteVideoView(callId, binding.remoteView)
-
                         incomingLayoutState(true)
                     }
                 }
@@ -991,13 +992,15 @@ class CallControlsFragment : Fragment(), OnClickListener {
             if (remoteSharing) {
                 binding.controlGroup.visibility = View.GONE
                 screenShareViewRemoteState(false)
-                webexViewModel.addScreenSharingView(callId, binding.screenShareView)
+                val view = webexViewModel.getSharingRenderView(callId)
+                if (view == null) {
+                    webexViewModel.setSharingRenderView(callId, binding.screenShareView)
+                }
             }
             else {
                 onVideoStreamingChanged(callId)
                 screenShareViewRemoteState(true)
                 binding.controlGroup.visibility = View.VISIBLE
-                webexViewModel.removeScreenSharingView(callId, binding.screenShareView)
             }
 
             videoViewTextColorState(!remoteSharing)
@@ -1015,22 +1018,26 @@ class CallControlsFragment : Fragment(), OnClickListener {
 
             if (webexViewModel.isLocalVideoMuted) {
                 localVideoViewState(true)
-                webexViewModel.removeSelfVideoView(callId, binding.localView)
             } else {
                 localVideoViewState(false)
-                webexViewModel.addSelfVideoView(callId, binding.localView)
+                val pair = webexViewModel.getVideoRenderViews(callId)
+                if (pair.first == null) {
+                    webexViewModel.setVideoRenderViews(callId, binding.localView, binding.remoteView)
+                }
             }
 
             if (webexViewModel.isRemoteVideoMuted) {
                 binding.remoteViewLayout.visibility = View.GONE
-                webexViewModel.removeRemoteVideoView(callId, binding.remoteView)
             } else {
                 if (webexViewModel.isRemoteScreenShareON) {
                     resizeRemoteVideoView()
                 }
                 binding.remoteViewLayout.visibility = View.VISIBLE
-                webexViewModel.addRemoteVideoView(callId, binding.remoteView)
-                putOnSpeaker()
+                val pair = webexViewModel.getVideoRenderViews(callId)
+                if (pair.second == null) {
+                    webexViewModel.setVideoRenderViews(callId, binding.localView, binding.remoteView)
+                }
+                toggleSpeaker(binding.ibSpeaker)
             }
 
             videoViewTextColorState(webexViewModel.isRemoteVideoMuted)
@@ -1045,20 +1052,22 @@ class CallControlsFragment : Fragment(), OnClickListener {
         }
     }
 
-    private fun putOnSpeaker() {
-        if (webexViewModel.currentCallId == null) return
-
-        if (audioManagerUtils?.isHeadSetDeviceAvailable() == false) {
-            audioManagerUtils?.putOnSpeaker()
-            binding.ibSpeaker.isSelected = true
-        } else {
-            Log.d(TAG, "User is probably connected to headset")
-        }
-    }
-
     private fun toggleSpeaker(v: View) {
         v.isSelected = !v.isSelected
-        audioManagerUtils?.toggleSpeaker()
+        when {
+            v.isSelected -> {
+                webexViewModel.switchAudioMode(Call.AudioOutputMode.SPEAKER)
+            }
+            audioManagerUtils?.isBluetoothHeadsetConnected == true -> {
+                webexViewModel.switchAudioMode(Call.AudioOutputMode.BLUETOOTH_HEADSET)
+            }
+            audioManagerUtils?.isWiredHeadsetOn == true -> {
+                webexViewModel.switchAudioMode(Call.AudioOutputMode.HEADSET)
+            }
+            else -> {
+                webexViewModel.switchAudioMode(Call.AudioOutputMode.PHONE)
+            }
+        }
     }
 
     internal fun handleFCMIncomingCall(callId: String) {
@@ -1168,9 +1177,6 @@ class CallControlsFragment : Fragment(), OnClickListener {
         Log.d(TAG, "CallControlsFragment onCallTerminated callerId: $callId")
 
         Handler(Looper.getMainLooper()).post {
-            webexViewModel.removeSelfVideoView(callId, binding.localView)
-            webexViewModel.removeRemoteVideoView(callId, binding.remoteView)
-            webexViewModel.removeScreenSharingView(callId, binding.screenShareView)
             if (webexViewModel.isAddedCall) {
                 resumePrevCallIfAdded(callId)
                 updateCallHeader()
@@ -1278,35 +1284,6 @@ class CallControlsFragment : Fragment(), OnClickListener {
         }
     }
 
-    private fun stopVideoStreaming() {
-        val callId = webexViewModel.currentCallId
-        Log.d(TAG, "CallControlsFragment stopVideoStreaming callerId: $callId")
-
-        if (callId == null) {
-            return
-        }
-        val callInfo = webexViewModel.getCall(callId)
-
-        onLockSelfVideoMutedState = webexViewModel.isLocalVideoMuted
-        if (!onLockSelfVideoMutedState) {
-            muteSelfVideo(!webexViewModel.isLocalVideoMuted)
-        }
-
-        if (!webexViewModel.isRemoteVideoMuted) {
-            webexViewModel.removeRemoteVideoView(callId, binding.remoteView)
-            binding.remoteViewLayout.visibility = View.GONE
-            Log.d(TAG, "stopVideoStreaming: webexViewModel.removeRemoteVideoView called")
-        } else {
-            Log.d(TAG, "stopVideoStreaming: webexViewModel.removeRemoteVideoView not called")
-        }
-
-        if(webexViewModel.isRemoteScreenShareON) {
-            webexViewModel.removeScreenSharingView(callId, binding.screenShareView)
-            screenShareViewRemoteState(true, false)
-            onLockRemoteSharingStateON = true
-        }
-    }
-
     private fun muteSelfVideo(value: Boolean) {
         webexViewModel.currentCallId?.let {
             webexViewModel.muteSelfVideo(it, value)
@@ -1340,10 +1317,26 @@ class CallControlsFragment : Fragment(), OnClickListener {
         }
     }
 
+    private fun scalingModeClickListener(call: Call) {
+        Log.d(TAG, "scalingModeClickListener")
+
+        if (webexViewModel.scalingMode == Call.VideoRenderMode.Fit) {
+            webexViewModel.scalingMode = Call.VideoRenderMode.CropFill
+        } else if (webexViewModel.scalingMode == Call.VideoRenderMode.CropFill) {
+            webexViewModel.scalingMode = Call.VideoRenderMode.StretchFill
+        } else if (webexViewModel.scalingMode == Call.VideoRenderMode.StretchFill) {
+            webexViewModel.scalingMode = Call.VideoRenderMode.Fit
+        }
+
+        webexViewModel.setRemoteVideoRenderMode(call.getCallId().orEmpty(), webexViewModel.scalingMode)
+    }
+
     private fun showBottomSheet(call: Call) {
         callOptionsBottomSheetFragment.call = call
+        callOptionsBottomSheetFragment.scalingModeValue = webexViewModel.scalingMode
         activity?.supportFragmentManager?.let { callOptionsBottomSheetFragment.show(it, CallBottomSheetFragment.TAG) }
     }
+
     class IncomingInfoAdapter(private val incomingCallEvent: (Call) -> Unit, private val IncomingCallPickEvent: (Call) -> Unit, private val incomingCallCancelEvent: (Call) -> Unit) : RecyclerView.Adapter<IncomingInfoViewHolder>() {
         var info: MutableList<IncomingCallInfoModel> = mutableListOf()
 

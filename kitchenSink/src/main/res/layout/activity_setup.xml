@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp">
+
+    <RelativeLayout
+        android:id="@+id/cameraLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp">
+
+        <TextView
+            android:id="@+id/textViewCallCamera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/call_camera"/>
+
+        <RadioGroup
+            android:id="@+id/cameraRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_below="@+id/textViewCallCamera"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/closePreview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="@string/close" />
+
+            <RadioButton
+                android:id="@+id/frontCamera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/front" />
+
+            <RadioButton
+                android:id="@+id/backCamera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/back" />
+        </RadioGroup>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/enableBgLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_below="@+id/cameraLayout">
+        <TextView
+            android:id="@+id/enableBgStreamToggleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/enable_bg_stream"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"/>
+        <ToggleButton
+            android:id="@+id/enableBgStreamToggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/callCapabilityLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_below="@+id/enableBgLayout">
+
+        <TextView
+            android:id="@+id/textViewCallCap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/call_cap"/>
+
+        <RadioGroup
+            android:id="@+id/callCapabilityRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_below="@+id/textViewCallCap"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/audioCallOnly"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="@string/audio_call" />
+
+            <RadioButton
+                android:id="@+id/audioVideoCall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/audio_video_call" />
+        </RadioGroup>
+
+    </RelativeLayout>
+
+    <com.ciscowebex.androidsdk.phone.MediaRenderView
+        android:id="@+id/preview"
+        android:layout_width="@dimen/preview_video_view_width"
+        android:layout_height="@dimen/preview_video_view_height"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"/>
+
+</RelativeLayout>
+</layout>

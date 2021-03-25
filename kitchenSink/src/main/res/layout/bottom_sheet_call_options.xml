@@ -68,6 +68,27 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/receivingSharing" />
+        <TextView
+            android:id="@+id/scalingMode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:paddingVertical="@dimen/size_8dp"
+            android:text="@string/scaling_mode"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/receivingSharingSeparator" />
+
+        <View
+            android:id="@+id/scalingTypeSeparator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/scalingMode" />
 
         <TextView
             android:id="@+id/cancel"
@@ -80,6 +101,6 @@
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/receivingSharingSeparator" />
+            app:layout_constraintTop_toTopOf="@id/scalingTypeSeparator" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

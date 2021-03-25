@@ -21,10 +21,8 @@ import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityMessageComposerBinding
 import com.ciscowebex.androidsdk.kitchensink.databinding.DialogPostMessageHandlerBinding
 import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemUploadAttachmentBinding
-import com.ciscowebex.androidsdk.kitchensink.messaging.RemoteModel
 import com.ciscowebex.androidsdk.kitchensink.messaging.composer.MessageComposerViewModel.Companion.MINIMUM_MEMBERS_REQUIRED_FOR_MENTIONS
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.ReplyMessageModel
-import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpaceMessageModel
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.kitchensink.utils.FileUtils.getUploadUriPath
 import com.ciscowebex.androidsdk.kitchensink.utils.PermissionsHelper
@@ -52,11 +50,12 @@ class MessageComposerActivity : AppCompatActivity() {
             MARKDOWN_TEXT
         }
 
-        fun getIntent(context: Context, type: ComposerType, id: String, replyParentMessage: ReplyMessageModel?): Intent {
+        fun getIntent(context: Context, type: ComposerType, id: String, replyParentMessage: ReplyMessageModel?, messageId: String? = null): Intent {
             val intent = Intent(context, MessageComposerActivity::class.java)
             intent.putExtra(Constants.Intent.COMPOSER_TYPE, type)
             intent.putExtra(Constants.Intent.COMPOSER_ID, id)
             intent.putExtra(Constants.Intent.COMPOSER_REPLY_PARENT_MESSAGE, replyParentMessage)
+            intent.putExtra(Constants.Intent.MESSAGE_ID, messageId)
             return intent
         }
     }
@@ -72,12 +71,15 @@ class MessageComposerActivity : AppCompatActivity() {
     private lateinit var attachmentAdapter: UploadAttachmentsAdapter
     private var isMentionsEnabled: Boolean = false
     private var replyParentMessage: ReplyMessageModel? = null
+    // MessageId is not null in case of edit feature.
+    private var messageId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         composerType = intent.getSerializableExtra(Constants.Intent.COMPOSER_TYPE) as ComposerType
         id = intent.getStringExtra(Constants.Intent.COMPOSER_ID)
         replyParentMessage = intent.getParcelableExtra(Constants.Intent.COMPOSER_REPLY_PARENT_MESSAGE)
+        messageId = intent.getStringExtra(Constants.Intent.MESSAGE_ID)
 
         if (composerType == ComposerType.POST_SPACE) {
             isMentionsEnabled = true
@@ -95,11 +97,16 @@ class MessageComposerActivity : AppCompatActivity() {
 
                     setUpObservers()
 
-                    attachmentButton.setOnClickListener {
-                        val checkingPermission = checkReadStoragePermissions()
-                        if (!checkingPermission) {
-                            openFileExplorer()
+                    if (messageId == null) {
+                        attachmentButton.setOnClickListener {
+                            val checkingPermission = checkReadStoragePermissions()
+                            if (!checkingPermission) {
+                                openFileExplorer()
+                            }
                         }
+                    } else {
+                        // In case of edit we do not support editing attachments
+                      attachmentButton.visibility = View.GONE
                     }
 
                     radioGroup.setOnCheckedChangeListener { _, checkedId ->
@@ -153,6 +160,15 @@ class MessageComposerActivity : AppCompatActivity() {
                     binding.message.addAutoCompletePlugin(MentionsPlugin(this@MessageComposerActivity, this, messageComposerViewModel))
                 }
             }
+        })
+
+        messageComposerViewModel.editMessage.observe(this@MessageComposerActivity, Observer {
+            it?.let {
+                showDialogWithMessage(this@MessageComposerActivity, null, getString(R.string.message_edit_successful))
+            } ?: run {
+                showDialogWithMessage(this@MessageComposerActivity, null, getString(R.string.edit_message_internal_error))
+            }
+            resetView()
         })
     }
 
@@ -215,23 +231,38 @@ class MessageComposerActivity : AppCompatActivity() {
         if (binding.message.text.isEmpty()) {
             showDialogWithMessage(this@MessageComposerActivity, R.string.post_message_error, getString(R.string.post_message_empty_error))
         } else {
-            composerType.let { type ->
-                id?.let {
-                    val files = processAttachmentFiles()
-                    when (type) {
-                        ComposerType.POST_SPACE -> {
-                            postToSpace(it, files)
-                        }
-                        ComposerType.POST_PERSON_ID -> {
-                            postPersonById(it, files)
-                        }
-                        ComposerType.POST_PERSON_EMAIL -> {
-                            postPersonByEmail(it, files)
+            messageId?.let {
+                // Edit message flow
+                editMessage(it) }
+                    ?: composerType.let { type ->
+                        id?.let {
+                            val files = processAttachmentFiles()
+                            when (type) {
+                                ComposerType.POST_SPACE -> {
+                                    postToSpace(it, files)
+                                }
+                                ComposerType.POST_PERSON_ID -> {
+                                    postPersonById(it, files)
+                                }
+                                ComposerType.POST_PERSON_EMAIL -> {
+                                    postPersonByEmail(it, files)
+                                }
+                            }
                         }
                     }
-                }
-            }
         }
+    }
+
+    private fun editMessage(messageId: String) {
+        val str = binding.message.text.toString()
+        val messageContent = binding.message.getMessageContent()
+        val text: Message.Text = if (styleType == StyleType.PLAIN_TEXT) {
+            Message.Text.plain(str)
+        } else {
+            Message.Text.markdown(str, null, null)
+        }
+
+        messageComposerViewModel.editMessage(messageId, text, messageContent.messageInputMentions)
     }
 
     private fun displayPostMessageHandler(message: Message) {
@@ -248,10 +279,9 @@ class MessageComposerActivity : AppCompatActivity() {
                         messageBodyTextView.text = Html.fromHtml(msg.markdown, Html.FROM_HTML_MODE_LEGACY)
                     } ?: run {
                         msg.plain?.let {
-                            messageBodyTextView.text = Html.fromHtml(msg.markdown, Html.FROM_HTML_MODE_LEGACY)
+                            messageBodyTextView.text = Html.fromHtml(msg.plain, Html.FROM_HTML_MODE_LEGACY)
                         }
                     }
-
                     builder.setView(this.root)
                     builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
                         dialog.dismiss()

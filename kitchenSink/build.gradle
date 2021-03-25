@@ -43,7 +43,7 @@ android {
 }
 
 dependencies {
-    implementation(project(path: ":sdk"))
+    implementation files("libs/Webex-SDK-v3.0.0.2-beta.aar")
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation Dependencies.kotlinStdLib

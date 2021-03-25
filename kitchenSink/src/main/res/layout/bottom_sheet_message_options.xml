@@ -61,13 +61,34 @@
             app:layout_constraintTop_toBottomOf="@id/replyMessageSeparator" />
 
         <View
-            android:id="@+id/getPersonDetailsSeparator"
+            android:id="@+id/editMessageSeparator"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/replyMessage" />
+        <TextView
+            android:id="@+id/editMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/gray60"
+            android:paddingVertical="@dimen/size_8dp"
+            android:text="@string/edit_message"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/editMessageSeparator" />
+
+        <View
+            android:id="@+id/getPersonDetailsSeparator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/editMessage" />
 
         <TextView
             android:id="@+id/cancel"

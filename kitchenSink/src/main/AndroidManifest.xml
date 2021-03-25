@@ -134,6 +134,9 @@
             android:name=".HomeActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".setup.SetupActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".calling.DialerActivity"
             android:screenOrientation="portrait" />
         <activity

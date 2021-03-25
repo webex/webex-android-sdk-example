@@ -2,12 +2,14 @@ package com.ciscowebex.androidsdk.kitchensink.messaging
 
 import android.net.Uri
 import android.util.Log
+import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.Webex
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpaceMessageModel
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpaceModel
+import com.ciscowebex.androidsdk.message.Mention
+import com.ciscowebex.androidsdk.message.Message
 import com.ciscowebex.androidsdk.message.MessageClient
 import com.ciscowebex.androidsdk.message.RemoteFile
-import com.ciscowebex.androidsdk.CompletionHandler
 import io.reactivex.Emitter
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -59,7 +61,7 @@ open class MessagingRepository(private val webex: Webex) {
         }.toObservable()
     }
 
-    fun getMessage(messageId: String): Observable<SpaceMessageModel>{
+    fun getMessage(messageId: String): Observable<SpaceMessageModel> {
         return Single.create<SpaceMessageModel> { emitter ->
             webex.messages.get(messageId, CompletionHandler { result ->
                 if (result.isSuccessful) {
@@ -72,7 +74,31 @@ open class MessagingRepository(private val webex: Webex) {
         }.toObservable()
     }
 
-    fun downloadThumbnail(remoteFile: RemoteFile, file: File): Observable<Uri>{
+    fun editMessage(messageId: String, messageText: Message.Text, mentions: ArrayList<Mention>?): Observable<SpaceMessageModel> {
+        return Single.create<SpaceMessageModel> { emitter ->
+            webex.messages.get(messageId, CompletionHandler { messageResult ->
+                if (messageResult.isSuccessful) {
+                    val message = messageResult.data
+                    if (message != null) {
+                        webex.messages.edit(message, messageText, mentions, CompletionHandler { result ->
+                            if (result.isSuccessful) {
+                                val messageObj = result.data
+                                emitter.onSuccess(SpaceMessageModel.convertToSpaceMessageModel(messageObj))
+                            } else {
+                                emitter.onError(Throwable(result.error?.errorMessage))
+                            }
+                        })
+                    } else {
+                        emitter.onError(Throwable("Error: Message cannot be found"))
+                    }
+                } else {
+                    emitter.onError(Throwable(messageResult.error?.errorMessage))
+                }
+            })
+        }.toObservable()
+    }
+
+    fun downloadThumbnail(remoteFile: RemoteFile, file: File): Observable<Uri> {
         return Single.create<Uri> { emitter ->
             webex.messages.downloadThumbnail(remoteFile, file, CompletionHandler { result ->
                 if (result.isSuccessful) {

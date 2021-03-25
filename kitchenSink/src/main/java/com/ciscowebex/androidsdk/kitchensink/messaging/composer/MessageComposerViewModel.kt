@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.ciscowebex.androidsdk.kitchensink.BaseViewModel
+import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpaceMessageModel
+import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpacesRepository
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipModel
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipRepository
 import com.ciscowebex.androidsdk.message.LocalFile
@@ -15,7 +17,8 @@ import kotlin.collections.ArrayList
 import java.util.Date
 
 
-class MessageComposerViewModel(private val composerRepo: MessageComposerRepository, private val membershipRepo: MembershipRepository) : BaseViewModel() {
+class MessageComposerViewModel(private val composerRepo: MessageComposerRepository, private val membershipRepo: MembershipRepository,
+                               private val spacesRepository: SpacesRepository) : BaseViewModel() {
 
     companion object {
         val MINIMUM_MEMBERS_REQUIRED_FOR_MENTIONS = 2
@@ -30,6 +33,9 @@ class MessageComposerViewModel(private val composerRepo: MessageComposerReposito
 
     private val _fetchMembershipsLiveData = MutableLiveData<List<MembershipModel>>()
     val fetchMembershipsLiveData: LiveData<List<MembershipModel>> = _fetchMembershipsLiveData
+
+    private val _editMessage = MutableLiveData<SpaceMessageModel>()
+    val editMessage: LiveData<SpaceMessageModel> = _editMessage
 
     private var membersList = mutableListOf<MembershipModel>()
 
@@ -57,6 +63,12 @@ class MessageComposerViewModel(private val composerRepo: MessageComposerReposito
     fun postMessageDraft(target: String, draft: Message.Draft) {
         composerRepo.postMessageDraft(target, draft).observeOn(AndroidSchedulers.mainThread()).subscribe({ result ->
             _postMessages.postValue(result)
+        }, { error -> _postMessageError.postValue(error.message) }).autoDispose()
+    }
+
+    fun editMessage(messageId: String, messageText: Message.Text, mentions: ArrayList<Mention>?) {
+        spacesRepository.editMessage(messageId, messageText, mentions).observeOn(AndroidSchedulers.mainThread()).subscribe({ result ->
+            _editMessage.postValue(result)
         }, { error -> _postMessageError.postValue(error.message) }).autoDispose()
     }
 

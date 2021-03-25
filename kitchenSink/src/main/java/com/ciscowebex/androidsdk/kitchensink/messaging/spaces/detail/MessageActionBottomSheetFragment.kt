@@ -6,11 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import com.ciscowebex.androidsdk.kitchensink.databinding.BottomSheetMessageOptionsBinding
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpaceMessageModel
+import com.ciscowebex.androidsdk.message.Message
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class MessageActionBottomSheetFragment(val deleteMessageClickListener: (SpaceMessageModel) -> Unit,
                                        val markMessageAsReadClickListener: (SpaceMessageModel) -> Unit,
-                                       val replyMessageClickListener: (SpaceMessageModel) -> Unit) : BottomSheetDialogFragment() {
+                                       val replyMessageClickListener: (SpaceMessageModel) -> Unit,
+                                       val editMessageClickListener: (SpaceMessageModel) -> Unit) : BottomSheetDialogFragment() {
     companion object {
         val TAG = "MessageActionBottomSheetFragment"
         var selfPersonId : String? = null
@@ -31,8 +33,16 @@ class MessageActionBottomSheetFragment(val deleteMessageClickListener: (SpaceMes
                 }
                 // Hide Mark Message Read option for self messages, as they would be in read status be default
                 markMessageAsRead.visibility = View.GONE
+                // Edit message allowed for self messages only
+                editMessage.visibility = View.VISIBLE
+                editMessage.setOnClickListener {
+                    dismiss()
+                    editMessageClickListener(message)
+                }
             }else {
+                editMessage.visibility = View.GONE
                 deleteMessage.visibility = View.GONE
+                replyMessageSeparator.visibility = View.GONE
                 markMessageAsRead.visibility = View.VISIBLE
             }
 

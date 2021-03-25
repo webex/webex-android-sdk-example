@@ -1,10 +1,10 @@
 package com.ciscowebex.androidsdk.kitchensink.messaging.spaces
 
+import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.Webex
 import com.ciscowebex.androidsdk.kitchensink.messaging.MessagingRepository
-import com.ciscowebex.androidsdk.space.SpaceClient.SortBy
 import com.ciscowebex.androidsdk.space.Space.SpaceType
-import com.ciscowebex.androidsdk.CompletionHandler
+import com.ciscowebex.androidsdk.space.SpaceClient.SortBy
 import io.reactivex.Observable
 import io.reactivex.Single
 
@@ -113,13 +113,27 @@ class SpacesRepository(private val webex: Webex) : MessagingRepository(webex) {
 
     fun listSpacesWithActiveCalls(): Observable<List<String>> {
         return Single.create<List<String>> { emitter ->
-            webex.spaces.listWithActiveCalls( CompletionHandler { result ->
+            webex.spaces.listWithActiveCalls(CompletionHandler { result ->
                 if (result.isSuccessful) {
-                     emitter.onSuccess(result.data.orEmpty())
+                    emitter.onSuccess(result.data.orEmpty())
                 } else {
                     emitter.onError(Throwable(result.error?.errorMessage))
                 }
             })
         }.toObservable()
     }
+
+    // Commenting out but keeping this code for now in order to test encoding/decoding related code changes.
+    // We can delete once encoding/decoding code is put in proper format and returns proper error state(IN FORM OF ENUM) from Omnius layer
+    /*fun encodeDecodeTest() {
+        webex.base64Encode(ResourceType.Memberships, "Rohit Sharma", CompletionHandler { result ->
+            if(result.isSuccessful){
+                Log.d("Enc/Dec Test", "Encoded String : ${result.data}")
+                val decodedString = webex.base64Decode(result.data?: "Y2lzY29zcGFyazovL3VzL09SR0FOSVpBVElPTi9lZGI2OWJlOS1hMDNiLTQ4YzUtYWFmYi1lMmE2MjE0N2Q0NmM")
+                Log.d("Enc/Dec Test", "Decoded String : $decodedString")
+            }else {
+                Log.d("Enc/Dec Test", "Error in encoding : ${result.error?.errorMessage}")
+            }
+        })
+    }*/
 }

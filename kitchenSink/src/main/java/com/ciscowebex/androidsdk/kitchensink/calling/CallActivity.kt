@@ -105,26 +105,4 @@ class CallActivity : BaseActivity() {
         super.onAttachedToWindow()
         toBeShownOnLockScreen()
     }
-
-    override fun onStop() {
-        super.onStop()
-        val fragment = supportFragmentManager.findFragmentById(R.id.containerFragment)
-        if (fragment is CallControlsFragment){
-            fragment.onFragmentStop()
-            Log.d(CallActivity::class.java.name, "fragment.stopVideoStreaming() called")
-        } else {
-            Log.d(CallActivity::class.java.name, "fragment is null")
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        val fragment = supportFragmentManager.findFragmentById(R.id.containerFragment)
-        if (fragment is CallControlsFragment){
-            fragment.onFragmentStart()
-            Log.d(CallActivity::class.java.name, "fragment.resumeVideoStreaming() called")
-        } else {
-            Log.d(CallActivity::class.java.name, "fragment is null")
-        }
-    }
 }

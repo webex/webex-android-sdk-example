@@ -22,6 +22,7 @@ import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils.clearLoginTyp
 import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils.saveLoginTypePref
 import com.ciscowebex.androidsdk.kitchensink.webhooks.WebhooksActivity
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
+import com.ciscowebex.androidsdk.kitchensink.setup.SetupActivity
 import org.koin.android.ext.android.inject
 
 class HomeActivity : BaseActivity() {
@@ -34,6 +35,8 @@ class HomeActivity : BaseActivity() {
         tag = "HomeActivity"
 
         val authenticator = webexViewModel.webex.authenticator
+
+        webexViewModel.enableBackgroundConnection(true)
 
         authenticator?.let {
             when (it) {
@@ -128,6 +131,10 @@ class HomeActivity : BaseActivity() {
                         catch (e: Exception) {
                             Log.e(tag, "Send mail exception: $e")
                         }
+                    }
+
+                    ivSetup.setOnClickListener {
+                        startActivity(Intent(this@HomeActivity, SetupActivity::class.java))
                     }
                 }
 

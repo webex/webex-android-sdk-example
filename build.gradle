@@ -25,9 +25,7 @@ allprojects {
         jcenter()
         mavenCentral()
         mavenLocal()
-        maven {
-            url 'https://devhub.cisco.com/artifactory/webexsdk-SNAPSHOT/'
-        }
+        flatDir { dirs 'aars'}
     }
 }
 

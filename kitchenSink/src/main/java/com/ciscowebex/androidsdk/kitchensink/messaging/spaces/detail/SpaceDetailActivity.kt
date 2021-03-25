@@ -3,6 +3,7 @@ package com.ciscowebex.androidsdk.kitchensink.messaging.spaces.detail
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.Html
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -53,7 +54,8 @@ class SpaceDetailActivity : BaseActivity() {
                 .apply {
                     val messageActionBottomSheetFragment = MessageActionBottomSheetFragment({ message -> spaceDetailViewModel.deleteMessage(message) },
                             { message -> spaceDetailViewModel.markMessageAsRead(message) },
-                            { message -> replyMessageListener(message) })
+                            { message -> replyMessageListener(message) },
+                            { message -> editMessage(message)})
 
                     messageClientAdapter = MessageClientAdapter(messageActionBottomSheetFragment, supportFragmentManager)
                     spaceMessageRecyclerView.adapter = messageClientAdapter
@@ -84,6 +86,11 @@ class SpaceDetailActivity : BaseActivity() {
                         message.toPersonEmail)
         ContextCompat.startActivity(this@SpaceDetailActivity,
                 MessageComposerActivity.getIntent(this@SpaceDetailActivity, MessageComposerActivity.Companion.ComposerType.POST_SPACE, spaceDetailViewModel.spaceId, model), null)
+    }
+
+    private fun editMessage(message: SpaceMessageModel) {
+        startActivity(MessageComposerActivity.getIntent(this@SpaceDetailActivity, MessageComposerActivity.Companion.ComposerType.POST_SPACE,
+                spaceDetailViewModel.spaceId, null, message.messageId))
     }
 
     override fun onResume() {
@@ -257,6 +264,19 @@ class MessageClientViewHolder(private val binding: ListItemSpaceMessageBinding, 
             messageActionBottomSheetFragment.show(fragmentManager, MessageActionBottomSheetFragment.TAG)
             true
         }
+
+        when {
+            message.messageBody.markdown != null -> {
+                binding.messageTextView.text =  Html.fromHtml(message.messageBody.markdown, Html.FROM_HTML_MODE_LEGACY)
+            }
+            message.messageBody.plain != null -> {
+                binding.messageTextView.text = message.messageBody.plain
+            }
+            else -> {
+                binding.messageTextView.text = ""
+            }
+        }
+
         binding.executePendingBindings()
     }
 }

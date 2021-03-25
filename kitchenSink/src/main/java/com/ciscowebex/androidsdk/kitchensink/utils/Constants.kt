@@ -11,6 +11,7 @@ class Constants {
         const val COMPOSER_TYPE = "composerType"
         const val COMPOSER_REPLY_PARENT_MESSAGE = "composerReplyParentMessage"
         const val CALL_ID = "callid"
+        const val MESSAGE_ID = "MESSAGE_ID"
     }
     object Bundle {
         const val MESSAGE_ID = "messageId"
