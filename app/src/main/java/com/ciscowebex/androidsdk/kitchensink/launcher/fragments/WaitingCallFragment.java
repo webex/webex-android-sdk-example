@@ -92,12 +92,12 @@ public class WaitingCallFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnIncomingCallEvent event) {
         showButton(true);
-        new AddCallHistoryAction(event.call.getFrom().getEmail(), "in").execute();
+        new AddCallHistoryAction(event.call.getFrom().getDisplayName(), "in").execute();
     }
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(OnScheduleChangedEvent event){
+    public void onEventMainThread(OnScheduleChangedEvent event) {
         Ln.d("OnScheduleChangedEvent: " + event);
     }
 

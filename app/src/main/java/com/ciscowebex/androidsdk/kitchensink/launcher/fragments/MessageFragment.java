@@ -142,9 +142,7 @@ public class MessageFragment extends BaseFragment {
                 Ln.i("mentioned list :" + event.getMessage().getMentions());
                 adapterMessage.mData.add(new Pair<>(event.getMessage(), false));
                 adapterMessage.notifyDataSetChanged();
-                //if (event.getMessage().getPersonEmail().equals("sparksdktestuser16@tropo.com")) {
                 textStatus.setText("");
-                //}
             } else if (evt instanceof MessageObserver.MessageDeleted) {
                 MessageObserver.MessageDeleted event = (MessageObserver.MessageDeleted) evt;
                 Ln.i("message deleted " + event.getMessageId());

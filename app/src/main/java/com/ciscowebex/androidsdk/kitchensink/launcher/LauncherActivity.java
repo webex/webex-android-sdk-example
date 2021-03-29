@@ -38,6 +38,7 @@ import com.ciscowebex.androidsdk.kitchensink.R;
 import com.ciscowebex.androidsdk.kitchensink.actions.commands.RequirePermissionAction;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnCallMembershipEvent;
 import com.ciscowebex.androidsdk.kitchensink.actions.events.OnMediaChangeEvent;
+import com.ciscowebex.androidsdk.kitchensink.launcher.fragments.CallFragment;
 import com.ciscowebex.androidsdk.kitchensink.launcher.fragments.LauncherFragment;
 import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
 import com.ciscowebex.androidsdk.phone.CallObserver;
@@ -123,7 +124,7 @@ public class LauncherActivity extends Activity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(OnCallMembershipEvent event) {
         if (event.callEvent instanceof CallObserver.MembershipSendingSharingEvent) {
-            Ln.d("Activity CallMembership email: " + event.callEvent.getCallMembership().getEmail() +
+            Ln.d("Activity CallMembership displayName: " + event.callEvent.getCallMembership().getDisplayName() +
                     "  isSendingSharing: " + event.callEvent.getCallMembership().isSendingSharing());
         }
     }
