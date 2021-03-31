@@ -272,13 +272,7 @@ public class CallFragment extends BaseFragment {
             });
             viewParticipants.setAdapter(participantsAdapter);
         }
-        if (!isConnected) {
-            setViewAndChildrenEnabled(layout, false);
-            ((SurfaceView) localView).setZOrderMediaOverlay(true);
-            ((SurfaceView) screenShare).setZOrderMediaOverlay(true);
-            //requirePermission();
-            makeCall();
-        }
+        requirePermission();
     }
 
     private static void setViewAndChildrenEnabled(View view, boolean enabled) {
@@ -319,6 +313,19 @@ public class CallFragment extends BaseFragment {
 
     private void requirePermission() {
         new RequirePermissionAction(getActivity()).execute();
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(PermissionAcquiredEvent event) {
+        agent.startPreview(localView);
+        if (!isConnected) {
+            setViewAndChildrenEnabled(layout, false);
+            ((SurfaceView) localView).setZOrderMediaOverlay(true);
+            ((SurfaceView) screenShare).setZOrderMediaOverlay(true);
+            //requirePermission();
+            makeCall();
+        }
     }
 
     @Override
@@ -951,12 +958,6 @@ public class CallFragment extends BaseFragment {
                 toast(text);
             }
         }
-    }
-
-    @SuppressWarnings("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(PermissionAcquiredEvent event) {
-        makeCall();
     }
 
     private void backToHome() {

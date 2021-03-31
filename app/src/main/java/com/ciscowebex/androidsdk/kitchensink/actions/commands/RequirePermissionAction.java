@@ -46,21 +46,27 @@ public class RequirePermissionAction implements IAction {
 
     @Override
     public void execute() {
-        int permissionCheck = ContextCompat.checkSelfPermission(activity,
-                Manifest.permission.READ_EXTERNAL_STORAGE);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            String[] permissions = {
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            };
-            ActivityCompat.requestPermissions(activity, permissions, 0);
-        } else {
-            WebexAgentEvent.postEvent(new PermissionAcquiredEvent());
+        String[] permissions = {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.CAMERA
+        };
+        for (String permission : permissions) {
+            int permissionCheck = ContextCompat.checkSelfPermission(activity, permission);
+            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(activity, permissions, 0);
+                return;
+            }
         }
+        WebexAgentEvent.postEvent(new PermissionAcquiredEvent());
     }
 
     public static void PermissionsRequired(int requestCode, int[] grantResults) {
-        if (requestCode == 0 && grantResults.length == 1
-                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == 0) {
+            for (int grant : grantResults) {
+                if (grant != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+            }
             WebexAgentEvent.postEvent(new PermissionAcquiredEvent());
         }
     }
