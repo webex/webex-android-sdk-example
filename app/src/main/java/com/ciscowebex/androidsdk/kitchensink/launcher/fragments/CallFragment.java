@@ -26,6 +26,8 @@ package com.ciscowebex.androidsdk.kitchensink.launcher.fragments;
 
 import android.app.AlertDialog;
 import android.app.AppOpsManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.PictureInPictureParams;
@@ -91,13 +93,10 @@ import com.ciscowebex.androidsdk.kitchensink.ui.FullScreenSwitcher;
 import com.ciscowebex.androidsdk.kitchensink.ui.ParticipantsAdapter;
 import com.ciscowebex.androidsdk.people.Person;
 import com.ciscowebex.androidsdk.phone.AuxStream;
-import com.ciscowebex.androidsdk.phone.Call;
 import com.ciscowebex.androidsdk.phone.CallMembership;
 import com.ciscowebex.androidsdk.phone.CallObserver;
-import com.ciscowebex.androidsdk.phone.MediaOption;
 import com.ciscowebex.androidsdk.phone.MediaRenderView;
 import com.ciscowebex.androidsdk.phone.MultiStreamObserver;
-import com.ciscowebex.androidsdk.phone.Phone;
 import com.ciscowebex.androidsdk.phone.internal.CallImpl;
 import com.github.benoitdion.ln.Ln;
 import com.squareup.picasso.Picasso;
@@ -399,14 +398,28 @@ public class CallFragment extends BaseFragment {
                 agent.receiveAudio(s.isChecked());
                 break;
             case R.id.switchShareContent:
-                if (s.isChecked())
-                    agent.getActiveCall().startSharing(r -> {
+                if (s.isChecked()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        NotificationChannel mChannel = new NotificationChannel("screen_share_notification_channel", "screen_share_notification_channel", NotificationManager.IMPORTANCE_HIGH);
+                        NotificationManager notifyManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                        notifyManager.createNotificationChannel(mChannel);
+                    }
+                    Notification notification = new NotificationCompat.Builder(getActivity(), "screen_share_notification_channel")
+                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setContentTitle("Cisco Kitchensink")
+                            .setContentText("Sharing screen to others")
+                            .setTicker("Screen Sharing")
+                            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                            .setDefaults(Notification.DEFAULT_SOUND)
+                            .build();
+
+                    agent.getActiveCall().startSharing(notification, 0xabcde, r -> {
                         Ln.d("startSharing result: " + r);
                         if (!r.isSuccessful()) {
                             switchShareContent.setChecked(false);
                         }
                     });
-                else
+                } else
                     agent.getActiveCall().stopSharing(r -> {
                         Ln.d("stopSharing result: " + r);
                     });
@@ -760,7 +773,7 @@ public class CallFragment extends BaseFragment {
         } else if (event.callEvent instanceof SendingSharingEvent) {
             Ln.d("SendingSharingEvent: " + ((SendingSharingEvent) event.callEvent).isSending());
             if (((SendingSharingEvent) event.callEvent).isSending()) {
-                sendNotification();
+//                sendNotification();
                 backToHome();
             }
         } else if (event.callEvent instanceof CallObserver.ActiveSpeakerChangedEvent) {

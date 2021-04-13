@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'org.greenrobot.greendao'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "28.0.3"
+    compileSdkVersion 29
+    buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "com.ciscowebex.androidsdk.kitchensink"
         minSdkVersion 21
-        targetSdkVersion 27
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.agent.AndroidJUnitRunner"
@@ -53,7 +53,7 @@ repositories {
 }
 
 dependencies {
-    implementation('com.ciscowebex:androidsdk:2.7.0.7-SNAPSHOT@aar', {
+    implementation('com.ciscowebex:androidsdk:2.7.0.9-SNAPSHOT@aar', {
         transitive = true
         changing = true
     })
