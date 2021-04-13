@@ -769,6 +769,13 @@ public class CallFragment extends BaseFragment {
             Ln.d("RemoteSendingVideoEvent: " + ((CallObserver.RemoteSendingVideoEvent) event.callEvent).isSending());
         } else if (event.callEvent instanceof RemoteSendingSharingEvent) {
             Ln.d("RemoteSendingSharingEvent: " + ((RemoteSendingSharingEvent) event.callEvent).isSending());
+            if (((RemoteSendingSharingEvent) event.callEvent).isSending()){
+                event.callEvent.getCall().setVideoRenderViews(new Pair<>(localView, screenShare));
+                event.callEvent.getCall().setSharingRenderView(remoteView);
+            }else {
+                event.callEvent.getCall().setSharingRenderView(null);
+                event.callEvent.getCall().setVideoRenderViews(new Pair<>(localView, remoteView));
+            }
             updateScreenShareView();
         } else if (event.callEvent instanceof SendingSharingEvent) {
             Ln.d("SendingSharingEvent: " + ((SendingSharingEvent) event.callEvent).isSending());
