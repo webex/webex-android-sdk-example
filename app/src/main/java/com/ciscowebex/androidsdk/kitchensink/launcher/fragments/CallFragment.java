@@ -271,7 +271,12 @@ public class CallFragment extends BaseFragment {
             });
             viewParticipants.setAdapter(participantsAdapter);
         }
-        requirePermission();
+        if (!isConnected) {
+            setViewAndChildrenEnabled(layout, false);
+            ((SurfaceView) localView).setZOrderMediaOverlay(true);
+            ((SurfaceView) screenShare).setZOrderMediaOverlay(true);
+            requirePermission();
+        }
     }
 
     private static void setViewAndChildrenEnabled(View view, boolean enabled) {
@@ -317,14 +322,7 @@ public class CallFragment extends BaseFragment {
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(PermissionAcquiredEvent event) {
-        agent.startPreview(localView);
-        if (!isConnected) {
-            setViewAndChildrenEnabled(layout, false);
-            ((SurfaceView) localView).setZOrderMediaOverlay(true);
-            ((SurfaceView) screenShare).setZOrderMediaOverlay(true);
-            //requirePermission();
-            makeCall();
-        }
+        makeCall();
     }
 
     @Override
@@ -551,7 +549,7 @@ public class CallFragment extends BaseFragment {
             agent.answer(localView, remoteView, screenShare, false, null);
             return;
         }
-
+        agent.startPreview(localView);
         agent.dial(callee, localView, remoteView, screenShare, false, null);
         new AddCallHistoryAction(callee, "out").execute();
         setButtonsEnable(true);
@@ -769,10 +767,10 @@ public class CallFragment extends BaseFragment {
             Ln.d("RemoteSendingVideoEvent: " + ((CallObserver.RemoteSendingVideoEvent) event.callEvent).isSending());
         } else if (event.callEvent instanceof RemoteSendingSharingEvent) {
             Ln.d("RemoteSendingSharingEvent: " + ((RemoteSendingSharingEvent) event.callEvent).isSending());
-            if (((RemoteSendingSharingEvent) event.callEvent).isSending()){
+            if (((RemoteSendingSharingEvent) event.callEvent).isSending()) {
                 event.callEvent.getCall().setVideoRenderViews(new Pair<>(localView, screenShare));
                 event.callEvent.getCall().setSharingRenderView(remoteView);
-            }else {
+            } else {
                 event.callEvent.getCall().setSharingRenderView(null);
                 event.callEvent.getCall().setVideoRenderViews(new Pair<>(localView, remoteView));
             }
