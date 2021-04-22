@@ -54,7 +54,7 @@ This demo support Android device with **Android 7.0** or later
    
 ## Usage
  
-For example see [SDK-v3 README.md](https://cisco.box.com/shared/static/uzcca516qmuo5cnch53fnj40ntdndd3m.pdf)
+For example see [SDK-v3 README.md](https://assets.contentstack.io/v3/assets/bltd74e2c7e18c68b20/blt76dcff7f28e7036a/6064d2e2573d281045d363f3/Android-SDK-v3-ReadMe.pdf)
      
 ## Note
  
