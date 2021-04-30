@@ -342,4 +342,17 @@ public class WebexAgent {
         }
         return null;
     }
+
+    public void setVideoStreamMode(Phone.VideoStreamMode mode) {
+        if (phone != null) {
+            phone.setVideoStreamMode(mode);
+        }
+    }
+
+    public Phone.VideoStreamMode getVideoStreamMode() {
+        if (phone != null) {
+            return phone.getVideoStreamMode();
+        }
+        return null;
+    }
 }

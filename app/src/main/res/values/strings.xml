@@ -8,6 +8,9 @@
     <string name="feedback_email">To: devsupport@ciscospark.com</string>
     <string name="choose_auth">What type of authentication do you want to use?</string>
     <string name="call_capability">Call capability</string>
+    <string name="video_stream_mode">Video stream mode</string>
+    <string name="composited">Composited</string>
+    <string name="multi_stream">Multi-stream</string>
     <string name="audio_call">Audio call</string>
     <string name="audio_video_call">Audio/Video call</string>
     <string name="loud_speaker">Loud speaker</string>

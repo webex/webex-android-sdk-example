@@ -147,7 +147,10 @@ public class SpaceFragment extends BaseFragment {
                 for (Space space : spaceList) {
                     if (spaceId.equals(space.getId())) {
                         int position = spaceList.indexOf(space);
-                        listView.getChildAt(position).findViewById(R.id.ongoing).setVisibility(ongoingVisible ? View.VISIBLE : View.GONE);
+                        View v = listView.getChildAt(position);
+                        if (v != null) {
+                            v.findViewById(R.id.ongoing).setVisibility(ongoingVisible ? View.VISIBLE : View.GONE);
+                        }
                     }
                 }
             }

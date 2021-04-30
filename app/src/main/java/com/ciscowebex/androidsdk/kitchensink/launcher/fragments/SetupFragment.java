@@ -52,7 +52,7 @@ import butterknife.OnItemSelected;
  */
 public class SetupFragment extends BaseFragment {
 
-    final private int BANDWIDTH[] = {64000, 177000, 384000, 768000, 2000000, 3000000, 4000000};
+    final private int BANDWIDTH[] = {177000, 384000, 768000, 2500000, 4000000};
 
     private WebexAgent agent;
 
@@ -64,6 +64,12 @@ public class SetupFragment extends BaseFragment {
 
     @BindView(R.id.audioCallOnly)
     RadioButton switchAudioOnly;
+
+    @BindView(R.id.composited)
+    RadioButton radioComposited;
+
+    @BindView(R.id.multiStream)
+    RadioButton radioMultiStream;
 
     @BindView(R.id.setupLoudSpeaker)
     Switch switchLoudSpeaker;
@@ -134,7 +140,7 @@ public class SetupFragment extends BaseFragment {
                 break;
         }
 
-        // Setup max bandwidth
+//         Setup max bandwidth
         int bw = agent.getMaxBandWidth();
         int index = Arrays.binarySearch(BANDWIDTH, bw);
         if (index == -1) {
@@ -150,6 +156,13 @@ public class SetupFragment extends BaseFragment {
             radioHP.setChecked(agent.getAudioBNRMode() == Phone.AudioBRNMode.HP);
             radioLP.setChecked(agent.getAudioBNRMode() == Phone.AudioBRNMode.LP);
         }
+
+        // Setup multi-stream radio buttons
+        if (agent.getVideoStreamMode() != null) {
+            radioComposited.setChecked(agent.getVideoStreamMode() == Phone.VideoStreamMode.COMPOSITED);
+            radioMultiStream.setChecked(agent.getVideoStreamMode() == Phone.VideoStreamMode.AUXILIARY);
+        }
+
     }
 
     @OnClick({R.id.audioCallOnly, R.id.audioVideoCall})
@@ -157,9 +170,14 @@ public class SetupFragment extends BaseFragment {
         switch (v.getId()) {
             case R.id.audioCallOnly:
                 agent.setCallCapability(WebexAgent.CallCap.AUDIO_ONLY);
+                radioComposited.performClick();
+                radioComposited.setEnabled(false);
+                radioMultiStream.setEnabled(false);
                 break;
             case R.id.audioVideoCall:
                 agent.setCallCapability(WebexAgent.CallCap.AUDIO_VIDEO);
+                radioComposited.setEnabled(true);
+                radioMultiStream.setEnabled(true);
                 break;
         }
     }
@@ -206,6 +224,20 @@ public class SetupFragment extends BaseFragment {
                     break;
                 case R.id.bnr_lp:
                     agent.setAudioBNRMode(Phone.AudioBRNMode.LP);
+                    break;
+            }
+        }
+    }
+
+    @OnCheckedChanged({R.id.composited, R.id.multiStream})
+    public void onRadioVideoStreamModeChanged(CompoundButton button, boolean isChecked) {
+        if (isChecked) {
+            switch (button.getId()) {
+                case R.id.composited:
+                    agent.setVideoStreamMode(Phone.VideoStreamMode.COMPOSITED);
+                    break;
+                case R.id.multiStream:
+                    agent.setVideoStreamMode(Phone.VideoStreamMode.AUXILIARY);
                     break;
             }
         }
