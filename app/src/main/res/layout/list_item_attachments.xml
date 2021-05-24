@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="remoteFile"
+            type="com.ciscowebex.androidsdk.message.RemoteFile" />
+    </data>
+
+    <RelativeLayout
+        android:id="@+id/rootListItemPersonsView"
+        android:layout_width="match_parent"
+        android:foreground="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:layout_height="wrap_content"
+        android:focusable="true">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="@{remoteFile.displayName}"
+            android:textSize="@dimen/size_16sp"
+            tools:text="File Name"
+            app:drawableEndCompat="@drawable/ic_arrow_24" />
+
+    </RelativeLayout>
+</layout>

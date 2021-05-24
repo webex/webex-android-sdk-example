@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="@dimen/padding_normal"
+        android:paddingEnd="@dimen/padding_normal">
+
+
+        <ImageButton
+            android:id="@+id/ib_startCall"
+            android:layout_width="@dimen/icon_size_normal"
+            android:layout_height="@dimen/icon_size_normal"
+            android:layout_marginBottom="32dp"
+            android:background="@drawable/circle_filled_green"
+            android:padding="16dp"
+            app:srcCompat="@drawable/ic_call_white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!--Views for dial buttons-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/dial_buttons_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_normal"
+            app:layout_constraintBottom_toTopOf="@+id/ib_startCall"
+            app:layout_constraintTop_toBottomOf="@+id/et_dial_input"
+            app:layout_constraintVertical_bias="0.8"
+            tools:layout_editor_absoluteX="16dp">
+
+            <TextView
+                android:id="@+id/tv_number_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/size_8dp"
+                android:layout_marginRight="@dimen/size_8dp"
+                android:background="@drawable/circle_filled_gray"
+                android:padding="@dimen/padding_large"
+                android:text="@string/number_1"
+                android:textAppearance="@style/TextStyle.DialKeys"
+                app:layout_constraintEnd_toStartOf="@+id/tv_number_2"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_number_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/size_8dp"
+                android:layout_marginRight="@dimen/size_8dp"
+                android:background="@drawable/circle_filled_gray"
+                android:padding="@dimen/padding_large"
+                android:text="@string/number_2"
+                android:textAppearance="@style/TextStyle.DialKeys"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_number_1"
+                app:layout_constraintEnd_toStartOf="@+id/tv_number_3"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/tv_number_1" />
+
+            <TextView
+                android:id="@+id/tv_number_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/circle_filled_gray"
+                android:padding="@dimen/padding_large"
+                android:text="@string/number_3"
+                android:textAppearance="@style/TextStyle.DialKeys"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_number_2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/tv_number_2" />
+
+            <TextView
+                android:id="@+id/tv_number_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/size_8dp"
+                android:layout_marginRight="@dimen/size_8dp"
+                android:background="@drawable/circle_filled_gray"
+                android:padding="@dimen/padding_large"
+                android:text="@string/number_4"
+                android:textAppearance="@style/TextStyle.DialKeys"
+                app:layout_constraintEnd_toStartOf="@+id/tv_number_5"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_number_1" />
+
+            <TextView
+                android:id="@+id/tv_number_5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/size_8dp"
+                android:layout_marginRight="@dimen/size_8dp"
+                android:background="@drawable/circle_filled_gray"
+                android:padding="@dimen/padding_large"
+                android:text="@string/number_5"
+                android:textAppearance="@style/TextStyle.DialKeys"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_number_4"
+                app:layout_constraintEnd_toStartOf="@+id/tv_number_6"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/tv_number_4" />
+
+            <TextView
+                android:id="@+id/tv_number_6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/circle_filled_gray"
+                android:padding="@dimen/padding_large"
+                android:text="@string/number_6"
+                android:textAppearance="@style/TextStyle.DialKeys"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_number_5"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/tv_number_5" />
+
+            <TextView
+                android:id="@+id/tv_number_7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/size_8dp"
+                android:layout_marginRight="@dimen/size_8dp"
+                android:background="@drawable/circle_filled_gray"
+                android:padding="@dimen/padding_large"
+                android:text="@string/number_7"
+                android:textAppearance="@style/TextStyle.DialKeys"
+                app:layout_constraintEnd_toStartOf="@+id/tv_number_8"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_number_4" />
+
+            <TextView
+                android:id="@+id/tv_number_8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/size_8dp"
+                android:layout_marginRight="@dimen/size_8dp"
+                android:background="@drawable/circle_filled_gray"
+                android:padding="@dimen/padding_large"
+                android:text="@string/number_8"
+                android:textAppearance="@style/TextStyle.DialKeys"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_number_7"
+                app:layout_constraintEnd_toStartOf="@+id/tv_number_9"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/tv_number_7" />
+
+            <TextView
+                android:id="@+id/tv_number_9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/circle_filled_gray"
+                android:padding="@dimen/padding_large"
+                android:text="@string/number_9"
+                android:textAppearance="@style/TextStyle.DialKeys"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_number_8"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/tv_number_8" />
+
+            <TextView
+                android:id="@+id/tv_number_star"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/size_8dp"
+                android:layout_marginRight="@dimen/size_8dp"
+                android:background="@drawable/circle_filled_gray"
+                android:padding="@dimen/padding_large"
+                android:text="@string/number_star"
+                android:textAppearance="@style/TextStyle.DialKeys"
+                app:layout_constraintEnd_toStartOf="@+id/ll_number_0"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_number_7" />
+
+            <FrameLayout
+                android:id="@+id/ll_number_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/size_8dp"
+                android:orientation="vertical"
+                android:layout_marginRight="@dimen/size_8dp"
+                android:layout_marginStart="3dp"
+                android:background="@drawable/circle_filled_gray"
+                android:paddingStart="@dimen/padding_large"
+                android:paddingEnd="@dimen/padding_large"
+                android:paddingTop="23dp"
+                android:paddingBottom="11dp"
+                android:gravity="center"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_number_star"
+                app:layout_constraintEnd_toStartOf="@+id/tv_number_hash"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintTop_toBottomOf="@id/tv_number_8"
+                app:layout_constraintStart_toEndOf="@+id/tv_number_star">
+
+            <TextView
+                android:id="@+id/tv_number_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/circle_filled_gray"
+                android:text="@string/number_0"
+                android:textAppearance="@style/TextStyle.DialKeys" />
+
+            <TextView
+                android:id="@+id/tv_number_plus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/number_plus"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="30dp"
+                android:textSize="12sp"/>
+
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tv_number_hash"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/circle_filled_gray"
+                android:padding="@dimen/padding_large"
+                android:text="@string/number_hash"
+                android:textAppearance="@style/TextStyle.DialKeys"
+                app:layout_constraintBottom_toBottomOf="@+id/ll_number_0"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/ll_number_0" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <EditText
+            android:id="@+id/et_dial_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
+            android:background="@null"
+            android:hint="@string/tap_to_dial"
+            android:singleLine="true"
+            android:gravity="center"
+            android:text=""
+            android:textSize="@dimen/textLarge"
+            android:inputType="textWebEmailAddress"
+            app:layout_constraintEnd_toStartOf="@+id/ib_backspace"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toggle_buttons_container" />
+
+        <ImageButton
+            android:id="@+id/ib_backspace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_backspace"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintBottom_toBottomOf="@+id/et_dial_input"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toggle_buttons_container" />
+
+        <ViewSwitcher
+            android:id="@+id/toggle_buttons_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+
+            <ImageButton
+                android:id="@+id/ib_keypad_toggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_keyboard" />
+
+            <ImageButton
+                android:id="@+id/ib_numpad_toggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_dialpad" />
+        </ViewSwitcher>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+
+        <variable
+            name="message"
+            type="com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpaceMessageModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/rootMemberDetailsDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context="com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipActivity">
+
+        <ImageView
+            android:id="@+id/close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_baseline_close_24"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:fillViewport="true"
+            app:layout_constraintTop_toBottomOf="@+id/close">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_begin="150dp" />
+
+                <TextView
+                    android:id="@+id/msgId"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:text="@string/message_id"
+                    app:layout_constraintBottom_toBottomOf="@id/msgIdTextView"
+                    app:layout_constraintEnd_toEndOf="@id/guideline1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/msgIdTextView" />
+
+                <TextView
+                    android:id="@+id/msgIdTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="6dp"
+                    android:text="@{message.messageId}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toStartOf="@id/guideline1"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintWidth_default="wrap"
+                    tools:text="sdfkljsdlkfsljk-sdkjlfsldkjfjl" />
+
+
+                <TextView
+                    android:id="@+id/membershipCreatedLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:text="@string/sent_date"
+                    app:layout_constraintBottom_toBottomOf="@id/membershipDateCreatedTextView"
+                    app:layout_constraintEnd_toEndOf="@id/guideline1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/membershipDateCreatedTextView" />
+
+                <TextView
+                    android:id="@+id/membershipDateCreatedTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="6dp"
+                    android:text="@{message.createdDateTimeString}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/guideline1"
+                    app:layout_constraintTop_toBottomOf="@id/msgIdTextView"
+                    tools:text="01/01/1970 00:00:00" />
+
+                <TextView
+                    android:id="@+id/msgPersonIdLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:text="@string/person_id"
+                    app:layout_constraintBottom_toBottomOf="@id/msgPersonIdTextView"
+                    app:layout_constraintEnd_toEndOf="@id/guideline1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/msgPersonIdTextView" />
+
+                <TextView
+                    android:id="@+id/msgPersonIdTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="6dp"
+                    android:text="@{message.personId}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/guideline1"
+                    app:layout_constraintTop_toBottomOf="@id/membershipDateCreatedTextView"
+                    tools:text="kljdshflkdhfkjasdhfkjashd" />
+
+                <TextView
+                    android:id="@+id/membershipPersonEmailLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:text="@string/person_email"
+                    app:layout_constraintBottom_toBottomOf="@id/msgPersonEmailTextView"
+                    app:layout_constraintEnd_toEndOf="@id/guideline1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/msgPersonEmailTextView" />
+
+                <TextView
+                    android:id="@+id/msgPersonEmailTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="6dp"
+                    android:text="@{message.personEmail}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/guideline1"
+                    app:layout_constraintTop_toBottomOf="@id/msgPersonIdTextView"
+                    tools:text="ljkdshflakjshdjfkljasdhflasdkj" />
+
+                <TextView
+                    android:id="@+id/membershipPersonDisplayNameLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:text="@string/to_person_id"
+                    app:layout_constraintBottom_toBottomOf="@id/msgToPersonId"
+                    app:layout_constraintEnd_toEndOf="@id/guideline1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/msgToPersonId" />
+
+                <TextView
+                    android:id="@+id/msgToPersonId"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="6dp"
+                    android:text="@{message.toPersonId}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/guideline1"
+                    app:layout_constraintTop_toBottomOf="@id/msgPersonEmailTextView"
+                    tools:text="ljkdshflakjshdjfkljasdhflasdkj" />
+
+                <TextView
+                    android:id="@+id/membershipIsModeratorLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:text="@string/to_person_email"
+                    app:layout_constraintBottom_toBottomOf="@id/toPersonEmailText"
+                    app:layout_constraintEnd_toEndOf="@id/guideline1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/toPersonEmailText" />
+
+                <TextView
+                    android:id="@+id/toPersonEmailText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:padding="6dp"
+                    android:text="@{message.toPersonEmail}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/guideline1"
+                    app:layout_constraintTop_toBottomOf="@id/msgToPersonId"
+                    tools:text="ljkdshflakjshdjfkljasdhflasdkj" />
+
+                <TextView
+                    android:id="@+id/messageBodyLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:text="@string/message_label"
+                    app:layout_constraintBottom_toBottomOf="@id/messageBodyTextView"
+                    app:layout_constraintEnd_toEndOf="@id/guideline1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/messageBodyTextView" />
+
+                <TextView
+                    android:id="@+id/messageBodyTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:maxLines="3"
+                    android:padding="6dp"
+                    android:text=""
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/guideline1"
+                    app:layout_constraintTop_toBottomOf="@id/toPersonEmailText"
+                    tools:text="ljkdshflakjshdjfkljasdhflasdkj" />
+
+                <TextView
+                    android:id="@+id/attachmentTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:paddingStart="10dp"
+                    android:text="@string/attachments_label"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toBottomOf="@+id/messageBodyTextView" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/attachmentList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:nestedScrollingEnabled="false"
+                    android:orientation="vertical"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintTop_toBottomOf="@+id/attachmentTextView"
+                    tools:listitem="@layout/list_item_attachments" />
+
+                <RelativeLayout
+                    android:id="@+id/progressLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/alphaWhite"
+                    android:clickable="true"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ProgressBar
+                        android:id="@+id/progress_bar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:indeterminate="true" />
+
+                </RelativeLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

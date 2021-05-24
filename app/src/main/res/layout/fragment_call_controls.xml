@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:grid="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/incoming_call_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="64dp"
+            android:layout_marginEnd="32dp"
+            android:text="@string/waiting_call_header"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/main_content_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/video_call_layout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/video_view_height"
+                android:visibility="visible"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <RelativeLayout
+                    android:id="@+id/remoteViewLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:elevation="8dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <com.ciscowebex.androidsdk.phone.MediaRenderView
+                        android:id="@+id/remoteView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"/>
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/localViewLayout"
+                    android:layout_width="@dimen/local_video_view_width"
+                    android:layout_height="@dimen/local_video_view_height"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:elevation="8dp"
+                    android:background="@drawable/surfaceview_border"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintRight_toRightOf="parent">
+
+                    <com.ciscowebex.androidsdk.phone.MediaRenderView
+                        android:id="@+id/localView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                </RelativeLayout>
+
+                <com.ciscowebex.androidsdk.phone.MediaRenderView
+                    android:id="@+id/screenShareView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:elevation="1dp"
+                    android:visibility="gone"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <ScrollView
+                android:id="@+id/view_aux_videos_container"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="8dp"
+                android:visibility="visible"
+                android:clickable="false"
+                app:layout_constraintTop_toBottomOf="@+id/video_call_layout">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <GridLayout
+                        android:id="@+id/view_aux_videos"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:useDefaultMargins="true"
+                        android:columnCount="2">
+                    </GridLayout>
+                </LinearLayout>
+            </ScrollView>
+
+            <TextView
+                android:id="@+id/calling_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="32dp"
+                android:text="@string/calling"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="32dp"
+                android:ellipsize="end"
+                android:gravity="center_horizontal"
+                android:maxLines="2"
+                android:textColor="@android:color/white"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/calling_header"
+                tools:text="-" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/option_buttons_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintVertical_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageButton
+                    android:id="@+id/ib_mute"
+                    android:layout_width="@dimen/icon_size_normal"
+                    android:layout_height="@dimen/icon_size_normal"
+                    android:background="@drawable/audio_button"
+                    android:contentDescription="@string/mute"
+                    app:layout_constraintEnd_toStartOf="@+id/ib_hold_call"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_chainStyle="spread"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageButton
+                    android:id="@+id/ib_hold_call"
+                    android:layout_width="@dimen/icon_size_normal"
+                    android:layout_height="@dimen/icon_size_normal"
+                    android:background="@drawable/speaker_button_selector"
+                    android:contentDescription="@string/hold"
+                    android:padding="@dimen/padding_normal"
+                    android:src="@drawable/ic_call_hold"
+                    app:layout_constraintBottom_toBottomOf="@+id/ib_mute"
+                    app:layout_constraintEnd_toStartOf="@+id/ib_speaker"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/ib_mute"
+                    app:layout_constraintTop_toTopOf="@+id/ib_mute" />
+
+                <ImageButton
+                    android:id="@+id/ib_speaker"
+                    android:layout_width="@dimen/icon_size_normal"
+                    android:layout_height="@dimen/icon_size_normal"
+                    android:background="@drawable/speaker_button_selector"
+                    android:contentDescription="@string/speaker"
+                    android:padding="@dimen/padding_normal"
+                    android:src="@drawable/ic_speaker"
+                    app:layout_constraintBottom_toBottomOf="@+id/ib_hold_call"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/ib_hold_call"
+                    app:layout_constraintTop_toTopOf="@+id/ib_hold_call" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/controlsRow2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:visibility="gone"
+                android:animateLayoutChanges="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/option_buttons_container">
+
+                <ImageButton
+                    android:id="@+id/ib_add"
+                    android:layout_width="@dimen/icon_size_normal"
+                    android:layout_height="@dimen/icon_size_normal"
+                    android:background="@drawable/circle_filled_dark_gray"
+                    android:contentDescription="@string/add_call"
+                    android:padding="@dimen/padding_normal"
+                    android:src="@drawable/ic_participant_add"
+                    android:visibility="visible"
+                    app:layout_constraintEnd_toStartOf="@+id/ib_video"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_chainStyle="spread"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+                <ImageButton
+                    android:id="@+id/ib_video"
+                    android:layout_width="@dimen/icon_size_normal"
+                    android:layout_height="@dimen/icon_size_normal"
+                    android:background="@drawable/turn_on_video_default"
+                    android:contentDescription="@string/video"
+                    android:padding="@dimen/padding_normal"
+                    android:visibility="visible"
+                    app:layout_constraintEnd_toStartOf="@+id/ib_participants"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/ib_add"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageButton
+                    android:id="@+id/ib_participants"
+                    android:layout_width="@dimen/icon_size_normal"
+                    android:layout_height="@dimen/icon_size_normal"
+                    android:background="@drawable/circle_filled_dark_gray"
+                    android:contentDescription="@string/participants"
+                    android:padding="@dimen/padding_normal"
+                    android:src="@drawable/ic_participant_list"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/ib_video"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageButton
+                    android:id="@+id/ib_merge"
+                    android:layout_width="@dimen/icon_size_normal"
+                    android:layout_height="@dimen/icon_size_normal"
+                    android:background="@drawable/circle_filled_dark_gray"
+                    android:contentDescription="@string/merge_call"
+                    android:padding="@dimen/padding_normal"
+                    android:src="@drawable/ic_call_merge_24"
+                    android:visibility="gone"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toStartOf="@id/ib_add"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageButton
+                    android:id="@+id/ib_transfer_call"
+                    android:layout_width="@dimen/icon_size_normal"
+                    android:layout_height="@dimen/icon_size_normal"
+                    android:background="@drawable/circle_filled_dark_gray"
+                    android:contentDescription="@string/transfer_call"
+                    android:padding="@dimen/padding_normal"
+                    android:src="@drawable/ic_call_transfer"
+                    android:visibility="invisible"
+                    app:layout_constraintStart_toStartOf="@id/ib_video"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/controlsRow3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:layout_marginTop="32dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/controlsRow2">
+
+                <ImageButton
+                    android:id="@+id/ib_screen_share"
+                    android:layout_width="@dimen/icon_size_normal"
+                    android:layout_height="@dimen/icon_size_normal"
+                    android:background="@drawable/screen_sharing_default"
+                    android:visibility="invisible"
+                    android:contentDescription="@string/screen_share"
+                    app:layout_constraintEnd_toStartOf="@+id/ib_swap_camera"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_chainStyle="spread"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageButton
+                    android:id="@+id/ib_swap_camera"
+                    android:layout_width="@dimen/icon_size_normal"
+                    android:layout_height="@dimen/icon_size_normal"
+                    android:background="@drawable/ic_btn_camera_swap_40"
+                    android:contentDescription="@string/swap_camera"
+                    android:padding="@dimen/padding_normal"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="@+id/ib_screen_share"
+                    app:layout_constraintEnd_toStartOf="@+id/ib_more_option"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/ib_screen_share"
+                    app:layout_constraintTop_toTopOf="@+id/ib_screen_share" />
+
+                <ImageButton
+                    android:id="@+id/ib_more_option"
+                    android:layout_width="@dimen/icon_size_normal"
+                    android:layout_height="@dimen/icon_size_normal"
+                    android:background="@drawable/circle_filled_dark_gray"
+                    android:src="@drawable/ic_more"
+                    android:visibility="visible"
+                    android:contentDescription="@string/more_option"
+                    app:layout_constraintBottom_toBottomOf="@+id/ib_swap_camera"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/ib_swap_camera"
+                    app:layout_constraintTop_toTopOf="@+id/ib_swap_camera" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/controlGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:constraint_referenced_ids="option_buttons_container, controlsRow2, controlsRow3"/>
+
+            <ImageView
+                android:id="@+id/iv_cancel_call"
+                android:layout_width="@dimen/icon_size_normal"
+                android:layout_height="@dimen/icon_size_normal"
+                android:layout_marginBottom="32dp"
+                android:background="@drawable/circle_filled_red"
+                android:padding="@dimen/padding_normal"
+                android:src="@drawable/ic_cancel"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/incomingRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:listitem="@layout/list_item_call_meeting"
+            tools:itemCount="2"
+            android:visibility="gone"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

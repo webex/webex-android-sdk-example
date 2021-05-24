@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="membershipReadStatus"
+            type="com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.membersReadStatus.MembershipReadStatusModel" />
+
+        <import type="java.util.Date" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/membershipContainer"
+        tools:context="com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipActivity">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline1"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="150dp" />
+
+        <TextView
+            android:id="@+id/membershipIdLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:text="@string/membership_id"
+            app:layout_constraintBottom_toBottomOf="@id/membershipIdTextView"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/membershipIdTextView"
+            tools:ignore="RtlSymmetry" />
+
+        <TextView
+            android:id="@+id/membershipIdTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:text="@{membershipReadStatus.member.membershipId}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Id of the member will show up here." />
+
+        <TextView
+            android:id="@+id/membershipPersonIdLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:text="@string/person_id"
+            app:layout_constraintBottom_toBottomOf="@id/membershipPersonIdTextView"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/membershipPersonIdTextView"
+            tools:ignore="RtlSymmetry" />
+
+        <TextView
+            android:id="@+id/membershipPersonIdTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:text="@{membershipReadStatus.member.personId}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/membershipIdTextView"
+            tools:text="ljkdshflakjshdjfkljasdhflasdkj" />
+
+        <TextView
+            android:id="@+id/membershipPersonDisplayNameLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:text="@string/person_display_name"
+            app:layout_constraintBottom_toBottomOf="@id/membershipPersonDisplayNameTextView"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/membershipPersonDisplayNameTextView"
+            tools:ignore="RtlSymmetry" />
+
+        <TextView
+            android:id="@+id/membershipPersonDisplayNameTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:text="@{membershipReadStatus.member.personDisplayName}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/membershipPersonIdTextView"
+            tools:text="ljkdshflakjshdjfkljasdhflasdkj" />
+
+        <TextView
+            android:id="@+id/membershipPersonEmailLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:text="@string/person_email"
+            app:layout_constraintBottom_toBottomOf="@id/membershipPersonEmailTextView"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/membershipPersonEmailTextView"
+            tools:ignore="RtlSymmetry" />
+
+        <TextView
+            android:id="@+id/membershipPersonEmailTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:text="@{membershipReadStatus.member.personEmail}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/membershipPersonDisplayNameTextView"
+            tools:text="ljkdshflakjshdjfkljasdhflasdkj" />
+
+        <TextView
+            android:id="@+id/membershipIsModeratorLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintTop_toTopOf="@id/membershipIsModeratorTextView"
+            app:layout_constraintBottom_toBottomOf="@id/membershipIsModeratorTextView"
+            android:text="@string/is_moderator"/>
+
+        <TextView
+            android:id="@+id/membershipIsModeratorTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:text="@{membershipReadStatus.member.isModeratorString()}"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/membershipPersonEmailTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="ljkdshflakjshdjfkljasdhflasdkj" />
+
+
+        <TextView
+            android:id="@+id/membershipLastSeenDateLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintTop_toTopOf="@id/membershipLastSeenDateTextView"
+            app:layout_constraintBottom_toBottomOf="@id/membershipLastSeenDateTextView"
+            android:text="@string/last_seen_date"/>
+
+        <TextView
+            android:id="@+id/membershipLastSeenDateTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            app:dateString="@{membershipReadStatus.lastSeenDate }"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/membershipIsModeratorTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="ljkdshflakjshdjfkljasdhflasdkj" />
+
+
+        <RelativeLayout
+            android:id="@+id/progressLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/alphaWhite"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:indeterminate="true" />
+
+        </RelativeLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

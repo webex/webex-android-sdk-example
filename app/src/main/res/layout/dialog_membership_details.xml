@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+
+        <variable
+            name="membership"
+            type="com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipModel" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context="com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipActivity">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline1"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:layout_constraintGuide_begin="150dp" />
+
+        <TextView
+            android:id="@+id/membershipIdLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/membership_id"
+            android:paddingStart="10dp"
+            app:layout_constraintTop_toTopOf="@id/membershipIdTextView"
+            app:layout_constraintBottom_toBottomOf="@id/membershipIdTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guideline1" />
+        <TextView
+            android:id="@+id/membershipIdTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:text="@{membership.membershipId}"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintWidth_default="wrap"
+            tools:text="sdfkljsdlkfsljk-sdkjlfsldkjfjl" />
+
+        <TextView
+            android:id="@+id/membershipSpaceIdLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:text="@string/space_id"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/membershipSpaceIdTextView"
+            app:layout_constraintBottom_toBottomOf="@id/membershipSpaceIdTextView"
+            />
+
+        <TextView
+            android:id="@+id/membershipSpaceIdTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:text="@{membership.spaceId}"
+            app:layout_constraintTop_toBottomOf="@id/membershipIdTextView"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="sdfkljsdlkfsljk" />
+
+        <TextView
+            android:id="@+id/membershipCreatedLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintTop_toTopOf="@id/membershipDateCreatedTextView"
+            app:layout_constraintBottom_toBottomOf="@id/membershipDateCreatedTextView"
+            android:text="@string/created_on"/>
+        <TextView
+            android:id="@+id/membershipDateCreatedTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:text="@{membership.createdDateTimeString}"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/membershipSpaceIdTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="01/01/1970 00:00:00" />
+
+        <TextView
+            android:id="@+id/membershipPersonIdLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintTop_toTopOf="@id/membershipPersonIdTextView"
+            app:layout_constraintBottom_toBottomOf="@id/membershipPersonIdTextView"
+            android:text="@string/person_id"/>
+
+        <TextView
+            android:id="@+id/membershipPersonIdTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:text="@{membership.personId}"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/membershipDateCreatedTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="kljdshflkdhfkjasdhfkjashd" />
+
+        <TextView
+            android:id="@+id/membershipPersonEmailLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintTop_toTopOf="@id/membershipPersonEmailTextView"
+            app:layout_constraintBottom_toBottomOf="@id/membershipPersonEmailTextView"
+            android:text="@string/person_email"/>
+        <TextView
+            android:id="@+id/membershipPersonEmailTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:text="@{membership.personEmail}"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/membershipPersonIdTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="ljkdshflakjshdjfkljasdhflasdkj" />
+
+        <TextView
+            android:id="@+id/membershipPersonDisplayNameLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintTop_toTopOf="@id/membershipPersonDisplayNameTextView"
+            app:layout_constraintBottom_toBottomOf="@id/membershipPersonDisplayNameTextView"
+            android:text="@string/person_display_name"/>
+        <TextView
+            android:id="@+id/membershipPersonDisplayNameTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:text="@{membership.personDisplayName}"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/membershipPersonEmailTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="ljkdshflakjshdjfkljasdhflasdkj" />
+
+        <TextView
+            android:id="@+id/membershipIsModeratorLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintTop_toTopOf="@id/membershipIsModeratorTextView"
+            app:layout_constraintBottom_toBottomOf="@id/membershipIsModeratorTextView"
+            android:text="@string/is_moderator"/>
+        <TextView
+            android:id="@+id/membershipIsModeratorTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:text="@{membership.isModeratorString()}"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/membershipPersonDisplayNameTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="ljkdshflakjshdjfkljasdhflasdkj" />
+
+        <TextView
+            android:id="@+id/membershipIsMonitorLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintTop_toTopOf="@id/membershipIsMonitorTextView"
+            app:layout_constraintBottom_toBottomOf="@id/membershipIsMonitorTextView"
+            android:text="@string/is_monitor"/>
+        <TextView
+            android:id="@+id/membershipIsMonitorTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:text="@{membership.isMonitorString()}"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/membershipIsModeratorTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="ljkdshflakjshdjfkljasdhflasdkj" />
+
+        <TextView
+            android:id="@+id/membershipPersonOrgIdLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintTop_toTopOf="@id/membershipPersonOrgIdTextView"
+            app:layout_constraintBottom_toBottomOf="@id/membershipPersonOrgIdTextView"
+            android:text="@string/person_org_id"/>
+        <TextView
+            android:id="@+id/membershipPersonOrgIdTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:text="@{membership.personOrgId}"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/membershipIsMonitorTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="ljkdshflakjshdjfkljasdhflasdkj" />
+
+        <RelativeLayout
+            android:id="@+id/progressLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@color/alphaWhite"
+            android:visibility="gone"
+            android:clickable="true">
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:layout_centerInParent="true"/>
+
+        </RelativeLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
