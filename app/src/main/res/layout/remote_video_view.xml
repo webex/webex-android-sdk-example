@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="fill"
+    android:layout_columnSpan="1"
+    android:layout_rowSpan="1"
+    android:id="@+id/frameLayout">
+
+    <RelativeLayout
+        android:layout_width="150dp"
+        android:layout_height="200dp"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:singleLine="true"
+            android:gravity="center_horizontal"
+            android:visibility="visible"
+            android:text="Waiting..."/>
+
+        <com.ciscowebex.androidsdk.phone.MediaRenderView
+            android:id="@+id/view_video"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/name"/>
+
+        <ImageView
+            android:id="@+id/view_avatar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/google_contacts_android"
+            android:visibility="gone"
+            android:layout_above="@id/name"/>
+
+        <RelativeLayout
+            android:id="@+id/remote_border"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/remote_video_view_border"
+            android:clickable="false"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="10dp"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
+
+</FrameLayout>

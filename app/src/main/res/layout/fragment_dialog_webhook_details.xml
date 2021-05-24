@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tool="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="webhook"
+            type="com.ciscowebex.androidsdk.webhook.Webhook" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/rootWebHookDetailDialog"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline1"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="150dp" />
+
+        <TextView
+            android:id="@+id/id"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/webhook_dialog_id"
+            app:layout_constraintBottom_toBottomOf="@id/IdTextView"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/IdTextView" />
+
+        <TextView
+            android:id="@+id/IdTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{webhook.id}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toTopOf="parent"
+            tool:text="jsdhfakshfkjasdhfkjasdhfkjasdhfk" />
+
+        <View
+            android:id="@+id/IdView"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@android:color/black"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/IdTextView"
+            android:layout_marginTop="5dp"/>
+
+        <TextView
+            android:id="@+id/NameLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/webhook_dialog_name"
+            app:layout_constraintBottom_toBottomOf="@id/NameTextView"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/NameTextView"
+            android:layout_marginTop="5dp"/>
+
+        <TextView
+            android:id="@+id/NameTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{webhook.name}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/IdView"
+            tool:text="kjfhasdkfahsdkjfhasdkjfhaskjdm"
+            android:layout_marginTop="5dp" />
+
+        <View
+            android:id="@+id/NameView"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@android:color/black"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/NameTextView"
+            android:layout_marginTop="5dp"/>
+
+        <TextView
+            android:id="@+id/UrlLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/webhook_dialog_target_url"
+            app:layout_constraintBottom_toBottomOf="@id/UrlTextView"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/UrlTextView"
+            android:layout_marginTop="5dp" />
+
+        <TextView
+            android:id="@+id/UrlTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{webhook.targetUrl}"
+            android:maxLines="5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/NameView"
+            tool:text="sdlkfhjasdkfhasdkjfh"
+            android:layout_marginTop="5dp" />
+
+        <View
+            android:id="@+id/URLView"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@android:color/black"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/UrlTextView"
+            android:layout_marginTop="5dp"/>
+
+        <TextView
+            android:id="@+id/resourcesLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/webhook_dialog_resource"
+            app:layout_constraintBottom_toBottomOf="@id/resourceTextView"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/resourceTextView"
+            android:layout_marginTop="5dp" />
+
+        <TextView
+            android:id="@+id/resourceTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{webhook.resource}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/URLView"
+            tool:text="kjsdhfkasjhsdflkajshfka"
+            android:layout_marginTop="5dp" />
+
+        <View
+            android:id="@+id/resourceView"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@android:color/black"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/resourceTextView"
+            android:layout_marginTop="5dp"/>
+
+        <TextView
+            android:id="@+id/eventLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/webhook_dialog_event"
+            app:layout_constraintBottom_toBottomOf="@id/eventTextView"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/eventTextView"
+            android:layout_marginTop="5dp"/>
+
+        <TextView
+            android:id="@+id/eventTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{webhook.event}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/resourceView"
+            tool:text="sdlkfhjasdkfhasdkjfh"
+            android:layout_marginTop="5dp" />
+
+        <View
+            android:id="@+id/eventView"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@android:color/black"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/eventTextView"
+            android:layout_marginTop="5dp"/>
+
+        <TextView
+            android:id="@+id/filterLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/webhook_dialog_filter"
+            app:layout_constraintBottom_toBottomOf="@id/filterTextView"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/filterTextView"
+            android:layout_marginTop="5dp" />
+
+        <TextView
+            android:id="@+id/filterTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{webhook.filter}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/eventView"
+            tool:text="sdlkfhjasdkfhasdkjfh"
+            android:layout_marginTop="5dp" />
+
+        <View
+            android:id="@+id/filterView"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@android:color/black"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/filterTextView"
+            android:layout_marginTop="5dp"/>
+
+        <TextView
+            android:id="@+id/createdLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/webhook_dialog_created"
+            app:layout_constraintBottom_toBottomOf="@id/createdTextView"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/createdTextView"
+            android:layout_marginTop="5dp" />
+
+        <TextView
+            android:id="@+id/createdTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{webhook.created.toString()}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/filterView"
+            tool:text="sdlkfhjasdkfhasdkjfh"
+            android:layout_marginTop="5dp" />
+
+        <View
+            android:id="@+id/createdView"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@android:color/black"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/createdTextView"
+            android:layout_marginTop="5dp"/>
+
+        <TextView
+            android:id="@+id/statusLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/webhook_dialog_status"
+            app:layout_constraintBottom_toBottomOf="@id/statusTextView"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/statusTextView"
+            android:layout_marginTop="5dp" />
+
+        <TextView
+            android:id="@+id/statusTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{webhook.status}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/createdView"
+            tool:text="sdlkfhjasdkfhasdkjfh"
+            android:layout_marginTop="5dp" />
+
+        <View
+            android:id="@+id/statusView"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@android:color/black"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/statusTextView"
+            android:layout_marginTop="5dp"/>
+
+        <TextView
+            android:id="@+id/secretLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/webhook_dialog_secret"
+            app:layout_constraintBottom_toBottomOf="@id/secretTextView"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/secretTextView"
+            android:layout_marginTop="5dp" />
+
+        <TextView
+            android:id="@+id/secretTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{webhook.secret}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/statusView"
+            tool:text="sdlkfhjasdkfhasdkjfh"
+            android:layout_marginTop="5dp" />
+
+
+        <RelativeLayout
+            android:id="@+id/progressLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@color/alphaWhite"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:layout_centerInParent="true"/>
+
+        </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

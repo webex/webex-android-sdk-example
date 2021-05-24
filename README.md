@@ -74,7 +74,7 @@ This demo support Android device with **Android 7.0** or later
 
 ## Usage
 
-For example see [README.md](https://github.com/webex/webex-android-sdk/README.md)
+For example see [README](https://github.com/webex/webex-android-sdk/blob/master/README.md)
      
 ## Note
  

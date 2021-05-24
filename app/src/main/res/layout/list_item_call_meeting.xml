@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp">
+
+        <RelativeLayout
+            android:id="@+id/meetingButtonLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true">
+
+            <Button
+                android:id="@+id/meetingJoinButton"
+                android:layout_width="@dimen/icon_join_button_width"
+                android:layout_height="@dimen/icon_join_button_height"
+                android:backgroundTint="@color/green"
+                android:text="@string/call_meeting_join"
+                android:visibility="gone"/>
+
+            <LinearLayout
+                android:id="@+id/callingOneToOneButtonLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/iv_pick_call"
+                    android:layout_width="@dimen/icon_calling_button_normal"
+                    android:layout_height="@dimen/icon_calling_button_normal"
+                    android:layout_marginEnd="@dimen/margin_normal"
+                    android:background="@drawable/circle_filled_dark_gray"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_call"
+                    android:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/iv_cancel_call"
+                    android:layout_width="@dimen/icon_calling_button_normal"
+                    android:layout_height="@dimen/icon_calling_button_normal"
+                    android:background="@drawable/circle_filled_red"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_cancel" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@+id/meetingButtonLayout"
+            android:layout_marginEnd="5dp"
+            android:layout_centerVertical="true">
+
+            <TextView
+                android:id="@+id/titleTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="6dp"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="Title" />
+
+            <TextView
+                android:id="@+id/meetingTimeTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="6dp"
+                android:textSize="13sp"
+                android:textStyle="italic"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="1:00 PM - 2:00 PM"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@android:color/black"
+            android:layout_alignParentBottom="true"/>
+
+        <RelativeLayout
+            android:id="@+id/progressLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/alphaWhite"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:indeterminate="true" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</layout>
