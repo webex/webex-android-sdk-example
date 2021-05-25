@@ -15,7 +15,7 @@ out/
 
 # Gradle files
 .gradle/
-build/
+/build
 
 # Local configuration file (sdk path, etc)
 local.properties
@@ -46,9 +46,6 @@ captures/
 
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild
-
-# Google Services (e.g. APIs or Firebase)
-google-services.json
 
 # Freeline
 freeline.py
