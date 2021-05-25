@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "707417346294",
+    "project_id": "kitchensink-demo-ac6ab",
+    "storage_bucket": "kitchensink-demo-ac6ab.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:707417346294:android:b21c5f7f2bab7db1d19cd7",
+        "android_client_info": {
+          "package_name": "com.cisco.sdk_android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "707417346294-sc7gohgcphcumbm6nvf1541rij58ouse.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAioUqm-U11HAfDkk1RTAtJ_u2lfjQSLE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "707417346294-sc7gohgcphcumbm6nvf1541rij58ouse.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
