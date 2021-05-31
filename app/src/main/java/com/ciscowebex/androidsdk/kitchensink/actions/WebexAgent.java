@@ -65,7 +65,6 @@ public class WebexAgent {
     private Phone phone;
     private Call activeCall;
     private Call incomingCall;
-    private boolean isSpeakerOn = true;
     private boolean isDialing = false;
 
     private static WebexAgent instance;
@@ -97,12 +96,17 @@ public class WebexAgent {
         return activeCall;
     }
 
-    public boolean getSpeakerPhoneOn() {
-        return isSpeakerOn;
+    public void setLoudSpeakerState(Phone.LoudSpeakerState loudSpeakerState) {
+        if (phone != null) {
+            phone.setLoudSpeakerState(loudSpeakerState);
+        }
     }
 
-    public void setSpeakerPhoneOn(boolean on) {
-        isSpeakerOn = on;
+    public Phone.LoudSpeakerState getLoudSpeakerState() {
+        if (phone != null) {
+            return phone.getLoudSpeakerState();
+        }
+        return null;
     }
 
     public void setMaxBandWidth(int maxBandWidth) {
