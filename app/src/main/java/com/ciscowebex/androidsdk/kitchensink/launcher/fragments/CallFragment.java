@@ -97,6 +97,7 @@ import com.ciscowebex.androidsdk.phone.CallMembership;
 import com.ciscowebex.androidsdk.phone.CallObserver;
 import com.ciscowebex.androidsdk.phone.MediaRenderView;
 import com.ciscowebex.androidsdk.phone.MultiStreamObserver;
+import com.ciscowebex.androidsdk.phone.Phone;
 import com.ciscowebex.androidsdk.phone.internal.CallImpl;
 import com.github.benoitdion.ln.Ln;
 import com.squareup.picasso.Picasso;
@@ -254,6 +255,18 @@ public class CallFragment extends BaseFragment {
 
         agent = WebexAgent.getInstance();
         screenSwitcher = new FullScreenSwitcher(getActivity(), layout, remoteView);
+        boolean checked = false;
+        if (agent.getLoudSpeakerState() == Phone.LoudSpeakerState.NONE) {
+            android.media.AudioManager am = (android.media.AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
+            if (!am.isBluetoothScoOn() && !am.isWiredHeadsetOn()) {
+                if (agent.getCallCapability() == WebexAgent.CallCap.AUDIO_VIDEO) {
+                    checked = true;
+                }
+            }
+        }else if (agent.getLoudSpeakerState() == Phone.LoudSpeakerState.ON){
+            checked = true;
+        }
+        switchLoudSpeaker.setChecked(checked);
         updateScreenShareView();
         if (participantsAdapter == null) {
             participantsAdapter = new ParticipantsAdapter(null);
@@ -302,7 +315,6 @@ public class CallFragment extends BaseFragment {
                 localView.setVisibility(View.GONE);
                 break;
         }
-        switchLoudSpeaker.setChecked(agent.getSpeakerPhoneOn());
         switchSendingVideo.setChecked(agent.isSendingVideo());
         switchSendingAudio.setChecked(agent.isSendingAudio());
         switchReceiveVideo.setChecked(agent.isReceivingVideo());

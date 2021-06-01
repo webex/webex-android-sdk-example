@@ -29,6 +29,7 @@ import android.content.Context;
 import com.ciscowebex.androidsdk.kitchensink.actions.IAction;
 import com.ciscowebex.androidsdk.kitchensink.actions.WebexAgent;
 import com.ciscowebex.androidsdk.phone.Call;
+import com.ciscowebex.androidsdk.phone.Phone;
 import com.ciscowebex.androidsdk.phone.internal.CallImpl;
 
 
@@ -62,9 +63,10 @@ public class ToggleSpeakerAction implements IAction {
                     call.switchAudioOutput(Call.AudioOutputMode.PHONE);
                 }
             }
+        } else {
+            WebexAgent.getInstance().setLoudSpeakerState(on ? Phone.LoudSpeakerState.ON : Phone.LoudSpeakerState.OFF);
         }
 
-        WebexAgent.getInstance().setSpeakerPhoneOn(on);
     }
 
     private boolean isBluetoothHeadsetConnected() {

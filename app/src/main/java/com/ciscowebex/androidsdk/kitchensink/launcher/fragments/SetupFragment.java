@@ -24,6 +24,7 @@
 package com.ciscowebex.androidsdk.kitchensink.launcher.fragments;
 
 
+import android.content.Context;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
@@ -37,6 +38,7 @@ import com.ciscowebex.androidsdk.kitchensink.actions.commands.ToggleSpeakerActio
 import com.ciscowebex.androidsdk.kitchensink.actions.events.PermissionAcquiredEvent;
 import com.ciscowebex.androidsdk.kitchensink.ui.BaseFragment;
 import com.ciscowebex.androidsdk.phone.Phone;
+import com.ciscowebex.androidsdk.phone.internal.PhoneImpl;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -114,7 +116,18 @@ public class SetupFragment extends BaseFragment {
     private void setupWidgetStates() {
         // Setup loud speaker radio button
         switchLoudSpeaker.setEnabled(true);
-        switchLoudSpeaker.setChecked(agent.getSpeakerPhoneOn());
+        boolean checked = false;
+        if (agent.getLoudSpeakerState() == Phone.LoudSpeakerState.NONE) {
+            android.media.AudioManager am = (android.media.AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
+            if (!am.isBluetoothScoOn() && !am.isWiredHeadsetOn()) {
+                if (agent.getCallCapability() == WebexAgent.CallCap.AUDIO_VIDEO) {
+                    checked = true;
+                }
+            }
+        }else if (agent.getLoudSpeakerState() == Phone.LoudSpeakerState.ON){
+            checked = true;
+        }
+        switchLoudSpeaker.setChecked(checked);
 
         // Setup Call capability radio buttons
         if (agent.getCallCapability().equals(WebexAgent.CallCap.AUDIO_ONLY))
@@ -198,7 +211,7 @@ public class SetupFragment extends BaseFragment {
     }
 
     @OnCheckedChanged(R.id.setupLoudSpeaker)
-    public void onSetupLoadSpeakerChanged(Switch s) {
+    public void onSetupLoudSpeakerChanged(Switch s) {
         new ToggleSpeakerAction(getActivity(), null, s.isChecked()).execute();
     }
 
