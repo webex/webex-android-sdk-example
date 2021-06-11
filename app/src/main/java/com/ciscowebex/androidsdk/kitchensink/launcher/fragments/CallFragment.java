@@ -324,7 +324,7 @@ public class CallFragment extends BaseFragment {
     }
 
     private void updateScreenShareView() {
-        screenShare.setVisibility(agent.isScreenSharing() ? View.VISIBLE : View.INVISIBLE);
+        screenShare.setVisibility(agent.isScreenSharing() ? View.VISIBLE : View.GONE);
     }
 
     private void requirePermission() {
@@ -380,9 +380,9 @@ public class CallFragment extends BaseFragment {
     }
 
     private void updateFullScreenLayout() {
-        updateScreenShareView();
         ((SurfaceView) remoteView).setZOrderMediaOverlay(screenSwitcher.isFullScreen());
         localView.setVisibility(screenSwitcher.isFullScreen() ? View.GONE : View.VISIBLE);
+        updateScreenShareView();
     }
 
     @OnCheckedChanged({R.id.switchSendVideo, R.id.switchSendAudio,
