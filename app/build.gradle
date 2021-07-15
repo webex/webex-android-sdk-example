@@ -18,10 +18,10 @@ android {
         }
         multiDexEnabled true
 
-        buildConfigField "String", "CLIENT_ID", "\"C338457876c27e853fb5e4dc85c6087164073e1e2bf415c081b600fe654d7af60\""
-        buildConfigField "String", "CLIENT_SEC", "\"0dc8b9c77c8b5597e7eef4b72c7dfaf8d5b834fdba24cf0a0b55eb85ae209b31\""
-        buildConfigField "String", "REDIRECT_URL", "\"AndroidKitchenSink://response\""
-        buildConfigField "String", "SCOPE", "\"spark:all\""
+        buildConfigField "String", "CLIENT_ID", "${CLIENTID}"
+        buildConfigField "String", "CLIENT_SEC", "${CLIENTSECRET}"
+        buildConfigField "String", "REDIRECT_URL", "${REDIRECTURL}"
+        buildConfigField "String", "SCOPE", "${SCOPE}"
     }
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
@@ -53,7 +53,7 @@ repositories {
 }
 
 dependencies {
-    implementation('com.ciscowebex:androidsdk:2.8.0.5-SNAPSHOT@aar', {
+    implementation('com.ciscowebex:androidsdk:2.8.0.7-SNAPSHOT@aar', {
         transitive = true
         changing = true
     })

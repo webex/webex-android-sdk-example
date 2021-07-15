@@ -69,7 +69,14 @@ In Android Studio,open "File" -> "Open", select project.
 
 4. Build & Run
 
-## Usage
+## Note
+Please update below constants in gradle.properties
+ ```
+ CLIENT_ID=""
+ CLIENT_SEC=""
+ REDIRECT_URL=""
+ SCOPE=""
+ ```
 
 ### Authorize
 **Webex ID**
