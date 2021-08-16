@@ -4,7 +4,7 @@ import com.ciscowebex.androidsdk.space.Space
 import com.ciscowebex.androidsdk.space.Space.SpaceType
 import java.util.*
 
-data class SpaceModel(val id: String, val title: String, val spaceType: SpaceType, val isLocked: Boolean, val lastActivity: Date, val created: Date, val teamId: String, val sipAddress: String) {
+data class SpaceModel(val id: String, val title: String, val spaceType: SpaceType?, val isLocked: Boolean, val lastActivity: Date, val created: Date, val teamId: String, val sipAddress: String) {
 
     val createdDateTimeString: String = created.toString()
     val lastActivityTimestampString: String = lastActivity.toString()
@@ -34,8 +34,7 @@ data class SpaceModel(val id: String, val title: String, val spaceType: SpaceTyp
 
     companion object {
         fun convertToSpaceModel(space: Space?): SpaceModel {
-            return SpaceModel(space?.id.orEmpty(), space?.title.orEmpty(), space?.type
-                    ?: SpaceType.NONE,
+            return SpaceModel(space?.id.orEmpty(), space?.title.orEmpty(), space?.type,
                     space?.isLocked ?: false, space?.lastActivity
                     ?: Date(), space?.created ?: Date(),
                     space?.teamId.orEmpty(), space?.sipAddress.orEmpty())

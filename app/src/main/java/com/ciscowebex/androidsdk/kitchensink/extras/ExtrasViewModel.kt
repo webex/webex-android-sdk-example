@@ -24,7 +24,9 @@ class ExtrasViewModel(private val extrasRepository: ExtrasRepository) : BaseView
     fun getRefreshToken() {
         extrasRepository.getRefreshToken().observeOn(AndroidSchedulers.mainThread()).subscribe({
             _refreshToken.postValue(it)
-        }, { _refreshToken.postValue(null) }).autoDispose()
+        }, {
+            _refreshToken.postValue(it.message)
+        }).autoDispose()
     }
 
     fun getJwtAccessTokenExpiration(): Date? {

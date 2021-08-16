@@ -68,19 +68,20 @@ This demo support Android device with **Android 7.0** or later
 
         ```
         dependencies {
-            implementation 'com.ciscowebex:androidsdk:3.0.0@aar'
+            implementation 'com.ciscowebex:androidsdk:3.1.0@aar'
         }
         ```
 
 ## Usage
 
 For example see [README](https://github.com/webex/webex-android-sdk/blob/master/README.md)
-     
+
 ## Note
- 
+
  Please update below constants in gradle.properties
  ```
  CLIENT_ID=""
  CLIENT_SECRET=""
+ SCOPE=""
  REDIRECT_URI=""
  ```

@@ -6,7 +6,7 @@ import com.ciscowebex.androidsdk.kitchensink.BaseViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 class TeamMembershipViewModel(private val membershipRepo: TeamMembershipRepository) : BaseViewModel() {
-    var teamId: String? = null
+    var teamId: String = ""
     private val _memberships = MutableLiveData<List<TeamMembershipModel>>()
     val memberships: LiveData<List<TeamMembershipModel>> = _memberships
 

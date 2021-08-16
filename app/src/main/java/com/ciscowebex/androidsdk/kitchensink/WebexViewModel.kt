@@ -749,4 +749,32 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     fun openAuxStream(view: View) {
         getCall(currentCallId.orEmpty())?.openAuxStream(view)
     }
+
+    fun hasAnyoneJoined(): Boolean {
+        return getCall(currentCallId.orEmpty())?.hasAnyoneJoined() ?: false
+    }
+
+    fun isMeeting(): Boolean {
+        return getCall(currentCallId.orEmpty())?.isMeeting() ?: false
+    }
+
+    fun isPmr(): Boolean {
+        return getCall(currentCallId.orEmpty())?.isPmr() ?: false
+    }
+
+    fun isSelfCreator(): Boolean {
+        return getCall(currentCallId.orEmpty())?.isSelfCreator() ?: false
+    }
+
+    fun isSpaceMeeting(): Boolean {
+        return getCall(currentCallId.orEmpty())?.isSpaceMeeting() ?: false
+    }
+
+    fun isScheduledMeeting(): Boolean {
+        return getCall(currentCallId.orEmpty())?.isScheduledMeeting() ?: false
+    }
+
+    fun getServiceUrl(type: Phone.ServiceUrlType): String? {
+        return webex.phone.getServiceUrl(type)
+    }
 }

@@ -23,7 +23,6 @@ class TeamMembershipFragment : Fragment() {
     lateinit var binding: FragmentMembershipBinding
 
     private val membershipViewModel: TeamMembershipViewModel by inject()
-    private var teamId: String? = null
 
     companion object {
         fun newInstance(teamId: String): TeamMembershipFragment {
@@ -38,7 +37,7 @@ class TeamMembershipFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        teamId = arguments?.getString(Constants.Bundle.TEAM_ID)
+        val teamId = arguments?.getString(Constants.Bundle.TEAM_ID) ?: ""
         membershipViewModel.teamId = teamId
         return FragmentMembershipBinding.inflate(inflater, container, false)
                 .also { binding = it }

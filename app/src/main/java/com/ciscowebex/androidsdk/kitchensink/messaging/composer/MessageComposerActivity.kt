@@ -184,6 +184,14 @@ class MessageComposerActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        handleActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun handleActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
         if (requestCode == PICKFILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             data?.let { intent ->
                 intent.clipData?.let { data ->

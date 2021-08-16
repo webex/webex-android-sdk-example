@@ -51,5 +51,6 @@ object Dependencies {
         const val fragmentScenerio = "androidx.fragment:fragment-testing:1.2.5"
         const val rules = "androidx.test:rules:1.3.0"
         const val testExt = "androidx.test:core-ktx:1.3.0"
+        const val mockk = "io.mockk:mockk-android:1.10.6"
     }
 }

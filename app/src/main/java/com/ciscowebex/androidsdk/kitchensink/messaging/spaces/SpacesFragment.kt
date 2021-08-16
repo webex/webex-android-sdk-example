@@ -144,6 +144,14 @@ class SpacesFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        handleActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun handleActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
         if (requestCode == requestCodeSearchPersonToAddToSpace && resultCode == Activity.RESULT_OK) {
             val person = data?.getParcelableExtra<PersonModel>(Constants.Intent.PERSON)
             if (person != null) {

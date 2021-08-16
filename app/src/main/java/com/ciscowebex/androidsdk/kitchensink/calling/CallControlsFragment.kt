@@ -153,7 +153,13 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     }
 
     override fun onConnected(call: Call?) {
-        Log.d(TAG, "CallObserver onConnected : " + call?.getCallId())
+        Log.d(TAG, "CallObserver onConnected callId: ${call?.getCallId()}, hasAnyoneJoined: ${webexViewModel.hasAnyoneJoined()}, " +
+                "isMeeting: ${webexViewModel.isMeeting()}," +
+                "isPmr: ${webexViewModel.isPmr()}," +
+                "isSelfCreator: ${webexViewModel.isSelfCreator()}," +
+                "isSpaceMeeting: ${webexViewModel.isSpaceMeeting()}"+
+                "isScheduledMeeting: ${webexViewModel.isScheduledMeeting()}")
+
         onCallConnected(call?.getCallId().orEmpty())
         ringerManager.stopRinger(if (isIncomingActivity) RingerManager.RingerType.Incoming else RingerManager.RingerType.Outgoing)
         webexViewModel.sendDTMF(call?.getCallId().orEmpty(), "2")
@@ -1507,6 +1513,14 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        handleActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun handleActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             val callNumber = data?.getStringExtra(CALLER_ID) ?: ""
             //start call association to add new person on call
