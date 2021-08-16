@@ -4,8 +4,8 @@ import com.ciscowebex.androidsdk.space.SpaceReadStatus
 import com.ciscowebex.androidsdk.space.Space.SpaceType
 import java.util.*
 
-data class SpaceReadStatusModel(val spaceId: String, val spaceType: SpaceType, val lastActivityDate: Date, val lastSeenDate: Date) {
-    val spaceTypeString: String = spaceType.name
+data class SpaceReadStatusModel(val spaceId: String, val spaceType: SpaceType?, val lastActivityDate: Date, val lastSeenDate: Date) {
+    val spaceTypeString: String = spaceType?.name.orEmpty()
     val lastSeenDateTimeString: String = lastSeenDate.toString()
     val lastActivityTimestampString: String = lastActivityDate.toString()
     val isSpaceUnread: Boolean = lastActivityDate > lastSeenDate
@@ -29,8 +29,7 @@ data class SpaceReadStatusModel(val spaceId: String, val spaceType: SpaceType, v
 
     companion object {
         fun convertToSpaceReadStatusModel(spaceReadStatus: SpaceReadStatus?): SpaceReadStatusModel {
-            return SpaceReadStatusModel(spaceReadStatus?.id.orEmpty(),spaceReadStatus?.type
-                    ?: SpaceType.NONE, spaceReadStatus?.lastActivityDate ?: Date(),
+            return SpaceReadStatusModel(spaceReadStatus?.id.orEmpty(), spaceReadStatus?.type, spaceReadStatus?.lastActivityDate ?: Date(),
             spaceReadStatus?.lastSeenDate ?: Date())
         }
     }

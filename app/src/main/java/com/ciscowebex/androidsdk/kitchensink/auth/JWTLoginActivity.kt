@@ -62,6 +62,11 @@ class JWTLoginActivity : AppCompatActivity() {
                         }
                     })
 
+                    loginViewModel.errorData.observe(this@JWTLoginActivity, Observer { errorMessage ->
+                        progressLayout.visibility = View.GONE
+                        onLoginFailed(errorMessage)
+                    })
+
                     loginViewModel.initialize()
                 }
     }
@@ -75,8 +80,9 @@ class JWTLoginActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun onLoginFailed() {
+    private fun onLoginFailed(failureMessage: String = getString(R.string.jwt_login_failed)) {
         binding.loginButton.visibility = View.VISIBLE
         binding.loginFailedTextView.visibility = View.VISIBLE
+        binding.loginFailedTextView.text = failureMessage
     }
 }

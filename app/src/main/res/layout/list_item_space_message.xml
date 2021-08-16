@@ -22,15 +22,11 @@
             android:layout_height="1dp"
             android:background="@color/lightGray"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="4dp"
-            android:visibility="@{message.reply? view.GONE: view.VISIBLE}"/>
+            android:layout_marginTop="4dp"/>
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/membershipContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="@{message.reply? @dimen/padding_2dp:@dimen/padding_8dp}"
-            android:paddingStart="@{message.reply? @dimen/padding_8dp:@dimen/padding_4dp}"
-            android:paddingEnd="@{message.reply? @dimen/padding_8dp:@dimen/padding_4dp}"
             tools:context="com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipActivity">
             <ImageView
                 android:id="@+id/iv_reply"
@@ -40,7 +36,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:visibility="@{message.reply? view.VISIBLE: view.GONE}"
+                android:visibility="gone"
                 app:srcCompat="@drawable/ic_reply" />
 
             <androidx.constraintlayout.widget.Guideline

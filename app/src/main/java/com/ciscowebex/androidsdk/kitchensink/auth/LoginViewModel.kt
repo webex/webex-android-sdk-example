@@ -43,7 +43,9 @@ class LoginViewModel(private val webex: Webex, private val loginRepository: Logi
         jwtAuthenticator?.let { auth ->
             loginRepository.loginWithJWT(token, auth).observeOn(AndroidSchedulers.mainThread()).subscribe({
                 _isAuthorized.postValue(it)
-            }, {_isAuthorized.postValue(false)}).autoDispose()
+            }, {
+                _errorData.postValue(it.message)
+            }).autoDispose()
         } ?: run {
             _isAuthorized.postValue(false)
         }

@@ -12,9 +12,10 @@ val OAuthWebexModule = module {
     single <Authenticator> (named("oAuth")) {
         val clientId = BuildConfig.CLIENT_ID
         val clientSecret = BuildConfig.CLIENT_SECRET
+        val additionalScopes = BuildConfig.SCOPE
         val redirectUri = BuildConfig.REDIRECT_URI
         val email = getEmailPref(androidApplication()).orEmpty()
-        OAuthWebViewAuthenticator(clientId, clientSecret, redirectUri, email)
+        OAuthWebViewAuthenticator(clientId, clientSecret, additionalScopes, redirectUri, email)
     }
 
     factory {

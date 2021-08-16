@@ -7,7 +7,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 
 class TeamMembershipRepository(private val webex: Webex) {
-    fun getTeamMemberships(teamId: String?, max: Int): Observable<List<TeamMembershipModel>> {
+    fun getTeamMemberships(teamId: String, max: Int): Observable<List<TeamMembershipModel>> {
         return Single.create<List<TeamMembershipModel>> { emitter ->
             webex.teamMembershipClient.list(teamId, max, CompletionHandler { result ->
                 Log.d(TeamMembershipRepository::class.java.name, "result: " + result.data)

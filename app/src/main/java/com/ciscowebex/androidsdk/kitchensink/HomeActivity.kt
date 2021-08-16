@@ -24,6 +24,7 @@ import com.ciscowebex.androidsdk.kitchensink.calling.CallActivity
 import com.ciscowebex.androidsdk.kitchensink.extras.ExtrasActivity
 import com.ciscowebex.androidsdk.kitchensink.search.SearchActivity
 import com.ciscowebex.androidsdk.kitchensink.setup.SetupActivity
+import com.ciscowebex.androidsdk.phone.Phone
 import org.koin.android.ext.android.inject
 
 class HomeActivity : BaseActivity() {
@@ -40,6 +41,10 @@ class HomeActivity : BaseActivity() {
         webexViewModel.enableBackgroundConnection(webexViewModel.enableBgConnectiontoggle)
         webexViewModel.setLogLevel(webexViewModel.logFilter)
         webexViewModel.enableConsoleLogger(webexViewModel.isConsoleLoggerEnabled)
+
+        Log.d(tag, "Service URls METRICS: ${webexViewModel.getServiceUrl(Phone.ServiceUrlType.METRICS)}" +
+                "\nCLIENT_LOGS: ${webexViewModel.getServiceUrl(Phone.ServiceUrlType.CLIENT_LOGS)}" +
+                "\nKMS: ${webexViewModel.getServiceUrl(Phone.ServiceUrlType.KMS)}")
 
         authenticator?.let {
             when (it) {
