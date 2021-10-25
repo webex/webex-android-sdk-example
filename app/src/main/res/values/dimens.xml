@@ -28,11 +28,19 @@
     <dimen name="video_view_height">300dp</dimen>
     <dimen name="local_video_view_width">100dp</dimen>
     <dimen name="local_video_view_height">200dp</dimen>
-    <dimen name="preview_video_view_width">150dp</dimen>
-    <dimen name="preview_video_view_height">200dp</dimen>
+    <dimen name="preview_video_view_height">400dp</dimen>
 
     <dimen name="remote_video_view_width">100dp</dimen>
     <dimen name="remote_video_view_height">230dp</dimen>
     <dimen name="remote_video_view_margin_start">10dp</dimen>
     <dimen name="remote_video_view_margin_Bottom">10dp</dimen>
+
+    <dimen name="virtual_bg_item_height">100dp</dimen>
+
+    <dimen name="filter_meetings_pos1">70dp</dimen>
+    <dimen name="filter_meetings_pos2">110dp</dimen>
+    <dimen name="filter_meetings_pos3">150dp</dimen>
+    <dimen name="filter_meetings_pos4">190dp</dimen>
+    <dimen name="filter_meetings_pos5">230dp</dimen>
+
 </resources>

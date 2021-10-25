@@ -15,7 +15,9 @@ class CallBottomSheetFragment(val receivingVideoClickListener: (Call?) -> Unit,
                               val receivingAudioClickListener: (Call?) -> Unit,
                               val receivingSharingClickListener: (Call?) -> Unit,
                               val scalingModeClickListener: (Call?) -> Unit,
-                              val compositeStreamLayoutClickListener: (Call?) -> Unit): BottomSheetDialogFragment() {
+                              val virtualBackgroundOptionsClickListener: (Call?) -> Unit,
+                              val compositeStreamLayoutClickListener: (Call?) -> Unit,
+                              val swapVideoClickListener: (Call?) -> Unit): BottomSheetDialogFragment() {
     companion object {
         val TAG = "MessageActionBottomSheetFragment"
     }
@@ -131,6 +133,15 @@ class CallBottomSheetFragment(val receivingVideoClickListener: (Call?) -> Unit,
                 compositeStreamLayoutClickListener(call)
             }
 
+            swapVideo.setOnClickListener {
+                dismiss()
+                swapVideoClickListener(call)
+            }
+
+            bgOptionsBtn.setOnClickListener {
+                dismiss()
+                virtualBackgroundOptionsClickListener(call)
+            }
             cancel.setOnClickListener { dismiss() }
         }.root
     }

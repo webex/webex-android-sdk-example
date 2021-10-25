@@ -68,7 +68,7 @@ This demo support Android device with **Android 7.0** or later
 
         ```
         dependencies {
-            implementation 'com.ciscowebex:androidsdk:3.1.0@aar'
+            implementation 'com.ciscowebex:androidsdk:3.2.0@aar'
         }
         ```
 

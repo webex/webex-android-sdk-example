@@ -13,6 +13,7 @@
     <string name="message">Message</string>
     <string name="login_oauth">Web Auth Login</string>
     <string name="login_jwt">JWT Login</string>
+    <string name="login_access_token">Access Token Login</string>
     <string name="login">Login</string>
     <string name="android_sdk_sample">Android SDK Sample</string>
     <string name="login_failed">Webex login failed</string>
@@ -23,8 +24,9 @@
     <string name="meeting">Meeting</string>
     <string name="call_failed">Call Failed</string>
     <string name="start_associated_call_failed">Call Association Failed</string>
-    <string name="jwt_login_token_empty_error">Please enter valid token.</string>
+    <string name="login_token_empty_error">Please enter valid token.</string>
     <string name="jwt_login_failed">JWT Login Failed</string>
+    <string name="auth_token_login_failed">Auth Token Login Failed</string>
     <string name="call_meeting_join">Join</string>
 
     <string name="uc_loggedIn">You are LoggedIn (Unified CM)</string>
@@ -237,6 +239,7 @@
     <string name="enable_bg_stream">Enable Background Stream</string>
     <string name="enable_bg_connection">Enable Background Connection</string>
     <string name="enable_phone_permission">Enable Phone Read State</string>
+    <string name="enable_hw_acceleration">Enable HW Acceleration</string>
     <string name="front">Front</string>
     <string name="back">Back</string>
     <string name="call_cap">Call capability</string>
@@ -251,6 +254,7 @@
     <string name="edit_message">Edit Message</string>
     <string name="let_in_confirmation">Do you want to let in this participant?</string>
     <string name="composite_stream">Composite Layout</string>
+    <string name="swap_video">Swap Video</string>
     <string name="composite_stream_filmstrip">FILMSTRIP</string>
     <string name="composite_stream_single">SINGLE</string>
     <string name="composite_stream_grid">GRID</string>
@@ -290,4 +294,33 @@
 
     </string-array>
     <string name="exit">EXIT</string>
+    <string name="bg_none">None</string>
+    <string name="bg_blur">Blur</string>
+    <string name="camera_options">Camera Options</string>
+    <string name="change_virtual_background">Change Virtual Background</string>
+    <string name="join_calendar_meeting_options">Join Meeting Options</string>
+    <string name="join_by_meeting_id">Join using meeting id</string>
+    <string name="join_by_meeting_link">Join using meeting link</string>
+    <string name="join_by_meeting_number">Join using meeting number</string>
+    <string name="cancel">Cancel</string>
+    <string name="name">Name</string>
+    <string name="date">Date</string>
+    <string name="link">Link</string>
+    <string name="location">Location</string>
+    <string name="description">Description</string>
+    <string name="invitees">Invitees</string>
+    <string name="response">Response</string>
+    <string name="role">Role</string>
+    <string name="meeting_details">Meeting Details</string>
+    <string name="virtual_bg_limit">Virtual Background Limit</string>
+    <string name="virtual_bg_not_supported">Virtual Background is not supported</string>
+    <string name="set_limit">Set</string>
+    <string name="invalid_limit_error">Please enter a number between 1 to 100</string>
+    <string name="invalid_number_error">Please enter a valid number</string>
+    <string name="filter_meetings">Filter meetings</string>
+    <string name="today">Today</string>
+    <string name="past_meetings">Past Meetings</string>
+    <string name="upcoming_meetings">Upcoming Meetings</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="all">All</string>
 </resources>

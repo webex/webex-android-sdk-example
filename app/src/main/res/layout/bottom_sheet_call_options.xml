@@ -107,13 +107,57 @@
             app:layout_constraintTop_toBottomOf="@id/scalingTypeSeparator" />
 
         <View
-            android:id="@+id/compositeStreamSeparator"
+            android:id="@+id/bgOptionsTypeSeparator"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/compositeStream" />
+
+        <TextView
+            android:id="@+id/bgOptionsBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_orange_dark"
+            android:paddingVertical="@dimen/size_8dp"
+            android:text="@string/change_virtual_background"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bgOptionsTypeSeparator" />
+
+        <View
+            android:id="@+id/compositeStreamSeparator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bgOptionsBtn" />
+
+        <TextView
+            android:id="@+id/swapVideo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_orange_dark"
+            android:paddingVertical="@dimen/size_8dp"
+            android:text="@string/swap_video"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/compositeStreamSeparator" />
+
+        <View
+            android:id="@+id/swapVideoSeparator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/swapVideo" />
 
         <TextView
             android:id="@+id/cancel"
@@ -126,6 +170,6 @@
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/compositeStreamSeparator" />
+            app:layout_constraintTop_toTopOf="@id/swapVideoSeparator" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

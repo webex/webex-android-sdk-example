@@ -12,6 +12,7 @@ class Constants {
         const val COMPOSER_REPLY_PARENT_MESSAGE = "composerReplyParentMessage"
         const val CALL_ID = "callid"
         const val MESSAGE_ID = "MESSAGE_ID"
+        const val CALENDAR_MEETING_ID = "CALENDAR_MEETING_ID"
     }
     object Bundle {
         const val MESSAGE_ID = "messageId"
@@ -32,5 +33,6 @@ class Constants {
         const val KitchenSinkSharedPref = "KSSharedPref"
         const val LoginType = "LoginType"
         const val Email = "Email"
+        const val IsVirtualBgAdded = "IsVirtualBgAdded"
     }
 }

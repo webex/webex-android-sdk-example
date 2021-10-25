@@ -1,5 +1,6 @@
 package com.ciscowebex.androidsdk.kitchensink.setup
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -44,20 +45,6 @@ class SetupActivity: BaseActivity() {
                         }
                     }
 
-                    when (cameraCap) {
-                        CameraCap.Front -> {
-                            frontCamera.isChecked = true
-                            setAndStartFrontCamera()
-                        }
-                        CameraCap.Back -> {
-                            backCamera.isChecked = true
-                            setAndStartBackCamera()
-                        }
-                        CameraCap.Close -> {
-                            closePreview()
-                        }
-                    }
-
                     streamMode = webexViewModel.streamMode
 
                     when (streamMode) {
@@ -66,20 +53,6 @@ class SetupActivity: BaseActivity() {
                         }
                         Phone.VideoStreamMode.AUXILIARY -> {
                             multiStream.isChecked = true
-                        }
-                    }
-
-                    cameraRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-                        when (checkedId) {
-                            R.id.closePreview -> {
-                                closePreview()
-                            }
-                            R.id.frontCamera -> {
-                                setAndStartFrontCamera()
-                            }
-                            R.id.backCamera -> {
-                                setAndStartBackCamera()
-                            }
                         }
                     }
 
@@ -99,6 +72,13 @@ class SetupActivity: BaseActivity() {
                     enableBgStreamToggle.setOnCheckedChangeListener { _, checked ->
                         webexViewModel.enableBgStreamtoggle = checked
                         webexViewModel.enableBackgroundStream(checked)
+                    }
+
+                    enableHWAccelToggle.isChecked = webexViewModel.enableHWAcceltoggle
+
+                    enableHWAccelToggle.setOnCheckedChangeListener { _, checked ->
+                        webexViewModel.enableHWAcceltoggle = checked
+                        webexViewModel.setHardwareAccelerationEnabled(checked)
                     }
 
                     streamModeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
@@ -147,6 +127,10 @@ class SetupActivity: BaseActivity() {
                         Log.d(tag, "enable console logger ${webexViewModel.isConsoleLoggerEnabled}")
                     }
                     switchConsoleLog.isChecked = webexViewModel.isConsoleLoggerEnabled
+
+                    cameraOptions.setOnClickListener {
+                        startActivity(Intent(this@SetupActivity, SetupCameraActivity::class.java))
+                    }
                 }
     }
 
@@ -160,37 +144,5 @@ class SetupActivity: BaseActivity() {
         } else {
             CameraCap.Back
         }
-    }
-
-    private fun closePreview() {
-        stopPreview()
-    }
-
-    private fun setAndStartFrontCamera() {
-        webexViewModel.setDefaultFacingMode(Phone.FacingMode.USER)
-        cameraCap = CameraCap.Front
-        startPreview()
-    }
-
-    private fun setAndStartBackCamera() {
-        webexViewModel.setDefaultFacingMode(Phone.FacingMode.ENVIROMENT)
-        cameraCap = CameraCap.Back
-        startPreview()
-    }
-
-    private fun startPreview() {
-        binding.preview.visibility = View.VISIBLE
-        cameraCap = getDefaultCamera()
-        webexViewModel.startPreview(binding.preview)
-    }
-
-    private fun stopPreview() {
-        webexViewModel.stopPreview()
-        binding.preview.visibility = View.GONE
-    }
-
-    override fun onDestroy() {
-        webexViewModel.stopPreview()
-        super.onDestroy()
     }
 }

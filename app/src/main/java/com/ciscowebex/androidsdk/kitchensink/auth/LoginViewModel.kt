@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import com.ciscowebex.androidsdk.Webex
 import com.ciscowebex.androidsdk.auth.JWTAuthenticator
 import com.ciscowebex.androidsdk.auth.OAuthWebViewAuthenticator
+import com.ciscowebex.androidsdk.auth.TokenAuthenticator
 import com.ciscowebex.androidsdk.kitchensink.BaseViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 
@@ -51,4 +52,16 @@ class LoginViewModel(private val webex: Webex, private val loginRepository: Logi
         }
     }
 
+    fun loginWithAccessToken(token: String, expiryInSeconds: Int?) {
+        val tokenAuthenticator = webex.authenticator as? TokenAuthenticator
+        tokenAuthenticator?.let { auth ->
+            loginRepository.loginWithAccessToken(token, expiryInSeconds, auth).observeOn(AndroidSchedulers.mainThread()).subscribe({
+                _isAuthorized.postValue(it)
+            }, {
+                _errorData.postValue(it.message)
+            }).autoDispose()
+        } ?: run {
+            _isAuthorized.postValue(false)
+        }
+    }
 }

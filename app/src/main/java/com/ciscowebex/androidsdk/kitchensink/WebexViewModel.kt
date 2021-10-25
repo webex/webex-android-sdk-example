@@ -23,11 +23,14 @@ import com.google.firebase.messaging.FirebaseMessaging
 import org.json.JSONObject
 import com.ciscowebex.androidsdk.phone.CallAssociationType
 import com.ciscowebex.androidsdk.auth.PhoneServiceRegistrationFailureReason
+import com.ciscowebex.androidsdk.auth.TokenAuthenticator
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
 import com.ciscowebex.androidsdk.kitchensink.calling.CallObserverInterface
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
+import com.ciscowebex.androidsdk.message.LocalFile
 import com.ciscowebex.androidsdk.phone.AdvancedSetting
 import com.ciscowebex.androidsdk.phone.AuxStream
+import com.ciscowebex.androidsdk.phone.VirtualBackground
 
 
 class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseViewModel() {
@@ -62,10 +65,18 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     private val _tokenLiveData = MutableLiveData<Pair<String?, PersonModel>>()
     val tokenLiveData: LiveData<Pair<String?, PersonModel>> = _tokenLiveData
 
+    private val _virtualBackground = MutableLiveData<List<VirtualBackground>>()
+    val virtualBackground: LiveData<List<VirtualBackground>> = _virtualBackground
+
+    private val _virtualBgError = MutableLiveData<String>()
+    val virtualBgError: LiveData<String> = _virtualBgError
+
     var selfPersonId: String? = null
     var compositedLayoutState = MediaOption.CompositedVideoLayout.NOT_SUPPORTED
 
     var callObserverInterface: CallObserverInterface? = null
+
+    var isVideoViewsSwapped: Boolean = true
 
     var callCapability: WebexRepository.CallCap
         get() = repository.callCapability
@@ -181,6 +192,12 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
             repository.enablePhoneStatePermission = value
         }
 
+    var enableHWAcceltoggle: Boolean
+        get() = repository.enableHWAcceltoggle
+        set(value) {
+            repository.enableHWAcceltoggle = value
+        }
+
     var logFilter: String
         get() = repository.logFilter
         set(value) {
@@ -237,10 +254,15 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         repository.setMessageObserver()
     }
 
+    fun setCalendarMeetingObserver() {
+        repository.setCalendarMeetingObserver()
+    }
+
     fun setIncomingListener() {
         webex.phone.setIncomingCallListener(object : Phone.IncomingCallListener {
             override fun onIncomingCall(call: Call?) {
                 call?.let {
+                    Log.d(tag, "setIncomingCallListener Call object : ${it.getCallId()}")
                     CallObjectStorage.addCallObject(it)
                     _incomingListenerLiveData.postValue(it)
                     setCallObserver(it)
@@ -275,7 +297,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     fun dial(input: String, option: MediaOption) {
         webex.phone.dial(input, option, CompletionHandler { result ->
-            Log.d(tag, "Omnius: onCallEvent CallStateChanged")
+            Log.d(tag, "dial isSuccessful: ${result.isSuccessful}")
             if (result.isSuccessful) {
                 result.data?.let { _call ->
                     CallObjectStorage.addCallObject(_call)
@@ -346,6 +368,10 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
             override fun onScheduleChanged(call: Call?) {
                 callObserverInterface?.onScheduleChanged(call)
+            }
+
+            override fun onCpuHitThreshold() {
+                callObserverInterface?.onCpuHitThreshold()
             }
         })
     }
@@ -588,7 +614,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     fun switchAudioMode(mode: Call.AudioOutputMode) {
         getCall(currentCallId.orEmpty())?.switchAudioOutput(mode)
     }
-  
+
     fun enableAudioBNR(value: Boolean) {
         webex.phone.enableAudioBNR(value)
     }
@@ -704,7 +730,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     fun letIn(callId: String, callMembership: CallMembership) {
         getCall(callId)?.letIn(callMembership)
     }
-    
+
     fun setVideoStreamMode(mode: Phone.VideoStreamMode) {
         webex.phone.setVideoStreamMode(mode)
     }
@@ -776,5 +802,69 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     fun getServiceUrl(type: Phone.ServiceUrlType): String? {
         return webex.phone.getServiceUrl(type)
+    }
+
+    fun setOnTokenExpiredListener() {
+        webex.authenticator?.let {
+            if (it is TokenAuthenticator) {
+                it.setOnTokenExpiredListener(CompletionHandler {
+                    Log.d(tag, "KS setOnTokenExpiredListener")
+                    _signOutListenerLiveData.postValue(it.isSuccessful)
+                })
+            }
+        }
+    }
+
+    fun isVirtualBackgroundSupported() = webex.phone.isVirtualBackgroundSupported()
+
+    fun fetchVirtualBackgrounds() {
+        repository.getVirtualBackgrounds(CompletionHandler {
+            if (it.isSuccessful)
+                _virtualBackground.postValue(it.data)
+            else
+                _virtualBgError.postValue(it.error?.errorMessage)
+        })
+    }
+
+    fun addVirtualBackground(imgFile: LocalFile) {
+        repository.addVirtualBackground(imgFile, CompletionHandler {
+            if (it.isSuccessful)
+                fetchVirtualBackgrounds()
+            else
+                _virtualBgError.postValue(it.error?.errorMessage)
+        })
+    }
+
+    fun addVirtualBackground(imgFile: LocalFile, handler: CompletionHandler<VirtualBackground>) {
+        repository.addVirtualBackground(imgFile, handler)
+    }
+
+    fun applyVirtualBackground(background: VirtualBackground, mode: Phone.VirtualBackgroundMode) {
+        repository.applyVirtualBackground(background, mode, CompletionHandler {
+            if (it.isSuccessful && it.data == true)
+                Log.d(tag, "virtual background applied")
+            else
+                _virtualBgError.postValue(it.error?.errorMessage)
+        })
+    }
+
+    fun removeVirtualBackground(background: VirtualBackground) {
+        repository.removeVirtualBackground(background, CompletionHandler {
+            if (it.isSuccessful && it.data == true) {
+                Log.d(tag, "virtual background removed")
+                fetchVirtualBackgrounds()
+            }
+            else {
+                _virtualBgError.postValue(it.error?.errorMessage)
+            }
+        })
+    }
+
+    fun setMaxVirtualBackgrounds(limit: Int) {
+        repository.setMaxVirtualBackgrounds(limit)
+    }
+
+    fun getMaxVirtualBackgrounds(): Int {
+        return repository.getMaxVirtualBackgrounds()
     }
 }

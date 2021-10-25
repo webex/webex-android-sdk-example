@@ -86,6 +86,9 @@
             android:name=".auth.JWTLoginActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".auth.AccessTokenLoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".auth.OAuthWebLoginActivity"
             android:screenOrientation="portrait" />
         <activity
@@ -135,6 +138,9 @@
             android:name=".setup.SetupActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".setup.SetupCameraActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".calling.DialerActivity"
             android:screenOrientation="portrait" />
         <activity
@@ -154,6 +160,9 @@
 
         <activity
             android:name=".webhooks.WebhooksActivity"
+            android:screenOrientation="portrait" />
+
+        <activity android:name=".calling.calendarMeeting.details.CalendarMeetingDetailsActivity"
             android:screenOrientation="portrait" />
 
         <service

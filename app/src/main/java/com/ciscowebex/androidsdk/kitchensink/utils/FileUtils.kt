@@ -10,6 +10,12 @@ import android.provider.MediaStore
 import android.util.Log
 import com.ciscowebex.androidsdk.kitchensink.BuildConfig
 import java.io.File
+import android.R
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
+import java.lang.RuntimeException
 
 
 object FileUtils {
@@ -123,5 +129,26 @@ object FileUtils {
      */
     private fun isGooglePhotosUri(uri: Uri): Boolean {
         return "com.google.android.apps.photos.content" == uri.authority
+    }
+
+    fun getFileFromResource(context: Context, fileName: String): File {
+        val tempFile: File?
+        try {
+            val inputStream = context.resources.openRawResource(com.ciscowebex.androidsdk.kitchensink.R.raw.virtual_bg)
+            tempFile = File.createTempFile(fileName, ".jpg")
+            copyFile(inputStream, FileOutputStream(tempFile))
+
+        } catch (e: IOException) {
+            throw RuntimeException("Can't create temp file ", e)
+        }
+        return tempFile
+    }
+
+    private fun copyFile(`in`: InputStream, out: OutputStream) {
+        val buffer = ByteArray(1024)
+        var read: Int
+        while (`in`.read(buffer).also { read = it } != -1) {
+            out.write(buffer, 0, read)
+        }
     }
 }

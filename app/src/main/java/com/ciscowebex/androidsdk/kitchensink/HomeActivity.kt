@@ -7,7 +7,9 @@ import android.util.Log
 import android.view.View
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.auth.OAuthWebViewAuthenticator
+import com.ciscowebex.androidsdk.auth.TokenAuthenticator
 import com.ciscowebex.androidsdk.kitchensink.auth.LoginActivity
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityHomeBinding
 import com.ciscowebex.androidsdk.kitchensink.messaging.MessagingActivity
@@ -24,6 +26,9 @@ import com.ciscowebex.androidsdk.kitchensink.calling.CallActivity
 import com.ciscowebex.androidsdk.kitchensink.extras.ExtrasActivity
 import com.ciscowebex.androidsdk.kitchensink.search.SearchActivity
 import com.ciscowebex.androidsdk.kitchensink.setup.SetupActivity
+import com.ciscowebex.androidsdk.kitchensink.utils.FileUtils
+import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils
+import com.ciscowebex.androidsdk.message.LocalFile
 import com.ciscowebex.androidsdk.phone.Phone
 import org.koin.android.ext.android.inject
 
@@ -50,6 +55,10 @@ class HomeActivity : BaseActivity() {
             when (it) {
                 is OAuthWebViewAuthenticator -> {
                     saveLoginTypePref(this, LoginActivity.LoginType.OAuth)
+                }
+                is TokenAuthenticator -> {
+                    saveLoginTypePref(this, LoginActivity.LoginType.AccessToken)
+                    webexViewModel.setOnTokenExpiredListener()
                 }
                 else -> {
                     saveLoginTypePref(this, LoginActivity.LoginType.JWT)
@@ -156,6 +165,7 @@ class HomeActivity : BaseActivity() {
         webexViewModel.setSpaceObserver()
         webexViewModel.setMembershipObserver()
         webexViewModel.setMessageObserver()
+        webexViewModel.setCalendarMeetingObserver()
     }
 
     override fun onBackPressed() {
@@ -188,6 +198,7 @@ class HomeActivity : BaseActivity() {
         super.onResume()
         updateUCData()
         webexViewModel.setGlobalIncomingListener()
+        addVirtualBackground()
     }
 
     private fun updateUCData() {
@@ -211,6 +222,26 @@ class HomeActivity : BaseActivity() {
             else -> {
                 binding.ucServerConnectionStatusTextView.visibility = View.GONE
             }
+        }
+    }
+
+    private fun addVirtualBackground() {
+        if (SharedPrefUtils.isVirtualBgAdded(this)) {
+            Log.d(tag, "Virtual Bg is already added")
+        } else {
+
+            val thumbnailFile = FileUtils.getFileFromResource(this, "nature-thumb")
+            val file = FileUtils.getFileFromResource(this, "nature")
+            val thumbnail = LocalFile.Thumbnail(thumbnailFile, null,
+                resources.getInteger(R.integer.virtual_bg_thumbnail_width),
+                resources.getInteger(R.integer.virtual_bg_thumbnail_height))
+
+            val localFile = LocalFile(file, null, thumbnail, null)
+            webexViewModel.addVirtualBackground(localFile, CompletionHandler {
+                if (it.isSuccessful && it.data != null) {
+                    SharedPrefUtils.setVirtualBgAdded(this, true)
+                }
+            })
         }
     }
 }

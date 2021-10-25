@@ -18,4 +18,5 @@ interface CallObserverInterface {
     fun onMediaChanged(call: Call?, event: CallObserver.MediaChangedEvent?) {}
     fun onCallMembershipChanged(call: Call?, event: CallObserver.CallMembershipChangedEvent?) {}
     fun onScheduleChanged(call: Call?) {}
+    fun onCpuHitThreshold() {}
 }
