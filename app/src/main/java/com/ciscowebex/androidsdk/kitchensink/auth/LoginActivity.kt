@@ -19,7 +19,8 @@ class LoginActivity : AppCompatActivity() {
 
     enum class LoginType(var value: String) {
         OAuth("OAuth"),
-        JWT("JWT")
+        JWT("JWT"),
+        AccessToken("AccessToken")
     }
 
     private var loginTypeCalled = LoginType.OAuth
@@ -39,6 +40,12 @@ class LoginActivity : AppCompatActivity() {
                             startActivity(Intent(this@LoginActivity, JWTLoginActivity::class.java))
                             finish()
                         }
+                        LoginType.AccessToken.value -> {
+                            loginTypeCalled = LoginType.AccessToken
+                            (application as KitchenSinkApp).loadKoinModules(loginTypeCalled)
+                            startActivity(Intent(this@LoginActivity, AccessTokenLoginActivity::class.java))
+                            finish()
+                        }
                         LoginType.OAuth.value -> {
                             loginTypeCalled = LoginType.OAuth
                             (application as KitchenSinkApp).loadKoinModules(loginTypeCalled)
@@ -55,6 +62,9 @@ class LoginActivity : AppCompatActivity() {
                         buttonClicked(LoginType.OAuth)
                     }
 
+                    btnAccessLogin.setOnClickListener {
+                        buttonClicked(LoginType.AccessToken)
+                    }
                 }
     }
 
@@ -68,6 +78,9 @@ class LoginActivity : AppCompatActivity() {
             }
             LoginType.OAuth -> {
                 showEmailDialog(type)
+            }
+            LoginType.AccessToken -> {
+                startAccessTokenActivity()
             }
         }
     }
@@ -93,6 +106,12 @@ class LoginActivity : AppCompatActivity() {
     private fun startJWTActivity() {
         (application as KitchenSinkApp).loadKoinModules(loginTypeCalled)
         startActivity(Intent(this@LoginActivity, JWTLoginActivity::class.java))
+        finish()
+    }
+
+    private fun startAccessTokenActivity() {
+        (application as KitchenSinkApp).loadKoinModules(loginTypeCalled)
+        startActivity(Intent(this@LoginActivity, AccessTokenLoginActivity::class.java))
         finish()
     }
 

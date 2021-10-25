@@ -56,6 +56,14 @@
                         android:layout_marginTop="10dp"
                         android:layout_gravity="center" />
 
+                    <Button
+                        android:id="@+id/btn_access_login"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/login_access_token"
+                        android:layout_marginTop="10dp"
+                        android:layout_gravity="center" />
+
                 </LinearLayout>
 
             </LinearLayout>

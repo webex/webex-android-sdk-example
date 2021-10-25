@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="invitee"
+            type="com.ciscowebex.androidsdk.calendarMeeting.CalendarMeeting.Invitee" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="4dp"
+            android:background="@color/lightGray"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/membershipContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/size_8dp"
+            tools:context="com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipActivity">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline1"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="100dp" />
+
+            <TextView
+                android:id="@+id/nameLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/name"
+                android:textColor="@color/gray60"
+                app:layout_constraintBottom_toBottomOf="@id/tvInviteeName"
+                app:layout_constraintEnd_toEndOf="@id/guideline1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tvInviteeName"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView
+                android:id="@+id/tvInviteeName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{invitee.displayName}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/guideline1"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Jason Bourne" />
+
+            <TextView
+                android:id="@+id/responseLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/response"
+                android:textColor="@color/gray60"
+                app:layout_constraintBottom_toBottomOf="@id/tvResponse"
+                app:layout_constraintEnd_toEndOf="@id/guideline1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tvResponse"
+                tools:ignore="RtlSymmetry" />
+
+            <TextView
+                android:id="@+id/tvResponse"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{invitee.response.name()}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/guideline1"
+                app:layout_constraintTop_toBottomOf="@id/tvInviteeName" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+</layout>

@@ -27,13 +27,13 @@ class JWTLoginActivity : AppCompatActivity() {
                     progressLayout.visibility = View.VISIBLE
                     loginButton.setOnClickListener {
                         binding.loginFailedTextView.visibility = View.GONE
-                        if (jwtTokenText.text.isEmpty()) {
-                            showDialogWithMessage(this@JWTLoginActivity, R.string.error_occurred, resources.getString(R.string.jwt_login_token_empty_error))
+                        if (tokenText.text.isEmpty()) {
+                            showDialogWithMessage(this@JWTLoginActivity, R.string.error_occurred, resources.getString(R.string.login_token_empty_error))
                         }
                         else {
                             binding.loginButton.visibility = View.GONE
                             progressLayout.visibility = View.VISIBLE
-                            val token = jwtTokenText.text.toString()
+                            val token = tokenText.text.toString()
                             loginViewModel.loginWithJWT(token)
                         }
                     }
@@ -55,7 +55,7 @@ class JWTLoginActivity : AppCompatActivity() {
                             if (it) {
                                 onLoggedIn()
                             } else {
-                                jwtTokenText.visibility = View.VISIBLE
+                                tokenText.visibility = View.VISIBLE
                                 loginButton.visibility = View.VISIBLE
                                 loginFailedTextView.visibility = View.GONE
                             }

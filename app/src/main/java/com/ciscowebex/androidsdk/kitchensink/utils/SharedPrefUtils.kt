@@ -49,4 +49,19 @@ object SharedPrefUtils {
 
         return null
     }
+
+    fun setVirtualBgAdded(context:Context, isAdded: Boolean) {
+        val pref = context.getSharedPreferences(Constants.Keys.KitchenSinkSharedPref, Context.MODE_PRIVATE)
+        pref?.edit()?.putBoolean(Constants.Keys.IsVirtualBgAdded, isAdded)?.apply()
+    }
+
+    fun isVirtualBgAdded(context: Context): Boolean {
+        val pref = context.getSharedPreferences(Constants.Keys.KitchenSinkSharedPref, Context.MODE_PRIVATE)
+
+        pref?.let {
+            return pref.getBoolean(Constants.Keys.IsVirtualBgAdded, false)
+        }
+
+        return false
+    }
 }

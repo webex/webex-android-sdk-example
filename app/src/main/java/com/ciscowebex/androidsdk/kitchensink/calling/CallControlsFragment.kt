@@ -1,5 +1,6 @@
 package com.ciscowebex.androidsdk.kitchensink.calling
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.NotificationChannel
@@ -50,11 +51,19 @@ import com.ciscowebex.androidsdk.phone.MediaRenderView
 import com.ciscowebex.androidsdk.phone.MultiStreamObserver
 import com.ciscowebex.androidsdk.phone.AuxStream
 import org.koin.android.ext.android.inject
-import android.widget.EditText
 import android.widget.Toast
+import com.ciscowebex.androidsdk.WebexError
+import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.kitchensink.databinding.DialogCreateSpaceBinding
 import com.ciscowebex.androidsdk.kitchensink.databinding.DialogEnterMeetingPinBinding
+import com.ciscowebex.androidsdk.kitchensink.setup.BackgroundOptionsBottomSheetFragment
+import com.ciscowebex.androidsdk.kitchensink.utils.extensions.toast
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
+import com.ciscowebex.androidsdk.message.LocalFile
+import com.ciscowebex.androidsdk.phone.VirtualBackground
+import com.ciscowebex.androidsdk.utils.internal.MimeUtils
+import java.io.File
+import java.lang.Integer.getInteger
 import java.util.Date
 
 
@@ -75,6 +84,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     private lateinit var incomingInfoAdapter: IncomingInfoAdapter
     private val mAuxStreamViewMap: HashMap<View, AuxStreamViewHolder> = HashMap()
     private var callerId: String = ""
+    var bottomSheetFragment: BackgroundOptionsBottomSheetFragment? = null
 
     enum class ShareButtonState {
         OFF,
@@ -183,6 +193,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         var callEnded = false
         var localClose = false
 
+        var failedError: WebexError<Any>? = null
         event?.let { _event ->
             val _call = _event.getCall()
             when (_event) {
@@ -214,6 +225,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 }
                 is CallObserver.CallErrorEvent -> {
                     Log.d(TAG, "CallObserver CallErrorEvent")
+                    failedError = _event.getError()
                     callFailed = true
                 }
                 is CallObserver.CallEnded -> {
@@ -226,7 +238,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
         when {
             callFailed -> {
-                onCallFailed(call?.getCallId().orEmpty())
+                onCallFailed(call?.getCallId().orEmpty(), failedError)
             }
             callEnded -> {
                 onCallTerminated(call?.getCallId().orEmpty())
@@ -373,6 +385,11 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         schedulesChanged(call)
     }
 
+    override fun onCpuHitThreshold() {
+        Log.d(TAG, "CallObserver onCpuHitThreshold")
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
     private fun observerCallLiveData() {
 
         personViewModel.person.observe(viewLifecycleOwner, Observer { person ->
@@ -487,6 +504,98 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 }
             }
         })
+
+        webexViewModel.virtualBgError.observe(viewLifecycleOwner, Observer { error ->
+            Log.d(tag, error)
+            requireContext().toast(error)
+        })
+
+        webexViewModel.virtualBackground.observe(viewLifecycleOwner, Observer {
+            val emptyBackground = VirtualBackground()
+
+            if (bottomSheetFragment == null) {
+                bottomSheetFragment =
+                    BackgroundOptionsBottomSheetFragment(onBackgroundChanged = { virtualBackground ->
+                        if (!webexViewModel.isVirtualBackgroundSupported()) {
+                            Log.d(tag, getString(R.string.virtual_bg_not_supported))
+                            Toast.makeText(
+                                requireContext(),
+                                getString(R.string.virtual_bg_not_supported),
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                            return@BackgroundOptionsBottomSheetFragment
+                        }
+
+                        webexViewModel.applyVirtualBackground(
+                            virtualBackground,
+                            Phone.VirtualBackgroundMode.CALL
+                        )
+                    },
+                        onBackgroundRemoved = { virtualBackground ->
+                            webexViewModel.removeVirtualBackground(virtualBackground)
+                        },
+                        onNewBackgroundAdded = { file ->
+                            if (!webexViewModel.isVirtualBackgroundSupported()) {
+                                Log.d(tag, getString(R.string.virtual_bg_not_supported))
+                                Toast.makeText(
+                                    requireContext(),
+                                    getString(R.string.virtual_bg_not_supported),
+                                    Toast.LENGTH_SHORT
+                                )
+                                    .show()
+                                return@BackgroundOptionsBottomSheetFragment
+                            }
+
+                            val localFile = processAttachmentFile(file)
+                            webexViewModel.addVirtualBackground(localFile)
+                        },
+                        onBottomSheetDimissed = {
+                            bottomSheetFragment = null
+                        })
+
+                bottomSheetFragment?.show(
+                    childFragmentManager,
+                    BackgroundOptionsBottomSheetFragment::class.java.name
+                )
+            }
+
+            bottomSheetFragment?.backgrounds?.clear()
+            bottomSheetFragment?.backgrounds?.addAll(it)
+            bottomSheetFragment?.backgrounds?.add(emptyBackground)
+            bottomSheetFragment?.adapter?.notifyDataSetChanged()
+        })
+    }
+
+    private fun handleOnBackgroundChanged(virtualBackground: VirtualBackground) {
+        if(!webexViewModel.isVirtualBackgroundSupported()) {
+            Log.d(tag, "virtual background is not supported")
+            requireContext().toast(getString(R.string.virtual_bg_not_supported))
+            return
+        }
+
+        webexViewModel.applyVirtualBackground(virtualBackground, Phone.VirtualBackgroundMode.CALL)
+    }
+
+    private fun handleOnNewBackgroundAdded(file: File) {
+        if(!webexViewModel.isVirtualBackgroundSupported()) {
+            Log.d(tag, "virtual background is not supported")
+            requireContext().toast(getString(R.string.virtual_bg_not_supported))
+            return
+        }
+
+        val localFile = processAttachmentFile(file)
+        webexViewModel.addVirtualBackground(localFile)
+    }
+
+
+    private fun processAttachmentFile(file: File): LocalFile {
+        var thumbnail: LocalFile.Thumbnail? = null
+        if (MimeUtils.getContentTypeByFilename(file.name) == MimeUtils.ContentType.IMAGE) {
+            thumbnail = LocalFile.Thumbnail(file, null, resources.getInteger(R.integer.virtual_bg_thumbnail_width), resources.getInteger(R.integer.virtual_bg_thumbnail_height))
+        }
+
+        return LocalFile(file, null, thumbnail, null)
     }
 
     private fun onMeetingHostPinError() {
@@ -635,11 +744,11 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         webexViewModel.setAudioBNRMode(Phone.AudioBRNMode.HP)
         webexViewModel.setDefaultFacingMode(Phone.FacingMode.USER)
 
-        webexViewModel.setVideoMaxTxFPSSetting(5)
+        webexViewModel.setVideoMaxTxFPSSetting(30)
         webexViewModel.setVideoEnableCamera2Setting(true)
         webexViewModel.setVideoEnableDecoderMosaicSetting(true)
 
-        webexViewModel.setHardwareAccelerationEnabled(true)
+        webexViewModel.setHardwareAccelerationEnabled(webexViewModel.enableHWAcceltoggle)
         webexViewModel.setVideoMaxRxBandwidth(Phone.DefaultBandwidth.MAX_BANDWIDTH_720P.getValue())
         webexViewModel.setVideoMaxTxBandwidth(Phone.DefaultBandwidth.MAX_BANDWIDTH_720P.getValue())
         webexViewModel.setSharingMaxRxBandwidth(Phone.DefaultBandwidth.MAX_BANDWIDTH_SESSION.getValue())
@@ -671,7 +780,9 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 { call -> receivingAudioListener(call) },
                 { call -> receivingSharingListener(call) },
                 { call -> scalingModeClickListener(call) },
-                { call -> compositeStreamLayoutClickListener(call) })
+                { call -> virtualBackgroundOptionsClickListener(call) },
+                { call -> compositeStreamLayoutClickListener(call) },
+                { call -> swapVideoClickListener(call) })
 
         callingActivity = activity?.intent?.getIntExtra(Constants.Intent.CALLING_ACTIVITY_ID, 0)!!
         if (callingActivity == 1) {
@@ -683,6 +794,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             webexViewModel.setIncomingListener()
             webexViewModel.incomingListenerLiveData.observe(viewLifecycleOwner, Observer {
                 it?.let {
+                    Log.d(tag, "incomingListenerLiveData: ${it.getCallId()}")
                     ringerManager.startRinger(RingerManager.RingerType.Incoming)
                     onIncomingCall(it)
                 }
@@ -1373,7 +1485,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         }
     }
 
-    private fun onCallFailed(callId: String) {
+    private fun onCallFailed(callId: String, failedError: WebexError<Any>?) {
         Log.d(TAG, "CallControlsFragment onCallFailed callerId: $callId")
 
         Handler(Looper.getMainLooper()).post {
@@ -1385,7 +1497,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             callFailed = !webexViewModel.isAddedCall
 
             val callActivity = activity as CallActivity?
-            callActivity?.alertDialog(!webexViewModel.isAddedCall, "")
+            callActivity?.alertDialog(!webexViewModel.isAddedCall, failedError?.errorMessage.orEmpty())
         }
     }
 
@@ -1567,6 +1679,17 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         }
     }
 
+    private fun swapVideoClickListener(call: Call?) {
+        Log.d(TAG, "swapVideoClickListener")
+        if (webexViewModel.isVideoViewsSwapped) {
+            webexViewModel.setVideoRenderViews(webexViewModel.currentCallId.orEmpty(), binding.remoteView, binding.localView)
+            webexViewModel.isVideoViewsSwapped = false
+        } else {
+            webexViewModel.setVideoRenderViews(webexViewModel.currentCallId.orEmpty(), binding.localView, binding.remoteView)
+            webexViewModel.isVideoViewsSwapped = true
+        }
+    }
+
     private fun compositeStreamLayoutClickListener(call: Call?) {
         Log.d(TAG, "compositeStreamLayoutClickListener getCompositedLayout: ${webexViewModel.getCompositedLayout()}")
 
@@ -1591,6 +1714,10 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         }
 
         webexViewModel.setCompositedLayout(layout)
+    }
+
+    private fun virtualBackgroundOptionsClickListener(call: Call?) {
+        webexViewModel.fetchVirtualBackgrounds()
     }
 
     private fun scalingModeClickListener(call: Call?) {

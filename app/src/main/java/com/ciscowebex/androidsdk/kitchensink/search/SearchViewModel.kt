@@ -21,20 +21,7 @@ class SearchViewModel(private val searchRepo: SearchRepository, private val spac
     private val _spaceEventLiveData = MutableLiveData<Pair<WebexRepository.SpaceEvent, Any?>>()
 
     val titles =
-            listOf("Call", "Search", "History", "Spaces")
-
-    var name = listOf(
-            "Bharath Balan",
-            "Adam Ranganathan",
-            "Rohit Sharma",
-            "Manoj Nuthakki",
-            "Linda Nixon",
-            "Akshay Agarwal",
-            "Lalit Sharma",
-            "Manu Jain",
-            "Ankit Batra",
-            "Jasna Ibrahim"
-    )
+            listOf("Call", "Search", "History", "Spaces", "Meetings")
 
     init {
         webexRepo._spaceEventLiveData = _spaceEventLiveData

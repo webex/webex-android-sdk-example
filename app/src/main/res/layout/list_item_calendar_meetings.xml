@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="meeting"
+            type="com.ciscowebex.androidsdk.calendarMeeting.CalendarMeeting" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/size_8dp"
+        android:paddingBottom="@dimen/size_8dp"
+        android:paddingEnd="@dimen/size_8dp">
+
+        <TextView
+            android:id="@+id/tv_meeting_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:text="@{meeting.subject}"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/btn_join_meeting"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="test" />
+
+        <Button
+            android:id="@+id/btn_join_meeting"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/icon_join_button_height"
+            android:backgroundTint="@color/green"
+            android:text="@string/call_meeting_join"
+            android:visibility="gone"
+            tools:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:paddingTop="2dp"
+            android:text="09:00 - 23:59"
+            app:layout_constraintEnd_toEndOf="@+id/tv_meeting_title"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/tv_meeting_title"
+            app:layout_constraintTop_toBottomOf="@+id/tv_meeting_title" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

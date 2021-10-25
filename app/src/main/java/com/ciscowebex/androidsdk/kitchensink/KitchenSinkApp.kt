@@ -9,6 +9,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import com.ciscowebex.androidsdk.kitchensink.auth.LoginActivity
 import com.ciscowebex.androidsdk.kitchensink.auth.loginModule
 import com.ciscowebex.androidsdk.kitchensink.calling.callModule
+import com.ciscowebex.androidsdk.kitchensink.calling.calendarMeeting.calendarMeetingsModule
 import com.ciscowebex.androidsdk.kitchensink.extras.extrasModule
 import com.ciscowebex.androidsdk.kitchensink.messaging.messagingModule
 import com.ciscowebex.androidsdk.kitchensink.messaging.search.searchPeopleModule
@@ -72,15 +73,18 @@ class KitchenSinkApp : Application(), LifecycleObserver {
     fun loadKoinModules(type: LoginActivity.LoginType) {
         when (type) {
             LoginActivity.LoginType.JWT -> {
-                loadKoinModules(listOf(mainAppModule, webexModule, loginModule, JWTWebexModule, searchModule, callModule, messagingModule, personModule, searchPeopleModule, webhooksModule, extrasModule))
+                loadKoinModules(listOf(mainAppModule, webexModule, loginModule, JWTWebexModule, searchModule, callModule, messagingModule, personModule, searchPeopleModule, webhooksModule, extrasModule, calendarMeetingsModule))
+            }
+            LoginActivity.LoginType.AccessToken -> {
+                loadKoinModules(listOf(mainAppModule, webexModule, loginModule, AccessTokenWebexModule, searchModule, callModule, messagingModule, personModule, searchPeopleModule, webhooksModule, extrasModule, calendarMeetingsModule))
             }
             else -> {
-                loadKoinModules(listOf(mainAppModule, webexModule, loginModule, OAuthWebexModule, searchModule, callModule, messagingModule, personModule, searchPeopleModule, webhooksModule, extrasModule))
+                loadKoinModules(listOf(mainAppModule, webexModule, loginModule, OAuthWebexModule, searchModule, callModule, messagingModule, personModule, searchPeopleModule, webhooksModule, extrasModule, calendarMeetingsModule))
             }
         }
     }
 
     fun unloadKoinModules() {
-        unloadKoinModules(listOf(mainAppModule, webexModule, loginModule, JWTWebexModule, OAuthWebexModule, searchModule, callModule, messagingModule, personModule, searchPeopleModule, webhooksModule, extrasModule))
+        unloadKoinModules(listOf(mainAppModule, webexModule, loginModule, JWTWebexModule, AccessTokenWebexModule, OAuthWebexModule, searchModule, callModule, messagingModule, personModule, searchPeopleModule, webhooksModule, extrasModule, calendarMeetingsModule))
     }
 }

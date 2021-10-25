@@ -11,8 +11,10 @@ import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.auth.PhoneServiceRegistrationFailureReason
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
+import com.ciscowebex.androidsdk.calendarMeeting.CalendarMeetingObserver
 import com.ciscowebex.androidsdk.membership.Membership
 import com.ciscowebex.androidsdk.membership.MembershipObserver
+import com.ciscowebex.androidsdk.message.LocalFile
 import com.ciscowebex.androidsdk.message.MessageObserver
 import com.ciscowebex.androidsdk.phone.CallMembership
 import com.ciscowebex.androidsdk.phone.CallObserver
@@ -20,6 +22,7 @@ import com.ciscowebex.androidsdk.phone.NotificationCallType
 import com.ciscowebex.androidsdk.phone.Call
 import com.ciscowebex.androidsdk.phone.MediaOption
 import com.ciscowebex.androidsdk.phone.Phone
+import com.ciscowebex.androidsdk.phone.VirtualBackground
 import com.ciscowebex.androidsdk.space.SpaceObserver
 
 class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
@@ -79,6 +82,12 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
         MeetingPinOrPasswordRequired
     }
 
+    enum class CalendarMeetingEvent {
+        Created,
+        Updated,
+        Deleted
+    }
+
     data class CallLiveData(val event: CallEvent,
                             val call: Call? = null,
                             val sharingLabel: String? = null,
@@ -99,6 +108,7 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
     var enableBgStreamtoggle = true
     var enableBgConnectiontoggle = true
     var enablePhoneStatePermission = true
+    var enableHWAcceltoggle = true
     var logFilter = LogLevel.ALL.name
     var isConsoleLoggerEnabled = true
     var callCapability: CallCap = CallCap.Audio_Video
@@ -124,6 +134,7 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
     var _spaceEventLiveData: MutableLiveData<Pair<SpaceEvent, Any?>>? = null
     var _membershipEventLiveData: MutableLiveData<Pair<MembershipEvent, Membership?>>? = null
     var _messageEventLiveData: MutableLiveData<Pair<MessageEvent, Any?>>? = null
+    var _calendarMeetingEventLiveData: MutableLiveData<Pair<CalendarMeetingEvent, Any>>? = null
 
     init {
         webex.delegate = this
@@ -223,6 +234,31 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
         })
     }
 
+    fun setCalendarMeetingObserver() {
+        webex.calendarMeetings.setObserver(object : CalendarMeetingObserver
+        {
+            override fun onEvent(event: CalendarMeetingObserver.CalendarMeetingEvent) {
+                Log.d(tag, "onCalendarMeetingEvent: $event")
+                when (event) {
+                    is CalendarMeetingObserver.CalendarMeetingAdded -> {
+                        _calendarMeetingEventLiveData?.postValue(Pair(CalendarMeetingEvent.Created, event.getCalendarMeeting()))
+                    }
+                    is CalendarMeetingObserver.CalendarMeetingUpdated -> {
+                        _calendarMeetingEventLiveData?.postValue(Pair(CalendarMeetingEvent.Updated, event.getCalendarMeeting()))
+                    }
+                    is CalendarMeetingObserver.CalendarMeetingRemoved -> {
+                        _calendarMeetingEventLiveData?.postValue(Pair(CalendarMeetingEvent.Deleted, event.getCalendarMeetingId()))
+                    }
+                }
+            }
+        })
+    }
+
+    fun removeCalendarMeetingObserver() {
+        _calendarMeetingEventLiveData = null
+        webex.calendarMeetings.setObserver(null)
+    }
+
     fun setIncomingListener() {
         Log.d(tag, "setIncomingListener")
         if (webex.phone.getIncomingCallListener() != null) {
@@ -262,6 +298,30 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
 
     fun listMessages(spaceId: String, handler: CompletionHandler<List<Message>>){
         webex.messages.list(spaceId, null, 10000, null, handler)
+    }
+
+    fun getVirtualBackgrounds(handler: CompletionHandler<List<VirtualBackground>> ) {
+        webex.phone.fetchVirtualBackgrounds(handler)
+    }
+
+    fun addVirtualBackground(imgFile: LocalFile, handler: CompletionHandler<VirtualBackground>) {
+        webex.phone.addVirtualBackground(imgFile, handler)
+    }
+
+    fun applyVirtualBackground(background: VirtualBackground, mode: Phone.VirtualBackgroundMode, handler: CompletionHandler<Boolean>) {
+        webex.phone.applyVirtualBackground(background, mode, handler)
+    }
+
+    fun removeVirtualBackground(background: VirtualBackground, handler: CompletionHandler<Boolean>) {
+        webex.phone.removeVirtualBackground(background, handler)
+    }
+
+    fun setMaxVirtualBackgrounds(limit: Int) {
+        webex.phone.setMaxVirtualBackgroundItems(limit)
+    }
+
+    fun getMaxVirtualBackgrounds(): Int {
+        return webex.phone.getMaxVirtualBackgroundItems()
     }
 
     // Callbacks

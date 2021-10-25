@@ -160,6 +160,9 @@ class SpaceDetailActivity : BaseActivity() {
                         Log.d(tag, "Message Received event fired!")
                         if(pair.second is Message) {
                             val message = pair.second as Message
+                            if (message.getId() != spaceId) {
+                                return@Observer
+                            }
                             // For replies, find parent and add to replies list at bottom.
                             if(message.isReply()){
                                 val parentMessagePosition = messageClientAdapter.getPositionById(message.getParentId()?: "")
@@ -181,7 +184,7 @@ class SpaceDetailActivity : BaseActivity() {
                                     }
                                 }
                             }else {
-                                messageClientAdapter.messages.add(SpaceMessageModel.convertToSpaceMessageModel(message))
+                                messageClientAdapter.messages.add(0, SpaceMessageModel.convertToSpaceMessageModel(message))
                                 messageClientAdapter.notifyItemInserted(messageClientAdapter.messages.size - 1)
                             }
                         }

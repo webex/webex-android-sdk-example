@@ -25,7 +25,6 @@
                 android:minHeight="?actionBarSize"
                 android:padding="@dimen/size_8dp"
                 android:textColor="@android:color/white"
-                android:text="@string/login_jwt"
                 android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title" />
 
         </com.google.android.material.appbar.AppBarLayout>
@@ -40,7 +39,7 @@
             app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
 
             <EditText
-                android:id="@+id/jwtTokenText"
+                android:id="@+id/tokenText"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:inputType="textMultiLine"

@@ -8,9 +8,9 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.calling.DialFragment
+import com.ciscowebex.androidsdk.kitchensink.calling.calendarMeeting.CalendarMeetingListFragment
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivitySearchBinding
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
-import com.ciscowebex.androidsdk.kitchensink.utils.HorizontalFlipTransformation
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.tabs.TabLayoutMediator.TabConfigurationStrategy
@@ -27,7 +27,6 @@ class SearchActivity : BaseActivity() {
                 .also { binding = it }
                 .apply {
                     viewPager.adapter = ViewPagerFragmentAdapter(this@SearchActivity, searchViewModel.titles)
-                    viewPager.setPageTransformer(HorizontalFlipTransformation())
                     TabLayoutMediator(tabLayout, viewPager,
                             TabConfigurationStrategy { tab: TabLayout.Tab, position: Int ->
                                 tab.text = searchViewModel.titles[position]
@@ -62,6 +61,7 @@ class SearchActivity : BaseActivity() {
                     spaceListFragment.arguments = bundle
                     return spaceListFragment
                 }
+                4 -> return CalendarMeetingListFragment()
             }
             return SearchCommonFragment()
         }
