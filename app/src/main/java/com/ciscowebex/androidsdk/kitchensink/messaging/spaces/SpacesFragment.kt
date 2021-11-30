@@ -18,6 +18,7 @@ import com.ciscowebex.androidsdk.kitchensink.databinding.FragmentSpacesBinding
 import com.ciscowebex.androidsdk.kitchensink.messaging.search.MessagingSearchActivity
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.adapters.SpaceReadStatusClientAdapter
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.adapters.SpacesClientAdapter
+import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.listeners.SpaceEventListener
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipActivity
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.membersReadStatus.MembershipReadStatusActivity
 import com.ciscowebex.androidsdk.kitchensink.person.PersonModel
@@ -60,55 +61,51 @@ class SpacesFragment : Fragment() {
                 showAddSpaceDialog()
             }
 
-            spacesViewModel.getSpaceEvent()?.observe(viewLifecycleOwner, Observer {
-                when (it.first) {
-                    WebexRepository.SpaceEvent.Updated -> {
-                        if (it.second is Space) {
-                            Log.d(TAG, "Space event ${(it.second as Space).title} is updated")
-                            val space = SpaceModel.convertToSpaceModel(it.second as Space?)
-                            val index = spacesClientAdapter.getPositionById(space.id)
-                            if (!spacesClientAdapter.spaces.isNullOrEmpty() && index != -1) {
-                                spacesClientAdapter.spaces[index] = space
-                                spacesClientAdapter.notifyDataSetChanged()
-                            }
+            spacesViewModel.setSpaceEventListener(object : SpaceEventListener {
+                override fun onUpdate(space: Space) {
+                    Log.d(TAG, "SpaceClientImpl(Fragment) Space event ${space.title} is updated")
+                    val spaceModel = SpaceModel.convertToSpaceModel(space)
+                    val index = spacesClientAdapter.getPositionById(spaceModel.id)
+                    if (!spacesClientAdapter.spaces.isNullOrEmpty() && index != -1) {
+                        Log.d(TAG, "SpaceClientImpl(Fragment) Updating space object in list")
+                        spacesClientAdapter.spaces[index] = spaceModel
+                        activity?.runOnUiThread {
+                            spacesClientAdapter.notifyItemChanged(index)
                         }
                     }
-                    WebexRepository.SpaceEvent.Created -> {
-                        if (it.second is Space) {
-                            val space = SpaceModel.convertToSpaceModel(it.second as Space?)
-                            spacesClientAdapter.spaces.add(0, space)
-                            spacesClientAdapter.notifyItemInserted(0)
-                            Log.d(TAG, "Space event ${(it.second as Space).title} is created")
+                }
+
+                override fun onCreate(space: Space) {
+                    val spaceModel = SpaceModel.convertToSpaceModel(space)
+                    spacesClientAdapter.spaces.add(0, spaceModel)
+                    Log.d(TAG, "Space event ${space.title} is created")
+                    activity?.runOnUiThread {
+                        spacesClientAdapter.notifyItemInserted(0)
+                    }
+                }
+
+                override fun onCallStarted(spaceId: String) {
+                    val index = spacesClientAdapter.getPositionById(spaceId)
+                    if (!spacesClientAdapter.spaces.isNullOrEmpty() && index != -1) {
+                        val space = spacesClientAdapter.spaces[index]
+                        Log.d(TAG, "Space event ${space} is CallStarted")
+                        val inCallSpace = SpaceModel(spaceId, space.title + " " + addOnCallSuffix, space.spaceType, space.isLocked, space.lastActivity, space.created, space.teamId, space.sipAddress)
+                        spacesClientAdapter.spaces[index] = inCallSpace
+                        activity?.runOnUiThread {
+                            spacesClientAdapter.notifyItemChanged(index)
                         }
                     }
-                    WebexRepository.SpaceEvent.CallStarted -> {
-                        if (it.second is String?) {
-                            val spaceId = it.second as String?
-                            spaceId?.let {
-                                val index = spacesClientAdapter.getPositionById(it)
-                                if (!spacesClientAdapter.spaces.isNullOrEmpty() && index != -1) {
-                                    val space = spacesClientAdapter.spaces[index]
-                                    Log.d(TAG, "Space event ${space} is CallStarted")
-                                    val inCallSpace = SpaceModel(spaceId, space.title + " " + addOnCallSuffix, space.spaceType, space.isLocked, space.lastActivity, space.created, space.teamId, space.sipAddress)
-                                    spacesClientAdapter.spaces[index] = inCallSpace
-                                    spacesClientAdapter.notifyItemChanged(index)
-                                }
-                            }
-                        }
-                    }
-                    WebexRepository.SpaceEvent.CallEnded -> {
-                        if (it.second is String?) {
-                            val spaceId = it.second as String?
-                            spaceId?.let {
-                                val index = spacesClientAdapter.getPositionById(it)
-                                if (!spacesClientAdapter.spaces.isNullOrEmpty() && index != -1) {
-                                    val space = spacesClientAdapter.spaces[index]
-                                    Log.d(TAG, "Space event ${space.title} is CallEnded")
-                                    val inCallSpace = SpaceModel(spaceId, space.title.removeSuffix(addOnCallSuffix), space.spaceType, space.isLocked, space.lastActivity, space.created, space.teamId, space.sipAddress)
-                                    spacesClientAdapter.spaces[index] = inCallSpace
-                                    spacesClientAdapter.notifyItemChanged(index)
-                                }
-                            }
+                }
+
+                override fun onCallEnded(spaceId: String) {
+                    val index = spacesClientAdapter.getPositionById(spaceId)
+                    if (!spacesClientAdapter.spaces.isNullOrEmpty() && index != -1) {
+                        val space = spacesClientAdapter.spaces[index]
+                        Log.d(TAG, "Space event ${space.title} is CallEnded")
+                        val inCallSpace = SpaceModel(spaceId, space.title.removeSuffix(addOnCallSuffix), space.spaceType, space.isLocked, space.lastActivity, space.created, space.teamId, space.sipAddress)
+                        spacesClientAdapter.spaces[index] = inCallSpace
+                        activity?.runOnUiThread {
+                            spacesClientAdapter.notifyItemChanged(index)
                         }
                     }
                 }

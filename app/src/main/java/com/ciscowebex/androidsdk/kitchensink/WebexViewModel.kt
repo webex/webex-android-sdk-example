@@ -45,6 +45,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     val _stopShareLiveData = MutableLiveData<Boolean>()
     val _setCompositeLayoutLiveData = MutableLiveData<Pair<Boolean, String>>()
     val _setRemoteVideoRenderModeLiveData = MutableLiveData<Pair<Boolean, String>>()
+    val _forceSendingVideoLandscapeLiveData = MutableLiveData<Boolean>()
 
     var callMembershipsLiveData: LiveData<List<CallMembership>> = _callMembershipsLiveData
     val muteAllLiveData: LiveData<Boolean> = _muteAllLiveData
@@ -55,6 +56,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     val stopShareLiveData: LiveData<Boolean> = _stopShareLiveData
     val setCompositeLayoutLiveData: LiveData<Pair<Boolean, String>> = _setCompositeLayoutLiveData
     val setRemoteVideoRenderModeLiveData: LiveData<Pair<Boolean, String>> = _setRemoteVideoRenderModeLiveData
+    val forceSendingVideoLandscapeLiveData: LiveData<Boolean> = _forceSendingVideoLandscapeLiveData
 
     private val _incomingListenerLiveData = MutableLiveData<Call?>()
     val incomingListenerLiveData: LiveData<Call?> = _incomingListenerLiveData
@@ -77,6 +79,8 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     var callObserverInterface: CallObserverInterface? = null
 
     var isVideoViewsSwapped: Boolean = true
+
+    var isSendingVideoForceLandscape: Boolean = false
 
     var callCapability: WebexRepository.CallCap
         get() = repository.callCapability
@@ -703,6 +707,18 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     fun setVideoRenderViews(callId: String, localVideoView: View, remoteVideoView: View) {
         getCall(callId)?.setVideoRenderViews(Pair(localVideoView, remoteVideoView))
+    }
+
+    fun forceSendingVideoLandscape(callId: String, forceLandscape: Boolean) {
+        getCall(callId)?.forceSendingVideoLandscape(forceLandscape, CompletionHandler { result ->
+            if (result.isSuccessful) {
+                Log.d(tag, "forceSendingVideoLandscape Lambda isSuccessful")
+                _forceSendingVideoLandscapeLiveData.postValue(true)
+            } else {
+                Log.d(tag, "forceSendingVideoLandscape Lambda error: ${result.error?.errorMessage}")
+                _forceSendingVideoLandscapeLiveData.postValue(false)
+            }
+        })
     }
 
     fun getSharingRenderView(callId: String): View? {

@@ -17,7 +17,8 @@ class CallBottomSheetFragment(val receivingVideoClickListener: (Call?) -> Unit,
                               val scalingModeClickListener: (Call?) -> Unit,
                               val virtualBackgroundOptionsClickListener: (Call?) -> Unit,
                               val compositeStreamLayoutClickListener: (Call?) -> Unit,
-                              val swapVideoClickListener: (Call?) -> Unit): BottomSheetDialogFragment() {
+                              val swapVideoClickListener: (Call?) -> Unit,
+                              val forceLandscapeClickListener: (Call?) -> Unit): BottomSheetDialogFragment() {
     companion object {
         val TAG = "MessageActionBottomSheetFragment"
     }
@@ -27,6 +28,7 @@ class CallBottomSheetFragment(val receivingVideoClickListener: (Call?) -> Unit,
     lateinit var scalingModeValue: Call.VideoRenderMode
     lateinit var compositeLayoutValue: MediaOption.CompositedVideoLayout
     lateinit var streamMode: Phone.VideoStreamMode
+    var isSendingVideoForceLandscape: Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return BottomSheetCallOptionsBinding.inflate(inflater, container, false).also { binding = it }.apply {
@@ -136,6 +138,18 @@ class CallBottomSheetFragment(val receivingVideoClickListener: (Call?) -> Unit,
             swapVideo.setOnClickListener {
                 dismiss()
                 swapVideoClickListener(call)
+            }
+
+            var sendingVideoforceLandscapeText = getString(R.string.sending_video_force_landscape)
+            sendingVideoforceLandscapeText += if (isSendingVideoForceLandscape) {
+                " - " + getString(R.string.receiving_on)
+            } else {
+                " - " + getString(R.string.receiving_off)
+            }
+            sendingVideoforceLandscape.text = sendingVideoforceLandscapeText
+            sendingVideoforceLandscape.setOnClickListener {
+                dismiss()
+                forceLandscapeClickListener(call)
             }
 
             bgOptionsBtn.setOnClickListener {
