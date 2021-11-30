@@ -141,7 +141,7 @@
             android:id="@+id/swapVideo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@android:color/holo_orange_dark"
+            android:background="@color/green"
             android:paddingVertical="@dimen/size_8dp"
             android:text="@string/swap_video"
             android:textAlignment="center"
@@ -160,6 +160,28 @@
             app:layout_constraintTop_toBottomOf="@id/swapVideo" />
 
         <TextView
+            android:id="@+id/sendingVideoforceLandscape"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/blue"
+            android:paddingVertical="@dimen/size_8dp"
+            android:text="@string/sending_video_force_landscape"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/swapVideoSeparator" />
+
+        <View
+            android:id="@+id/forceLandscapeSeparator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sendingVideoforceLandscape" />
+
+        <TextView
             android:id="@+id/cancel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -170,6 +192,6 @@
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/swapVideoSeparator" />
+            app:layout_constraintTop_toTopOf="@id/forceLandscapeSeparator" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

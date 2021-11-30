@@ -12,6 +12,7 @@ import com.ciscowebex.androidsdk.auth.PhoneServiceRegistrationFailureReason
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
 import com.ciscowebex.androidsdk.calendarMeeting.CalendarMeetingObserver
+import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.listeners.SpaceEventListener
 import com.ciscowebex.androidsdk.membership.Membership
 import com.ciscowebex.androidsdk.membership.MembershipObserver
 import com.ciscowebex.androidsdk.message.LocalFile
@@ -132,6 +133,7 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
     var _stopShareLiveData: MutableLiveData<Boolean>? = null
 
     var _spaceEventLiveData: MutableLiveData<Pair<SpaceEvent, Any?>>? = null
+    var spaceEventListener : SpaceEventListener? = null
     var _membershipEventLiveData: MutableLiveData<Pair<MembershipEvent, Membership?>>? = null
     var _messageEventLiveData: MutableLiveData<Pair<MessageEvent, Any?>>? = null
     var _calendarMeetingEventLiveData: MutableLiveData<Pair<CalendarMeetingEvent, Any>>? = null
@@ -160,7 +162,7 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
     }
 
     fun clearSpaceData(){
-        _spaceEventLiveData = null
+        spaceEventListener = null
     }
 
     fun setSpaceObserver() {
@@ -169,20 +171,20 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
                 Log.d(tag, "onEvent: $event with actorID : ${event.getActorId().orEmpty()}")
                 when (event) {
                     is SpaceObserver.SpaceCallStarted -> {
-                        _spaceEventLiveData?.postValue(Pair(SpaceEvent.CallStarted, event.getSpaceId()))
+                        spaceEventListener?.onCallStarted(event.getSpaceId() ?: "")
                         isSpaceCallStarted = true
                         spaceCallId = event.getSpaceId()
                     }
                     is SpaceObserver.SpaceCallEnded -> {
-                        _spaceEventLiveData?.postValue(Pair(SpaceEvent.CallEnded, event.getSpaceId()))
+                        spaceEventListener?.onCallEnded(event.getSpaceId() ?: "")
                         isSpaceCallStarted = false
                         spaceCallId = null
                     }
                     is SpaceObserver.SpaceCreated -> {
-                        _spaceEventLiveData?.postValue(Pair(SpaceEvent.Created, event.getSpace()))
+                        event.getSpace()?.let { spaceEventListener?.onCreate(it) }
                     }
                     is SpaceObserver.SpaceUpdated -> {
-                        _spaceEventLiveData?.postValue(Pair(SpaceEvent.Updated, event.getSpace()))
+                        event.getSpace()?.let { spaceEventListener?.onUpdate(it) }
                     }
                 }
             }

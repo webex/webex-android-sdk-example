@@ -505,6 +505,12 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             }
         })
 
+        webexViewModel.forceSendingVideoLandscapeLiveData.observe(viewLifecycleOwner, Observer { result ->
+            if (result) {
+                webexViewModel.isSendingVideoForceLandscape = !webexViewModel.isSendingVideoForceLandscape
+            }
+        })
+
         webexViewModel.virtualBgError.observe(viewLifecycleOwner, Observer { error ->
             Log.d(tag, error)
             requireContext().toast(error)
@@ -782,7 +788,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 { call -> scalingModeClickListener(call) },
                 { call -> virtualBackgroundOptionsClickListener(call) },
                 { call -> compositeStreamLayoutClickListener(call) },
-                { call -> swapVideoClickListener(call) })
+                { call -> swapVideoClickListener(call) },
+                { call -> forceLandscapeClickListener(call) })
 
         callingActivity = activity?.intent?.getIntExtra(Constants.Intent.CALLING_ACTIVITY_ID, 0)!!
         if (callingActivity == 1) {
@@ -1690,6 +1697,12 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         }
     }
 
+    private fun forceLandscapeClickListener(call: Call?) {
+        Log.d(TAG, "forceLandscapeClickListener isSendingVideoForceLandscape: ${webexViewModel.isSendingVideoForceLandscape}")
+        val value = !webexViewModel.isSendingVideoForceLandscape
+        webexViewModel.forceSendingVideoLandscape(webexViewModel.currentCallId.orEmpty(), value)
+    }
+
     private fun compositeStreamLayoutClickListener(call: Call?) {
         Log.d(TAG, "compositeStreamLayoutClickListener getCompositedLayout: ${webexViewModel.getCompositedLayout()}")
 
@@ -1743,6 +1756,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         callOptionsBottomSheetFragment.scalingModeValue = webexViewModel.scalingMode
         callOptionsBottomSheetFragment.compositeLayoutValue = webexViewModel.compositedVideoLayout
         callOptionsBottomSheetFragment.streamMode = webexViewModel.streamMode
+        callOptionsBottomSheetFragment.isSendingVideoForceLandscape = webexViewModel.isSendingVideoForceLandscape
         activity?.supportFragmentManager?.let { callOptionsBottomSheetFragment.show(it, CallBottomSheetFragment.TAG) }
     }
 

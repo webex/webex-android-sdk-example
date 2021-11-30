@@ -255,6 +255,7 @@
     <string name="let_in_confirmation">Do you want to let in this participant?</string>
     <string name="composite_stream">Composite Layout</string>
     <string name="swap_video">Swap Video</string>
+    <string name="sending_video_force_landscape">Video Force Landscape</string>
     <string name="composite_stream_filmstrip">FILMSTRIP</string>
     <string name="composite_stream_single">SINGLE</string>
     <string name="composite_stream_grid">GRID</string>

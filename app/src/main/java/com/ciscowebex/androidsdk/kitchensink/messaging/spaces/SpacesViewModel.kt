@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.ciscowebex.androidsdk.kitchensink.BaseViewModel
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
+import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.listeners.SpaceEventListener
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipModel
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipRepository
 import com.ciscowebex.androidsdk.kitchensink.messaging.teams.TeamsRepository
@@ -38,13 +39,7 @@ class SpacesViewModel(private val spacesRepo: SpacesRepository,
     private val _deleteSpace = MutableLiveData<String>()
     val deleteSpace: LiveData<String> = _deleteSpace
 
-    private val _spaceEventLiveData = MutableLiveData<Pair<WebexRepository.SpaceEvent, Any?>>()
-
     private val addOnCallSuffix = " (On Call)"
-
-    init {
-        webexRepository._spaceEventLiveData = _spaceEventLiveData
-    }
 
     override fun onCleared() {
         webexRepository.clearSpaceData()
@@ -65,7 +60,9 @@ class SpacesViewModel(private val spacesRepo: SpacesRepository,
         }) { _spaces.postValue(spaces.value)}.autoDispose()
     }
 
-    fun getSpaceEvent() = webexRepository._spaceEventLiveData
+    fun setSpaceEventListener(listener : SpaceEventListener) {
+        webexRepository.spaceEventListener = listener
+    }
 
     fun getSpacesList(maxSpaces: Int) {
         spacesRepo.fetchSpacesList(null, maxSpaces).observeOn(AndroidSchedulers.mainThread()).subscribe({ spacesList ->
