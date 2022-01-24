@@ -256,6 +256,18 @@
     <string name="composite_stream">Composite Layout</string>
     <string name="swap_video">Swap Video</string>
     <string name="sending_video_force_landscape">Video Force Landscape</string>
+    <string name="call_camera_options">Camera Options</string>
+    <string name="zoom_factor">Zoom Factor</string>
+    <string name="torch_mode">Torch Mode</string>
+    <string name="flash_mode">Flash Mode</string>
+    <string name="mode_on">ON</string>
+    <string name="mode_off">OFF</string>
+    <string name="mode_auto">AUTO</string>
+    <string name="mode_unknown">UNKNOWN</string>
+    <string name="camera_focus">Camera Focus</string>
+    <string name="camera_custom_exposure">Custom Exposure</string>
+    <string name="camera_auto_exposure">Auto Exposure</string>
+    <string name="camera_take_photo">Take Photo</string>
     <string name="composite_stream_filmstrip">FILMSTRIP</string>
     <string name="composite_stream_single">SINGLE</string>
     <string name="composite_stream_grid">GRID</string>
@@ -324,4 +336,12 @@
     <string name="upcoming_meetings">Upcoming Meetings</string>
     <string name="tomorrow">Tomorrow</string>
     <string name="all">All</string>
+    <string name="show_transcriptions">Show Transcriptions</string>
+    <string name="closed_captions">Closed Captions</string>
+    <string name="enable_webex_assistant">Enable Webex Assistant</string>
+    <string name="sort_by_last_activity">Sort By Last Activity</string>
+    <string name="sort_by_created_date">Sort By Created Time</string>
+    <string name="sort_by_id">Sort By Id</string>
+    <string name="sort_by_none">Sort By None</string>
+    <string name="space_filter">Filter</string>
 </resources>

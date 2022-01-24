@@ -8,6 +8,7 @@ import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpaceModel
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpacesRepository
 import com.ciscowebex.androidsdk.space.Space
+import com.ciscowebex.androidsdk.space.SpaceClient
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 class SearchViewModel(private val searchRepo: SearchRepository, private val spacesRepo: SpacesRepository, private val webexRepo: WebexRepository) : BaseViewModel() {
@@ -46,7 +47,7 @@ class SearchViewModel(private val searchRepo: SearchRepository, private val spac
                 search("")
             }
             SearchCommonFragment.Companion.TaskType.TaskListSpaces -> {
-                spacesRepo.fetchSpacesList(null, maxSpaceCount).observeOn(AndroidSchedulers.mainThread()).subscribe({ spacesList ->
+                spacesRepo.fetchSpacesList(null, maxSpaceCount, SpaceClient.SortBy.NONE).observeOn(AndroidSchedulers.mainThread()).subscribe({ spacesList ->
                     _spaces.postValue(spacesList)
                 }, { _spaces.postValue(emptyList()) }).autoDispose()
             }

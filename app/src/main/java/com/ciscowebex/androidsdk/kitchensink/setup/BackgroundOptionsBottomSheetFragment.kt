@@ -14,7 +14,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.databinding.BottomSheetVirtualBackgroundItemAddBinding
@@ -27,7 +26,6 @@ import com.ciscowebex.androidsdk.kitchensink.utils.PermissionsHelper
 import com.ciscowebex.androidsdk.phone.Phone
 import com.ciscowebex.androidsdk.phone.VirtualBackground
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.gson.Gson
 import org.koin.android.ext.android.inject
 import java.io.File
 
@@ -272,14 +270,12 @@ class BackgroundOptionsBottomSheetFragment(
     }
 
     private fun addUriToList(uri: Uri) {
-        val filePath = FileUtils.getUploadUriPath(requireContext(), uri)
-        filePath?.let {
-            val file = File(it)
-            Log.d(TAG, "PICKFILE_REQUEST_CODE filePath: $it")
-            Log.d(TAG, "PICKFILE_REQUEST_CODE file Exist: ${file.exists()}")
+        val filePath = FileUtils.getPath(requireContext(), uri)
+        val file = File(filePath)
+        Log.d(tag, "PICKFILE_REQUEST_CODE filePath: $filePath")
+        Log.d(TAG, "PICKFILE_REQUEST_CODE file Exist: ${file.exists()}")
 
-            onNewBackgroundAdded(file)
-        }
+        onNewBackgroundAdded(file)
     }
 
     private fun checkReadStoragePermissions(): Boolean {

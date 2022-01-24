@@ -55,7 +55,7 @@ class TeamsFragment : Fragment() {
             lifecycleOwner = this@TeamsFragment
 
             swipeContainer.setOnRefreshListener {
-                teamsViewModel.getTeamsList(resources.getInteger(R.integer.team_list_size))
+                teamsViewModel.getTeamsList(Constants.DefaultMax.TEAM_MAX)
             }
 
             teamsViewModel.teams.observe(this@TeamsFragment.viewLifecycleOwner, Observer { list ->
@@ -91,7 +91,7 @@ class TeamsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        teamsViewModel.getTeamsList(resources.getInteger(R.integer.team_list_size))
+        teamsViewModel.getTeamsList(Constants.DefaultMax.TEAM_MAX)
     }
 
     private fun showAddTeamDialog() {

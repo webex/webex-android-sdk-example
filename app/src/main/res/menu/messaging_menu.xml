@@ -6,4 +6,30 @@
         android:orderInCategory="100"
         android:title="@string/space_read_status"
         android:checkable="true" />
+    <item
+        android:id="@+id/spaceSortByLastActivity"
+        android:orderInCategory="100"
+        android:title="@string/sort_by_last_activity"
+        android:checkable="false" />
+    <item
+        android:id="@+id/spaceSortByCreatedTime"
+        android:orderInCategory="100"
+        android:title="@string/sort_by_created_date"
+        android:checkable="false" />
+    <item
+        android:id="@+id/spaceSortById"
+        android:orderInCategory="100"
+        android:title="@string/sort_by_id"
+        android:checkable="false" />
+    <item
+        android:id="@+id/spaceSortByNone"
+        android:orderInCategory="100"
+        android:title="@string/sort_by_none"
+        android:checkable="false" />
+    <item
+        android:id="@+id/spaceFilter"
+        android:orderInCategory="100"
+        android:title="@string/space_filter"
+        android:checkable="false" />
+
 </menu>

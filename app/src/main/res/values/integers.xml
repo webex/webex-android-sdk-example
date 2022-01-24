@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="team_list_size">20</integer>
     <integer name="space_list_size">100</integer>
     <integer name="membership_list_size">20</integer>
     <integer name="person_list_size">50</integer>

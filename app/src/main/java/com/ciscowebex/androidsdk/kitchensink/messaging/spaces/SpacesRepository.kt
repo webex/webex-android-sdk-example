@@ -9,9 +9,9 @@ import io.reactivex.Observable
 import io.reactivex.Single
 
 class SpacesRepository(private val webex: Webex) : MessagingRepository(webex) {
-    fun fetchSpacesList(teamId: String?, maxSpaces: Int): Observable<List<SpaceModel>> {
+    fun fetchSpacesList(teamId: String?, maxSpaces: Int, sortBy: SortBy): Observable<List<SpaceModel>> {
         return Single.create<List<SpaceModel>> { emitter ->
-            webex.spaces.list(teamId, maxSpaces, null, SortBy.ID, CompletionHandler { result ->
+            webex.spaces.list(teamId, maxSpaces, null, sortBy, CompletionHandler { result ->
                 if (result.isSuccessful) {
                     emitter.onSuccess(result.data?.map {
                         SpaceModel.convertToSpaceModel(it)

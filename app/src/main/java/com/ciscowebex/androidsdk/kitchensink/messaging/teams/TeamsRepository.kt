@@ -64,11 +64,11 @@ class TeamsRepository(private val webex: Webex) : MessagingRepository(webex) {
         }.toObservable()
     }
 
-    fun deleteTeamWithId(teamId: String): Observable<Void> {
-        return Completable.create { emitter ->
+    fun deleteTeamWithId(teamId: String): Observable<Boolean> {
+        return Single.create<Boolean> { emitter ->
             webex.teams.delete(teamId, CompletionHandler { result ->
                 if (result.isSuccessful) {
-                    emitter.onComplete()
+                    emitter.onSuccess(true)
                 } else {
                     emitter.onError(Throwable(result.error?.errorMessage))
                 }
