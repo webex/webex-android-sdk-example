@@ -34,32 +34,13 @@ This demo support Android device with **Android 7.0** or later
 
 ## Integration
 
-### Option 1
-1. Put AAR file in libs folder of your Android project
-2. Open the project level Gradle file and add the following lines under the repositories tag, which is nested under allprojects.
-
-      ```
-      allprojects {
-        repositories {
-            jcenter()
-            google()
-            flatDir { dirs 'aars'} //add this line
-        }
-      }
-      ```
-3. Add the following dependency in module level Gradle file and press sync-now
-   ```
-   implementation files('libs/WebexSDK.aar')
-   ```
-### Option 2
-
    1. Add the following repository to your top-level `build.gradle` file:
         ```
         allprojects {
             repositories {
                 jcenter()
                 maven {
-                    url 'https://devhub.cisco.com/artifactory/webexsdk/'
+                    url 'https://devhub.cisco.com/artifactory/webexsdk-SNAPSHOT/'
                 }
             }
         }
@@ -68,7 +49,7 @@ This demo support Android device with **Android 7.0** or later
 
         ```
         dependencies {
-            implementation 'com.ciscowebex:androidsdk:3.2.1@aar'
+            implementation 'com.ciscowebex:androidsdk:3.3.0-SNAPSHOT@aar'
         }
         ```
 
