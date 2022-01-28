@@ -18,9 +18,10 @@ class CallBottomSheetFragment(val receivingVideoClickListener: (Call?) -> Unit,
                               val virtualBackgroundOptionsClickListener: (Call?) -> Unit,
                               val compositeStreamLayoutClickListener: (Call?) -> Unit,
                               val swapVideoClickListener: (Call?) -> Unit,
-                              val forceLandscapeClickListener: (Call?) -> Unit): BottomSheetDialogFragment() {
+                              val forceLandscapeClickListener: (Call?) -> Unit,
+                              val sendDTMFClickListener: (Call?) -> Unit): BottomSheetDialogFragment() {
     companion object {
-        val TAG = "MessageActionBottomSheetFragment"
+        val TAG = "CallBottomSheetFragment"
     }
 
     private lateinit var binding: BottomSheetCallOptionsBinding
@@ -156,7 +157,29 @@ class CallBottomSheetFragment(val receivingVideoClickListener: (Call?) -> Unit,
                 dismiss()
                 virtualBackgroundOptionsClickListener(call)
             }
+            val showDTMFOption = call?.isSendingDTMFEnabled() ?: false
+
+            if (showDTMFOption) {
+                sendDTMF.visibility = View.VISIBLE
+            } else {
+                sendDTMF.visibility = View.GONE
+            }
+            sendDTMF.setOnClickListener {
+                dismiss()
+                sendDTMFClickListener(call)
+            }
+
             cancel.setOnClickListener { dismiss() }
         }.root
+    }
+
+    fun isDTMFOptionEnabled() : Boolean {
+        if (::binding.isInitialized) {
+            if (binding.sendDTMF.visibility == View.VISIBLE) {
+                return true
+            }
+        }
+
+        return false
     }
 }

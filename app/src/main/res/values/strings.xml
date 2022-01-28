@@ -281,6 +281,7 @@
     <string name="meeting_pin_required">Please enter meeting password</string>
     <string name="enter_host_key">Enter host key</string>
     <string name="enter_user_email_address">Enter email address of user</string>
+    <string name="enter_dtmf_number">Enter DTMF number</string>
     <string name="mute_feature_is_not_available_for_cucm_calls">Mute feature is not available for CUCM calls</string>
     <string name="set_log_level">Set Log Level</string>
     <string name="enable_console_log">Enable Console Log</string>
@@ -324,4 +325,5 @@
     <string name="upcoming_meetings">Upcoming Meetings</string>
     <string name="tomorrow">Tomorrow</string>
     <string name="all">All</string>
+    <string name="send_dtmf">Send DTMF</string>
 </resources>

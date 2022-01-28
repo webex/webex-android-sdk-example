@@ -7,6 +7,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Notification
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
@@ -59,6 +60,7 @@ import com.ciscowebex.androidsdk.kitchensink.databinding.DialogEnterMeetingPinBi
 import com.ciscowebex.androidsdk.kitchensink.setup.BackgroundOptionsBottomSheetFragment
 import com.ciscowebex.androidsdk.kitchensink.utils.extensions.toast
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
+import com.ciscowebex.androidsdk.kitchensink.utils.showDialogForDTMF
 import com.ciscowebex.androidsdk.message.LocalFile
 import com.ciscowebex.androidsdk.phone.VirtualBackground
 import com.ciscowebex.androidsdk.utils.internal.MimeUtils
@@ -172,7 +174,6 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
         onCallConnected(call?.getCallId().orEmpty())
         ringerManager.stopRinger(if (isIncomingActivity) RingerManager.RingerType.Incoming else RingerManager.RingerType.Outgoing)
-        webexViewModel.sendDTMF(call?.getCallId().orEmpty(), "2")
         webexViewModel.sendFeedback(call?.getCallId().orEmpty(), 5, "Testing Comments SDK-v3")
         webexViewModel.setShareMaxCaptureFPSSetting(5)
     }
@@ -267,6 +268,12 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         Handler(Looper.getMainLooper()).post {
             call?.let { _call ->
                 binding.ibHoldCall.isSelected = _call.isOnHold()
+                Log.d(TAG, "CallObserver onInfoChanged isSendingDTMFEnabled : " + _call.isSendingDTMFEnabled())
+
+                if (_call.isSendingDTMFEnabled() && !callOptionsBottomSheetFragment.isDTMFOptionEnabled()) {
+                    Log.d(TAG, "CallObserver onInfoChanged DTMF Enabled")
+                    Toast.makeText(activity, "DTMF Option Enabled", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
@@ -789,7 +796,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 { call -> virtualBackgroundOptionsClickListener(call) },
                 { call -> compositeStreamLayoutClickListener(call) },
                 { call -> swapVideoClickListener(call) },
-                { call -> forceLandscapeClickListener(call) })
+                { call -> forceLandscapeClickListener(call) },
+                { call -> sendDTMFClickListener(call) })
 
         callingActivity = activity?.intent?.getIntExtra(Constants.Intent.CALLING_ACTIVITY_ID, 0)!!
         if (callingActivity == 1) {
@@ -1701,6 +1709,16 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         Log.d(TAG, "forceLandscapeClickListener isSendingVideoForceLandscape: ${webexViewModel.isSendingVideoForceLandscape}")
         val value = !webexViewModel.isSendingVideoForceLandscape
         webexViewModel.forceSendingVideoLandscape(webexViewModel.currentCallId.orEmpty(), value)
+    }
+
+    private fun sendDTMFClickListener(call: Call?) {
+        Log.d(TAG, "sendDTMFClickListener")
+        showDialogForDTMF(requireContext(), getString(R.string.enter_dtmf_number), onPositiveButtonClick = { dialog: DialogInterface, number: String ->
+            webexViewModel.sendDTMF(webexViewModel.currentCallId.orEmpty(), number)
+            dialog.dismiss()
+        }, onNegativeButtonClick = { dialog: DialogInterface, _: Int ->
+            dialog.dismiss()
+        })
     }
 
     private fun compositeStreamLayoutClickListener(call: Call?) {

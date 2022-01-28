@@ -42,10 +42,25 @@ fun showDialogForInputEmail(context: Context, title: String, positiveButtonText:
             .setTitle(title)
             .setView(input)
             .setPositiveButton(positiveButtonText) { dialogInterface: DialogInterface, i: Int ->
-                val email = input.text.toString();
+                val email = input.text.toString()
                 onPositiveButtonClick(dialogInterface, email)
             }
             .setNegativeButton(negativeButtonText, onNegativeButtonClick)
             .show()
+}
+
+fun showDialogForDTMF(context: Context, title: String, positiveButtonText: Int = android.R.string.ok,
+                            onPositiveButtonClick: (DialogInterface, String) -> Unit, negativeButtonText: Int = android.R.string.cancel,
+                            onNegativeButtonClick: (DialogInterface, Int) -> Unit) {
+    val input = EditText(context)
+    AlertDialog.Builder(context)
+        .setTitle(title)
+        .setView(input)
+        .setPositiveButton(positiveButtonText) { dialogInterface: DialogInterface, i: Int ->
+            val number = input.text.toString()
+            onPositiveButtonClick(dialogInterface, number)
+        }
+        .setNegativeButton(negativeButtonText, onNegativeButtonClick)
+        .show()
 }
 
