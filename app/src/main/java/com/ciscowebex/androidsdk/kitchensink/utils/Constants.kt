@@ -35,4 +35,8 @@ class Constants {
         const val Email = "Email"
         const val IsVirtualBgAdded = "IsVirtualBgAdded"
     }
+    object DefaultMax {
+        const val SPACE_MAX = 100
+        const val TEAM_MAX = 100
+    }
 }

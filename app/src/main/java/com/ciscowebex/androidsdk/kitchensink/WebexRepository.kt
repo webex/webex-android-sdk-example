@@ -109,7 +109,7 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
     var enableBgStreamtoggle = true
     var enableBgConnectiontoggle = true
     var enablePhoneStatePermission = true
-    var enableHWAcceltoggle = true
+    var enableHWAcceltoggle = false
     var logFilter = LogLevel.ALL.name
     var isConsoleLoggerEnabled = true
     var callCapability: CallCap = CallCap.Audio_Video

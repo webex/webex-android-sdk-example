@@ -31,6 +31,9 @@ import com.ciscowebex.androidsdk.message.LocalFile
 import com.ciscowebex.androidsdk.phone.AdvancedSetting
 import com.ciscowebex.androidsdk.phone.AuxStream
 import com.ciscowebex.androidsdk.phone.VirtualBackground
+import com.ciscowebex.androidsdk.phone.CameraExposureISO
+import com.ciscowebex.androidsdk.phone.CameraExposureDuration
+import com.ciscowebex.androidsdk.phone.CameraExposureTargetBias
 
 
 class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseViewModel() {
@@ -81,6 +84,8 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     var isVideoViewsSwapped: Boolean = true
 
     var isSendingVideoForceLandscape: Boolean = false
+    var torchMode = Call.TorchMode.OFF
+    var flashMode = Call.FlashMode.OFF
 
     var callCapability: WebexRepository.CallCap
         get() = repository.callCapability
@@ -377,6 +382,10 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
             override fun onCpuHitThreshold() {
                 callObserverInterface?.onCpuHitThreshold()
             }
+
+            override fun onPhotoCaptured(imageData: ByteArray?) {
+                callObserverInterface?.onPhotoCaptured(imageData)
+            }
         })
     }
 
@@ -457,6 +466,10 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
                 Log.d(tag, "sendDTMF error: ${result.error?.errorMessage}")
             }
         })
+    }
+
+    fun cancel() {
+        webex.phone.cancel()
     }
 
     fun hangup(callId: String) {
@@ -824,6 +837,8 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         webex.authenticator?.let {
             if (it is TokenAuthenticator) {
                 it.setOnTokenExpiredListener(CompletionHandler {
+                    // Handle when auth token has expired.
+                    // When a token expires, new instances of `Webex` and `Authenticator` need to be created and used with a new token
                     Log.d(tag, "KS setOnTokenExpiredListener")
                     _signOutListenerLiveData.postValue(it.isSuccessful)
                 })
@@ -882,5 +897,57 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     fun getMaxVirtualBackgrounds(): Int {
         return repository.getMaxVirtualBackgrounds()
+    }
+
+    fun setCameraFocusAtPoint(pointX: Float, pointY: Float): Boolean {
+        return getCall(currentCallId.orEmpty())?.setCameraFocusAtPoint(pointX, pointY) ?: false
+    }
+
+    fun setCameraFlashMode(mode: Call.FlashMode): Boolean {
+        return getCall(currentCallId.orEmpty())?.setCameraFlashMode(mode) ?: false
+    }
+
+    fun getCameraFlashMode(): Call.FlashMode {
+        return getCall(currentCallId.orEmpty())?.getCameraFlashMode() ?: Call.FlashMode.OFF
+    }
+
+    fun setCameraTorchMode(mode: Call.TorchMode): Boolean {
+        return getCall(currentCallId.orEmpty())?.setCameraTorchMode(mode) ?: false
+    }
+
+    fun getCameraTorchMode(): Call.TorchMode {
+        return getCall(currentCallId.orEmpty())?.getCameraTorchMode() ?: Call.TorchMode.OFF
+    }
+
+    fun getCameraExposureDuration(): CameraExposureDuration? {
+        return getCall(currentCallId.orEmpty())?.getCameraExposureDuration()
+    }
+
+    fun getCameraExposureISO(): CameraExposureISO? {
+        return getCall(currentCallId.orEmpty())?.getCameraExposureISO()
+    }
+
+    fun getCameraExposureTargetBias(): CameraExposureTargetBias? {
+        return getCall(currentCallId.orEmpty())?.getCameraExposureTargetBias()
+    }
+
+    fun setCameraCustomExposure(duration: Double, iso: Float): Boolean {
+        return getCall(currentCallId.orEmpty())?.setCameraCustomExposure(duration, iso) ?: false
+    }
+
+    fun setCameraAutoExposure(targetBias: Float): Boolean {
+        return getCall(currentCallId.orEmpty())?.setCameraAutoExposure(targetBias) ?: false
+    }
+
+    fun setVideoZoomFactor(factor: Float): Boolean {
+        return getCall(currentCallId.orEmpty())?.setVideoZoomFactor(factor) ?: false
+    }
+
+    fun getVideoZoomFactor(): Float {
+        return getCall(currentCallId.orEmpty())?.getVideoZoomFactor() ?: 1.0f
+    }
+
+    fun takePhoto(): Boolean {
+        return getCall(currentCallId.orEmpty())?.takePhoto() ?: false
     }
 }

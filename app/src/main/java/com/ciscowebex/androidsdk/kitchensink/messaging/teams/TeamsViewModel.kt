@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.ciscowebex.androidsdk.kitchensink.BaseViewModel
 import com.ciscowebex.androidsdk.kitchensink.messaging.teams.membership.TeamMembershipModel
 import com.ciscowebex.androidsdk.kitchensink.messaging.teams.membership.TeamMembershipRepository
+import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 class TeamsViewModel(private val teamsRepo: TeamsRepository, private val membershipRepo: TeamMembershipRepository) : BaseViewModel() {
@@ -51,7 +52,7 @@ class TeamsViewModel(private val teamsRepo: TeamsRepository, private val members
     }
 
     private fun refreshTeams() {
-        getTeamsList(0)
+        getTeamsList(Constants.DefaultMax.TEAM_MAX)
     }
 
     fun createMembershipWithEmailId(spaceId: String, emailId: String, isModerator: Boolean) {

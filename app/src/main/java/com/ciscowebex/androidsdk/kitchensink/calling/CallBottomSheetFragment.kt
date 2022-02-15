@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.ciscowebex.androidsdk.kitchensink.databinding.BottomSheetCallOptionsBinding
 import com.ciscowebex.androidsdk.phone.Call
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -11,16 +12,20 @@ import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.phone.MediaOption
 import com.ciscowebex.androidsdk.phone.Phone
 
-class CallBottomSheetFragment(val receivingVideoClickListener: (Call?) -> Unit,
+class CallBottomSheetFragment(val transcriptionClickListener: (Call?) -> Unit,
+                              val toggleWXAClickListener: (Call?) -> Unit,
+                              val receivingVideoClickListener: (Call?) -> Unit,
                               val receivingAudioClickListener: (Call?) -> Unit,
                               val receivingSharingClickListener: (Call?) -> Unit,
                               val scalingModeClickListener: (Call?) -> Unit,
                               val virtualBackgroundOptionsClickListener: (Call?) -> Unit,
                               val compositeStreamLayoutClickListener: (Call?) -> Unit,
                               val swapVideoClickListener: (Call?) -> Unit,
-                              val forceLandscapeClickListener: (Call?) -> Unit): BottomSheetDialogFragment() {
+                              val forceLandscapeClickListener: (Call?) -> Unit,
+                              val cameraOptionsClickListener: (Call?) -> Unit,
+                              val sendDTMFClickListener: (Call?) -> Unit): BottomSheetDialogFragment() {
     companion object {
-        val TAG = "MessageActionBottomSheetFragment"
+        val TAG = "CallBottomSheetFragment"
     }
 
     private lateinit var binding: BottomSheetCallOptionsBinding
@@ -156,7 +161,49 @@ class CallBottomSheetFragment(val receivingVideoClickListener: (Call?) -> Unit,
                 dismiss()
                 virtualBackgroundOptionsClickListener(call)
             }
+
+            cameraOptions.setOnClickListener {
+                dismiss()
+                cameraOptionsClickListener(call)
+            }
+
+            showTranscripts.setOnClickListener {
+                dismiss()
+                transcriptionClickListener(call)
+            }
+
+            enableWXA.text = if (call?.getWXA()?.isEnabled() == true) "Disable Webex Assistant" else "Enable Webex Assistant"
+            enableWXA.setOnClickListener {
+                dismiss()
+                toggleWXAClickListener(call)
+            }
+
+            val canControlWXAStr = if (call?.getWXA()?.canControlWXA() == true) "Can control WXA" else "Can not control WXA"
+            Toast.makeText(activity, canControlWXAStr, Toast.LENGTH_LONG).show()
+
+            val showDTMFOption = call?.isSendingDTMFEnabled() ?: false
+
+            if (showDTMFOption) {
+                sendDTMF.visibility = View.VISIBLE
+            } else {
+                sendDTMF.visibility = View.GONE
+            }
+            sendDTMF.setOnClickListener {
+                dismiss()
+                sendDTMFClickListener(call)
+            }
+
             cancel.setOnClickListener { dismiss() }
         }.root
+    }
+
+    fun isDTMFOptionEnabled() : Boolean {
+        if (::binding.isInitialized) {
+            if (binding.sendDTMF.visibility == View.VISIBLE) {
+                return true
+            }
+        }
+
+        return false
     }
 }

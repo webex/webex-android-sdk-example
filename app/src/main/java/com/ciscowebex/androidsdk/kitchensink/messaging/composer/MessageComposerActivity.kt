@@ -1,5 +1,6 @@
 package com.ciscowebex.androidsdk.kitchensink.messaging.composer
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -24,7 +25,7 @@ import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemUploadAttachmen
 import com.ciscowebex.androidsdk.kitchensink.messaging.composer.MessageComposerViewModel.Companion.MINIMUM_MEMBERS_REQUIRED_FOR_MENTIONS
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.ReplyMessageModel
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
-import com.ciscowebex.androidsdk.kitchensink.utils.FileUtils.getUploadUriPath
+import com.ciscowebex.androidsdk.kitchensink.utils.FileUtils.getPath
 import com.ciscowebex.androidsdk.kitchensink.utils.PermissionsHelper
 import com.ciscowebex.androidsdk.kitchensink.utils.extensions.hideKeyboard
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
@@ -208,16 +209,15 @@ class MessageComposerActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun addUriToList(uri: Uri) {
-        val filePath = getUploadUriPath(this@MessageComposerActivity, uri)
-        filePath?.let {
-            val file = File(it)
-            Log.d(tag, "PICKFILE_REQUEST_CODE filePath: $it")
-            Log.d(tag, "PICKFILE_REQUEST_CODE file Exist: ${file.exists()}")
+        val filePath = getPath(this@MessageComposerActivity, uri)
+        val file = File(filePath)
+        Log.d(tag, "PICKFILE_REQUEST_CODE filePath: $filePath")
+        Log.d(tag, "PICKFILE_REQUEST_CODE file Exist: ${file.exists()}")
 
-            attachmentAdapter.attachedFiles.add(file)
-            attachmentAdapter.notifyDataSetChanged()
-        }
+        attachmentAdapter.attachedFiles.add(file)
+        attachmentAdapter.notifyDataSetChanged()
     }
 
     private fun processAttachmentFiles(): ArrayList<LocalFile> {

@@ -9,6 +9,7 @@ import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.listeners.SpaceEve
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipModel
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipRepository
 import com.ciscowebex.androidsdk.kitchensink.messaging.teams.TeamsRepository
+import com.ciscowebex.androidsdk.space.SpaceClient
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 
@@ -64,8 +65,8 @@ class SpacesViewModel(private val spacesRepo: SpacesRepository,
         webexRepository.spaceEventListener = listener
     }
 
-    fun getSpacesList(maxSpaces: Int) {
-        spacesRepo.fetchSpacesList(null, maxSpaces).observeOn(AndroidSchedulers.mainThread()).subscribe({ spacesList ->
+    fun getSpacesList(maxSpaces: Int, sortBy: SpaceClient.SortBy, teamId: String? = null) {
+        spacesRepo.fetchSpacesList(teamId, maxSpaces, sortBy).observeOn(AndroidSchedulers.mainThread()).subscribe({ spacesList ->
             _spaces.postValue(spacesList)
             getSpacesWithActiveCalls()
         }, { _spaces.postValue(emptyList()) }).autoDispose()
@@ -121,7 +122,7 @@ class SpacesViewModel(private val spacesRepo: SpacesRepository,
     }
 
     private fun refreshSpaces() {
-        getSpacesList(0)
+        getSpacesList(maxSpaces = 100, sortBy = SpaceClient.SortBy.NONE)
     }
 }
 
