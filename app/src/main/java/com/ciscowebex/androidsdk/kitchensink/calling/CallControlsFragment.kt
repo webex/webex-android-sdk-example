@@ -7,6 +7,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Notification
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
@@ -52,18 +53,18 @@ import com.ciscowebex.androidsdk.phone.MultiStreamObserver
 import com.ciscowebex.androidsdk.phone.AuxStream
 import org.koin.android.ext.android.inject
 import android.widget.Toast
-import com.ciscowebex.androidsdk.WebexError
 import com.ciscowebex.androidsdk.CompletionHandler
-import com.ciscowebex.androidsdk.kitchensink.databinding.DialogCreateSpaceBinding
+import com.ciscowebex.androidsdk.WebexError
+import com.ciscowebex.androidsdk.kitchensink.calling.transcription.TranscriptionsDialogFragment
 import com.ciscowebex.androidsdk.kitchensink.databinding.DialogEnterMeetingPinBinding
 import com.ciscowebex.androidsdk.kitchensink.setup.BackgroundOptionsBottomSheetFragment
 import com.ciscowebex.androidsdk.kitchensink.utils.extensions.toast
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
+import com.ciscowebex.androidsdk.kitchensink.utils.showDialogForDTMF
 import com.ciscowebex.androidsdk.message.LocalFile
 import com.ciscowebex.androidsdk.phone.VirtualBackground
 import com.ciscowebex.androidsdk.utils.internal.MimeUtils
 import java.io.File
-import java.lang.Integer.getInteger
 import java.util.Date
 
 
@@ -81,6 +82,9 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     private val ringerManager: RingerManager by inject()
     private val personViewModel : PersonViewModel by inject()
     private lateinit var callOptionsBottomSheetFragment: CallBottomSheetFragment
+    private lateinit var cameraOptionsBottomSheetFragment: CameraOptionsBottomSheetFragment
+    private lateinit var cameraOptionsDataBottomSheetFragment: CameraOptionsDataBottomSheetFragment
+    private lateinit var photoViewerBottomSheetFragment: PhotoViewerBottomSheetFragment
     private lateinit var incomingInfoAdapter: IncomingInfoAdapter
     private val mAuxStreamViewMap: HashMap<View, AuxStreamViewHolder> = HashMap()
     private var callerId: String = ""
@@ -172,9 +176,21 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
         onCallConnected(call?.getCallId().orEmpty())
         ringerManager.stopRinger(if (isIncomingActivity) RingerManager.RingerType.Incoming else RingerManager.RingerType.Outgoing)
-        webexViewModel.sendDTMF(call?.getCallId().orEmpty(), "2")
         webexViewModel.sendFeedback(call?.getCallId().orEmpty(), 5, "Testing Comments SDK-v3")
         webexViewModel.setShareMaxCaptureFPSSetting(5)
+
+        val exposureDuration = webexViewModel.getCameraExposureDuration()
+        val exposureISO = webexViewModel.getCameraExposureISO()
+        val exposureBias = webexViewModel.getCameraExposureTargetBias()
+
+        Log.d(TAG, "CallObserver camera settings: " +
+                "getCameraFlashMode: ${webexViewModel.getCameraFlashMode()} " +
+                "getCameraTorchMode: ${webexViewModel.getCameraTorchMode()} " +
+                "exposureDuration min: ${exposureDuration?.min}, max: ${exposureDuration?.max}, current: ${exposureDuration?.current} " +
+                "exposureISO min: ${exposureISO?.min}, max: ${exposureISO?.max}, current: ${exposureISO?.current} " +
+                "exposureBias min: ${exposureBias?.min}, max: ${exposureBias?.max}, current: ${exposureBias?.current} "+
+                "zoom Factor: ${webexViewModel.getVideoZoomFactor()} ")
+
     }
 
     override fun onRinging(call: Call?) {
@@ -267,6 +283,12 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         Handler(Looper.getMainLooper()).post {
             call?.let { _call ->
                 binding.ibHoldCall.isSelected = _call.isOnHold()
+                Log.d(TAG, "CallObserver onInfoChanged isSendingDTMFEnabled : " + _call.isSendingDTMFEnabled())
+
+                if (_call.isSendingDTMFEnabled() && !callOptionsBottomSheetFragment.isDTMFOptionEnabled()) {
+                    Log.d(TAG, "CallObserver onInfoChanged DTMF Enabled")
+                    Toast.makeText(activity, "DTMF Option Enabled", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
@@ -387,6 +409,15 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
     override fun onCpuHitThreshold() {
         Log.d(TAG, "CallObserver onCpuHitThreshold")
+    }
+
+    override fun onPhotoCaptured(imageData: ByteArray?) {
+        Log.d(TAG, "CallObserver onPhotoCaptured")
+        imageData?.let {
+            Log.d(TAG, "CallObserver onPhotoCaptured imageData Size: ${imageData.size}")
+            photoViewerBottomSheetFragment.imageData = imageData
+            activity?.supportFragmentManager?.let { photoViewerBottomSheetFragment.show(it, PhotoViewerBottomSheetFragment.TAG) }
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -782,14 +813,34 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         incomingInfoAdapter = IncomingInfoAdapter(incomingCallEvent, incomingCallPickEvent, incomingCallCancelEvent)
         binding.incomingRecyclerView.adapter = incomingInfoAdapter
 
-        callOptionsBottomSheetFragment = CallBottomSheetFragment({ call -> receivingVideoListener(call) },
+        callOptionsBottomSheetFragment = CallBottomSheetFragment(
+                { call -> showTranscriptions(call) },
+                { call -> toggleWXAClickListener(call) },
+                { call -> receivingVideoListener(call) },
                 { call -> receivingAudioListener(call) },
                 { call -> receivingSharingListener(call) },
                 { call -> scalingModeClickListener(call) },
                 { call -> virtualBackgroundOptionsClickListener(call) },
                 { call -> compositeStreamLayoutClickListener(call) },
                 { call -> swapVideoClickListener(call) },
-                { call -> forceLandscapeClickListener(call) })
+                { call -> forceLandscapeClickListener(call) },
+                { call -> cameraOptionsClickListener(call) },
+                { call -> sendDTMFClickListener(call) })
+
+        cameraOptionsBottomSheetFragment = CameraOptionsBottomSheetFragment({ call -> zoomFactorClickListener(call) },
+                { call -> torchModeClickListener(call) },
+                { call -> flashModeClickListener(call) },
+                { call -> cameraFocusClickListener(call) },
+                { call -> cameraCustomExposureClickListener(call) },
+                { call -> cameraAutoExposureClickListener(call) },
+                { call -> takePhotoClickListener(call) })
+
+        cameraOptionsDataBottomSheetFragment = CameraOptionsDataBottomSheetFragment ({ x -> zoomfactorValueSetListener(x) },
+            { x, y -> cameraFocusValueSetClickListener(x, y) },
+            { x, y -> cameraCustomExposureValueSetClickListener(x, y) },
+            { x -> cameraAutoExposureValueSetClickListener(x) })
+
+        photoViewerBottomSheetFragment = PhotoViewerBottomSheetFragment()
 
         callingActivity = activity?.intent?.getIntExtra(Constants.Intent.CALLING_ACTIVITY_ID, 0)!!
         if (callingActivity == 1) {
@@ -1653,6 +1704,23 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         }
     }
 
+    private fun showTranscriptions(call: Call?) {
+        Log.d(TAG, "showTranscriptions")
+        call?.let {
+            val bottomSheet =  TranscriptionsDialogFragment()
+            bottomSheet.show(childFragmentManager, TranscriptionsDialogFragment::class.java.simpleName)
+        }
+    }
+
+    private fun toggleWXAClickListener(call: Call?) {
+        if (call?.getWXA()?.canControlWXA() == true) {
+            val isEnabled = call.getWXA().isEnabled()
+            call.getWXA().enableWXA(!isEnabled, CompletionHandler { result ->
+                Log.d(TAG, "enableWXA callback: result ${{result.isSuccessful}} isEnabled ${result.data}")
+            })
+        }
+    }
+
     private fun receivingVideoListener(call: Call?) {
         Log.d(TAG, "receivingVideoListener")
         call?.let {
@@ -1701,6 +1769,114 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         Log.d(TAG, "forceLandscapeClickListener isSendingVideoForceLandscape: ${webexViewModel.isSendingVideoForceLandscape}")
         val value = !webexViewModel.isSendingVideoForceLandscape
         webexViewModel.forceSendingVideoLandscape(webexViewModel.currentCallId.orEmpty(), value)
+    }
+
+    private fun cameraOptionsClickListener(call: Call?) {
+        Log.d(TAG, "cameraOptionsClickListener")
+        showCameraOptionsBottomSheet(call)
+    }
+
+    private fun sendDTMFClickListener(call: Call?) {
+        Log.d(TAG, "sendDTMFClickListener")
+        showDialogForDTMF(requireContext(), getString(R.string.enter_dtmf_number), onPositiveButtonClick = { dialog: DialogInterface, number: String ->
+            webexViewModel.sendDTMF(webexViewModel.currentCallId.orEmpty(), number)
+            dialog.dismiss()
+        }, onNegativeButtonClick = { dialog: DialogInterface, _: Int ->
+            dialog.dismiss()
+        })
+    }
+
+    private fun showCameraOptionsBottomSheetFragment(call: Call?, type: CameraOptionsDataBottomSheetFragment.OptionType, propertyText1: String?, propertyText2: String?, property2Visibility: Boolean) {
+        cameraOptionsDataBottomSheetFragment.call = call
+        cameraOptionsDataBottomSheetFragment.type = type
+        cameraOptionsDataBottomSheetFragment.propertyText = propertyText1
+        cameraOptionsDataBottomSheetFragment.propertyText2 = propertyText2
+        cameraOptionsDataBottomSheetFragment.doMakeProperty2RelLayoutVisible = property2Visibility
+        activity?.supportFragmentManager?.let { cameraOptionsDataBottomSheetFragment.show(it, CameraOptionsDataBottomSheetFragment.TAG) }
+    }
+
+    private fun zoomFactorClickListener(call: Call?) {
+        Log.d(TAG, "zoomFactorClickListener")
+        val propertyText1 = resources.getString(R.string.zoom_factor) + " " + String.format("%.1f", webexViewModel.getVideoZoomFactor())
+        showCameraOptionsBottomSheetFragment(call, CameraOptionsDataBottomSheetFragment.OptionType.ZOOM_FACTOR, propertyText1, null, false)
+    }
+
+    private fun torchModeClickListener(call: Call?) {
+        Log.d(TAG, "torchModeClickListener")
+        if  (webexViewModel.torchMode == Call.TorchMode.OFF) {
+            webexViewModel.torchMode = Call.TorchMode.ON
+        } else if  (webexViewModel.torchMode == Call.TorchMode.ON) {
+            webexViewModel.torchMode = Call.TorchMode.AUTO
+        } else {
+            webexViewModel.torchMode = Call.TorchMode.OFF
+        }
+        val status = webexViewModel.setCameraTorchMode(webexViewModel.torchMode)
+        Log.d(TAG, "torchModeClickListener status: $status")
+    }
+
+    private fun flashModeClickListener(call: Call?) {
+        Log.d(TAG, "flashModeClickListener")
+        if  (webexViewModel.flashMode == Call.FlashMode.OFF) {
+            webexViewModel.flashMode = Call.FlashMode.ON
+        } else if  (webexViewModel.flashMode == Call.FlashMode.ON) {
+            webexViewModel.flashMode = Call.FlashMode.AUTO
+        } else {
+            webexViewModel.flashMode = Call.FlashMode.OFF
+        }
+        val status = webexViewModel.setCameraFlashMode(webexViewModel.flashMode)
+        Log.d(TAG, "flashModeClickListener status: $status")
+    }
+
+    private fun cameraFocusClickListener(call: Call?) {
+        Log.d(TAG, "cameraFocusClickListener")
+        val propertyText1 = resources.getString(R.string.camera_focus) + "\nPointX: "
+        val propertyText2 = "PointY: "
+        showCameraOptionsBottomSheetFragment(call, CameraOptionsDataBottomSheetFragment.OptionType.CAMERA_FOCUS_POINT, propertyText1, propertyText2, true)
+    }
+
+    private fun cameraCustomExposureClickListener(call: Call?) {
+        Log.d(TAG, "cameraCustomExposureClickListener")
+        val propertyText1 = resources.getString(R.string.camera_custom_exposure) + "\nDuration current: " + String.format("%f", webexViewModel.getCameraExposureDuration()?.current) +
+                " \nmin: " + String.format("%f", webexViewModel.getCameraExposureDuration()?.min) + " max: " + String.format("%f", webexViewModel.getCameraExposureDuration()?.max)
+        val propertyText2 = "ISO: " + String.format("%.1f", webexViewModel.getCameraExposureISO()?.current) +
+                " \nmin: " + String.format("%.1f", webexViewModel.getCameraExposureISO()?.min) + " max: " + String.format("%.1f", webexViewModel.getCameraExposureISO()?.max)
+        showCameraOptionsBottomSheetFragment(call, CameraOptionsDataBottomSheetFragment.OptionType.CUSTOM_EXPOSURE, propertyText1, propertyText2, true)
+    }
+
+    private fun cameraAutoExposureClickListener(call: Call?) {
+        Log.d(TAG, "cameraAutoExposureClickListener")
+        val propertyText1 = resources.getString(R.string.camera_auto_exposure) + " " + String.format("%.1f", webexViewModel.getCameraExposureTargetBias()?.current)+
+                " \n min: " + String.format("%.1f", webexViewModel.getCameraExposureTargetBias()?.min) + " max: " + String.format("%.1f", webexViewModel.getCameraExposureTargetBias()?.max)
+        showCameraOptionsBottomSheetFragment(call, CameraOptionsDataBottomSheetFragment.OptionType.AUTO_EXPOSURE, propertyText1, null, false)
+    }
+
+    private fun takePhotoClickListener(call: Call?) {
+        Log.d(TAG, "takePhotoClickListener")
+        webexViewModel.takePhoto()
+    }
+
+    private fun zoomfactorValueSetListener(factor: Float) {
+        Log.d(TAG, "zoomfactorValueSetListener factor: $factor")
+        val status = webexViewModel.setVideoZoomFactor(factor)
+        Log.d(TAG, "zoomfactorValueSetListener factor: $factor status: $status")
+    }
+
+    private fun cameraFocusValueSetClickListener(pointX: Float, pointY: Float) {
+        Log.d(TAG, "cameraFocusValueSetClickListener pointX: $pointX, pointY: $pointY")
+        val status = webexViewModel.setCameraFocusAtPoint(pointX, pointY)
+        Log.d(TAG, "cameraFocusValueSetClickListener status: $status")
+    }
+
+    private fun cameraCustomExposureValueSetClickListener(duration: Double, iso: Float) {
+        Log.d(TAG, "cameraCustomExposureValueSetClickListener duration: $duration, iso: $iso")
+        val status = webexViewModel.setCameraCustomExposure(duration, iso)
+        Log.d(TAG, "cameraCustomExposureValueSetClickListener status: $status")
+    }
+
+    private fun cameraAutoExposureValueSetClickListener(targetBias: Float) {
+        Log.d(TAG, "cameraAutoExposureValueSetClickListener targetBias: $targetBias")
+        val status = webexViewModel.setCameraAutoExposure(targetBias)
+        Log.d(TAG, "cameraAutoExposureValueSetClickListener status: $status")
     }
 
     private fun compositeStreamLayoutClickListener(call: Call?) {
@@ -1758,6 +1934,13 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         callOptionsBottomSheetFragment.streamMode = webexViewModel.streamMode
         callOptionsBottomSheetFragment.isSendingVideoForceLandscape = webexViewModel.isSendingVideoForceLandscape
         activity?.supportFragmentManager?.let { callOptionsBottomSheetFragment.show(it, CallBottomSheetFragment.TAG) }
+    }
+
+    private fun showCameraOptionsBottomSheet(call: Call?) {
+        cameraOptionsBottomSheetFragment.call = call
+        cameraOptionsBottomSheetFragment.torchModeValue = webexViewModel.torchMode
+        cameraOptionsBottomSheetFragment.flashModeValue = webexViewModel.flashMode
+        activity?.supportFragmentManager?.let { cameraOptionsBottomSheetFragment.show(it, CameraOptionsBottomSheetFragment.TAG) }
     }
 
     class IncomingInfoAdapter(private val incomingCallEvent: (Call?) -> Unit, private val IncomingCallPickEvent: (Call?) -> Unit, private val incomingCallCancelEvent: (Call?) -> Unit) : RecyclerView.Adapter<IncomingInfoViewHolder>() {

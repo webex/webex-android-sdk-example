@@ -14,6 +14,7 @@ import androidx.lifecycle.Observer
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.databinding.DialogCreateSpaceBinding
+import com.ciscowebex.androidsdk.kitchensink.databinding.DialogEnterTeamidBinding
 import com.ciscowebex.androidsdk.kitchensink.databinding.FragmentSpacesBinding
 import com.ciscowebex.androidsdk.kitchensink.messaging.search.MessagingSearchActivity
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.adapters.SpaceReadStatusClientAdapter
@@ -25,6 +26,7 @@ import com.ciscowebex.androidsdk.kitchensink.person.PersonModel
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
 import com.ciscowebex.androidsdk.space.Space
+import com.ciscowebex.androidsdk.space.SpaceClient
 import org.koin.android.ext.android.inject
 
 class SpacesFragment : Fragment() {
@@ -38,6 +40,8 @@ class SpacesFragment : Fragment() {
 
     private var selectedSpaceListItem: SpaceModel? = null
     private val addOnCallSuffix = "(On Call)"
+    private val maxSpaces = 100
+    var selectedSortBY: SpaceClient.SortBy = SpaceClient.SortBy.NONE
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return FragmentSpacesBinding.inflate(inflater, container, false).also { binding = it }.apply {
@@ -52,7 +56,7 @@ class SpacesFragment : Fragment() {
             setHasOptionsMenu(true)
 
             swipeContainer.setOnRefreshListener {
-                spacesViewModel.getSpacesList(resources.getInteger(R.integer.space_list_size))
+                spacesViewModel.getSpacesList(maxSpaces, selectedSortBY)
             }
 
             setUpObservers()
@@ -121,11 +125,35 @@ class SpacesFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        item.isChecked = !item.isChecked
-        if (item.isChecked) {
-            binding.spacesRecyclerView.adapter = spacesReadClientAdapter
-        } else {
-            binding.spacesRecyclerView.adapter = spacesClientAdapter
+        when(item.itemId) {
+            R.id.spaceSortById -> {
+                selectedSortBY = SpaceClient.SortBy.ID
+                spacesViewModel.getSpacesList(maxSpaces, SpaceClient.SortBy.ID)
+            }
+            R.id.spaceSortByCreatedTime -> {
+                selectedSortBY = SpaceClient.SortBy.CREATED
+                spacesViewModel.getSpacesList(maxSpaces, SpaceClient.SortBy.CREATED)
+            }
+            R.id.spaceSortByLastActivity -> {
+                selectedSortBY = SpaceClient.SortBy.LASTACTIVITY
+                spacesViewModel.getSpacesList(maxSpaces, SpaceClient.SortBy.LASTACTIVITY)
+            }
+            R.id.spaceSortByNone -> {
+                selectedSortBY = SpaceClient.SortBy.NONE
+                spacesViewModel.getSpacesList(maxSpaces, SpaceClient.SortBy.NONE)
+            }
+            R.id.spaceReadStatus -> {
+                item.isChecked = !item.isChecked
+                if (item.isChecked) {
+                    binding.spacesRecyclerView.adapter = spacesReadClientAdapter
+                } else {
+                    binding.spacesRecyclerView.adapter = spacesClientAdapter
+                }
+            }
+            R.id.spaceFilter -> {
+                showTeamIdInputDialog()
+            }
+
         }
         return super.onOptionsItemSelected(item)
     }
@@ -133,9 +161,8 @@ class SpacesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val maxSpaces = resources.getInteger(R.integer.space_list_size)
         binding.spacesRecyclerView.adapter = spacesClientAdapter
-        spacesViewModel.getSpacesList(maxSpaces)
+        spacesViewModel.getSpacesList(maxSpaces, SpaceClient.SortBy.NONE)
         spacesViewModel.getSpaceReadStatusList(maxSpaces)
     }
 
@@ -284,6 +311,23 @@ class SpacesFragment : Fragment() {
                     builder.setView(this.root)
                     builder.setPositiveButton(android.R.string.ok) { _, _ ->
                         spacesViewModel.addSpace(spaceTitleEditText.text.toString(), null)
+                    }
+                    builder.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
+
+                    builder.show()
+                }
+    }
+
+    private fun showTeamIdInputDialog() {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(requireContext())
+
+        builder.setTitle(R.string.space_filter)
+
+        DialogEnterTeamidBinding.inflate(layoutInflater)
+                .apply {
+                    builder.setView(this.root)
+                    builder.setPositiveButton(android.R.string.ok) { _, _ ->
+                        spacesViewModel.getSpacesList(maxSpaces, SpaceClient.SortBy.NONE, teamIdEditText.text.toString())
                     }
                     builder.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
 

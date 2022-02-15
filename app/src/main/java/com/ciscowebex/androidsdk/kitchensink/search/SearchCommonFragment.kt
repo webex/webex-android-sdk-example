@@ -78,7 +78,7 @@ class SearchCommonFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        searchViewModel.loadData(taskType, resources.getInteger(R.integer.space_list_size))
+        searchViewModel.loadData(taskType, Constants.DefaultMax.SPACE_MAX)
     }
 
     private fun setUpViewModelObservers() {

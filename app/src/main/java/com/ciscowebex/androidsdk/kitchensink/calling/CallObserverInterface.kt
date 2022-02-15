@@ -19,4 +19,5 @@ interface CallObserverInterface {
     fun onCallMembershipChanged(call: Call?, event: CallObserver.CallMembershipChangedEvent?) {}
     fun onScheduleChanged(call: Call?) {}
     fun onCpuHitThreshold() {}
+    fun onPhotoCaptured(imageData: ByteArray?) {}
 }
