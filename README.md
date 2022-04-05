@@ -59,7 +59,7 @@ This demo support Android device with **Android 7.0** or later
             repositories {
                 jcenter()
                 maven {
-                    url 'https://devhub.cisco.com/artifactory/webexsdk/'
+                    url 'https://devhub.cisco.com/artifactory/webexsdk-SNAPSHOT/'
                 }
             }
         }
@@ -68,7 +68,7 @@ This demo support Android device with **Android 7.0** or later
 
         ```
         dependencies {
-            implementation 'com.ciscowebex:androidsdk:3.2.1@aar'
+            implementation 'com.ciscowebex:androidsdk:3.4.0-SNAPSHOT@aar'
         }
         ```
 

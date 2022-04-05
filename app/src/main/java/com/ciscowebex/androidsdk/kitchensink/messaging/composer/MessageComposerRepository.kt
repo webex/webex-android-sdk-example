@@ -12,14 +12,9 @@ import io.reactivex.Single
 
 open class MessageComposerRepository(private val webex: Webex) {
 
-    fun postToSpace(spaceId: String, message: String, plainText: Boolean, mentions: ArrayList<Mention>?, files: ArrayList<LocalFile>?): Observable<Message> {
+    fun postToSpace(spaceId: String, message: Message.Text, mentions: ArrayList<Mention>?, files: ArrayList<LocalFile>?): Observable<Message> {
         return Single.create<Message> { emitter ->
-            val text: Message.Text? = if (plainText) {
-                Message.Text.plain(message)
-            } else {
-                Message.Text.markdown(message, null, null)
-            }
-            webex.messages.postToSpace(spaceId, text, mentions, files, CompletionHandler { result ->
+            webex.messages.postToSpace(spaceId, message, mentions, files, CompletionHandler { result ->
                 if (result.isSuccessful) {
                     emitter.onSuccess(result.data!!)
                 } else {
@@ -29,14 +24,9 @@ open class MessageComposerRepository(private val webex: Webex) {
         }.toObservable()
     }
 
-    fun postToPerson(email: EmailAddress, message: String, plainText: Boolean, files: ArrayList<LocalFile>?): Observable<Message> {
+    fun postToPerson(email: EmailAddress, message: Message.Text, files: ArrayList<LocalFile>?): Observable<Message> {
         return Single.create<Message> { emitter ->
-            val text: Message.Text? = if (plainText) {
-                Message.Text.plain(message)
-            } else {
-                Message.Text.markdown(message, null, null)
-            }
-            webex.messages.postToPerson(email, text, files, CompletionHandler { result ->
+            webex.messages.postToPerson(email, message, files, CompletionHandler { result ->
                 if (result.isSuccessful) {
                     emitter.onSuccess(result.data!!)
                 } else {
@@ -46,14 +36,9 @@ open class MessageComposerRepository(private val webex: Webex) {
         }.toObservable()
     }
 
-    fun postToPerson(id: String, message: String, plainText: Boolean, files: ArrayList<LocalFile>?): Observable<Message> {
+    fun postToPerson(id: String, message: Message.Text, files: ArrayList<LocalFile>?): Observable<Message> {
         return Single.create<Message> { emitter ->
-            val text: Message.Text? = if (plainText) {
-                Message.Text.plain(message)
-            } else {
-                Message.Text.markdown(message, null, null)
-            }
-            webex.messages.postToPerson(id, text, files, CompletionHandler { result ->
+            webex.messages.postToPerson(id, message, files, CompletionHandler { result ->
                 if (result.isSuccessful) {
                     emitter.onSuccess(result.data!!)
                 } else {

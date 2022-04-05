@@ -55,7 +55,8 @@ class SpaceDetailActivity : BaseActivity() {
                     val messageActionBottomSheetFragment = MessageActionBottomSheetFragment({ message -> spaceDetailViewModel.deleteMessage(message) },
                             { message -> spaceDetailViewModel.markMessageAsRead(message) },
                             { message -> replyMessageListener(message) },
-                            { message -> editMessage(message)})
+                            { message -> editMessage(message)},
+                            { message -> fetchMessageBeforeMessageId(message)})
 
                     messageClientAdapter = MessageClientAdapter(messageActionBottomSheetFragment, supportFragmentManager)
                     spaceMessageRecyclerView.adapter = messageClientAdapter
@@ -91,6 +92,10 @@ class SpaceDetailActivity : BaseActivity() {
     private fun editMessage(message: SpaceMessageModel) {
         startActivity(MessageComposerActivity.getIntent(this@SpaceDetailActivity, MessageComposerActivity.Companion.ComposerType.POST_SPACE,
                 spaceDetailViewModel.spaceId, null, message.messageId))
+    }
+
+    private fun fetchMessageBeforeMessageId(message: SpaceMessageModel) {
+        spaceDetailViewModel.getMessages(message.messageId)
     }
 
     override fun onResume() {
@@ -271,6 +276,9 @@ class MessageClientViewHolder(private val binding: ListItemSpaceMessageBinding, 
         when {
             message.messageBody.getMarkdown() != null -> {
                 binding.messageTextView.text =  Html.fromHtml(message.messageBody.getMarkdown(), Html.FROM_HTML_MODE_LEGACY)
+            }
+            message.messageBody.getHtml() != null -> {
+                binding.messageTextView.text =  Html.fromHtml(message.messageBody.getHtml(), Html.FROM_HTML_MODE_LEGACY)
             }
             message.messageBody.getPlain() != null -> {
                 binding.messageTextView.text = message.messageBody.getPlain()

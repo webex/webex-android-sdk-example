@@ -12,7 +12,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 class MessageActionBottomSheetFragment(val deleteMessageClickListener: (SpaceMessageModel) -> Unit,
                                        val markMessageAsReadClickListener: (SpaceMessageModel) -> Unit,
                                        val replyMessageClickListener: (SpaceMessageModel) -> Unit,
-                                       val editMessageClickListener: (SpaceMessageModel) -> Unit) : BottomSheetDialogFragment() {
+                                       val editMessageClickListener: (SpaceMessageModel) -> Unit,
+                                       val fetchByIdClickListener: (SpaceMessageModel) -> Unit) : BottomSheetDialogFragment() {
     companion object {
         val TAG = "MessageActionBottomSheetFragment"
         var selfPersonId : String? = null
@@ -54,6 +55,11 @@ class MessageActionBottomSheetFragment(val deleteMessageClickListener: (SpaceMes
             replyMessage.setOnClickListener {
                 dismiss()
                 replyMessageClickListener(message)
+            }
+
+            fetchById.setOnClickListener {
+                dismiss()
+                fetchByIdClickListener(message)
             }
 
             cancel.setOnClickListener { dismiss() }

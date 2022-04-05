@@ -40,6 +40,7 @@
     <string name="post_message_send_desc">What would you like to say?</string>
     <string name="post_message_send_plain">Plain</string>
     <string name="post_message_send_markdown">Markdown</string>
+    <string name="post_message_send_html">Html</string>
     <string name="send_message">Send Mesage</string>
     <string name="post_message_attach">Attach</string>
     <string name="post_message_error">Send Message Error</string>
@@ -346,4 +347,8 @@
     <string name="sort_by_none">Sort By None</string>
     <string name="space_filter">Filter</string>
     <string name="send_dtmf">Send DTMF</string>
+    <string name="warning">Warning</string>
+    <string name="high_cpu_usage">High CPU Usage</string>
+    <string name="device_limitation">Device limitation</string>
+    <string name="get_previous_message_by_id">Get previous messages by id</string>
 </resources>
