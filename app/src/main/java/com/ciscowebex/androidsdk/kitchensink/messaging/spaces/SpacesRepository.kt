@@ -3,6 +3,7 @@ package com.ciscowebex.androidsdk.kitchensink.messaging.spaces
 import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.Webex
 import com.ciscowebex.androidsdk.kitchensink.messaging.MessagingRepository
+import com.ciscowebex.androidsdk.message.Before
 import com.ciscowebex.androidsdk.space.Space.SpaceType
 import com.ciscowebex.androidsdk.space.SpaceClient.SortBy
 import io.reactivex.Observable
@@ -87,9 +88,11 @@ class SpacesRepository(private val webex: Webex) : MessagingRepository(webex) {
         }.toObservable()
     }
 
-    fun listMessages(spaceId: String): Observable<List<SpaceMessageModel>> {
+    fun listMessages(spaceId: String, beforeMessageId: String? = null): Observable<List<SpaceMessageModel>> {
         return Single.create<List<SpaceMessageModel>> { emitter ->
-            webex.messages.list(spaceId, null, 50, null, CompletionHandler { result ->
+            var before: Before? = null
+            beforeMessageId?.let { before = Before.Message(it) }
+            webex.messages.list(spaceId, before, 100, null, CompletionHandler { result ->
                 if (result.isSuccessful) {
                     emitter.onSuccess(result.data?.map { SpaceMessageModel.convertToSpaceMessageModel(it) }.orEmpty())
                 } else {

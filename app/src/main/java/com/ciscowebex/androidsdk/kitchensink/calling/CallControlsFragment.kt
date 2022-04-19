@@ -90,6 +90,15 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     private var callerId: String = ""
     var bottomSheetFragment: BackgroundOptionsBottomSheetFragment? = null
 
+    enum class NetworkStatus {
+        PoorUplink,
+        PoorDownlink,
+        Good,
+        NoNetwork
+    }
+
+    var currentNetworkStatus = NetworkStatus.Good
+
     enum class ShareButtonState {
         OFF,
         ON,
@@ -268,7 +277,14 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                          */
                         onCallTerminated(call?.getCallId().orEmpty())
                     } else {
-                        onCallDisconnected(call)
+                        /*
+                        * Below line takes care of ending the call if it is scheduled call and local leaves or ends the meeting
+                        * This fixes white screen issue when call is started from calendar meeting fragment
+                        */
+                        if (!isIncomingActivity) {
+                            onCallTerminated(call?.getCallId().orEmpty())
+                        } else
+                            onCallDisconnected(call)
                     }
                 }
             }
@@ -418,6 +434,11 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             photoViewerBottomSheetFragment.imageData = imageData
             activity?.supportFragmentManager?.let { photoViewerBottomSheetFragment.show(it, PhotoViewerBottomSheetFragment.TAG) }
         }
+    }
+
+    override fun onMediaQualityInfoChanged(mediaQualityInfo: Call.MediaQualityInfo) {
+        Log.d(TAG, "CallObserver mediaQualityInfo changed : ${mediaQualityInfo.name}")
+        updateNetworkStatusChange(mediaQualityInfo)
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -882,7 +903,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         binding.ibMoreOption.setOnClickListener(this)
 
         initAddedCallControls()
-
+        binding.ivNetworkSignal.setOnClickListener(this)
+        binding.ivNetworkSignal.visibility = View.GONE
     }
 
     override fun onClick(v: View?) {
@@ -943,6 +965,10 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                     webexViewModel.currentCallId?.let {
                         showBottomSheet(webexViewModel.getCall(it))
                     }
+                }
+                binding.ivNetworkSignal -> {
+                    val text = "Network Status : ${currentNetworkStatus.name}"
+                    Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
                 }
                 else -> {
                 }
@@ -1213,6 +1239,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
             val layout = webexViewModel.getCompositedLayout()
             Log.d(TAG, "onCallConnected getCompositedLayout: $layout")
+            binding.ivNetworkSignal.visibility = View.VISIBLE
             webexViewModel.setCompositedLayout(layout)
             webexViewModel.setRemoteVideoRenderMode(callId, webexViewModel.scalingMode)
 
@@ -1941,6 +1968,29 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         cameraOptionsBottomSheetFragment.torchModeValue = webexViewModel.torchMode
         cameraOptionsBottomSheetFragment.flashModeValue = webexViewModel.flashMode
         activity?.supportFragmentManager?.let { cameraOptionsBottomSheetFragment.show(it, CameraOptionsBottomSheetFragment.TAG) }
+    }
+
+    private fun updateNetworkStatusChange(mediaQualityInfo: Call.MediaQualityInfo) {
+        when (mediaQualityInfo) {
+            Call.MediaQualityInfo.NetworkLost -> {
+                binding.ivNetworkSignal.setImageResource(R.drawable.ic_no_network)
+                currentNetworkStatus = NetworkStatus.NoNetwork
+            }
+            Call.MediaQualityInfo.Good -> {
+                binding.ivNetworkSignal.setImageResource(R.drawable.ic_good_network)
+                currentNetworkStatus = NetworkStatus.Good
+            }
+            Call.MediaQualityInfo.PoorUplink -> {
+                binding.ivNetworkSignal.setImageResource(R.drawable.ic_poor_network)
+                currentNetworkStatus = NetworkStatus.PoorUplink
+            }
+            Call.MediaQualityInfo.PoorDownlink -> {
+                binding.ivNetworkSignal.setImageResource(R.drawable.ic_poor_network)
+                currentNetworkStatus = NetworkStatus.PoorDownlink
+            }
+            Call.MediaQualityInfo.HighCpuUsage -> showDialogWithMessage(requireContext(), R.string.warning, getString(R.string.high_cpu_usage))
+            Call.MediaQualityInfo.DeviceLimitation -> showDialogWithMessage(requireContext(), R.string.warning, getString(R.string.device_limitation))
+        }
     }
 
     class IncomingInfoAdapter(private val incomingCallEvent: (Call?) -> Unit, private val IncomingCallPickEvent: (Call?) -> Unit, private val incomingCallCancelEvent: (Call?) -> Unit) : RecyclerView.Adapter<IncomingInfoViewHolder>() {

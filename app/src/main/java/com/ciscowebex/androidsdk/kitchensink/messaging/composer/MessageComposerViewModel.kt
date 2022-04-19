@@ -41,20 +41,20 @@ class MessageComposerViewModel(private val composerRepo: MessageComposerReposito
 
     val labelAll = "All"
 
-    fun postToSpace(spaceId: String, message: String, plainText: Boolean, mentions: ArrayList<Mention>?, files: ArrayList<LocalFile>? = null) {
-        composerRepo.postToSpace(spaceId, message, plainText, mentions, files).observeOn(AndroidSchedulers.mainThread()).subscribe({ result ->
+    fun postToSpace(spaceId: String, message: Message.Text, mentions: ArrayList<Mention>?, files: ArrayList<LocalFile>? = null) {
+        composerRepo.postToSpace(spaceId, message, mentions, files).observeOn(AndroidSchedulers.mainThread()).subscribe({ result ->
             _postMessages.postValue(result)
         }, { error -> _postMessageError.postValue(error.message) }).autoDispose()
     }
 
-    fun postToPerson(email: EmailAddress, message: String, plainText: Boolean, files: ArrayList<LocalFile>? = null) {
-        composerRepo.postToPerson(email, message, plainText, files).observeOn(AndroidSchedulers.mainThread()).subscribe({ result ->
+    fun postToPerson(email: EmailAddress, message: Message.Text, files: ArrayList<LocalFile>? = null) {
+        composerRepo.postToPerson(email, message, files).observeOn(AndroidSchedulers.mainThread()).subscribe({ result ->
             _postMessages.postValue(result)
         }, { error -> _postMessageError.postValue(error.message) }).autoDispose()
     }
 
-    fun postToPerson(id: String, message: String, plainText: Boolean, files: ArrayList<LocalFile>? = null) {
-        composerRepo.postToPerson(id, message, plainText, files).observeOn(AndroidSchedulers.mainThread()).subscribe({ result ->
+    fun postToPerson(id: String, message: Message.Text, files: ArrayList<LocalFile>? = null) {
+        composerRepo.postToPerson(id, message, files).observeOn(AndroidSchedulers.mainThread()).subscribe({ result ->
             Log.d(tag, "postToPersonID result: $result")
             _postMessages.postValue(result)
         }, { error -> _postMessageError.postValue(error.message) }).autoDispose()

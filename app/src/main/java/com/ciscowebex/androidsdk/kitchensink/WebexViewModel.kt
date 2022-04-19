@@ -386,6 +386,10 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
             override fun onPhotoCaptured(imageData: ByteArray?) {
                 callObserverInterface?.onPhotoCaptured(imageData)
             }
+
+            override fun onMediaQualityInfoChanged(mediaQualityInfo: Call.MediaQualityInfo) {
+                callObserverInterface?.onMediaQualityInfoChanged(mediaQualityInfo)
+            }
         })
     }
 
@@ -718,8 +722,12 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         return getCall(callId)?.getVideoRenderViews() ?: Pair(null, null)
     }
 
-    fun setVideoRenderViews(callId: String, localVideoView: View, remoteVideoView: View) {
+    fun setVideoRenderViews(callId: String, localVideoView: View?, remoteVideoView: View?) {
         getCall(callId)?.setVideoRenderViews(Pair(localVideoView, remoteVideoView))
+    }
+
+    fun setVideoRenderViews(callId: String) {
+        getCall(callId)?.setVideoRenderViews(null)
     }
 
     fun forceSendingVideoLandscape(callId: String, forceLandscape: Boolean) {

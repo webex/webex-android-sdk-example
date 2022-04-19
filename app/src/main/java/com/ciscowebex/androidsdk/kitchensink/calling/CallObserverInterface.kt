@@ -20,4 +20,5 @@ interface CallObserverInterface {
     fun onScheduleChanged(call: Call?) {}
     fun onCpuHitThreshold() {}
     fun onPhotoCaptured(imageData: ByteArray?) {}
+    fun onMediaQualityInfoChanged(mediaQualityInfo: Call.MediaQualityInfo)
 }
