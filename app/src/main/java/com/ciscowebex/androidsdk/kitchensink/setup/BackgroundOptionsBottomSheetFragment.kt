@@ -214,8 +214,8 @@ class BackgroundOptionsBottomSheetFragment(
 
                 val byteArray = virtualBackgrounds[adapterPosition].thumbnail?.thumbnail
                 if (byteArray != null) {
-                    val bmp = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-                    Log.d("TAG", "bitmap: ${bmp?.byteCount}")
+                    val bmp: Bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+                    Log.d("TAG", "bitmap: ${bmp.byteCount}")
                     binding.bgImg.setImageBitmap(bmp)
                 }
             }

@@ -158,7 +158,7 @@ class KitchenSinkFCMService : FirebaseMessagingService() {
             val size = it.data?.size ?: 0
             if (size > 0) {
                 val message = it.data?.get(size - 1)
-                Log.d(TAG, "last message: ${message?.getTextAsObject()?.getMarkdown()}")
+                Log.d(TAG, "last message: ${message?.getText()}")
 
                 Log.d(TAG, "Fetching person details")
                 repository.getPerson(Base64Utils.decodeString(notificationData?.data?.personId), CompletionHandler { personResult ->
@@ -217,7 +217,7 @@ class KitchenSinkFCMService : FirebaseMessagingService() {
                 .setContentIntent(pendingIntent)
                 .setStyle(
                         NotificationCompat.BigTextStyle()
-                                .bigText(Html.fromHtml(message?.getTextAsObject()?.getMarkdown().orEmpty(), Html.FROM_HTML_MODE_LEGACY))
+                                .bigText(Html.fromHtml(message?.getText().orEmpty(), Html.FROM_HTML_MODE_LEGACY))
                 )
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
 

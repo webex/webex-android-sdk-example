@@ -19,8 +19,8 @@ android {
         applicationId "com.cisco.sdk_android"
         minSdkVersion Versions.minSdk
         targetSdkVersion Versions.targetSdk
-        versionCode 33000
-        versionName "3.3.0"
+        versionCode 34000
+        versionName "3.4.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "CLIENT_ID", "${CLIENT_ID}"
@@ -62,7 +62,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.ciscowebex:androidsdk:3.3.0@aar'
+    implementation 'com.ciscowebex:androidsdk:3.4.0@aar'
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation Dependencies.kotlinStdLib

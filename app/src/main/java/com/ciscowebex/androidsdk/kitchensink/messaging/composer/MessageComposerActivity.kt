@@ -48,7 +48,8 @@ class MessageComposerActivity : AppCompatActivity() {
 
         enum class StyleType {
             PLAIN_TEXT,
-            MARKDOWN_TEXT
+            MARKDOWN_TEXT,
+            HTML_TEXT
         }
 
         fun getIntent(context: Context, type: ComposerType, id: String, replyParentMessage: ReplyMessageModel?, messageId: String? = null): Intent {
@@ -117,6 +118,9 @@ class MessageComposerActivity : AppCompatActivity() {
                             }
                             R.id.markdownRadioButton -> {
                                 styleType = StyleType.MARKDOWN_TEXT
+                            }
+                            R.id.htmlRadioButton -> {
+                                styleType = StyleType.HTML_TEXT
                             }
                         }
                     }
@@ -261,14 +265,20 @@ class MessageComposerActivity : AppCompatActivity() {
         }
     }
 
+    private fun buildMessageText(message: String) : Message.Text{
+        return when(styleType){
+            StyleType.HTML_TEXT -> Message.Text.html(message)
+            StyleType.MARKDOWN_TEXT -> Message.Text.markdown(message)
+            else -> {
+                Message.Text.plain(message)
+            }
+        }
+    }
+
     private fun editMessage(messageId: String) {
         val str = binding.message.text.toString()
         val messageContent = binding.message.getMessageContent()
-        val text: Message.Text = if (styleType == StyleType.PLAIN_TEXT) {
-            Message.Text.plain(str)
-        } else {
-            Message.Text.markdown(str, null, null)
-        }
+        val text: Message.Text = buildMessageText(str);
 
         messageComposerViewModel.editMessage(messageId, text, messageContent.messageInputMentions)
     }
@@ -283,11 +293,11 @@ class MessageComposerActivity : AppCompatActivity() {
                     messageData = message
                     val msg = message.getTextAsObject()
 
-                    msg.getMarkdown()?.let {
-                        messageBodyTextView.text = Html.fromHtml(msg.getMarkdown(), Html.FROM_HTML_MODE_LEGACY)
+                    msg.getHtml()?.let {
+                        messageBodyTextView.text = Html.fromHtml(msg.getHtml(), Html.FROM_HTML_MODE_LEGACY)
                     } ?: run {
                         msg.getPlain()?.let {
-                            messageBodyTextView.text = Html.fromHtml(msg.getPlain(), Html.FROM_HTML_MODE_LEGACY)
+                            messageBodyTextView.text = msg.getPlain()
                         }
                     }
                     builder.setView(this.root)
@@ -302,7 +312,8 @@ class MessageComposerActivity : AppCompatActivity() {
     private fun postPersonByEmail(email: String, files: ArrayList<LocalFile>?) {
         val emailAddress = EmailAddress.fromString(email)
         emailAddress?.let {
-            messageComposerViewModel.postToPerson(emailAddress, binding.message.text.toString(), styleType == StyleType.PLAIN_TEXT, files)
+            val text: Message.Text = buildMessageText(binding.message.text.toString());
+            messageComposerViewModel.postToPerson(emailAddress, text, files)
             showProgress()
         } ?: run {
             showDialogWithMessage(this@MessageComposerActivity, R.string.post_message_error, getString(R.string.post_message_email_empty))
@@ -310,7 +321,8 @@ class MessageComposerActivity : AppCompatActivity() {
     }
 
     private fun postPersonById(personId: String, files: ArrayList<LocalFile>?) {
-        messageComposerViewModel.postToPerson(personId, binding.message.text.toString(), styleType == StyleType.PLAIN_TEXT, files)
+        val text: Message.Text = buildMessageText(binding.message.text.toString());
+        messageComposerViewModel.postToPerson(personId, text, files)
         showProgress()
     }
 
@@ -318,17 +330,9 @@ class MessageComposerActivity : AppCompatActivity() {
         val messageContent = binding.message.getMessageContent()
 
         var progress = true
-
+        val text: Message.Text = buildMessageText(binding.message.text.toString());
         replyParentMessage?.let { replyMessage ->
-            val str = binding.message.text.toString()
-
-            val text: Message.Text? = if (styleType == StyleType.PLAIN_TEXT) {
-                Message.Text.plain(str)
-            } else {
-                Message.Text.markdown(str, null, null)
-            }
-
-            text?.let { msgTxt ->
+            text.let { msgTxt ->
                 val draft = Message.draft(msgTxt)
 
                 messageContent.messageInputMentions?.let { mentionsArray ->
@@ -346,12 +350,9 @@ class MessageComposerActivity : AppCompatActivity() {
                 draft.setParent(replyMessage.getMessage())
 
                 messageComposerViewModel.postMessageDraft(spaceId, draft)
-            } ?: run {
-                progress = false
-                showDialogWithMessage(this@MessageComposerActivity, R.string.post_message_error, getString(R.string.post_message_invalid_message))
             }
         } ?: run {
-            messageComposerViewModel.postToSpace(spaceId, binding.message.text.toString(), styleType == StyleType.PLAIN_TEXT, messageContent.messageInputMentions, files)
+            messageComposerViewModel.postToSpace(spaceId, text, messageContent.messageInputMentions, files)
         }
 
         if (progress) {
