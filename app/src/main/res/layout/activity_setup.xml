@@ -122,11 +122,35 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/callCapabilityLayout"
+                android:id="@+id/multiStreamApproachNewLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_below="@+id/enableHWAccelLayout">
+
+                <TextView
+                    android:id="@+id/multiStreamApproachNewToggleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:text="@string/multi_stream_new_approach" />
+                <ToggleButton
+                    android:id="@+id/multiStreamApproachNewToggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"/>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/callCapabilityLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_below="@+id/multiStreamApproachNewLayout">
 
                 <TextView
                     android:id="@+id/textViewCallCap"
@@ -222,11 +246,34 @@
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/enableConsoleLoggerLayout"
+            android:id="@+id/videoBw"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_below="@+id/logLevelLayout">
+
+            <TextView
+                android:id="@+id/bwTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/max_video_bandwidth"/>
+
+            <Spinner
+                android:id="@+id/bandwidth_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/bwTitle"
+                android:layout_marginTop="10dp"
+                android:entries="@array/bw_options"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/enableConsoleLoggerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_below="@+id/videoBw">
 
             <TextView
                 android:id="@+id/tvConsoleLog"

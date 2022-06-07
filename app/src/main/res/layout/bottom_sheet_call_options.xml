@@ -7,6 +7,28 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:id="@+id/showIncomingCall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/lightGreen"
+            android:paddingVertical="@dimen/size_8dp"
+            android:text="@string/show_incoming"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <View
+            android:id="@+id/incomingCallSeparator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/showIncomingCall" />
+
+        <TextView
             android:id="@+id/sendDTMF"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -18,7 +40,7 @@
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/incomingCallSeparator" />
 
         <View
             android:id="@+id/sendDTMFSeparator"
@@ -175,13 +197,36 @@
             app:layout_constraintTop_toBottomOf="@id/scalingTypeSeparator" />
 
         <View
-            android:id="@+id/bgOptionsTypeSeparator"
+            android:id="@+id/compositeStreamSeparator"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/compositeStream" />
+
+        <TextView
+            android:id="@+id/multiStreamOptions"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/lightYellow"
+            android:paddingVertical="@dimen/size_8dp"
+            android:text="@string/multi_stream_options"
+            android:textAlignment="center"
+            android:visibility="gone"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/compositeStreamSeparator" />
+
+        <View
+            android:id="@+id/multiStreamOptionsSeparator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/multiStreamOptions" />
 
         <TextView
             android:id="@+id/bgOptionsBtn"
@@ -194,10 +239,10 @@
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/bgOptionsTypeSeparator" />
+            app:layout_constraintTop_toBottomOf="@id/multiStreamOptionsSeparator" />
 
         <View
-            android:id="@+id/compositeStreamSeparator"
+            android:id="@+id/bgOptionsTypeSeparator"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"
@@ -216,7 +261,7 @@
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/compositeStreamSeparator" />
+            app:layout_constraintTop_toBottomOf="@id/bgOptionsTypeSeparator" />
 
         <View
             android:id="@+id/swapVideoSeparator"

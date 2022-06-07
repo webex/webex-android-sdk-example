@@ -13,7 +13,7 @@ import android.util.Log
 import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
 import com.ciscowebex.androidsdk.kitchensink.R
-import org.koin.core.KoinComponent
+import org.koin.core.component.KoinComponent
 import java.io.IOException
 
 

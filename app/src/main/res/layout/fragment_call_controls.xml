@@ -120,6 +120,33 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
+                android:id="@+id/tv_remote_user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:padding="@dimen/padding_4dp"
+                android:visibility="gone"
+                android:background="@android:color/black"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/video_call_layout"/>
+
+            <ImageView
+                android:id="@+id/iv_remote_audio_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding_4dp"
+                android:visibility="gone"
+                android:src="@drawable/ic_microphone_36"
+                android:background="@android:color/white"
+                android:layout_marginBottom="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/tv_remote_user_name"/>
+
+            <TextView
                 android:id="@+id/calling_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -362,20 +389,6 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/incomingRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:listitem="@layout/list_item_call_meeting"
-            tools:itemCount="2"
-            android:visibility="gone"/>
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

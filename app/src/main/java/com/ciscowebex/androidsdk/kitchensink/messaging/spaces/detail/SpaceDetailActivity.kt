@@ -224,6 +224,16 @@ class SpaceDetailActivity : BaseActivity() {
                             }
                         }
                     }
+                    WebexRepository.MessageEvent.Updated -> {
+                        val messages = pair.second as List<Message>
+                        for(message in messages) {
+                            val position = messageClientAdapter.getPositionById(message.getId() ?: "")
+                            if (!messageClientAdapter.messages.isNullOrEmpty() && position != -1) {
+                                messageClientAdapter.messages[position] = SpaceMessageModel.convertToSpaceMessageModel(message)
+                                messageClientAdapter.notifyItemChanged(position)
+                            }
+                        }
+                    }
                 }
             }
         })

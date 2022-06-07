@@ -11,7 +11,7 @@ import com.ciscowebex.androidsdk.kitchensink.calling.CallActivity
 import com.ciscowebex.androidsdk.kitchensink.search.SearchActivity
 import com.ciscowebex.androidsdk.kitchensink.utils.PermissionsHelper
 import org.koin.android.ext.android.inject
-import org.koin.android.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 open class BaseActivity : AppCompatActivity() {
     var tag = "BaseActivity"

@@ -2,7 +2,7 @@ package com.ciscowebex.androidsdk.kitchensink.webhooks
 
 import com.ciscowebex.androidsdk.kitchensink.person.PersonRepository
 import com.ciscowebex.androidsdk.kitchensink.person.PersonViewModel
-import org.koin.android.viewmodel.dsl.viewModel
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 

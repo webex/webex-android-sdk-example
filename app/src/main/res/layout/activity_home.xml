@@ -49,7 +49,7 @@
                 android:orientation="vertical">
 
                 <GridLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:useDefaultMargins="true"
                     android:layout_margin="16dp"
@@ -94,6 +94,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:padding="@dimen/size_8dp"
+                        android:layout_marginStart="50dp"
                         android:layout_gravity="center_horizontal"
                         android:gravity="center_horizontal">
                         <ImageView
@@ -128,37 +129,6 @@
                         android:layout_gravity="center_horizontal"
                         android:gravity="center_horizontal">
                         <ImageView
-                            android:id="@+id/iv_waitingCall"
-                            android:layout_width="@dimen/icon_size_normal"
-                            android:layout_height="@dimen/icon_size_normal"
-                            android:background="@drawable/circle_filled_yellow"
-                            android:src="@drawable/ic_incoming_call_legacy_36"
-                            android:padding="16dp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/waiting_call"
-                            android:textAllCaps="true"
-                            android:layout_marginTop="@dimen/size_8dp"
-                            android:textSize="@dimen/textMedium"
-                            android:layout_gravity="center_horizontal"
-                            android:textAlignment="center"
-                            app:layout_constraintTop_toBottomOf="parent" />
-                    </LinearLayout>
-                    <!--Cell 4-->
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="@dimen/size_8dp"
-                        android:layout_gravity="center_horizontal"
-                        android:gravity="center_horizontal">
-                        <ImageView
                             android:id="@+id/iv_feedback"
                             android:layout_width="@dimen/icon_size_normal"
                             android:layout_height="@dimen/icon_size_normal"
@@ -181,7 +151,7 @@
                             android:textAlignment="center"
                             app:layout_constraintTop_toBottomOf="parent" />
                     </LinearLayout>
-                    <!--Cell 5-->
+                    <!--Cell 4-->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -212,7 +182,7 @@
                             android:textAlignment="center"
                             app:layout_constraintTop_toBottomOf="parent" />
                     </LinearLayout>
-                    <!--Cell 6-->
+                    <!--Cell 5-->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -243,7 +213,7 @@
                             android:textAlignment="center"
                             app:layout_constraintTop_toBottomOf="parent" />
                     </LinearLayout>
-                    <!--Cell 7-->
+                    <!--Cell 6-->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -274,7 +244,7 @@
                             android:textAlignment="center"
                             app:layout_constraintTop_toBottomOf="parent" />
                     </LinearLayout>
-                    <!--Cell 8-->
+                    <!--Cell 7-->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -305,7 +275,7 @@
                             android:textAlignment="center"
                             app:layout_constraintTop_toBottomOf="parent" />
                     </LinearLayout>
-                    <!--Cell 9-->
+                    <!--Cell 8-->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -337,7 +307,7 @@
                             app:layout_constraintTop_toBottomOf="parent" />
                     </LinearLayout>
 
-                    <!--Cell 10-->
+                    <!--Cell 9-->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

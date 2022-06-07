@@ -10,7 +10,12 @@ apply plugin: 'com.google.firebase.crashlytics' // Crashlytics Gradle plugin
 android {
     compileSdkVersion Versions.compileSdk
     buildToolsVersion Versions.buildTools
-    ndkVersion project.hasProperty("ndkVersion") ? project.property('ndkVersion') : Versions.ndkVersion
+    ndkVersion Versions.ndkVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
@@ -19,18 +24,14 @@ android {
         applicationId "com.cisco.sdk_android"
         minSdkVersion Versions.minSdk
         targetSdkVersion Versions.targetSdk
-        versionCode 34000
-        versionName "3.4.0"
+        versionCode 35000
+        versionName "3.5.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "CLIENT_ID", "${CLIENT_ID}"
         buildConfigField "String", "CLIENT_SECRET", "${CLIENT_SECRET}"
         buildConfigField "String", "SCOPE", "${SCOPE}"
         buildConfigField "String", "REDIRECT_URI", "${REDIRECT_URI}"
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
     }
 
     buildTypes {
@@ -62,7 +63,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.ciscowebex:androidsdk:3.4.0@aar'
+    mplementation 'com.ciscowebex:androidsdk:3.5.0@aar'
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation Dependencies.kotlinStdLib

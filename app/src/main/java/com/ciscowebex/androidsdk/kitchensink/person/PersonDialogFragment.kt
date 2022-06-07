@@ -36,9 +36,11 @@ class PersonDialogFragment : DialogFragment() {
                     progressLayout.visibility = View.VISIBLE
 
                     personViewModel.person.observe(this@PersonDialogFragment, Observer { model ->
-                        model?.let {
+                        if (model != null) {
                             progressLayout.visibility = View.GONE
-                            person = it
+                            person = model
+                        } else {
+                            dismiss()
                         }
                     })
 
