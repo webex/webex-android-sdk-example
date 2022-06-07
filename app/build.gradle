@@ -63,7 +63,7 @@ android {
 }
 
 dependencies {
-    mplementation 'com.ciscowebex:androidsdk:3.5.0@aar'
+    implementation 'com.ciscowebex:androidsdk:3.5.0@aar'
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation Dependencies.kotlinStdLib
@@ -101,5 +101,6 @@ dependencies {
     implementation Dependencies.firebaseAnalytics
     implementation Dependencies.firebaseCrashlytics
     implementation Dependencies.gson
+    implementation Dependencies.glide
 
 }
