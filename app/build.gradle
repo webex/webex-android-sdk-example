@@ -101,5 +101,6 @@ dependencies {
     implementation Dependencies.firebaseAnalytics
     implementation Dependencies.firebaseCrashlytics
     implementation Dependencies.gson
+    implementation Dependencies.glide
 
 }

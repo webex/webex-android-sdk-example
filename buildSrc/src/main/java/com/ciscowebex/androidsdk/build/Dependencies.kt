@@ -1,13 +1,13 @@
 package com.ciscowebex.androidsdk.build
 
 object Versions {
-    const val kotlin = "1.3.72"
-    const val koin= "2.1.3"
+    const val kotlin = "1.6.10"
+    const val koin= "2.2.3"
 
     const val ndkVersion = "21.3.6528147"
-    const val buildTools = "29.0.3"
+    const val buildTools = "30.0.3"
 
-    const val compileSdk = 29
+    const val compileSdk = 30
     const val targetSdk = 29
     const val minSdk = 24
 
@@ -17,8 +17,8 @@ object Versions {
 
 object Dependencies {
     const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib:${Versions.kotlin}"
-    const val koin = "org.koin:koin-android:${Versions.koin}"
-    const val koinViewModel = "org.koin:koin-android-viewmodel:${Versions.koin}"
+    const val koin = "io.insert-koin:koin-core:${Versions.koin}"
+    const val koinViewModel = "io.insert-koin:koin-androidx-viewmodel:${Versions.koin}"
     const val rxjava = "io.reactivex.rxjava2:rxjava:2.2.11"
     const val rxandroid = "io.reactivex.rxjava2:rxandroid:2.1.1"
     const val rxkotlin = "io.reactivex.rxjava2:rxkotlin:2.4.0"
@@ -40,6 +40,7 @@ object Dependencies {
     const val firebaseAnalytics = "com.google.firebase:firebase-analytics-ktx"
     const val firebaseCrashlytics = "com.google.firebase:firebase-crashlytics-ktx"
     const val gson = "com.google.code.gson:gson:2.8.6"
+    const val glide = "com.github.bumptech.glide:glide:4.12.0"
 
     object Test {
         const val junit = "junit:junit:4.12"
@@ -51,6 +52,6 @@ object Dependencies {
         const val fragmentScenerio = "androidx.fragment:fragment-testing:1.2.5"
         const val rules = "androidx.test:rules:1.3.0"
         const val testExt = "androidx.test:core-ktx:1.3.0"
-        const val mockk = "io.mockk:mockk-android:1.10.6"
+        const val mockk = "io.mockk:mockk-android:1.12.1"
     }
 }
