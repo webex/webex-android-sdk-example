@@ -43,7 +43,7 @@ class CalendarMeetingDetailsActivity : BaseActivity() {
                 tvDescription.movementMethod = ScrollingMovementMethod()
                 setUpObservers()
             }
-        meetingDetailsViewModel.getCalendarMeetingById(calendarMeetingId)
+        meetingDetailsViewModel.getCalendarMeetingById(calendarMeetingId.orEmpty())
     }
 
     private fun setUpObservers() {

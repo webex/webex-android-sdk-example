@@ -10,30 +10,32 @@ import androidx.lifecycle.MutableLiveData
 import com.ciscowebex.androidsdk.Webex
 import com.ciscowebex.androidsdk.kitchensink.firebase.RegisterTokenService
 import com.ciscowebex.androidsdk.kitchensink.person.PersonModel
-import com.ciscowebex.androidsdk.phone.Call
-import com.ciscowebex.androidsdk.phone.CallObserver
-import com.ciscowebex.androidsdk.phone.MediaOption
-import com.ciscowebex.androidsdk.phone.CallMembership
-import com.ciscowebex.androidsdk.phone.Phone
 import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.WebexError
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.messaging.FirebaseMessaging
 import org.json.JSONObject
-import com.ciscowebex.androidsdk.phone.CallAssociationType
 import com.ciscowebex.androidsdk.auth.PhoneServiceRegistrationFailureReason
 import com.ciscowebex.androidsdk.auth.TokenAuthenticator
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
 import com.ciscowebex.androidsdk.kitchensink.calling.CallObserverInterface
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
 import com.ciscowebex.androidsdk.message.LocalFile
+import com.ciscowebex.androidsdk.phone.Call
+import com.ciscowebex.androidsdk.phone.CallObserver
+import com.ciscowebex.androidsdk.phone.MediaOption
+import com.ciscowebex.androidsdk.phone.CallMembership
+import com.ciscowebex.androidsdk.phone.Phone
+import com.ciscowebex.androidsdk.phone.CallAssociationType
 import com.ciscowebex.androidsdk.phone.AdvancedSetting
 import com.ciscowebex.androidsdk.phone.AuxStream
 import com.ciscowebex.androidsdk.phone.VirtualBackground
 import com.ciscowebex.androidsdk.phone.CameraExposureISO
 import com.ciscowebex.androidsdk.phone.CameraExposureDuration
 import com.ciscowebex.androidsdk.phone.CameraExposureTargetBias
+import com.ciscowebex.androidsdk.phone.MediaStream
+import com.ciscowebex.androidsdk.phone.MediaStreamQuality
 
 
 class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseViewModel() {
@@ -213,10 +215,22 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
             repository.logFilter = value
         }
 
+    var maxVideoBandwidth: String
+        get() = repository.maxVideoBandwidth
+        set(value) {
+            repository.maxVideoBandwidth = value
+        }
+
     var isConsoleLoggerEnabled: Boolean
         get() = repository.isConsoleLoggerEnabled
         set(value) {
             repository.isConsoleLoggerEnabled = value
+        }
+
+    var multistreamNewApproach: Boolean
+        get() = repository.multiStreamNewApproach
+        set(value) {
+            repository.multiStreamNewApproach = value
         }
 
     init {
@@ -340,13 +354,15 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         })
     }
 
-    private fun setCallObserver(call: Call) {
+    fun setCallObserver(call: Call) {
         call.setObserver(object : CallObserver {
             override fun onConnected(call: Call?) {
+                Log.d(tag, "CallObserver onConnected")
                 callObserverInterface?.onConnected(call)
             }
 
             override fun onRinging(call: Call?) {
+                Log.d(tag, "CallObserver onRinging")
                 callObserverInterface?.onRinging(call)
             }
 
@@ -591,9 +607,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
             var isRemoteSendingAudio = false
             data?.forEach {
                 if (it.getPersonId() != selfPersonId) {
-                    if (it.isSendingAudio()) {
-                        isRemoteSendingAudio = true
-                    }
+                    isRemoteSendingAudio = it.isSendingAudio()
                 }
                 repository.participantMuteMap[it.getPersonId()] = it.isSendingAudio()
             }
@@ -682,12 +696,27 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         webex.phone.setHardwareAccelerationEnabled(enable)
     }
 
-    fun setVideoMaxRxBandwidth(bandwidth: Int) {
-        webex.phone.setVideoMaxRxBandwidth(bandwidth)
+
+    fun getUserPreferredMaxBandwidth():Int{
+        var videoBandwidth:Int
+        when (maxVideoBandwidth) {
+            WebexRepository.BandWidthOptions.BANDWIDTH_90P.name -> videoBandwidth = Phone.DefaultBandwidth.MAX_BANDWIDTH_90P.getValue()
+            WebexRepository.BandWidthOptions.BANDWIDTH_180P.name -> videoBandwidth = Phone.DefaultBandwidth.MAX_BANDWIDTH_180P.getValue()
+            WebexRepository.BandWidthOptions.BANDWIDTH_360P.name -> videoBandwidth = Phone.DefaultBandwidth.MAX_BANDWIDTH_360P.getValue()
+            WebexRepository.BandWidthOptions.BANDWIDTH_1080P.name -> videoBandwidth = Phone.DefaultBandwidth.MAX_BANDWIDTH_1080P.getValue()
+            else ->{
+                videoBandwidth = Phone.DefaultBandwidth.MAX_BANDWIDTH_720P.getValue()
+            }
+        }
+        return videoBandwidth
     }
 
-    fun setVideoMaxTxBandwidth(bandwidth: Int) {
+    fun setVideoMaxTxBandwidth(bandwidth: Int){
         webex.phone.setVideoMaxTxBandwidth(bandwidth)
+    }
+
+    fun setVideoMaxRxBandwidth(bandwidth: Int){
+        webex.phone.setVideoMaxRxBandwidth(bandwidth)
     }
 
     fun setSharingMaxRxBandwidth(bandwidth: Int) {
@@ -957,5 +986,25 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     fun takePhoto(): Boolean {
         return getCall(currentCallId.orEmpty())?.takePhoto() ?: false
+    }
+
+    fun setMediaStreamCategoryA(duplicate: Boolean, quality: MediaStreamQuality) {
+        getCall(currentCallId.orEmpty())?.setMediaStreamCategoryA(duplicate, quality)
+    }
+
+    fun setMediaStreamsCategoryB(numStreams: Int, quality: MediaStreamQuality) {
+        getCall(currentCallId.orEmpty())?.setMediaStreamsCategoryB(numStreams, quality)
+    }
+
+    fun removeMediaStreamCategoryA() {
+        getCall(currentCallId.orEmpty())?.removeMediaStreamCategoryA()
+    }
+
+    fun removeMediaStreamsCategoryB() {
+        getCall(currentCallId.orEmpty())?.removeMediaStreamsCategoryB()
+    }
+
+    fun getMediaStreams(): List<MediaStream>? {
+        return getCall(currentCallId.orEmpty())?.getMediaStreams()
     }
 }

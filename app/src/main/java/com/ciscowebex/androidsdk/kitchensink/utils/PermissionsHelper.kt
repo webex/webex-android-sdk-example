@@ -3,8 +3,6 @@ package com.ciscowebex.androidsdk.kitchensink.utils
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 class PermissionsHelper(private val context: Context) {
@@ -32,9 +30,14 @@ class PermissionsHelper(private val context: Context) {
     companion object {
         const val PERMISSIONS_CALLING_REQUEST = 0
         const val PERMISSIONS_STORAGE_REQUEST = 1
+        const val PERMISSIONS_CAMERA_REQUEST = 2
 
         fun permissionsForCalling(): Array<String> {
             return arrayOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO, Manifest.permission.READ_PHONE_STATE)
+        }
+
+        fun permissionForCamera(): Array<String> {
+            return arrayOf(Manifest.permission.CAMERA)
         }
 
         fun permissionForStorage(): Array<String> {

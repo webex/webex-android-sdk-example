@@ -11,7 +11,7 @@ import com.ciscowebex.androidsdk.kitchensink.KitchenSinkApp
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityLoginWithTokenBinding
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
-import org.koin.android.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class JWTLoginActivity : AppCompatActivity() {
 

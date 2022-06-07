@@ -38,6 +38,16 @@
             android:visibility="gone"
             android:layout_above="@id/name"/>
 
+        <ImageView
+            android:id="@+id/iv_audio_state"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:padding="@dimen/padding_4dp"
+            android:src="@drawable/ic_microphone_muted_bold"
+            android:background="@android:color/white"
+            android:layout_above="@id/name"
+            android:layout_margin="5dp"/>
+
         <RelativeLayout
             android:id="@+id/remote_border"
             android:layout_width="wrap_content"

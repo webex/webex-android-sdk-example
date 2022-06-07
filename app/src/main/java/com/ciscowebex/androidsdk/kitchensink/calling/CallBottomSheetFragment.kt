@@ -12,7 +12,8 @@ import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.phone.MediaOption
 import com.ciscowebex.androidsdk.phone.Phone
 
-class CallBottomSheetFragment(val transcriptionClickListener: (Call?) -> Unit,
+class CallBottomSheetFragment(val showIncomingCallsClickListener: (Call?) -> Unit,
+                              val transcriptionClickListener: (Call?) -> Unit,
                               val toggleWXAClickListener: (Call?) -> Unit,
                               val receivingVideoClickListener: (Call?) -> Unit,
                               val receivingAudioClickListener: (Call?) -> Unit,
@@ -23,6 +24,7 @@ class CallBottomSheetFragment(val transcriptionClickListener: (Call?) -> Unit,
                               val swapVideoClickListener: (Call?) -> Unit,
                               val forceLandscapeClickListener: (Call?) -> Unit,
                               val cameraOptionsClickListener: (Call?) -> Unit,
+                              val multiStreamOptionsClickListener: (Call?) -> Unit,
                               val sendDTMFClickListener: (Call?) -> Unit): BottomSheetDialogFragment() {
     companion object {
         val TAG = "CallBottomSheetFragment"
@@ -128,10 +130,12 @@ class CallBottomSheetFragment(val transcriptionClickListener: (Call?) -> Unit,
             if (streamMode == Phone.VideoStreamMode.COMPOSITED) {
                 compositeStream.isEnabled = true
                 compositeStream.alpha = 1.0f
+                multiStreamOptions.visibility = View.GONE
             } else {
                 compositeStream.isEnabled = false
                 compositeStream.alpha = 0.5f
                 compositeLayoutText = getString(R.string.video_stream_mode_multi)
+                multiStreamOptions.visibility = View.VISIBLE
             }
 
             compositeStream.text = compositeLayoutText
@@ -172,6 +176,11 @@ class CallBottomSheetFragment(val transcriptionClickListener: (Call?) -> Unit,
                 transcriptionClickListener(call)
             }
 
+            showIncomingCall.setOnClickListener {
+                dismiss()
+                showIncomingCallsClickListener(call)
+            }
+
             enableWXA.text = if (call?.getWXA()?.isEnabled() == true) "Disable Webex Assistant" else "Enable Webex Assistant"
             enableWXA.setOnClickListener {
                 dismiss()
@@ -191,6 +200,11 @@ class CallBottomSheetFragment(val transcriptionClickListener: (Call?) -> Unit,
             sendDTMF.setOnClickListener {
                 dismiss()
                 sendDTMFClickListener(call)
+            }
+
+            multiStreamOptions.setOnClickListener {
+                dismiss()
+                multiStreamOptionsClickListener(call)
             }
 
             cancel.setOnClickListener { dismiss() }

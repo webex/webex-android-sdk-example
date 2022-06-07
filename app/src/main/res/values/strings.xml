@@ -48,6 +48,7 @@
     <string name="post_message_empty_error">Empty Message</string>
     <string name="post_message_email_empty">Empty email address</string>
     <string name="post_message_attach_permission_error">Permission not granted</string>
+    <string name="camera_permission_error">Camera Permission not granted</string>
     <string name="post_message_invalid_message">Invalid Message</string>
     <string name="edit_message_internal_error">Edit Message Internal Error</string>
     <string name="message_edit_successful">Message edited successfully</string>
@@ -241,6 +242,7 @@
     <string name="enable_bg_connection">Enable Background Connection</string>
     <string name="enable_phone_permission">Enable Phone Read State</string>
     <string name="enable_hw_acceleration">Enable HW Acceleration</string>
+    <string name="multi_stream_new_approach">Multi Stream New Approach</string>
     <string name="front">Front</string>
     <string name="back">Back</string>
     <string name="call_cap">Call capability</string>
@@ -258,6 +260,7 @@
     <string name="swap_video">Swap Video</string>
     <string name="sending_video_force_landscape">Video Force Landscape</string>
     <string name="call_camera_options">Camera Options</string>
+    <string name="multi_stream_options">Multi Stream Options</string>
     <string name="zoom_factor">Zoom Factor</string>
     <string name="torch_mode">Torch Mode</string>
     <string name="flash_mode">Flash Mode</string>
@@ -277,6 +280,10 @@
     <string name="video_stream_mode">Video stream mode</string>
     <string name="video_stream_mode_composited">Composited</string>
     <string name="video_stream_mode_multi">Multi-stream</string>
+    <string name="multi_stream_set_category_a">SetCategoryA Option</string>
+    <string name="multi_stream_set_category_b">SetCategoryB Option</string>
+    <string name="multi_stream_remove_category_a">Remove CategoryA</string>
+    <string name="multi_stream_remove_category_b">Remove CategoryB</string>
     <string name="ongoing">OnGoing...</string>
     <string name="extras">Extras</string>
     <string name="show_access_token">Show Access Token</string>
@@ -306,8 +313,26 @@
         <item> DEBUG </item>
         <item> ERROR </item>
         <item> NO </item>
-
     </string-array>
+    <string name="media_stream_quality">Quality</string>
+    <string name="media_stream_duplicate">Duplicate</string>
+    <string name="media_stream_num_streams">No. of Streams (Max 24)</string>
+    <string name="media_stream_bitrate">Bitrate (Kbps)</string>
+    <string-array name="qualityArray">
+        <item> LD </item>
+        <item> SD </item>
+        <item> HD </item>
+        <item> FHD </item>
+    </string-array>
+
+    <string-array name="bw_options">
+        <item> BANDWIDTH_90P </item>
+        <item> BANDWIDTH_180P </item>
+        <item> BANDWIDTH_360P </item>
+        <item> BANDWIDTH_720P </item>
+        <item> BANDWIDTH_1080P </item>
+    </string-array>
+
     <string name="exit">EXIT</string>
     <string name="bg_none">None</string>
     <string name="bg_blur">Blur</string>
@@ -351,4 +376,7 @@
     <string name="high_cpu_usage">High CPU Usage</string>
     <string name="device_limitation">Device limitation</string>
     <string name="get_previous_message_by_id">Get previous messages by id</string>
+    <string name="max_video_bandwidth">Max Video Bandwidth</string>
+    <string name="show_incoming">Show Incoming Calls</string>
+    <string name="incoming_calls">Incoming Calls</string>
 </resources>

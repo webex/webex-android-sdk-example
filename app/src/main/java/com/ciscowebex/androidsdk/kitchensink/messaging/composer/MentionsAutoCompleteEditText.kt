@@ -92,7 +92,7 @@ class MentionsAutoCompleteEditText @JvmOverloads constructor(context: Context, a
                     span.mention.end = this.text.utf8Offset(span.mention.end)
                     messageInputMentions?.add(span.mention)
                 } catch (e: IndexOutOfBoundsException) {
-                    Log.e(TAG, e.message)
+                    Log.e(TAG, e.message.orEmpty())
                     // Remove mentions that exist outside the bounds of the message text
                     continue
                 }

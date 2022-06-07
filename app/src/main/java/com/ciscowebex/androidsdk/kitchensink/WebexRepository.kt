@@ -52,6 +52,14 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
         NO
     }
 
+    enum class BandWidthOptions {
+        BANDWIDTH_90P,
+        BANDWIDTH_180P,
+        BANDWIDTH_360P,
+        BANDWIDTH_720P,
+        BANDWIDTH_1080P
+    }
+
     enum class SpaceEvent {
         Created,
         Updated,
@@ -70,7 +78,8 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
         Received,
         Edited,
         Deleted,
-        MessageThumbnailUpdated
+        MessageThumbnailUpdated,
+        Updated
     }
 
     enum class CallEvent {
@@ -110,7 +119,9 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
     var enableBgConnectiontoggle = true
     var enablePhoneStatePermission = true
     var enableHWAcceltoggle = false
+    var multiStreamNewApproach = true
     var logFilter = LogLevel.ALL.name
+    var maxVideoBandwidth = BandWidthOptions.BANDWIDTH_720P.name
     var isConsoleLoggerEnabled = true
     var callCapability: CallCap = CallCap.Audio_Video
     var scalingMode: Call.VideoRenderMode = Call.VideoRenderMode.Fit
@@ -230,6 +241,9 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
                     }
                     is MessageObserver.MessageEdited -> {
                         _messageEventLiveData?.postValue(Pair(MessageEvent.Edited, event.getMessage()))
+                    }
+                    is MessageObserver.MessagesUpdated -> {
+                        _messageEventLiveData?.postValue(Pair(MessageEvent.Updated, event.getMessages()))
                     }
                 }
             }

@@ -3,6 +3,7 @@ package com.ciscowebex.androidsdk.kitchensink
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import androidx.databinding.DataBindingUtil
@@ -91,16 +92,21 @@ class HomeActivity : BaseActivity() {
             }
         })
 
+        webexViewModel.incomingListenerLiveData.observe(this@HomeActivity, Observer {
+            it?.let {
+                Log.d(tag, "incomingListenerLiveData: ${it.getCallId()}")
+                Handler(Looper.getMainLooper()).post {
+                    startActivity(CallActivity.getIncomingIntent(this, it.getCallId()))
+                }
+            }
+        })
+
         DataBindingUtil.setContentView<ActivityHomeBinding>(this, R.layout.activity_home)
                 .also { binding = it }
                 .apply {
 
                     ivStartCall.setOnClickListener {
                         startActivity(Intent(this@HomeActivity, SearchActivity::class.java))
-                    }
-
-                    ivWaitingCall.setOnClickListener {
-                        startActivity(CallActivity.getIncomingIntent(this@HomeActivity))
                     }
 
                     ivMessaging.setOnClickListener {
@@ -197,7 +203,7 @@ class HomeActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         updateUCData()
-        webexViewModel.setGlobalIncomingListener()
+        webexViewModel.setIncomingListener()
         addVirtualBackground()
     }
 

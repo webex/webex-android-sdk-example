@@ -14,7 +14,7 @@ import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.tabs.TabLayoutMediator.TabConfigurationStrategy
-import org.koin.android.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SearchActivity : BaseActivity() {
     lateinit var binding: ActivitySearchBinding

@@ -12,62 +12,87 @@
             android:background="@color/lightGray"
             android:clickable="true"
             android:focusable="true"
-            android:paddingBottom="20dp">
+            android:padding="10dp">
 
             <RelativeLayout
-                android:id="@+id/property1RelLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:id="@+id/propertyTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingVertical="@dimen/size_8dp"
-                    android:text="@string/zoom_factor"
-                    android:textColor="@color/black"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginEnd="20dp" />
-
-                <EditText
-                    android:id="@+id/propertyEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginTop="0dp"
-                    android:layout_marginEnd="20dp"
-                    android:ems="10"
-                    android:inputType="numberSigned|numberDecimal"
-                    android:layout_below="@+id/propertyTextView"/>
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/property2RelLayout"
+                android:id="@+id/numStreamsLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/property1RelLayout"
-                android:layout_marginTop="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
                 android:visibility="gone">
                 <TextView
-                    android:id="@+id/property2TextView"
+                    android:id="@+id/numStreamsTextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingVertical="@dimen/size_8dp"
-                    android:text="@string/zoom_factor"
-                    android:textColor="@color/black"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginEnd="20dp" />
+                    android:text="@string/media_stream_num_streams"
+                    android:textColor="@color/black"/>
 
                 <EditText
-                    android:id="@+id/property2EditText"
+                    android:id="@+id/numStreamsEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
                     android:layout_marginTop="0dp"
-                    android:layout_marginEnd="20dp"
                     android:ems="10"
-                    android:inputType="numberDecimal"
-                    android:layout_below="@+id/property2TextView"/>
+                    android:inputType="numberSigned"
+                    android:layout_below="@+id/numStreamsTextView"/>
             </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/duplicateValueLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/numStreamsLayout"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:visibility="gone" >
+
+                <TextView
+                    android:id="@+id/duplicateValueToggleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:text="@string/media_stream_duplicate" />
+
+                <ToggleButton
+                    android:id="@+id/duplicateValueToggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:checked="true" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/qualityLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_below="@+id/duplicateValueLayout">
+
+                <TextView
+                    android:id="@+id/qualityLogLevel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/media_stream_quality"/>
+
+                <Spinner
+                    android:id="@+id/qualitySpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/qualityLogLevel"
+                    android:layout_marginTop="10dp"
+                    android:entries="@array/qualityArray"/>
+
+            </RelativeLayout>
+
+
         </RelativeLayout>
 
         <View

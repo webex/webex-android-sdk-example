@@ -5,16 +5,22 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.WindowManager
 import androidx.databinding.DataBindingUtil
+import com.ciscowebex.androidsdk.CompletionHandler
+import com.ciscowebex.androidsdk.internal.ResultImpl
 import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityCallBinding
+import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
+import com.ciscowebex.androidsdk.kitchensink.utils.extensions.toast
 
 
-class CallActivity : BaseActivity() {
+class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener {
 
     lateinit var binding: ActivityCallBinding
 
@@ -25,9 +31,10 @@ class CallActivity : BaseActivity() {
             intent.putExtra(Constants.Intent.OUTGOING_CALL_CALLER_ID, callerName)
             return intent
         }
-        fun getIncomingIntent(context: Context): Intent {
+        fun getIncomingIntent(context: Context, callId: String? = null): Intent {
             val intent = Intent(context, CallActivity::class.java)
             intent.putExtra(Constants.Intent.CALLING_ACTIVITY_ID, 1)
+            intent.putExtra(Constants.Intent.CALL_ID, callId)
             return intent
         }
     }
@@ -104,5 +111,31 @@ class CallActivity : BaseActivity() {
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         toBeShownOnLockScreen()
+    }
+
+    override fun onEndAndAnswer(currentCallId: String, newCallId: String, handler: CompletionHandler<Boolean>) {
+        Log.d(tag, "currentCall: $currentCallId newCallId $newCallId")
+        //cut the current call
+        webexViewModel.getCall(currentCallId)?.hangup(CompletionHandler { result ->
+            if (result.isSuccessful) {
+                Log.d(tag, "hangup successful")
+                Handler(Looper.getMainLooper()).postDelayed( Runnable {
+                    val fragment = supportFragmentManager.findFragmentById(R.id.containerFragment)
+                    if (fragment is CallControlsFragment){
+                        val call = CallObjectStorage.getCallObject(newCallId)
+                        call?.let { fragment.answerCall(it) }
+                        handler.onComplete(ResultImpl.success(true))
+                    } else {
+                        Log.d(CallActivity::class.java.name, "fragment is null")
+                        handler.onComplete(ResultImpl.success(true))
+                    }
+                }, 2000)
+            } else {
+                handler.onComplete(ResultImpl.success(false))
+                Log.d(tag, "hangup error: ${result.error?.errorMessage}")
+            }
+        })
+
+
     }
 }

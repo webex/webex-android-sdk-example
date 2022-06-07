@@ -5,12 +5,15 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivitySetupBinding
+import com.ciscowebex.androidsdk.kitchensink.utils.PermissionsHelper
 import com.ciscowebex.androidsdk.phone.Phone
+import org.koin.android.ext.android.inject
 
 class SetupActivity: BaseActivity() {
 
@@ -24,6 +27,7 @@ class SetupActivity: BaseActivity() {
     private var cameraCap: CameraCap = CameraCap.Close
     private lateinit var callCap: WebexRepository.CallCap
     private lateinit var streamMode: Phone.VideoStreamMode
+    private val permissionsHelper: PermissionsHelper by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,6 +125,23 @@ class SetupActivity: BaseActivity() {
 
                     logLevelSpinner.setSelection(resources.getStringArray(R.array.logFilterArray).indexOf(webexViewModel.logFilter))
 
+                    bandwidthSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(
+                            parent: AdapterView<*>?,
+                            view: View?,
+                            position: Int,
+                            id: Long
+                        ) {
+                            webexViewModel.maxVideoBandwidth = resources.getStringArray(R.array.bw_options)[position] }
+
+                        override fun onNothingSelected(parent: AdapterView<*>?) {
+                            webexViewModel.maxVideoBandwidth = WebexRepository.BandWidthOptions.BANDWIDTH_720P.name
+                        }
+
+                    }
+
+                    bandwidthSpinner.setSelection(resources.getStringArray(R.array.bw_options).indexOf(webexViewModel.maxVideoBandwidth))
+
                     switchConsoleLog.setOnCheckedChangeListener { _ , checked ->
                         webexViewModel.isConsoleLoggerEnabled = checked
                         webexViewModel.enableConsoleLogger(webexViewModel.isConsoleLoggerEnabled)
@@ -129,9 +150,39 @@ class SetupActivity: BaseActivity() {
                     switchConsoleLog.isChecked = webexViewModel.isConsoleLoggerEnabled
 
                     cameraOptions.setOnClickListener {
-                        startActivity(Intent(this@SetupActivity, SetupCameraActivity::class.java))
+                        checkCameraPermissions()
+                    }
+
+                    multiStreamApproachNewToggle.isChecked = webexViewModel.multistreamNewApproach
+
+                    multiStreamApproachNewToggle.setOnCheckedChangeListener { _, checked ->
+                        webexViewModel.multistreamNewApproach = checked
                     }
                 }
+    }
+
+    private fun checkCameraPermissions(): Boolean {
+        if (!permissionsHelper.hasCameraPermission()) {
+            Log.d(tag, "requesting read permission")
+            requestPermissions(PermissionsHelper.permissionForCamera(), PermissionsHelper.PERMISSIONS_CAMERA_REQUEST)
+            return true
+        } else {
+            startActivity(Intent(this@SetupActivity, SetupCameraActivity::class.java))
+        }
+        return false
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            PermissionsHelper.PERMISSIONS_CAMERA_REQUEST -> {
+                if (PermissionsHelper.resultForCallingPermissions(permissions, grantResults)) {
+                    Log.d(tag, "camera permission granted")
+                    startActivity(Intent(this@SetupActivity, SetupCameraActivity::class.java))
+                } else {
+                    Toast.makeText(this, getString(R.string.camera_permission_error), Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     private fun getDefaultCamera(): CameraCap {

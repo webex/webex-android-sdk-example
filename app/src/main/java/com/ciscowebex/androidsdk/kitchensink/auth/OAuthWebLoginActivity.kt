@@ -11,7 +11,7 @@ import com.ciscowebex.androidsdk.kitchensink.HomeActivity
 import com.ciscowebex.androidsdk.kitchensink.KitchenSinkApp
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityOauthBinding
-import org.koin.android.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class OAuthWebLoginActivity : AppCompatActivity() {
 
