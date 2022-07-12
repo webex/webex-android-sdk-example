@@ -461,12 +461,15 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                         Log.d(tag, "CallObserver OnMediaChanged setOnMediaStreamInfoChanged isSendingVideo: ${info.getStream().getPerson()?.isSendingVideo()}")
                         if (info.getStream().getPerson()?.isSendingVideo() == true) {
                             auxStreamViewHolder.viewAvatar.visibility = View.GONE
+                            auxStreamViewHolder.mediaRenderView.visibility = View.VISIBLE
+                            info.getStream().setRenderView(auxStreamViewHolder.mediaRenderView)
                         } else {
                             val membership = info.getStream().getPerson()
                             membership?.let { member ->
                                 if (member.getPersonId().isNotEmpty()) {
                                     Log.d(tag, "CallObserver OnMediaChanged setOnMediaStreamInfoChanged viewAvatar visible")
                                     auxStreamViewHolder.viewAvatar.visibility = View.VISIBLE
+                                    auxStreamViewHolder.mediaRenderView.visibility = View.GONE
                                 }
                             }
                         }
@@ -1318,8 +1321,11 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             binding.callingHeader.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
             binding.tvName.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
         } else {
-            binding.callingHeader.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-            binding.tvName.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            val status = isMainStageRemoteUnMuted()
+            if (status) {
+                binding.callingHeader.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                binding.tvName.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            }
         }
     }
 
@@ -1378,7 +1384,10 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         if (toHide) {
             binding.remoteViewLayout.visibility = View.GONE
         } else {
-            binding.remoteViewLayout.visibility = View.VISIBLE
+            val status = isMainStageRemoteUnMuted()
+            if (status) {
+                binding.remoteViewLayout.visibility = View.VISIBLE
+            }
         }
 
         videoViewTextColorState(toHide)
@@ -1544,7 +1553,10 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 if (webexViewModel.isRemoteVideoMuted) {
                     binding.remoteViewLayout.visibility = View.GONE
                 } else {
-                    binding.remoteViewLayout.visibility = View.VISIBLE
+                    val status = isMainStageRemoteUnMuted()
+                    if (status) {
+                        binding.remoteViewLayout.visibility = View.VISIBLE
+                    }
                 }
 
                 binding.controlGroup.visibility = View.VISIBLE
@@ -1660,23 +1672,27 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 if (webexViewModel.isRemoteScreenShareON) {
                     resizeRemoteVideoView()
                 }
-                binding.remoteViewLayout.visibility = View.VISIBLE
-                val pair = webexViewModel.getVideoRenderViews(callId)
-                if (pair.second == null) {
-                    webexViewModel.setVideoRenderViews(callId, binding.localView, binding.remoteView)
-                }
+                val status = isMainStageRemoteUnMuted()
 
-                if (webexViewModel.streamMode != Phone.VideoStreamMode.COMPOSITED) {
-                    if (!webexViewModel.multistreamNewApproach) {
+                if (status) {
+                    binding.remoteViewLayout.visibility = View.VISIBLE
+                    val pair = webexViewModel.getVideoRenderViews(callId)
+                    if (pair.second == null) {
+                        webexViewModel.setVideoRenderViews(callId, binding.localView, binding.remoteView)
+                    }
+
+                    if (webexViewModel.streamMode != Phone.VideoStreamMode.COMPOSITED) {
+                        if (!webexViewModel.multistreamNewApproach) {
+                            binding.ivRemoteAudioState.visibility = View.GONE
+                            binding.tvRemoteUserName.visibility = View.GONE
+                        } else {
+                            binding.ivRemoteAudioState.visibility = View.VISIBLE
+                            binding.tvRemoteUserName.visibility = View.VISIBLE
+                        }
+                    } else {
                         binding.ivRemoteAudioState.visibility = View.GONE
                         binding.tvRemoteUserName.visibility = View.GONE
-                    } else {
-                        binding.ivRemoteAudioState.visibility = View.VISIBLE
-                        binding.tvRemoteUserName.visibility = View.VISIBLE
                     }
-                } else {
-                    binding.ivRemoteAudioState.visibility = View.GONE
-                    binding.tvRemoteUserName.visibility = View.GONE
                 }
             }
 
@@ -1690,6 +1706,26 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 videoButtonState(false)
             }
         }
+    }
+
+    private fun isMainStageRemoteUnMuted() : Boolean {
+        var status = false
+         if (!webexViewModel.isRemoteVideoMuted) {
+             Log.d(TAG, "CallControlsFragment isMainStageRemoteUnMuted isRemoteVideoMuted false")
+             val streams = webexViewModel.getMediaStreams()
+             Log.d(TAG, "CallControlsFragment isMainStageRemoteUnMuted streams: ${streams?.size}")
+             streams?.let { streamList ->
+                 val stream = streamList.find { stream -> stream.getStreamType() == MediaStreamType.Stream1 }
+                 stream?.let { st ->
+                     Log.d(TAG, "CallControlsFragment isMainStageRemoteUnMuted found stream")
+                     status = st.getPerson()?.isSendingVideo() ?: false
+                 }
+             } ?: run {
+                 status = true
+             }
+         }
+        Log.d(TAG, "CallControlsFragment isMainStageRemoteUnMuted return status: $status")
+        return status
     }
 
     private fun toggleSpeaker(v: View) {
