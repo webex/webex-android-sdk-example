@@ -26,15 +26,38 @@
                 android:orientation="horizontal"
                 android:padding="12dp">
 
-                <TextView
-                    android:id="@+id/name"
+                <ImageView
+                    android:id="@+id/callDirection"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_call_incoming" />
+                <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/size_8dp"
                     android:layout_weight="1"
-                    android:textSize="@dimen/size_16sp"
-                    android:text="@{listItem.name}"
-                    tools:text="Rohit Sharma  Sharma Rohit Sharma Rohit Sharma  Sharma Rohit Sharma Rohit Sharma  Sharma Rohit Sharma" />
+                    android:layout_marginStart="@dimen/size_8dp"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/size_16sp"
+                        android:text="@{listItem.name}"
+                        tools:text="Stephen Hawking (The Second)" />
+
+                    <TextView
+                        android:id="@+id/startTimeAndDuration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/size_12sp"
+                        android:textColor="@color/gray60"
+                        android:text="@{listItem.dateAndDuration}"
+                        tools:text="18 Aug 2022 (6 Minutes)" />
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
 
                 <LinearLayout
                     android:layout_width="wrap_content"

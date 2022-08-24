@@ -9,6 +9,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -21,6 +22,7 @@ import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ImageButton
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -87,6 +89,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     private lateinit var cameraOptionsDataBottomSheetFragment: CameraOptionsDataBottomSheetFragment
     private lateinit var multiStreamOptionsBottomSheetFragment: MultiStreamOptionsBottomSheetFragment
     private lateinit var multiStreamDataOptionsBottomSheetFragment: MultiStreamDataOptionsBottomSheetFragment
+    private lateinit var mediaStreamBottomSheetFragment: MediaStreamBottomSheetFragment
     private lateinit var photoViewerBottomSheetFragment: PhotoViewerBottomSheetFragment
     private lateinit var incomingInfoAdapter: IncomingCallBottomSheetFragment.IncomingInfoAdapter
     private val mAuxStreamViewMap: HashMap<View, AuxStreamViewHolder> = HashMap()
@@ -119,6 +122,11 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         var audioState: ImageView = item.findViewById(R.id.iv_audio_state)
         var viewAvatar: ImageView = item.findViewById(R.id.view_avatar)
         var remoteBorder: RelativeLayout = item.findViewById(R.id.remote_border)
+        var moreOption: ImageButton = item.findViewById(R.id.ib_more_option)
+        var streamType: MediaStreamType = MediaStreamType.Unknown
+        var parentLayout: RelativeLayout = item.findViewById(R.id.parentLayout)
+        var pinStreamImageView: ImageView = item.findViewById(R.id.iv_pinstream)
+        var personID: String? = null
     }
 
     companion object {
@@ -419,7 +427,10 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                     //remote media stream
                     setRemoteVideoInformation(event.getStream()?.getPerson()?.getDisplayName().orEmpty(), !(event.getStream()?.getPerson()?.isSendingAudio() ?: true))
                 } else {
-                    val view = getMediaStreamView()
+                    Log.d(TAG, "CallObserver OnMediaChanged MediaStreamAvailabilityEvent personID: ${event.getStream()?.getPerson()?.getPersonId()}," +
+                            "personName: ${event.getStream()?.getPerson()?.getDisplayName()}")
+                    val view = getMediaStreamView(true, event.getStream()?.getStreamType() ?: MediaStreamType.Unknown,
+                        event.getStream()?.getPerson()?.getPersonId())
                     event.getStream()?.setRenderView(view)
                     val auxStreamViewHolder = mAuxStreamViewMap[view]
                     auxStreamViewHolder?.let {
@@ -433,6 +444,12 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                             it.audioState.setImageResource(R.drawable.ic_microphone_muted_bold)
                         } else {
                             it.audioState.setImageResource(R.drawable.ic_microphone_36)
+                        }
+
+                        if (membership?.isSendingVideo() == true) {
+                            auxStreamViewHolder.viewAvatar.visibility = View.GONE
+                        } else {
+                            auxStreamViewHolder.viewAvatar.visibility = View.VISIBLE
                         }
                     }
                 }
@@ -461,12 +478,15 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                         Log.d(tag, "CallObserver OnMediaChanged setOnMediaStreamInfoChanged isSendingVideo: ${info.getStream().getPerson()?.isSendingVideo()}")
                         if (info.getStream().getPerson()?.isSendingVideo() == true) {
                             auxStreamViewHolder.viewAvatar.visibility = View.GONE
+                            auxStreamViewHolder.mediaRenderView.visibility = View.VISIBLE
+                            info.getStream().setRenderView(auxStreamViewHolder.mediaRenderView)
                         } else {
                             val membership = info.getStream().getPerson()
                             membership?.let { member ->
                                 if (member.getPersonId().isNotEmpty()) {
                                     Log.d(tag, "CallObserver OnMediaChanged setOnMediaStreamInfoChanged viewAvatar visible")
                                     auxStreamViewHolder.viewAvatar.visibility = View.VISIBLE
+                                    auxStreamViewHolder.mediaRenderView.visibility = View.GONE
                                 }
                             }
                         }
@@ -500,16 +520,54 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                             " height: " + info.getStream().getSize().height)
                 }
 
+                MediaStreamChangeEventType.PinState -> {
+                    val auxStreamViewHolder = mAuxStreamViewMap[info.getStream().getRenderView()]
+
+                    if (auxStreamViewHolder != null) {
+                        Log.d(tag, "CallObserver OnMediaChanged setOnMediaStreamInfoChanged PinState " +
+                                "isPinned: ${info.getStream().isPinned()} personID: ${info.getStream().getPerson()?.getPersonId()}")
+                        val membership = info.getStream().getPerson()
+                        membership?.let { member ->
+                            if (member.getPersonId().isNotEmpty()) {
+                                Log.d(tag, "CallObserver OnMediaChanged setOnMediaStreamInfoChanged PinState getPersonId not empty")
+                                    if (isMediaStreamAlreadyPinned(member.getPersonId(), info.getStream().getStreamType())) {
+                                    Log.d(tag, "CallObserver OnMediaChanged setOnMediaStreamInfoChanged PinState isPinned")
+                                    auxStreamViewHolder.pinStreamImageView.visibility = View.VISIBLE
+                                    auxStreamViewHolder.parentLayout.background = ContextCompat.getDrawable(requireActivity(), R.drawable.border_category_c)
+                                } else {
+                                    auxStreamViewHolder.pinStreamImageView.visibility = View.GONE
+                                    auxStreamViewHolder.parentLayout.background = ContextCompat.getDrawable(requireActivity(), R.drawable.border_category_b)
+                                }
+                            }
+                        }
+                    }
+                }
+
                 MediaStreamChangeEventType.Membership -> {
-                    Log.d(tag, "CallObserver OnMediaChanged setOnMediaStreamInfoChanged Membership from: ${info.fromMembership()} to: ${info.toMembership()}")
+                    Log.d(tag, "CallObserver OnMediaChanged setOnMediaStreamInfoChanged Membership from: ${info.fromMembership().getPersonId()} to: ${info.toMembership().getPersonId()}")
                     val auxStreamViewHolder = mAuxStreamViewMap[info.getStream().getRenderView()]
                     val membership = info.getStream().getPerson()
                     membership?.let { member ->
                         Log.d(tag, "CallObserver OnMediaChanged setOnMediaStreamInfoChanged name: " + member.getDisplayName())
                         auxStreamViewHolder?.viewAvatar?.visibility = if (member.isSendingVideo()) View.GONE else View.VISIBLE
                         auxStreamViewHolder?.textView?.text = member.getDisplayName()
+                        auxStreamViewHolder?.personID = member.getPersonId()
+                        auxStreamViewHolder?.streamType = info.getStream().getStreamType()
+                        if (isMediaStreamAlreadyPinned(member.getPersonId(), auxStreamViewHolder?.streamType)) {
+                            auxStreamViewHolder?.pinStreamImageView?.visibility = View.VISIBLE
+                            auxStreamViewHolder?.parentLayout?.background = ContextCompat.getDrawable(requireActivity(), R.drawable.border_category_c)
+                        } else {
+                            auxStreamViewHolder?.pinStreamImageView?.visibility = View.GONE
+                            auxStreamViewHolder?.parentLayout?.background = ContextCompat.getDrawable(requireActivity(), R.drawable.border_category_b)
+                        }
+
+                        if (info.getStream().getStreamType() == MediaStreamType.Stream1) {
+                            setRemoteVideoInformation(member.getDisplayName().orEmpty(), !(member.isSendingAudio()))
+                        }
                     }
                 }
+
+                else -> {}
             }
         }
     }
@@ -976,7 +1034,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         )
 
         callOptionsBottomSheetFragment = CallBottomSheetFragment(
-                { call -> showIncomingCallBottomSheet(call)},
+                { call -> showIncomingCallBottomSheet()},
                 { call -> showTranscriptions(call) },
                 { call -> toggleWXAClickListener(call) },
                 { call -> receivingVideoListener(call) },
@@ -999,6 +1057,11 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         multiStreamDataOptionsBottomSheetFragment = MultiStreamDataOptionsBottomSheetFragment(
             { call, quality, duplicate -> categoryAOptionsOkListener(call, quality, duplicate) },
             { call, numStreams, quality -> categoryBOptionsOkListener(call, numStreams, quality) } )
+
+        mediaStreamBottomSheetFragment= MediaStreamBottomSheetFragment(
+            { renderView, personID, quality -> pinStreamClickListener(renderView, personID, quality) },
+            { renderView, personID -> unpinStreamClickListener(renderView, personID) } ,
+            { renderView, personID -> closeStreamStreamClickListener(renderView, personID) } )
 
         initIncomingCallBottomSheet()
 
@@ -1303,7 +1366,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 for (model in incomingInfoAdapter.info) {
                     model.isEnabled = true
                 }
-                showIncomingCallBottomSheet(null)
+                showIncomingCallBottomSheet()
             }
         }
     }
@@ -1318,8 +1381,11 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             binding.callingHeader.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
             binding.tvName.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
         } else {
-            binding.callingHeader.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-            binding.tvName.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            val status = isMainStageRemoteUnMuted()
+            if (status) {
+                binding.callingHeader.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                binding.tvName.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            }
         }
     }
 
@@ -1378,7 +1444,10 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         if (toHide) {
             binding.remoteViewLayout.visibility = View.GONE
         } else {
-            binding.remoteViewLayout.visibility = View.VISIBLE
+            val status = isMainStageRemoteUnMuted()
+            if (status) {
+                binding.remoteViewLayout.visibility = View.VISIBLE
+            }
         }
 
         videoViewTextColorState(toHide)
@@ -1502,7 +1571,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
                     override fun onAuxStreamAvailable(): View? {
                         Log.d(tag, "MultiStreamObserver onAuxStreamAvailable")
-                        return getMediaStreamView()
+                        return getMediaStreamView(false, MediaStreamType.Unknown, null)
                     }
 
                     override fun onAuxStreamUnavailable(): View? {
@@ -1544,7 +1613,10 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 if (webexViewModel.isRemoteVideoMuted) {
                     binding.remoteViewLayout.visibility = View.GONE
                 } else {
-                    binding.remoteViewLayout.visibility = View.VISIBLE
+                    val status = isMainStageRemoteUnMuted()
+                    if (status) {
+                        binding.remoteViewLayout.visibility = View.VISIBLE
+                    }
                 }
 
                 binding.controlGroup.visibility = View.VISIBLE
@@ -1557,13 +1629,55 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         }
     }
 
-    private fun getMediaStreamView(): MediaRenderView {
+    private fun isMediaStreamAlreadyPinned(personID: String?, streamType: MediaStreamType?) : Boolean {
+        personID?.let { id ->
+            webexViewModel.getMediaStreams()?.let { streamList ->
+
+                for (stream in streamList) {
+                    Log.d(TAG, "CallControlsFragment isMediaStreamAlreadyPinned personID: $personID, isPinned: ${stream.isPinned()}, streamType: ${stream.getStreamType()}")
+                }
+
+                val stream = streamList.find { stream -> stream.getStreamType() == streamType }
+                stream?.let {
+                    return it.isPinned()
+                }
+            }
+        }
+
+        return false
+    }
+
+    private fun getMediaStreamView(newApproach: Boolean, type: MediaStreamType, personID: String?): MediaRenderView {
         val auxStreamView: View = LayoutInflater.from(activity).inflate(R.layout.multistream_view, null)
         val auxStreamViewHolder = AuxStreamViewHolder(auxStreamView)
         mAuxStreamViewMap[auxStreamViewHolder.mediaRenderView] = auxStreamViewHolder
-        if (webexViewModel.multistreamNewApproach) {
+        if (newApproach) {
             auxStreamViewHolder.audioState.visibility = View.VISIBLE
+            auxStreamViewHolder.moreOption.visibility = View.VISIBLE
+            auxStreamViewHolder.streamType = type
+            auxStreamViewHolder.personID = personID
+            auxStreamViewHolder.moreOption.tag = auxStreamViewHolder.mediaRenderView
+            val alreadyPinned = isMediaStreamAlreadyPinned(personID, type)
+
+            Log.d(TAG, "getMediaStreamView personID $personID, alreadyPinned: $alreadyPinned, type: $type")
+            if (alreadyPinned) {
+                auxStreamViewHolder.pinStreamImageView.visibility = View.VISIBLE
+                auxStreamViewHolder.parentLayout.background = ContextCompat.getDrawable(requireActivity(), R.drawable.border_category_c)
+            } else {
+                auxStreamViewHolder.pinStreamImageView.visibility = View.GONE
+                auxStreamViewHolder.parentLayout.background = ContextCompat.getDrawable(requireActivity(), R.drawable.border_category_b)
+            }
+
+            auxStreamViewHolder.moreOption.setOnClickListener {
+                val view = auxStreamViewHolder.moreOption.tag as MediaRenderView
+                val holder = mAuxStreamViewMap[view]
+                Log.d(TAG, "CallControlsFragment getMediaStreamView moreOption tag: ${holder?.streamType}, personID: ${holder?.personID}")
+                webexViewModel.currentCallId?.let {
+                    showMediaStreamBottomSheet(webexViewModel.getCall(it), view, holder?.personID, isMediaStreamAlreadyPinned(holder?.personID, holder?.streamType))
+                }
+            }
         } else {
+            auxStreamViewHolder.moreOption.visibility = View.GONE
             auxStreamViewHolder.audioState.visibility = View.GONE
         }
         return auxStreamViewHolder.mediaRenderView
@@ -1660,23 +1774,27 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 if (webexViewModel.isRemoteScreenShareON) {
                     resizeRemoteVideoView()
                 }
-                binding.remoteViewLayout.visibility = View.VISIBLE
-                val pair = webexViewModel.getVideoRenderViews(callId)
-                if (pair.second == null) {
-                    webexViewModel.setVideoRenderViews(callId, binding.localView, binding.remoteView)
-                }
+                val status = isMainStageRemoteUnMuted()
 
-                if (webexViewModel.streamMode != Phone.VideoStreamMode.COMPOSITED) {
-                    if (!webexViewModel.multistreamNewApproach) {
+                if (status) {
+                    binding.remoteViewLayout.visibility = View.VISIBLE
+                    val pair = webexViewModel.getVideoRenderViews(callId)
+                    if (pair.second == null) {
+                        webexViewModel.setVideoRenderViews(callId, binding.localView, binding.remoteView)
+                    }
+
+                    if (webexViewModel.streamMode != Phone.VideoStreamMode.COMPOSITED) {
+                        if (!webexViewModel.multistreamNewApproach) {
+                            binding.ivRemoteAudioState.visibility = View.GONE
+                            binding.tvRemoteUserName.visibility = View.GONE
+                        } else {
+                            binding.ivRemoteAudioState.visibility = View.VISIBLE
+                            binding.tvRemoteUserName.visibility = View.VISIBLE
+                        }
+                    } else {
                         binding.ivRemoteAudioState.visibility = View.GONE
                         binding.tvRemoteUserName.visibility = View.GONE
-                    } else {
-                        binding.ivRemoteAudioState.visibility = View.VISIBLE
-                        binding.tvRemoteUserName.visibility = View.VISIBLE
                     }
-                } else {
-                    binding.ivRemoteAudioState.visibility = View.GONE
-                    binding.tvRemoteUserName.visibility = View.GONE
                 }
             }
 
@@ -1690,6 +1808,26 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 videoButtonState(false)
             }
         }
+    }
+
+    private fun isMainStageRemoteUnMuted() : Boolean {
+        var status = false
+         if (!webexViewModel.isRemoteVideoMuted) {
+             Log.d(TAG, "CallControlsFragment isMainStageRemoteUnMuted isRemoteVideoMuted false")
+             val streams = webexViewModel.getMediaStreams()
+             Log.d(TAG, "CallControlsFragment isMainStageRemoteUnMuted streams: ${streams?.size}")
+             streams?.let { streamList ->
+                 val stream = streamList.find { stream -> stream.getStreamType() == MediaStreamType.Stream1 }
+                 stream?.let { st ->
+                     Log.d(TAG, "CallControlsFragment isMainStageRemoteUnMuted found stream")
+                     status = st.getPerson()?.isSendingVideo() ?: false
+                 }
+             } ?: run {
+                 status = true
+             }
+         }
+        Log.d(TAG, "CallControlsFragment isMainStageRemoteUnMuted return status: $status")
+        return status
     }
 
     private fun toggleSpeaker(v: View) {
@@ -1713,26 +1851,26 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     internal fun handleFCMIncomingCall(callId: String) {
         Handler(Looper.getMainLooper()).post {
             webexViewModel.setFCMIncomingListenerObserver(callId)
-            onIncomingCall(webexViewModel.getCall(callId))
         }
     }
 
     private fun onIncomingCall(call: Call?) {
         Handler(Looper.getMainLooper()).post {
-
             Log.d(TAG, "CallControlsFragment onIncomingCall callerId: ${call?.getCallId()}, callInfo title: ${call?.getTitle()}")
-
             binding.incomingCallHeader.visibility = View.GONE
-
             val schedules= call?.getSchedules()
             incomingLayoutState(false)
-
-            schedules?.let {
-                val item = schedules.first()
-                if (!checkIncomingAdapterList(item)) {
-                    val model = MeetingInfoModel.convertToMeetingInfoModel(call, item)
-                    incomingInfoAdapter.info.add(model)
-                    Log.d(TAG, "CallControlsFragment onIncomingCall schedules size: ${schedules.size}")
+            val twentyFourHrsFromNow = Date().time + 86400000
+            // Only get meetings till next 24 hours.
+            val filteredMeetings = schedules?.filter { it.getStart()?.time ?: (twentyFourHrsFromNow + 10) <= twentyFourHrsFromNow}
+            filteredMeetings?.let { meetings ->
+                for (meeting in meetings) {
+                    Log.d(TAG,"subject = ${meeting.getSubject()} & meetingId = ${meeting.getId()}")
+                    if (!checkIncomingAdapterList(meeting)) {
+                        val model = MeetingInfoModel.convertToMeetingInfoModel(call, meeting)
+                        incomingInfoAdapter.info.add(model)
+                        Log.d(TAG, "CallControlsFragment onIncomingCall meetings size: ${meetings.size}")
+                    }
                 }
             } ?: run {
                 val group = call?.isGroupCall() ?: false
@@ -1748,19 +1886,19 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             val incomingCalls = incomingInfoAdapter.info.filter { it.call?.getCallId() != webexViewModel.currentCallId }
             incomingInfoAdapter.info.clear()
             incomingInfoAdapter.info.addAll(incomingCalls)
-
-            showIncomingCallBottomSheet(call)
-            incomingInfoAdapter.notifyDataSetChanged()
+            showIncomingCallBottomSheet()
         }
     }
 
-    private fun showIncomingCallBottomSheet(call: Call?) {
-        if (incomingCallBottomSheetFragment.isAdded || incomingCallBottomSheetFragment.isVisible) return
+    private fun showIncomingCallBottomSheet() {
         Log.d(TAG, "showIncomingCallBottomSheet")
-        incomingCallBottomSheetFragment.adapter = incomingInfoAdapter
-        incomingCallBottomSheetFragment.isCancelable = false
-        activity?.supportFragmentManager?.let { incomingCallBottomSheetFragment.show(it, IncomingCallBottomSheetFragment.TAG) }
-        incomingCallBottomSheetFragment.view?.requestLayout()
+        if (!incomingCallBottomSheetFragment.isAdded && !incomingCallBottomSheetFragment.isVisible) {
+            incomingCallBottomSheetFragment.adapter = incomingInfoAdapter
+            incomingCallBottomSheetFragment.isCancelable = false
+            activity?.supportFragmentManager?.let { incomingCallBottomSheetFragment.show(it, IncomingCallBottomSheetFragment.TAG) }
+            incomingCallBottomSheetFragment.view?.requestLayout()
+        }
+        incomingInfoAdapter.notifyDataSetChanged()
     }
 
     private fun checkIncomingAdapterList(item: CallSchedule): Boolean {
@@ -2101,6 +2239,42 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         activity?.supportFragmentManager?.let { multiStreamDataOptionsBottomSheetFragment.show(it, MultiStreamDataOptionsBottomSheetFragment.TAG) }
     }
 
+    private fun showMediaStreamBottomSheet(call: Call?, renderView: MediaRenderView, personID: String?, alreadyPinned: Boolean) {
+        mediaStreamBottomSheetFragment.call = call
+        mediaStreamBottomSheetFragment.renderView = renderView
+        mediaStreamBottomSheetFragment.alreadyPinned = alreadyPinned
+        mediaStreamBottomSheetFragment.personID = personID
+        mediaStreamBottomSheetFragment.isMediaStreamsPinningSupported = webexViewModel.isMediaStreamsPinningSupported()
+        Log.d(TAG, "mediaStreamBottomSheetFragment.isMediaStreamsPinningSupported: ${mediaStreamBottomSheetFragment.isMediaStreamsPinningSupported}")
+        activity?.supportFragmentManager?.let { mediaStreamBottomSheetFragment.show(it, MediaStreamBottomSheetFragment.TAG) }
+    }
+
+    private fun pinStreamClickListener(renderView: MediaRenderView?, personID: String?, quality: MediaStreamQuality) {
+        renderView?.let { view ->
+            val streams = webexViewModel.getMediaStreams()
+            streams?.let { streamList ->
+                val stream = streamList.find { stream -> stream.getPerson()?.getPersonId() == personID }
+                stream?.let { st ->
+                    st.getPerson()?.let { person ->
+                        Log.d(TAG, "pinStreamClickListener personID $personID, getDisplayName: ${person.getDisplayName()}")
+                        webexViewModel.setMediaStreamCategoryC(person.getPersonId(), quality)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun unpinStreamClickListener(renderView: MediaRenderView?, personID: String?) {
+        Log.d(TAG, "unpinStreamClickListener")
+        renderView?.let {
+            webexViewModel.removeMediaStreamCategoryC(personID ?: "")
+        }
+    }
+
+    private fun closeStreamStreamClickListener(renderView: MediaRenderView?, personID: String?) {
+        Log.d(TAG, "closeStreamStreamClickListener")
+    }
+
     private fun showCameraDataOptionsBottomSheetFragment(call: Call?, type: CameraOptionsDataBottomSheetFragment.OptionType, propertyText1: String?, propertyText2: String?, property2Visibility: Boolean) {
         cameraOptionsDataBottomSheetFragment.call = call
         cameraOptionsDataBottomSheetFragment.type = type
@@ -2247,6 +2421,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         callOptionsBottomSheetFragment.scalingModeValue = webexViewModel.scalingMode
         callOptionsBottomSheetFragment.compositeLayoutValue = webexViewModel.compositedVideoLayout
         callOptionsBottomSheetFragment.streamMode = webexViewModel.streamMode
+        callOptionsBottomSheetFragment.multiStreamNewApproach = webexViewModel.multistreamNewApproach
         callOptionsBottomSheetFragment.isSendingVideoForceLandscape = webexViewModel.isSendingVideoForceLandscape
         activity?.supportFragmentManager?.let { callOptionsBottomSheetFragment.show(it, CallBottomSheetFragment.TAG) }
     }
@@ -2279,5 +2454,23 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             Call.MediaQualityInfo.HighCpuUsage -> showDialogWithMessage(requireContext(), R.string.warning, getString(R.string.high_cpu_usage))
             Call.MediaQualityInfo.DeviceLimitation -> showDialogWithMessage(requireContext(), R.string.warning, getString(R.string.device_limitation))
         }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        Log.d("CallControlFragment", "newConfig ${newConfig.orientation}" )
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            binding.localViewLayout.layoutParams.height =
+                requireActivity().resources.getDimension(R.dimen.local_video_view_width).toInt()
+            binding.localViewLayout.layoutParams.width =
+                requireActivity().resources.getDimension(R.dimen.local_video_view_height).toInt()
+        }
+        else {
+            binding.localViewLayout.layoutParams.height =
+                requireActivity().resources.getDimension(R.dimen.local_video_view_height).toInt()
+            binding.localViewLayout.layoutParams.width =
+                requireActivity().resources.getDimension(R.dimen.local_video_view_width).toInt()
+        }
+        binding.localViewLayout.requestLayout()
     }
 }

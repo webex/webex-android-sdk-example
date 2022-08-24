@@ -27,3 +27,15 @@ fun getEndOfDay(date: Date): Date {
 fun getCalInstance(): Calendar {
     return Calendar.getInstance(Locale.getDefault())
 }
+
+fun formatCallDurationTime(duration: Long): CharSequence {
+    val h = (duration / 3600000).toInt()
+    val m = (duration - h * 3600000).toInt() / 60000
+    val s = (duration - h * 3600000 - m * 60000).toInt() / 1000
+    val hh = if (h > 0) {
+        (if (h < 10) "0$h" else "$h") + ":"
+    } else {
+        ""
+    }
+    return hh + (if (m < 10) "0$m" else "$m") + ":" + if (s < 10) "0$s" else "$s"
+}

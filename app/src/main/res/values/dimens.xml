@@ -9,6 +9,7 @@
     <dimen name="textMedium">18sp</dimen>
     <dimen name="margin12dp">12dp</dimen>
     <dimen name="size_8dp">8dp</dimen>
+    <dimen name="dimen_4dp">4dp</dimen>
     <dimen name="margin_normal">16dp</dimen>
     <!--Padding sizes-->
 

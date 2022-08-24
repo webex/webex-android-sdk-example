@@ -64,4 +64,19 @@ object SharedPrefUtils {
 
         return false
     }
+
+    fun setAppBackgroundRunningPreferred(context:Context, isPreferred: Boolean) {
+        val pref = context.getSharedPreferences(Constants.Keys.KitchenSinkSharedPref, Context.MODE_PRIVATE)
+        pref?.edit()?.putBoolean(Constants.Keys.IsBackgroundRunningEnabled, isPreferred)?.apply()
+    }
+
+    fun isAppBackgroundRunningPreferred(context: Context) : Boolean  {
+        val pref = context.getSharedPreferences(Constants.Keys.KitchenSinkSharedPref, Context.MODE_PRIVATE)
+
+        pref?.let {
+            return pref.getBoolean(Constants.Keys.IsBackgroundRunningEnabled, false)
+        }
+
+        return false
+    }
 }

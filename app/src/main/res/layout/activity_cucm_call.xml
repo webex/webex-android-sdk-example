@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".calling.CucmCallActivity">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/callertextblock"
+        android:gravity="center"
+        >
+
+        <TextView
+            android:id="@+id/callerinfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:text="Caller"
+            android:visibility="gone"
+            />
+
+        <TextView
+            android:id="@+id/ucServerConnectionStatusTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:text="Caller"
+            android:visibility="gone"
+
+            />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:orientation="horizontal"
+        android:id="@+id/buttongroup"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/callertextblock"
+        app:layout_constraintBottom_toBottomOf="parent"
+        >
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/accept"
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_margin="20dp"
+            android:layout_height="34dp"
+            android:text="@string/accept"
+            android:textAllCaps="true"
+            android:background="#54c2bc"
+            android:textColor="#FFFFFF"
+
+            android:textSize="9sp"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/decline"
+            android:layout_weight="1"
+            android:layout_margin="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="34dp"
+            android:text="@string/dismiss"
+            android:textAllCaps="true"
+            android:background="#FF0000"
+            android:textColor="#FFFFFF"
+            android:textSize="9sp"/>
+
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

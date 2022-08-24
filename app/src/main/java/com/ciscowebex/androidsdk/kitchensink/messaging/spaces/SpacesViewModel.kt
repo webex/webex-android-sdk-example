@@ -42,6 +42,8 @@ class SpacesViewModel(private val spacesRepo: SpacesRepository,
 
     private val addOnCallSuffix = " (On Call)"
 
+    private val TAG = "SpacesViewModel"
+
     override fun onCleared() {
         webexRepository.clearSpaceData()
     }
@@ -49,16 +51,22 @@ class SpacesViewModel(private val spacesRepo: SpacesRepository,
     private fun getSpacesWithActiveCalls() {
         val allSpaces = arrayListOf<SpaceModel>()
         spacesRepo.listSpacesWithActiveCalls().observeOn(AndroidSchedulers.mainThread()).subscribe({ spaceIds ->
-            spaces.value?.forEach { space ->
-                if(spaceIds.contains(space.id)) {
-                    val tempSpace = SpaceModel(space.id, space.title + addOnCallSuffix, space.spaceType, space.isLocked, space.lastActivity, space.created, space.teamId, space.sipAddress)
-                    allSpaces.add(tempSpace)
-                } else {
-                    allSpaces.add(space)
+            Log.d(TAG, "listSpacesWithActiveCalls spaceIds.size = ${spaceIds.size}")
+            if (spaceIds.isNotEmpty()) {
+                spaces.value?.forEach { space ->
+                    if(spaceIds.contains(space.id)) {
+                        val tempSpace = SpaceModel(space.id, space.title + addOnCallSuffix, space.spaceType, space.isLocked, space.lastActivity, space.created, space.teamId, space.sipAddress)
+                        allSpaces.add(tempSpace)
+                    } else {
+                        allSpaces.add(space)
+                    }
                 }
+                _spaces.postValue(allSpaces)
             }
-            _spaces.postValue(allSpaces)
-        }) { _spaces.postValue(spaces.value)}.autoDispose()
+        })
+        {
+            Log.e(TAG, "error in listSpacesWithActiveCalls : ${it.message}")
+        }.autoDispose()
     }
 
     fun setSpaceEventListener(listener : SpaceEventListener) {

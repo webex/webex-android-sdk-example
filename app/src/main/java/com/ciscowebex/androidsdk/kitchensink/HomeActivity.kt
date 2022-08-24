@@ -48,6 +48,10 @@ class HomeActivity : BaseActivity() {
         webexViewModel.setLogLevel(webexViewModel.logFilter)
         webexViewModel.enableConsoleLogger(webexViewModel.isConsoleLoggerEnabled)
 
+        if(SharedPrefUtils.isAppBackgroundRunningPreferred(this)) {
+            KitchenSinkForegroundService.startForegroundService(this)
+        }
+
         Log.d(tag, "Service URls METRICS: ${webexViewModel.getServiceUrl(Phone.ServiceUrlType.METRICS)}" +
                 "\nCLIENT_LOGS: ${webexViewModel.getServiceUrl(Phone.ServiceUrlType.CLIENT_LOGS)}" +
                 "\nKMS: ${webexViewModel.getServiceUrl(Phone.ServiceUrlType.KMS)}")
@@ -72,6 +76,7 @@ class HomeActivity : BaseActivity() {
                 if (it) {
                     clearLoginTypePref(this)
                     (application as KitchenSinkApp).unloadKoinModules()
+                    KitchenSinkForegroundService.stopForegroundService(this)
                     finish()
                 }
                 else {
@@ -172,10 +177,6 @@ class HomeActivity : BaseActivity() {
         webexViewModel.setMembershipObserver()
         webexViewModel.setMessageObserver()
         webexViewModel.setCalendarMeetingObserver()
-    }
-
-    override fun onBackPressed() {
-        (application as KitchenSinkApp).closeApplication()
     }
 
     private fun showMessageIfCameFromNotification() {

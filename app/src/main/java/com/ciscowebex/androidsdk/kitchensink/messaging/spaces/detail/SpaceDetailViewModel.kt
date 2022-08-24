@@ -71,8 +71,8 @@ class SpaceDetailViewModel(private val spacesRepo: SpacesRepository, private val
         }, { _space.postValue(null) }).autoDispose()
     }
 
-    fun getMessages(beforeMessageId: String? = null) {
-        spacesRepo.listMessages(spaceId, beforeMessageId).observeOn(AndroidSchedulers.mainThread()).subscribe({ messageModels ->
+    fun getMessages(beforeMessageId: String? = null, beforeMessageDate: Long? = null) {
+        spacesRepo.listMessages(spaceId, beforeMessageId, beforeMessageDate).observeOn(AndroidSchedulers.mainThread()).subscribe({ messageModels ->
             _spaceMessages.postValue(messageModels)
         }, { _spaceMessages.postValue(emptyList()) }).autoDispose()
     }

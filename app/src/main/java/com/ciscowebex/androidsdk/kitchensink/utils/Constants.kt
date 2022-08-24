@@ -11,6 +11,7 @@ class Constants {
         const val COMPOSER_TYPE = "composerType"
         const val COMPOSER_REPLY_PARENT_MESSAGE = "composerReplyParentMessage"
         const val CALL_ID = "callid"
+        const val PUSH_ID = "pushid"
         const val MESSAGE_ID = "MESSAGE_ID"
         const val CALENDAR_MEETING_ID = "CALENDAR_MEETING_ID"
     }
@@ -27,6 +28,7 @@ class Constants {
     object Action {
         const val MESSAGE_ACTION = "MESSAGE_ACTION"
         const val WEBEX_CALL_ACTION = "WEBEX_CALL_ACTION"
+        const val WEBEX_CUCM_CALL_ACTION = "WEBEX_CUCM_CALL_ACTION"
     }
     object Keys {
         const val PushRestEncryptionKey = "PeShVmYq3s6v9yaBwE1H3McQfTjWnZr4"  //256 bit AES key, use base64 encoded key to send to cucm endpoint
@@ -34,6 +36,7 @@ class Constants {
         const val LoginType = "LoginType"
         const val Email = "Email"
         const val IsVirtualBgAdded = "IsVirtualBgAdded"
+        const val IsBackgroundRunningEnabled = "IsBackgroundRunningEnabled"
     }
     object DefaultMax {
         const val SPACE_MAX = 100

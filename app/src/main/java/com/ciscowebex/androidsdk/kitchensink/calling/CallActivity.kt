@@ -17,7 +17,6 @@ import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityCallBinding
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
-import com.ciscowebex.androidsdk.kitchensink.utils.extensions.toast
 
 
 class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener {
@@ -135,7 +134,5 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener {
                 Log.d(tag, "hangup error: ${result.error?.errorMessage}")
             }
         })
-
-
     }
 }
