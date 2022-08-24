@@ -15,6 +15,7 @@ import com.ciscowebex.androidsdk.kitchensink.messaging.messagingModule
 import com.ciscowebex.androidsdk.kitchensink.messaging.search.searchPeopleModule
 import com.ciscowebex.androidsdk.kitchensink.person.personModule
 import com.ciscowebex.androidsdk.kitchensink.search.searchModule
+import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils
 import com.ciscowebex.androidsdk.kitchensink.webhooks.webhooksModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -38,6 +39,13 @@ class KitchenSinkApp : Application(), LifecycleObserver {
         }
 
         var inForeground: Boolean = false
+
+
+        // App level boolean to keep track of if the CUCM login is of type SSO Login
+        var isUCSSOLogin = false
+
+        var isKoinModulesLoaded : Boolean = false
+
     }
 
     override fun onCreate() {
@@ -70,6 +78,17 @@ class KitchenSinkApp : Application(), LifecycleObserver {
         android.os.Process.killProcess(android.os.Process.myPid())
     }
 
+
+    fun loadModules(): Boolean {
+        val type = SharedPrefUtils.getLoginTypePref(this@KitchenSinkApp)
+        if(type != null) {
+            loadKoinModules(LoginActivity.LoginType.valueOf(type))
+            return true
+        }
+        return false
+    }
+
+
     fun loadKoinModules(type: LoginActivity.LoginType) {
         when (type) {
             LoginActivity.LoginType.JWT -> {
@@ -82,9 +101,11 @@ class KitchenSinkApp : Application(), LifecycleObserver {
                 loadKoinModules(listOf(mainAppModule, webexModule, loginModule, OAuthWebexModule, searchModule, callModule, messagingModule, personModule, searchPeopleModule, webhooksModule, extrasModule, calendarMeetingsModule))
             }
         }
+        isKoinModulesLoaded = true
     }
 
     fun unloadKoinModules() {
         unloadKoinModules(listOf(mainAppModule, webexModule, loginModule, JWTWebexModule, AccessTokenWebexModule, OAuthWebexModule, searchModule, callModule, messagingModule, personModule, searchPeopleModule, webhooksModule, extrasModule, calendarMeetingsModule))
+        isKoinModulesLoaded = false
     }
 }

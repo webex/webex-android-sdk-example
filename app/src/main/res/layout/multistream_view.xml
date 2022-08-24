@@ -9,8 +9,11 @@
     android:id="@+id/frameLayout">
 
     <RelativeLayout
+        android:id="@+id/parentLayout"
         android:layout_width="150dp"
         android:layout_height="200dp"
+        android:background="@drawable/border_category_b"
+        android:padding="@dimen/padding_2dp"
         android:gravity="center_horizontal">
 
         <TextView
@@ -27,7 +30,15 @@
             android:id="@+id/view_video"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@id/name"/>
+            android:layout_above="@id/name" />
+
+        <ImageView
+            android:id="@+id/iv_pinstream"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="fitCenter"
+            android:visibility="gone"
+            android:background="@drawable/ic_pin"/>
 
         <ImageView
             android:id="@+id/view_avatar"
@@ -42,10 +53,26 @@
             android:id="@+id/iv_audio_state"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:padding="@dimen/padding_4dp"
-            android:src="@drawable/ic_microphone_muted_bold"
-            android:background="@android:color/white"
             android:layout_above="@id/name"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
+            android:background="@android:color/white"
+            android:padding="@dimen/padding_4dp"
+            android:visibility="gone"
+            android:src="@drawable/ic_microphone_muted_bold" />
+
+        <ImageButton
+            android:id="@+id/ib_more_option"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@android:color/white"
+            android:src="@drawable/ic_more_black"
+            android:padding="@dimen/padding_4dp"
+            android:contentDescription="@string/more_option"
+            android:layout_alignParentEnd="true"
+            android:visibility="gone"
             android:layout_margin="5dp"/>
 
         <RelativeLayout

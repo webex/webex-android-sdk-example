@@ -81,10 +81,10 @@ class SpacesFragment : Fragment() {
 
                 override fun onCreate(space: Space) {
                     val spaceModel = SpaceModel.convertToSpaceModel(space)
-                    spacesClientAdapter.spaces.add(0, spaceModel)
+                    spacesClientAdapter.spaces.add(spaceModel)
                     Log.d(TAG, "Space event ${space.title} is created")
                     activity?.runOnUiThread {
-                        spacesClientAdapter.notifyItemInserted(0)
+                        spacesClientAdapter.notifyItemInserted(spacesClientAdapter.spaces.size - 1)
                     }
                 }
 
@@ -199,6 +199,7 @@ class SpacesFragment : Fragment() {
 
         spacesViewModel.spaces.observe(this@SpacesFragment.viewLifecycleOwner, Observer { spaces ->
             spaces?.let {
+                Log.d(TAG, "number of spaces obtained : ${it.size}")
                 binding.swipeContainer.isRefreshing = false
 
                 spacesClientAdapter.spaces.clear()

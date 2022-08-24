@@ -113,6 +113,28 @@
             app:layout_constraintTop_toBottomOf="@id/fetchById" />
 
         <TextView
+            android:id="@+id/fetchByDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/yellow50"
+            android:paddingVertical="@dimen/size_8dp"
+            android:text="@string/get_previous_message_by_date"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fetchByIdSeparator" />
+
+        <View
+            android:id="@+id/fetchByDateSeparator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fetchByDate" />
+
+        <TextView
             android:id="@+id/cancel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -123,6 +145,6 @@
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fetchByIdSeparator" />
+            app:layout_constraintTop_toBottomOf="@id/fetchByDateSeparator" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

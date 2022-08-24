@@ -15,11 +15,11 @@ import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.calling.CallActivity
 import com.ciscowebex.androidsdk.kitchensink.databinding.CommonFragmentItemListBinding
 import com.ciscowebex.androidsdk.kitchensink.databinding.FragmentCommonBinding
-import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpaceModel
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
-import com.ciscowebex.androidsdk.space.Space
-import kotlinx.android.synthetic.main.fragment_common.*
+import com.ciscowebex.androidsdk.kitchensink.utils.formatCallDurationTime
+import com.ciscowebex.androidsdk.phone.CallHistoryRecord
 import org.koin.android.ext.android.inject
+import java.text.SimpleDateFormat
 
 
 class SearchCommonFragment : Fragment() {
@@ -27,6 +27,7 @@ class SearchCommonFragment : Fragment() {
     private var adapter: CustomAdapter = CustomAdapter()
     private val itemModelList = mutableListOf<ItemModel>()
     lateinit var taskType: String
+    lateinit var binding: FragmentCommonBinding
 
     companion object {
         object TaskType {
@@ -41,7 +42,9 @@ class SearchCommonFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        return FragmentCommonBinding.inflate(inflater, container, false).apply {
+        return FragmentCommonBinding.inflate(inflater, container, false)
+            .also { binding = it }
+            .apply {
             lifecycleOwner = this@SearchCommonFragment
 
             recyclerView.itemAnimator = DefaultItemAnimator()
@@ -57,7 +60,7 @@ class SearchCommonFragment : Fragment() {
                 }
 
                 override fun onQueryTextChange(newText: String?): Boolean {
-                    progress_bar.visibility = View.VISIBLE
+                    progressBar.visibility = View.VISIBLE
                     searchViewModel.search(newText)
                     return false
                 }
@@ -73,7 +76,7 @@ class SearchCommonFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateSearchInputViewVisibility()
-        progress_bar.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.VISIBLE
     }
 
     override fun onResume() {
@@ -86,7 +89,6 @@ class SearchCommonFragment : Fragment() {
         searchViewModel.spaces.observe(viewLifecycleOwner, Observer { list ->
             list?.let {
                 if (taskType == TaskType.TaskCallHistory) it.sortedBy { it.created } else it.sortedByDescending { it.lastActivity }
-
                 if (it.isEmpty()) {
                     updateEmptyListUI(true)
                 } else {
@@ -104,6 +106,34 @@ class SearchCommonFragment : Fragment() {
                             //add in array list
                             itemModelList.add(itemModel)
                         }
+                    }
+                    adapter.itemList = itemModelList
+                    adapter.notifyDataSetChanged()
+                }
+            }
+        })
+
+        searchViewModel.callHistoryRecords.observe(viewLifecycleOwner, Observer { list ->
+            list?.let {
+                if (it.isEmpty()) {
+                    updateEmptyListUI(true)
+                } else {
+                    updateEmptyListUI(false)
+                    itemModelList.clear()
+                    for (i in it.indices) {
+                        val itemModel = ItemModel()
+                        val callRecord = it[i]
+                        itemModel.name = callRecord.displayName.orEmpty()
+                        itemModel.image = R.drawable.ic_call
+                        itemModel.callerId = callRecord.callbackAddress.orEmpty()
+                        itemModel.ongoing = searchViewModel.isSpaceCallStarted() && searchViewModel.spaceCallId() == callRecord.conversationId
+//                        itemModel.isExternallyOwned = it[i].isExternallyOwned ?: false
+                        itemModel.callDirection = callRecord.callDirection
+                        var dateAndDurationString = SimpleDateFormat("dd/MM/yyyy hh:mm a").format(callRecord.startTime)
+                        dateAndDurationString += " (" + formatCallDurationTime(callRecord.duration * 1000) + ")"
+                        itemModel.dateAndDuration = dateAndDurationString
+                        //add in array list
+                        itemModelList.add(itemModel)
                     }
                     adapter.itemList = itemModelList
                     adapter.notifyDataSetChanged()
@@ -165,23 +195,23 @@ class SearchCommonFragment : Fragment() {
     }
 
     private fun updateEmptyListUI(listEmpty: Boolean) {
-        progress_bar.visibility = View.GONE
+        binding.progressBar.visibility = View.GONE
         if (listEmpty) {
-            tv_empty_data.visibility = View.VISIBLE
-            recycler_view.visibility = View.GONE
+            binding.tvEmptyData.visibility = View.VISIBLE
+            binding.recyclerView.visibility = View.GONE
         } else {
-            tv_empty_data.visibility = View.GONE
-            recycler_view.visibility = View.VISIBLE
+            binding.tvEmptyData.visibility = View.GONE
+            binding.recyclerView.visibility = View.VISIBLE
         }
     }
 
     private fun updateSearchInputViewVisibility() {
         when (taskType) {
             TaskType.TaskSearchSpace -> {
-                search_view.visibility = View.VISIBLE
+                binding.searchView.visibility = View.VISIBLE
             }
             else -> {
-                search_view.visibility = View.GONE
+                binding.searchView.visibility = View.GONE
             }
         }
     }
@@ -191,10 +221,12 @@ class SearchCommonFragment : Fragment() {
         lateinit var name: String
         lateinit var callerId: String
         var ongoing = false
+        var isExternallyOwned = false
+        var dateAndDuration = ""
+        var callDirection = CallHistoryRecord.CallDirection.UNDEFINED
     }
 
-    class CustomAdapter() :
-            RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
+    class CustomAdapter() : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
         var itemList: MutableList<ItemModel> = mutableListOf()
 
         override fun onCreateViewHolder(parent: ViewGroup, i: Int): ViewHolder {
@@ -222,6 +254,23 @@ class SearchCommonFragment : Fragment() {
                     binding.ongoing.visibility = View.VISIBLE
                 } else {
                     binding.ongoing.visibility = View.GONE
+                }
+
+                if (itemModel.callDirection == CallHistoryRecord.CallDirection.OUTGOING) {
+                    binding.callDirection.visibility = View.VISIBLE
+                    binding.callDirection.setImageResource(R.drawable.ic_call_outgoing)
+                } else if (itemModel.callDirection == CallHistoryRecord.CallDirection.INCOMING) {
+                    binding.callDirection.visibility = View.VISIBLE
+                    binding.callDirection.setImageResource(R.drawable.ic_call_incoming)
+                } else {
+                    binding.callDirection.visibility = View.GONE
+                }
+
+                if (itemModel.dateAndDuration.isNotEmpty()) {
+                    binding.startTimeAndDuration.visibility = View.VISIBLE
+                    binding.startTimeAndDuration.text = itemModel.dateAndDuration
+                } else {
+                    binding.startTimeAndDuration.visibility = View.GONE
                 }
                 binding.executePendingBindings()
             }

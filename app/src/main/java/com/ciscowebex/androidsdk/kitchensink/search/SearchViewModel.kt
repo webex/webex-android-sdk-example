@@ -7,6 +7,7 @@ import com.ciscowebex.androidsdk.kitchensink.BaseViewModel
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpaceModel
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpacesRepository
+import com.ciscowebex.androidsdk.phone.CallHistoryRecord
 import com.ciscowebex.androidsdk.space.Space
 import com.ciscowebex.androidsdk.space.SpaceClient
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -15,6 +16,9 @@ class SearchViewModel(private val searchRepo: SearchRepository, private val spac
     private val tag = "SearchViewModel"
     private val _spaces = MutableLiveData<List<SpaceModel>>()
     val spaces: LiveData<List<SpaceModel>> = _spaces
+
+    private val _callHistoryRecords = MutableLiveData<List<CallHistoryRecord>>()
+    val callHistoryRecords: LiveData<List<CallHistoryRecord>> = _callHistoryRecords
 
     private val _searchResult = MutableLiveData<List<Space>>()
     val searchResult: LiveData<List<Space>> = _searchResult
@@ -38,9 +42,9 @@ class SearchViewModel(private val searchRepo: SearchRepository, private val spac
             SearchCommonFragment.Companion.TaskType.TaskCallHistory -> {
                 searchRepo.getCallHistory().observeOn(AndroidSchedulers.mainThread()).subscribe({
                     Log.d(tag, "Size of $taskType is ${it?.size?.or(0)}")
-                    _spaces.postValue(it)
+                    _callHistoryRecords.postValue(it)
                 }, {
-                    _spaces.postValue(emptyList())
+                    _callHistoryRecords.postValue(emptyList())
                 }).autoDispose()
             }
             SearchCommonFragment.Companion.TaskType.TaskSearchSpace -> {

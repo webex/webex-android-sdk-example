@@ -1,13 +1,11 @@
 package com.ciscowebex.androidsdk.kitchensink.cucm
 
-
 import android.app.AlertDialog
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import com.ciscowebex.androidsdk.auth.UCSSOWebViewAuthenticator
@@ -18,7 +16,10 @@ import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityCucmLoginBindin
 import com.ciscowebex.androidsdk.kitchensink.databinding.DialogUcloginNonssoBinding
 import com.ciscowebex.androidsdk.kitchensink.databinding.DialogUcloginSettingsBinding
 import com.ciscowebex.androidsdk.CompletionHandler
+import com.ciscowebex.androidsdk.auth.PhoneServiceRegistrationFailureReason
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
+import com.ciscowebex.androidsdk.kitchensink.KitchenSinkApp.Companion.isUCSSOLogin
+import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
 
 
 class UCLoginActivity : BaseActivity() {
@@ -26,6 +27,8 @@ class UCLoginActivity : BaseActivity() {
 
     private var nonSSOAlertDialog: AlertDialog? = null
     private var ucSettingsAlertDialog: AlertDialog? = null
+
+    var isUCSSOLoginSuccessful = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,13 +40,14 @@ class UCLoginActivity : BaseActivity() {
                         if (it != null) {
                             when (WebexRepository.CucmEvent.valueOf(it.first.name)) {
                                 WebexRepository.CucmEvent.ShowSSOLogin -> {
-
+                                    Log.d(tag, "Callback : Show sso login with url : ${it.second}")
                                     progressBar.visibility = View.GONE
                                     ssologinWebview.visibility = View.VISIBLE
 
                                     nonSSOAlertDialog?.dismiss()
                                     ucSettingsAlertDialog?.dismiss()
 
+                                    isUCSSOLogin = true
                                     UCSSOWebViewAuthenticator.launchWebView(ssologinWebview, it.second, CompletionHandler { result ->
                                         if (result.isSuccessful) {
                                             Log.d(tag, "UCLoginActivity SSO login Successful")
@@ -51,24 +55,61 @@ class UCLoginActivity : BaseActivity() {
                                             Handler(Looper.getMainLooper()).post {
                                                 ssologinWebview.visibility = View.GONE
                                                 progressBar.visibility = View.VISIBLE
+                                                updateUCLoginStatusUI(getString(R.string.uc_login_success))
                                             }
                                         } else {
                                             Log.d(tag, "UCLoginActivity SSO login Failed")
-                                            ucLoginEvent(getString(R.string.uc_login_failed))
+                                            Handler(Looper.getMainLooper()).post {
+                                                binding.ssologinWebview.visibility = View.GONE
+                                                binding.progressBar.visibility = View.GONE
+                                                updateUCLoginStatusUI(getString(R.string.uc_login_failed))
+                                            }
                                         }
                                     })
                                 }
                                 WebexRepository.CucmEvent.ShowNonSSOLogin -> {
+                                    Log.d(tag, "Callback : Show non sso login")
                                     showUCNonSSOLoginDialog()
                                 }
                                 WebexRepository.CucmEvent.OnUCLoggedIn -> {
-                                    ucLoginEvent(getString(R.string.uc_login_success))
+                                    Log.d(tag, "Callback : Uc logged in")
+                                    Handler(Looper.getMainLooper()).post {
+                                        binding.ssologinWebview.visibility = View.GONE
+                                        updateUCLoginStatusUI(getString(R.string.uc_login_success))
+                                    }
                                 }
                                 WebexRepository.CucmEvent.OnUCLoginFailed -> {
-                                    ucLoginEvent(getString(R.string.uc_login_failed))
+                                    Log.d(tag, "Callback : Uc login failed")
+                                    Handler(Looper.getMainLooper()).post {
+                                        binding.ssologinWebview.visibility = View.GONE
+                                        binding.progressBar.visibility = View.GONE
+                                        updateUCLoginStatusUI(getString(R.string.uc_login_failed))
+                                    }
                                 }
                                 WebexRepository.CucmEvent.OnUCServerConnectionStateChanged -> {
-                                    processServerConnectionStatus(webexViewModel.getUCServerConnectionStatus())
+                                    Log.d(tag, "Callback : Uc server connection state changed")
+                                    processServerConnectionStatus(webexViewModel.getUCServerConnectionStatus(), webexViewModel.getUCServerFailureReason())
+                                }
+                                WebexRepository.CucmEvent.ShowUCSSOBrowser -> {
+                                    Log.d(tag, "ShowUCSSOBrowser")
+                                    ssologinWebview.visibility = View.VISIBLE
+                                }
+                                WebexRepository.CucmEvent.HideUCSSOBrowser -> {
+                                    Log.d(tag, "HideUCSSOBrowser")
+                                    isUCSSOLoginSuccessful = true
+                                    ssologinWebview.visibility = View.GONE
+                                }
+                                WebexRepository.CucmEvent.OnSSOLoginFailed -> {
+                                    Log.d(tag, "Callback : OnSSOLoginFailed")
+                                    showDialogWithMessage(this@UCLoginActivity, getString(R.string.login_failed), "Reason : ${it.second}", R.string.retry, true,
+                                        { dialog, _ ->
+                                            dialog.dismiss()
+                                            webexViewModel.retryUCSSOLogin()
+                                        },
+                                        R.string.ok,
+                                        { dialog, _ ->
+                                            dialog.dismiss()
+                                        })
                                 }
                             }
                         }
@@ -77,8 +118,17 @@ class UCLoginActivity : BaseActivity() {
                     progressBar.visibility = View.VISIBLE
 
                     Handler(Looper.getMainLooper()).post {
-                        if (webexViewModel.isUCLoggedIn()) {
-                            ucLoginEvent(getString(R.string.uc_login_success))
+                        webexViewModel.startUCServices()
+                        if (isUCSSOLogin && !webexViewModel.isUCLoggedIn()) {
+                            Log.d(tag, "isUCSSOLogin && !webexViewModel.isUCLoggedIn() -> retrying sso login")
+                            // To handle the case, when user starts UCSSOLogin but stops midway before success and presses back
+                            webexViewModel.retryUCSSOLogin()
+                        } else if (webexViewModel.isUCLoggedIn()) {
+                            Handler(Looper.getMainLooper()).post {
+                                binding.ssologinWebview.visibility = View.GONE
+                                binding.progressBar.visibility = View.GONE
+                                updateUCLoginStatusUI(getString(R.string.uc_login_success))
+                            }
                         } else {
                             showUCLoginSettingsDialog()
                         }
@@ -86,31 +136,65 @@ class UCLoginActivity : BaseActivity() {
                 }
     }
 
-    private fun processServerConnectionStatus(status: UCLoginServerConnectionStatus) {
-        Log.d(tag, "processServerConnectionStatus status: $status")
-        when (status) {
-            UCLoginServerConnectionStatus.Idle -> {}
-            UCLoginServerConnectionStatus.Connecting -> {}
-            UCLoginServerConnectionStatus.Connected -> {
-                ucLoginEvent(getString(R.string.uc_server_connected))
+    override fun onBackPressed() {
+        if (isUCSSOLogin && !isUCSSOLoginSuccessful) {
+            Log.d(tag, "ucCancelSSOLogin()")
+            webexViewModel.ucCancelSSOLogin()
+        }
+        super.onBackPressed()
+    }
+
+    private fun processServerConnectionStatus(
+        status: UCLoginServerConnectionStatus,
+        ucServerFailureReason: PhoneServiceRegistrationFailureReason
+    ) {
+        Log.d(tag, "processServerConnectionStatus status: $status, failureReason : $ucServerFailureReason")
+        if (ucServerFailureReason != PhoneServiceRegistrationFailureReason.None) {
+            if (ucServerFailureReason == PhoneServiceRegistrationFailureReason.RegisteredElsewhere) {
+                showDialogWithMessage(this@UCLoginActivity, getString(R.string.force_register), getString(R.string.force_register_dialog_message), R.string.yes, true,
+                    { dialog, _ ->
+                        dialog.dismiss()
+                        webexViewModel.forceRegisterPhoneServices()
+                    },
+                    R.string.no,
+                    { dialog, _ ->
+                        dialog.dismiss()
+                    })
             }
-            UCLoginServerConnectionStatus.Disconnected -> {}
-            UCLoginServerConnectionStatus.Failed -> {}
+            Handler(Looper.getMainLooper()).post {
+                updatePhoneServiceConnectionUI("Phone services connection failed : ${ucServerFailureReason.name}")
+                binding.ssologinWebview.visibility = View.GONE
+                binding.progressBar.visibility = View.GONE
+            }
+
+        } else {
+            Handler(Looper.getMainLooper()).post {
+                updatePhoneServiceConnectionUI("Phone services state : ${status.name}")
+            }
+            when (status) {
+                UCLoginServerConnectionStatus.Connected -> {
+                    Handler(Looper.getMainLooper()).post {
+                        binding.ssologinWebview.visibility = View.GONE
+                        binding.progressBar.visibility = View.GONE
+                        ucSettingsAlertDialog?.dismiss()
+                    }
+                }
+                UCLoginServerConnectionStatus.Failed -> {
+                    Handler(Looper.getMainLooper()).post {
+                        binding.progressBar.visibility = View.GONE
+                    }
+                }
+                else -> {}
+            }
         }
     }
 
-    private fun ucLoginEvent(message: String) {
-        Handler(Looper.getMainLooper()).post {
-            binding.ssologinWebview.visibility = View.GONE
-            binding.progressBar.visibility = View.GONE
-            showToast(message)
-        }
+    private fun updatePhoneServiceConnectionUI(status: String) {
+        binding.ucServerConnectionStatusTextView.text = status
     }
 
-    private fun showToast(message: String) {
-        val toast = Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT)
-        toast.show()
-        updateUCData()
+    private fun updateUCLoginStatusUI(status: String) {
+        binding.ucLoginStatusTextView.text = status
     }
 
     private fun setUCDomainServerUrl(domain: String, serverUrl: String) {
@@ -164,29 +248,5 @@ class UCLoginActivity : BaseActivity() {
         nonSSOAlertDialog = builder.create()
         nonSSOAlertDialog?.setCanceledOnTouchOutside(false)
         nonSSOAlertDialog?.show()
-    }
-
-    private fun updateUCData() {
-        Log.d(tag, "updateUCData isCUCMServerLoggedIn: ${webexViewModel.repository.isCUCMServerLoggedIn} ucServerConnectionStatus: ${webexViewModel.repository.ucServerConnectionStatus}")
-        if (webexViewModel.isCUCMServerLoggedIn) {
-            binding.ucLoginStatusTextView.visibility = View.VISIBLE
-        } else {
-            binding.ucLoginStatusTextView.visibility = View.GONE
-        }
-
-        when (webexViewModel.ucServerConnectionStatus) {
-            UCLoginServerConnectionStatus.Connected -> {
-                binding.ucServerConnectionStatusTextView.text = resources.getString(R.string.phone_service_connected)
-                binding.ucServerConnectionStatusTextView.visibility = View.VISIBLE
-            }
-            UCLoginServerConnectionStatus.Failed -> {
-                val text = resources.getString(R.string.phone_service_failed) + " " + webexViewModel.ucServerConnectionFailureReason
-                binding.ucServerConnectionStatusTextView.text = text
-                binding.ucServerConnectionStatusTextView.visibility = View.VISIBLE
-            }
-            else -> {
-                binding.ucServerConnectionStatusTextView.visibility = View.GONE
-            }
-        }
     }
 }

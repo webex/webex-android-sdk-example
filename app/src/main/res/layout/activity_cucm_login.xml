@@ -32,11 +32,10 @@
                 android:id="@+id/uc_login_status_textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
                 android:layout_marginBottom="5dp"
                 android:textColor="@android:color/black"
                 android:textSize="15sp"
-                android:text="@string/uc_loggedIn"/>
+                android:text="@string/uc_login_status"/>
 
             <TextView
                 android:id="@+id/uc_server_connection_status_textView"
@@ -45,9 +44,8 @@
                 android:layout_marginBottom="5dp"
                 android:textColor="@android:color/black"
                 android:textSize="13sp"
-                android:visibility="gone"
                 android:maxLines="1"
-                android:text="@string/phone_service_connected"/>
+                android:text="@string/phone_services_connection_status"/>
 
         </LinearLayout>
 

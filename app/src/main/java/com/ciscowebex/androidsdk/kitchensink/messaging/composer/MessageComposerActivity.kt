@@ -229,7 +229,8 @@ class MessageComposerActivity : AppCompatActivity() {
 
         for (file in attachmentAdapter.attachedFiles) {
             var thumbnail: LocalFile.Thumbnail? = null
-            if (MimeUtils.getContentTypeByFilename(file.name) == MimeUtils.ContentType.IMAGE) {
+            //To get the thumbnail of the image and video, provide the same file in the thumbnail field also. SDK will process the data to fetch the thumbnail for the image and video
+            if (MimeUtils.getContentTypeByFilename(file.name) == MimeUtils.ContentType.IMAGE || MimeUtils.getContentTypeByFilename(file.name) == MimeUtils.ContentType.VIDEO) {
                 thumbnail = LocalFile.Thumbnail(file, null, resources.getInteger(R.integer.attachment_thumbnail_width), resources.getInteger(R.integer.attachment_thumbnail_height))
             }
             val localFile = LocalFile(file, null, thumbnail, null)

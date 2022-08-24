@@ -13,7 +13,8 @@ class MessageActionBottomSheetFragment(val deleteMessageClickListener: (SpaceMes
                                        val markMessageAsReadClickListener: (SpaceMessageModel) -> Unit,
                                        val replyMessageClickListener: (SpaceMessageModel) -> Unit,
                                        val editMessageClickListener: (SpaceMessageModel) -> Unit,
-                                       val fetchByIdClickListener: (SpaceMessageModel) -> Unit) : BottomSheetDialogFragment() {
+                                       val fetchByIdClickListener: (SpaceMessageModel) -> Unit,
+                                       val fetchByDateClickListener: (SpaceMessageModel) -> Unit) : BottomSheetDialogFragment() {
     companion object {
         val TAG = "MessageActionBottomSheetFragment"
         var selfPersonId : String? = null
@@ -60,6 +61,11 @@ class MessageActionBottomSheetFragment(val deleteMessageClickListener: (SpaceMes
             fetchById.setOnClickListener {
                 dismiss()
                 fetchByIdClickListener(message)
+            }
+
+            fetchByDate.setOnClickListener {
+                dismiss()
+                fetchByDateClickListener(message)
             }
 
             cancel.setOnClickListener { dismiss() }

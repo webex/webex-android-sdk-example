@@ -56,7 +56,8 @@ class SpaceDetailActivity : BaseActivity() {
                             { message -> spaceDetailViewModel.markMessageAsRead(message) },
                             { message -> replyMessageListener(message) },
                             { message -> editMessage(message)},
-                            { message -> fetchMessageBeforeMessageId(message)})
+                            { message -> fetchMessageBeforeMessageId(message)},
+                            { message -> fetchMessageBeforeDate(message)})
 
                     messageClientAdapter = MessageClientAdapter(messageActionBottomSheetFragment, supportFragmentManager)
                     spaceMessageRecyclerView.adapter = messageClientAdapter
@@ -96,6 +97,10 @@ class SpaceDetailActivity : BaseActivity() {
 
     private fun fetchMessageBeforeMessageId(message: SpaceMessageModel) {
         spaceDetailViewModel.getMessages(message.messageId)
+    }
+
+    private fun fetchMessageBeforeDate(message: SpaceMessageModel) {
+        spaceDetailViewModel.getMessages(null, message.mMessage?.getCreated() ?: 0L)
     }
 
     override fun onResume() {

@@ -10,6 +10,7 @@ import com.ciscowebex.androidsdk.space.Space
 import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.auth.PhoneServiceRegistrationFailureReason
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
+import com.ciscowebex.androidsdk.auth.UCSSOFailureReason
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
 import com.ciscowebex.androidsdk.calendarMeeting.CalendarMeetingObserver
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.listeners.SpaceEventListener
@@ -39,7 +40,10 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
         ShowNonSSOLogin,
         OnUCLoginFailed,
         OnUCLoggedIn,
-        OnUCServerConnectionStateChanged
+        OnUCServerConnectionStateChanged,
+        ShowUCSSOBrowser,
+        HideUCSSOBrowser,
+        OnSSOLoginFailed
     }
 
     enum class LogLevel {
@@ -341,7 +345,7 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
     }
 
     // Callbacks
-    override fun showUCSSOLoginView(ssoUrl: String) {
+    override fun loadUCSSOViewInBackground(ssoUrl: String) {
         _cucmLiveData?.postValue(Pair(CucmEvent.ShowSSOLogin, ssoUrl))
         Log.d(tag, "showUCSSOLoginView")
     }
@@ -364,9 +368,24 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
     }
 
     override fun onUCServerConnectionStateChanged(status: UCLoginServerConnectionStatus, failureReason: PhoneServiceRegistrationFailureReason) {
-        _cucmLiveData?.postValue(Pair(CucmEvent.OnUCServerConnectionStateChanged, ""))
         Log.d(tag, "onUCServerConnectionStateChanged status: $status failureReason: $failureReason")
         ucServerConnectionStatus = status
         ucServerConnectionFailureReason = failureReason
+        _cucmLiveData?.postValue(Pair(CucmEvent.OnUCServerConnectionStateChanged, ""))
+    }
+
+    override fun showUCSSOBrowser() {
+        _cucmLiveData?.postValue(Pair(CucmEvent.ShowUCSSOBrowser, ""))
+        Log.d(tag, "showUCSSOBrowser")
+    }
+
+    override fun hideUCSSOBrowser() {
+        _cucmLiveData?.postValue(Pair(CucmEvent.HideUCSSOBrowser, ""))
+        Log.d(tag, "hideUCSSOBrowser")
+    }
+
+    override fun onUCSSOLoginFailed(failureReason: UCSSOFailureReason) {
+        _cucmLiveData?.postValue(Pair(CucmEvent.OnSSOLoginFailed, failureReason.name))
+        Log.d(tag, "onUCSSOLoginFailed : reason = ${failureReason.name}")
     }
 }

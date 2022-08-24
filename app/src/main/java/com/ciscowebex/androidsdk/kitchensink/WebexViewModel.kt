@@ -546,6 +546,26 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         return webex.getUCServerConnectionStatus()
     }
 
+    fun getUCServerFailureReason(): PhoneServiceRegistrationFailureReason {
+        return repository.ucServerConnectionFailureReason
+    }
+
+    fun retryUCSSOLogin() {
+        webex.retryUCSSOLogin()
+    }
+
+    fun ucCancelSSOLogin() {
+        webex.ucCancelSSOLogin()
+    }
+
+    fun forceRegisterPhoneServices() {
+        webex.forceRegisterPhoneServices()
+    }
+
+    fun startUCServices() {
+        webex.startUCServices()
+    }
+
     fun startAssociatedCall(callId: String, dialNumber: String, associationType: CallAssociationType, audioCall: Boolean) {
         getCall(callId)?.startAssociatedCall(dialNumber, associationType, audioCall, CompletionHandler { result ->
             Log.d(tag, "startAssociatedCall Lambda")
@@ -605,11 +625,18 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
             _callMembershipsLiveData.postValue(data)
 
             var isRemoteSendingAudio = false
-            data?.forEach {
-                if (it.getPersonId() != selfPersonId) {
-                    isRemoteSendingAudio = it.isSendingAudio()
+
+            data?.let {
+                val iterator = it.iterator()
+                while(iterator.hasNext()) {
+                    val item = iterator.next()
+                    if (item.getPersonId() != selfPersonId) {
+                        if (item.isSendingAudio()) {
+                            isRemoteSendingAudio = true
+                        }
+                    }
+                    repository.participantMuteMap[item.getPersonId()] = item.isSendingAudio()
                 }
-                repository.participantMuteMap[it.getPersonId()] = it.isSendingAudio()
             }
 
             Log.d(tag, "postParticipantData hasMutedAll: $isRemoteSendingAudio")
@@ -996,6 +1023,10 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         getCall(currentCallId.orEmpty())?.setMediaStreamsCategoryB(numStreams, quality)
     }
 
+    fun setMediaStreamCategoryC(participantId: String, quality: MediaStreamQuality) {
+        getCall(currentCallId.orEmpty())?.setMediaStreamCategoryC(participantId, quality)
+    }
+
     fun removeMediaStreamCategoryA() {
         getCall(currentCallId.orEmpty())?.removeMediaStreamCategoryA()
     }
@@ -1004,7 +1035,15 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         getCall(currentCallId.orEmpty())?.removeMediaStreamsCategoryB()
     }
 
+    fun removeMediaStreamCategoryC(participantId: String) {
+        getCall(currentCallId.orEmpty())?.removeMediaStreamCategoryC(participantId)
+    }
+
     fun getMediaStreams(): List<MediaStream>? {
         return getCall(currentCallId.orEmpty())?.getMediaStreams()
+    }
+
+    fun isMediaStreamsPinningSupported(): Boolean {
+        return getCall(currentCallId.orEmpty())?.isMediaStreamsPinningSupported() ?: false
     }
 }

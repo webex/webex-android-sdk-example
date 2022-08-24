@@ -1,300 +1,333 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:tools="http://schemas.android.com/tools">
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="20dp">
 
-    <TextView
-        android:id="@+id/cameraOptions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground"
-        android:paddingTop="10dp"
-        android:gravity="center_vertical"
-        android:paddingBottom="10dp"
-        app:drawableEndCompat="@drawable/ic_arrow_24"
-        android:text="@string/camera_options"/>
-
-    <ScrollView
-        android:id="@+id/settingsScrollView"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/cameraOptions"
-        android:layout_marginBottom="10dp">
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/cameraOptions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:text="@string/camera_options"
+            app:drawableEndCompat="@drawable/ic_arrow_24" />
+
+        <ScrollView
+            android:id="@+id/settingsScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/cameraOptions"
+            android:layout_marginBottom="10dp">
 
             <RelativeLayout
-                android:id="@+id/enableBgConnectionLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
-                <TextView
-                    android:id="@+id/enableBgConnectionToggleText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/enable_bg_connection"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"/>
-                <ToggleButton
-                    android:id="@+id/enableBgConnectionToggle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="false"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentEnd="true"
-                    tools:ignore="RelativeOverlap" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/enableBgLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_below="@+id/enableBgConnectionLayout">
-                <TextView
-                    android:id="@+id/enableBgStreamToggleText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/enable_bg_stream"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"/>
-                <ToggleButton
-                    android:id="@+id/enableBgStreamToggle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="false"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentEnd="true"/>
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/enablePhonePermissionLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_below="@+id/enableBgLayout">
-                <TextView
-                    android:id="@+id/enablePhonePermissionToggleText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/enable_phone_permission"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"/>
-                <ToggleButton
-                    android:id="@+id/enablePhonePermissionToggle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentEnd="true"/>
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/enableHWAccelLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_below="@+id/enablePhonePermissionLayout">
-
-                <TextView
-                    android:id="@+id/enableHWAccelToggleText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:text="@string/enable_hw_acceleration" />
-                <ToggleButton
-                    android:id="@+id/enableHWAccelToggle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentEnd="true"/>
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/multiStreamApproachNewLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_below="@+id/enableHWAccelLayout">
-
-                <TextView
-                    android:id="@+id/multiStreamApproachNewToggleText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:text="@string/multi_stream_new_approach" />
-                <ToggleButton
-                    android:id="@+id/multiStreamApproachNewToggle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentEnd="true"/>
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/callCapabilityLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_below="@+id/multiStreamApproachNewLayout">
-
-                <TextView
-                    android:id="@+id/textViewCallCap"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/call_cap"/>
-
-                <RadioGroup
-                    android:id="@+id/callCapabilityRadioGroup"
+                <RelativeLayout
+                    android:id="@+id/enableBgConnectionLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:layout_below="@+id/textViewCallCap"
-                    android:orientation="horizontal">
+                    android:layout_marginTop="16dp">
 
-                    <RadioButton
-                        android:id="@+id/audioCallOnly"
+                    <TextView
+                        android:id="@+id/enableBgConnectionToggleText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:checked="true"
-                        android:text="@string/audio_call" />
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:text="@string/enable_bg_connection" />
 
-                    <RadioButton
-                        android:id="@+id/audioVideoCall"
+                    <ToggleButton
+                        android:id="@+id/enableBgConnectionToggle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/audio_video_call" />
-                </RadioGroup>
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:checked="false"
+                        tools:ignore="RelativeOverlap" />
 
+                </RelativeLayout>
 
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/streamModeLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_below="@+id/callCapabilityLayout">
-
-                <TextView
-                    android:id="@+id/streamModeTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/video_stream_mode"/>
-
-                <RadioGroup
-                    android:id="@+id/streamModeRadioGroup"
+                <RelativeLayout
+                    android:id="@+id/enableBgLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:layout_below="@+id/streamModeTextView"
-                    android:orientation="horizontal">
+                    android:layout_below="@+id/enableBgConnectionLayout"
+                    android:layout_marginTop="16dp">
 
-                    <RadioButton
-                        android:id="@+id/composited"
+                    <TextView
+                        android:id="@+id/enableBgStreamToggleText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:checked="true"
-                        android:text="@string/video_stream_mode_composited" />
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:text="@string/enable_bg_stream" />
 
-                    <RadioButton
-                        android:id="@+id/multiStream"
+                    <ToggleButton
+                        android:id="@+id/enableBgStreamToggle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/video_stream_mode_multi" />
-                </RadioGroup>
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:checked="false" />
 
-        <RelativeLayout
-            android:id="@+id/logLevelLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_below="@+id/streamModeRadioGroup">
+                </RelativeLayout>
 
-            <TextView
-                android:id="@+id/tvLogLevel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/set_log_level"/>
+                <RelativeLayout
+                    android:id="@+id/enablePhonePermissionLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/enableBgLayout"
+                    android:layout_marginTop="16dp">
 
-            <Spinner
-                android:id="@+id/logLevelSpinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/tvLogLevel"
-                android:layout_marginTop="10dp"
-                android:entries="@array/logFilterArray"/>
+                    <TextView
+                        android:id="@+id/enablePhonePermissionToggleText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:text="@string/enable_phone_permission" />
 
-        </RelativeLayout>
+                    <ToggleButton
+                        android:id="@+id/enablePhonePermissionToggle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:checked="true" />
 
-        <RelativeLayout
-            android:id="@+id/videoBw"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_below="@+id/logLevelLayout">
+                </RelativeLayout>
 
-            <TextView
-                android:id="@+id/bwTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/max_video_bandwidth"/>
+                <RelativeLayout
+                    android:id="@+id/enableHWAccelLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/enablePhonePermissionLayout"
+                    android:layout_marginTop="16dp">
 
-            <Spinner
-                android:id="@+id/bandwidth_spinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/bwTitle"
-                android:layout_marginTop="10dp"
-                android:entries="@array/bw_options"/>
+                    <TextView
+                        android:id="@+id/enableHWAccelToggleText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:text="@string/enable_hw_acceleration" />
 
-        </RelativeLayout>
+                    <ToggleButton
+                        android:id="@+id/enableHWAccelToggle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:checked="true" />
 
-        <RelativeLayout
-            android:id="@+id/enableConsoleLoggerLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_below="@+id/videoBw">
+                </RelativeLayout>
 
-            <TextView
-                android:id="@+id/tvConsoleLog"
-                android:layout_width="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_height="wrap_content"
-                android:text="@string/enable_console_log"/>
+                <RelativeLayout
+                    android:id="@+id/multiStreamApproachNewLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/enableHWAccelLayout"
+                    android:layout_marginTop="16dp">
 
-            <androidx.appcompat.widget.SwitchCompat
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:layout_marginStart="0dp"
-                android:id="@+id/switchConsoleLog"
-                android:layout_toEndOf="@+id/tvConsoleLog"/>
+                    <TextView
+                        android:id="@+id/multiStreamApproachNewToggleText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:text="@string/multi_stream_new_approach" />
 
-        </RelativeLayout>
+                    <ToggleButton
+                        android:id="@+id/multiStreamApproachNewToggle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:checked="true" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/callCapabilityLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/multiStreamApproachNewLayout"
+                    android:layout_marginTop="16dp">
+
+                    <TextView
+                        android:id="@+id/textViewCallCap"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/call_cap" />
+
+                    <RadioGroup
+                        android:id="@+id/callCapabilityRadioGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/textViewCallCap"
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/audioCallOnly"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:checked="true"
+                            android:text="@string/audio_call" />
+
+                        <RadioButton
+                            android:id="@+id/audioVideoCall"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/audio_video_call" />
+                    </RadioGroup>
+
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/streamModeLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/callCapabilityLayout"
+                    android:layout_marginTop="16dp">
+
+                    <TextView
+                        android:id="@+id/streamModeTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/video_stream_mode" />
+
+                    <RadioGroup
+                        android:id="@+id/streamModeRadioGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/streamModeTextView"
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/composited"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:checked="true"
+                            android:text="@string/video_stream_mode_composited" />
+
+                        <RadioButton
+                            android:id="@+id/multiStream"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/video_stream_mode_multi" />
+                    </RadioGroup>
+
+                    <RelativeLayout
+                        android:id="@+id/logLevelLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/streamModeRadioGroup"
+                        android:layout_marginTop="16dp">
+
+                        <TextView
+                            android:id="@+id/tvLogLevel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/set_log_level" />
+
+                        <Spinner
+                            android:id="@+id/logLevelSpinner"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/tvLogLevel"
+                            android:layout_marginTop="10dp"
+                            android:entries="@array/logFilterArray" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/videoBw"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/logLevelLayout"
+                        android:layout_marginTop="16dp">
+
+                        <TextView
+                            android:id="@+id/bwTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/max_video_bandwidth" />
+
+                        <Spinner
+                            android:id="@+id/bandwidth_spinner"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/bwTitle"
+                            android:layout_marginTop="10dp"
+                            android:entries="@array/bw_options" />
+
+                    </RelativeLayout>
+
+
+                    <RelativeLayout
+                        android:id="@+id/enableConsoleLoggerLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/videoBw"
+                        android:layout_marginTop="16dp">
+
+                        <TextView
+                            android:id="@+id/tvConsoleLog"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:text="@string/enable_console_log" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/switchConsoleLog"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="0dp"
+                            android:layout_toEndOf="@+id/tvConsoleLog" />
+
+                    </RelativeLayout>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/enableAppBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/streamModeLayout"
+                    android:layout_marginTop="16dp">
+
+                    <TextView
+                        android:id="@+id/enableAppBackgroundText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:text="@string/enable_app_background" />
+
+                    <ToggleButton
+                        android:id="@+id/enableAppBackgroundToggle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:checked="false" />
+                </RelativeLayout>
+
+            </RelativeLayout>
+        </ScrollView>
 
     </RelativeLayout>
-
-        </RelativeLayout>
-    </ScrollView>
-
-</RelativeLayout>
 </layout>

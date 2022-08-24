@@ -8,6 +8,7 @@ import com.ciscowebex.androidsdk.space.Space.SpaceType
 import com.ciscowebex.androidsdk.space.SpaceClient.SortBy
 import io.reactivex.Observable
 import io.reactivex.Single
+import java.util.Date
 
 class SpacesRepository(private val webex: Webex) : MessagingRepository(webex) {
     fun fetchSpacesList(teamId: String?, maxSpaces: Int, sortBy: SortBy): Observable<List<SpaceModel>> {
@@ -88,10 +89,11 @@ class SpacesRepository(private val webex: Webex) : MessagingRepository(webex) {
         }.toObservable()
     }
 
-    fun listMessages(spaceId: String, beforeMessageId: String? = null): Observable<List<SpaceMessageModel>> {
+    fun listMessages(spaceId: String, beforeMessageId: String? = null, beforeMessageDate: Long? = null): Observable<List<SpaceMessageModel>> {
         return Single.create<List<SpaceMessageModel>> { emitter ->
             var before: Before? = null
             beforeMessageId?.let { before = Before.Message(it) }
+            beforeMessageDate?.let { before = Before.Date(Date(it)) }
             webex.messages.list(spaceId, before, 100, null, CompletionHandler { result ->
                 if (result.isSuccessful) {
                     emitter.onSuccess(result.data?.map { SpaceMessageModel.convertToSpaceMessageModel(it) }.orEmpty())

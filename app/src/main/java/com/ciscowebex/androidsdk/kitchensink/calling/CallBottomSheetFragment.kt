@@ -36,6 +36,7 @@ class CallBottomSheetFragment(val showIncomingCallsClickListener: (Call?) -> Uni
     lateinit var compositeLayoutValue: MediaOption.CompositedVideoLayout
     lateinit var streamMode: Phone.VideoStreamMode
     var isSendingVideoForceLandscape: Boolean = false
+    var multiStreamNewApproach: Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return BottomSheetCallOptionsBinding.inflate(inflater, container, false).also { binding = it }.apply {
@@ -135,7 +136,11 @@ class CallBottomSheetFragment(val showIncomingCallsClickListener: (Call?) -> Uni
                 compositeStream.isEnabled = false
                 compositeStream.alpha = 0.5f
                 compositeLayoutText = getString(R.string.video_stream_mode_multi)
-                multiStreamOptions.visibility = View.VISIBLE
+                if (multiStreamNewApproach) {
+                    multiStreamOptions.visibility = View.VISIBLE
+                } else {
+                    multiStreamOptions.visibility = View.GONE
+                }
             }
 
             compositeStream.text = compositeLayoutText

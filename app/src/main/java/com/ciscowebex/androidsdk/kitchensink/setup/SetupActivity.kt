@@ -8,10 +8,12 @@ import android.widget.AdapterView
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import com.ciscowebex.androidsdk.kitchensink.BaseActivity
+import com.ciscowebex.androidsdk.kitchensink.KitchenSinkForegroundService
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivitySetupBinding
 import com.ciscowebex.androidsdk.kitchensink.utils.PermissionsHelper
+import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils
 import com.ciscowebex.androidsdk.phone.Phone
 import org.koin.android.ext.android.inject
 
@@ -83,6 +85,17 @@ class SetupActivity: BaseActivity() {
                     enableHWAccelToggle.setOnCheckedChangeListener { _, checked ->
                         webexViewModel.enableHWAcceltoggle = checked
                         webexViewModel.setHardwareAccelerationEnabled(checked)
+                    }
+
+                    enableAppBackgroundToggle.isChecked = SharedPrefUtils.isAppBackgroundRunningPreferred(this@SetupActivity)
+
+                    enableAppBackgroundToggle.setOnCheckedChangeListener { _, checked ->
+                        SharedPrefUtils.setAppBackgroundRunningPreferred(this@SetupActivity, checked)
+                        if(checked){
+                            KitchenSinkForegroundService.startForegroundService(this@SetupActivity)
+                        }else{
+                            KitchenSinkForegroundService.stopForegroundService(this@SetupActivity)
+                        }
                     }
 
                     streamModeRadioGroup.setOnCheckedChangeListener { _, checkedId ->

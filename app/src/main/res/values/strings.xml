@@ -32,6 +32,8 @@
     <string name="uc_loggedIn">You are LoggedIn (Unified CM)</string>
     <string name="phone_service_connected">Phone Services Connected</string>
     <string name="phone_service_failed">Phone Services Failed: </string>
+    <string name="uc_login_status">UC Login Status : </string>
+    <string name="phone_services_connection_status">Phone Services Connection Status : </string>
 
     <string name="mute_all_self">Mute all will not work for self.</string>
 
@@ -54,8 +56,8 @@
     <string name="message_edit_successful">Message edited successfully</string>
 
     <string name="uc_server_connected">UC Server Connected</string>
-    <string name="uc_login_success">Login Successful</string>
-    <string name="uc_login_failed">Login Failed</string>
+    <string name="uc_login_success">UC Login Successful</string>
+    <string name="uc_login_failed">UC Login Failed</string>
     <string name="uc_arch_x86_not_supported">CUCM x86 not supported</string>
 
     <string name="number_1">1</string>
@@ -379,4 +381,18 @@
     <string name="max_video_bandwidth">Max Video Bandwidth</string>
     <string name="show_incoming">Show Incoming Calls</string>
     <string name="incoming_calls">Incoming Calls</string>
+    <string name="pin_stream">Pin Stream</string>
+    <string name="unpin_stream">Unpin Stream</string>
+    <string name="close_stream">Close Stream</string>
+    <string name="get_previous_message_by_date">Get previous messages by Date</string>
+    <string name="retry">Retry</string>
+    <string name="ok">OK</string>
+    <string name="force_register">Force Register Phone Services</string>
+    <string name="force_register_dialog_message">This will log you out of phone services from your other android devices and force register on this device</string>
+    <string name="app_running_in_background_notification_title">Kitchen Sink running in background</string>
+    <string name="enable_app_background">Keep App running in Background</string>
+    <string name="fetching_details">Fetching Details ...</string>
+    <string name="caller_details_unavailable">Caller details not found</string>
+    <string name="accept">Accept</string>
+    <string name="dismiss">Dismiss</string>
 </resources>
