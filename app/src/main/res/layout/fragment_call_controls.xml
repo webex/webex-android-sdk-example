@@ -150,7 +150,7 @@
 
             <TextView
                 android:id="@+id/calling_header"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="10dp"
@@ -159,6 +159,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="20sp"
                 android:textStyle="bold"
+                android:gravity="center_horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -381,7 +382,7 @@
                 android:id="@+id/iv_cancel_call"
                 android:layout_width="@dimen/icon_size_normal"
                 android:layout_height="@dimen/icon_size_normal"
-                android:layout_marginBottom="32dp"
+                android:layout_marginBottom="24dp"
                 android:background="@drawable/circle_filled_red"
                 android:padding="@dimen/padding_normal"
                 android:src="@drawable/ic_cancel"
@@ -389,6 +390,17 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toStartOf="parent" />
+
+            <Button
+                android:id="@+id/btn_return_to_main_session"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/return_to_main_session"
+                android:layout_marginBottom="@dimen/size_8dp"
+                app:layout_constraintBottom_toTopOf="@id/iv_cancel_call"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:visibility="visible" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

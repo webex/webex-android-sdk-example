@@ -103,6 +103,7 @@ class SearchCommonFragment : Fragment() {
                             itemModel.image = R.drawable.ic_call
                             itemModel.callerId = id
                             itemModel.ongoing = searchViewModel.isSpaceCallStarted() && searchViewModel.spaceCallId() == id
+                            itemModel.isExternallyOwned = it[i].isExternallyOwned ?: false
                             //add in array list
                             itemModelList.add(itemModel)
                         }
@@ -154,6 +155,7 @@ class SearchCommonFragment : Fragment() {
                         itemModel.name = space.title.orEmpty()
                         itemModel.image = R.drawable.ic_call
                         itemModel.callerId = space.id.orEmpty()
+                        itemModel.isExternallyOwned = space.isExternallyOwned
                         itemModelList.add(itemModel)
                     }
                     adapter.itemList = itemModelList

@@ -22,6 +22,7 @@ import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
 import com.ciscowebex.androidsdk.kitchensink.calling.CallObserverInterface
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
 import com.ciscowebex.androidsdk.message.LocalFile
+import com.ciscowebex.androidsdk.phone.BreakoutSession.BreakoutSessionError
 import com.ciscowebex.androidsdk.phone.Call
 import com.ciscowebex.androidsdk.phone.CallObserver
 import com.ciscowebex.androidsdk.phone.MediaOption
@@ -36,6 +37,8 @@ import com.ciscowebex.androidsdk.phone.CameraExposureDuration
 import com.ciscowebex.androidsdk.phone.CameraExposureTargetBias
 import com.ciscowebex.androidsdk.phone.MediaStream
 import com.ciscowebex.androidsdk.phone.MediaStreamQuality
+import com.ciscowebex.androidsdk.phone.BreakoutSession
+import com.ciscowebex.androidsdk.phone.Breakout
 
 
 class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseViewModel() {
@@ -285,7 +288,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         webex.phone.setIncomingCallListener(object : Phone.IncomingCallListener {
             override fun onIncomingCall(call: Call?) {
                 call?.let {
-                    Log.d(tag, "setIncomingCallListener Call object : ${it.getCallId()}")
+                    Log.d(tag, "setIncomingCallListener Call object : ${it.getCallId()}, correlationId : ${it.getCorrelationId()}")
                     CallObjectStorage.addCallObject(it)
                     _incomingListenerLiveData.postValue(it)
                     setCallObserver(it)
@@ -329,17 +332,37 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
                     _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.DialCompleted, _call))
                 }
             } else {
-                result.error?.let { errorCode ->
-                    if (errorCode.errorCode == WebexError.ErrorCode.HOST_PIN_OR_MEETING_PASSWORD_REQUIRED.code) {
-                        _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.MeetingPinOrPasswordRequired, null))
-                    } else {
-                        _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.DialFailed, null, null, result.error?.errorMessage))
+                result.error?.let { error ->
+
+                    when(error.errorCode){
+                        WebexError.ErrorCode.HOST_PIN_OR_MEETING_PASSWORD_REQUIRED.code -> {
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.MeetingPinOrPasswordRequired, null))
+                        }
+                        WebexError.ErrorCode.INVALID_PASSWORD.code -> {
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.InCorrectPassword, null, null))
+                        }
+                        WebexError.ErrorCode.CAPTCHA_REQUIRED.code -> {
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.CaptchaRequired, null, error.data as Phone.Captcha))
+                        }
+                        WebexError.ErrorCode.INVALID_PASSWORD_WITH_CAPTCHA.code -> {
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.InCorrectPasswordWithCaptcha, null, error.data as Phone.Captcha))
+                        }
+                        else -> {
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.DialFailed, null, null, result.error?.errorMessage))
+                        }
+
                     }
                 } ?: run {
                     _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.DialFailed, null, null, result.error?.errorMessage))
                 }
             }
         })
+    }
+
+    fun refreshCaptcha() {
+        webex.phone.refreshMeetingCaptcha() {
+            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.CaptchaRequired, null, it.data))
+        }
     }
 
     fun answer(call: Call, mediaOption: MediaOption) {
@@ -405,6 +428,50 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
             override fun onMediaQualityInfoChanged(mediaQualityInfo: Call.MediaQualityInfo) {
                 callObserverInterface?.onMediaQualityInfoChanged(mediaQualityInfo)
+            }
+
+            override fun onBroadcastMessageReceivedFromHost(message: String) {
+                callObserverInterface?.onBroadcastMessageReceivedFromHost(message)
+            }
+
+            override fun onHostAskingReturnToMainSession() {
+                callObserverInterface?.onHostAskingReturnToMainSession()
+            }
+
+            override fun onJoinableSessionUpdated(breakoutSessions: List<BreakoutSession>) {
+                callObserverInterface?.onJoinableSessionUpdated(breakoutSessions)
+            }
+
+            override fun onJoinedSessionUpdated(breakoutSession: BreakoutSession) {
+                callObserverInterface?.onJoinedSessionUpdated(breakoutSession)
+            }
+
+            override fun onReturnedToMainSession() {
+                callObserverInterface?.onReturnedToMainSession()
+            }
+
+            override fun onSessionClosing() {
+                callObserverInterface?.onSessionClosing()
+            }
+
+            override fun onSessionEnabled() {
+                callObserverInterface?.onSessionEnabled()
+            }
+
+            override fun onSessionJoined(breakoutSession: BreakoutSession) {
+                callObserverInterface?.onSessionJoined(breakoutSession)
+            }
+
+            override fun onSessionStarted(breakout: Breakout) {
+                callObserverInterface?.onSessionStarted(breakout)
+            }
+
+            override fun onBreakoutUpdated(breakout: Breakout) {
+                callObserverInterface?.onBreakoutUpdated(breakout)
+            }
+
+            override fun onBreakoutError(error: BreakoutSessionError) {
+                callObserverInterface?.onBreakoutError(error)
             }
         })
     }
@@ -1045,5 +1112,13 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     fun isMediaStreamsPinningSupported(): Boolean {
         return getCall(currentCallId.orEmpty())?.isMediaStreamsPinningSupported() ?: false
+    }
+
+    fun joinBreakoutSession(breakoutSession: BreakoutSession) {
+        getCall(currentCallId.orEmpty())?.joinBreakoutSession(breakoutSession)
+    }
+
+    fun returnToMainSession() {
+        getCall(currentCallId.orEmpty())?.returnToMainSession()
     }
 }

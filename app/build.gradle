@@ -24,8 +24,8 @@ android {
         applicationId "com.cisco.sdk_android"
         minSdkVersion Versions.minSdk
         targetSdkVersion Versions.targetSdk
-        versionCode 36000
-        versionName "3.6.0"
+        versionCode 37000
+        versionName "3.7.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "CLIENT_ID", "${CLIENT_ID}"
@@ -36,7 +36,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
@@ -63,8 +63,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.ciscowebex:androidsdk:3.6.0'
-
+    implementation 'com.ciscowebex:androidsdk:3.7.0'
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation Dependencies.kotlinStdLib
     implementation Dependencies.coreKtx
@@ -101,5 +100,6 @@ dependencies {
     implementation Dependencies.firebaseAnalytics
     implementation Dependencies.firebaseCrashlytics
     implementation Dependencies.gson
+    implementation Dependencies.glide
 
 }

@@ -12,7 +12,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.ciscowebex.androidsdk.kitchensink.R
-import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.databinding.DialogCreateSpaceBinding
 import com.ciscowebex.androidsdk.kitchensink.databinding.DialogEnterTeamidBinding
 import com.ciscowebex.androidsdk.kitchensink.databinding.FragmentSpacesBinding
@@ -93,7 +92,17 @@ class SpacesFragment : Fragment() {
                     if (!spacesClientAdapter.spaces.isNullOrEmpty() && index != -1) {
                         val space = spacesClientAdapter.spaces[index]
                         Log.d(TAG, "Space event ${space} is CallStarted")
-                        val inCallSpace = SpaceModel(spaceId, space.title + " " + addOnCallSuffix, space.spaceType, space.isLocked, space.lastActivity, space.created, space.teamId, space.sipAddress)
+                        val inCallSpace = SpaceModel(
+                            spaceId,
+                            space.title + " " + addOnCallSuffix,
+                            space.spaceType,
+                            space.isLocked,
+                            space.lastActivity,
+                            space.created,
+                            space.teamId,
+                            space.sipAddress,
+                            space?.isExternallyOwned
+                        )
                         spacesClientAdapter.spaces[index] = inCallSpace
                         activity?.runOnUiThread {
                             spacesClientAdapter.notifyItemChanged(index)
@@ -106,7 +115,17 @@ class SpacesFragment : Fragment() {
                     if (!spacesClientAdapter.spaces.isNullOrEmpty() && index != -1) {
                         val space = spacesClientAdapter.spaces[index]
                         Log.d(TAG, "Space event ${space.title} is CallEnded")
-                        val inCallSpace = SpaceModel(spaceId, space.title.removeSuffix(addOnCallSuffix), space.spaceType, space.isLocked, space.lastActivity, space.created, space.teamId, space.sipAddress)
+                        val inCallSpace = SpaceModel(
+                            spaceId,
+                            space.title.removeSuffix(addOnCallSuffix),
+                            space.spaceType,
+                            space.isLocked,
+                            space.lastActivity,
+                            space.created,
+                            space.teamId,
+                            space.sipAddress,
+                            space?.isExternallyOwned
+                        )
                         spacesClientAdapter.spaces[index] = inCallSpace
                         activity?.runOnUiThread {
                             spacesClientAdapter.notifyItemChanged(index)

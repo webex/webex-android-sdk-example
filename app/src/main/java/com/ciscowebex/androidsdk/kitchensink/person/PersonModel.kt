@@ -2,6 +2,7 @@ package com.ciscowebex.androidsdk.kitchensink.person
 
 import android.os.Parcelable
 import com.ciscowebex.androidsdk.people.Person
+import com.ciscowebex.androidsdk.people.PersonRole
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 
@@ -9,7 +10,9 @@ import java.util.*
 data class PersonModel(val personId: String, val emails: List<String>, val displayName: String,
                        val nickName: String, val firstName: String, val lastName: String,
                        val avatar: String, val orgId: String, val created: Date,
-                       val lastActivity: String, val status: String, val type: String) : Parcelable {
+                       val lastActivity: String, val status: String, val type: String,
+                       val licenses: List<String>, val siteUrls: List<String>,
+                       val roles: List<PersonRole>) : Parcelable {
 
     val createdString: String = created.toString()
     val emailList = emails.joinToString()
@@ -44,7 +47,8 @@ data class PersonModel(val personId: String, val emails: List<String>, val displ
             return PersonModel(person?.id.orEmpty(), person?.emails.orEmpty(), person?.displayName.orEmpty(),
                     person?.nickName.orEmpty(), person?.firstName.orEmpty(), person?.lastName.orEmpty(),
                     person?.avatar.orEmpty(), person?.orgId.orEmpty(), person?.created ?: Date(),
-                    person?.lastActivity.orEmpty(), person?.status.orEmpty(), person?.type.orEmpty())
+                    person?.lastActivity.orEmpty(), person?.status.orEmpty(), person?.type.orEmpty(),
+                    person?.licenses.orEmpty(), person?.siteUrls.orEmpty(), person?.roles.orEmpty())
         }
     }
 }

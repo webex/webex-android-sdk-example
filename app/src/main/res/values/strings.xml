@@ -206,8 +206,8 @@
 
     <string name="webhook_action">Webhook Action</string>
     <string name="webhook_add">Add</string>
-    <string name="webhook_create">Create</string>
-    <string name="webhook_update">Update</string>
+    <string name="create">Create</string>
+    <string name="update">Update</string>
     <string name="webhook_name">Webhook name</string>
     <string name="webhook_target_url">Target Url</string>
     <string name="webhook_resource">Resource</string>
@@ -395,4 +395,32 @@
     <string name="caller_details_unavailable">Caller details not found</string>
     <string name="accept">Accept</string>
     <string name="dismiss">Dismiss</string>
+    <string name="message_from_host">Message from Host</string>
+    <string name="host_asking_return_to_main">Host asking to return to main session!</string>
+    <string name="show_breakout_sessions">Show Breakout Sessions</string>
+    <string name="breakout_session">Breakout Session</string>
+    <string name="breakout_session_enabled">Breakout session enabled</string>
+    <string name="breakout_error_occured">Breakout error occurred</string>
+    <string name="return_to_main_session">Return to main session</string>
+    <string name="add_person">Add Person</string>
+    <string name="create_person">Create Person</string>
+    <string name="delete_person">Delete Person</string>
+    <string name="update_person">Update Person</string>
+    <string name="site_urls">Site Urls</string>
+    <string name="licenses">Licenses</string>
+    <string name="roles">Roles</string>
+    <string name="org_id">Org ID</string>
+    <string name="avatar">Avatar</string>
+    <string name="last_name">Last Name</string>
+    <string name="first_name">First Name</string>
+    <string name="display_name">Display Name</string>
+    <string name="email">Email</string>
+    <string name="want_to_delete_the_person">Do you want to delete this person?</string>
+    <string name="breakout_session_started">Breakout session started</string>
+    <string name="incorrectPin">Incorrect pin or password !</string>
+    <string name="captcha_empty_error">Please enter the text shown in image</string>
+    <string name="captcha_hint">Enter captcha text here</string>
+    <string name="meeting_pin_title">Enter meeting pin</string>
+    <string name="meeting_pin_hint">Pin or password here</string>
+    <string name="submit">Submit</string>
 </resources>

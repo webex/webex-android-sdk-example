@@ -14,6 +14,8 @@ class Constants {
         const val PUSH_ID = "pushid"
         const val MESSAGE_ID = "MESSAGE_ID"
         const val CALENDAR_MEETING_ID = "CALENDAR_MEETING_ID"
+        const val KEY_UC_LOGIN_PAGE_ACTION = "KEY_UC_LOGIN_PAGE_ACTION"
+        const val KEY_SSO_URL = "KEY_SSO_URL"
     }
     object Bundle {
         const val MESSAGE_ID = "messageId"

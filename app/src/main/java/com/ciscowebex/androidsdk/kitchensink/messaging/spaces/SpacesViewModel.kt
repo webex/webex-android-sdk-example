@@ -11,7 +11,6 @@ import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.Membership
 import com.ciscowebex.androidsdk.kitchensink.messaging.teams.TeamsRepository
 import com.ciscowebex.androidsdk.space.SpaceClient
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.subscribeBy
 
 class SpacesViewModel(private val spacesRepo: SpacesRepository,
                       private val membershipRepo: MembershipRepository,
@@ -55,7 +54,17 @@ class SpacesViewModel(private val spacesRepo: SpacesRepository,
             if (spaceIds.isNotEmpty()) {
                 spaces.value?.forEach { space ->
                     if(spaceIds.contains(space.id)) {
-                        val tempSpace = SpaceModel(space.id, space.title + addOnCallSuffix, space.spaceType, space.isLocked, space.lastActivity, space.created, space.teamId, space.sipAddress)
+                        val tempSpace = SpaceModel(
+                            space.id,
+                            space.title + addOnCallSuffix,
+                            space.spaceType,
+                            space.isLocked,
+                            space.lastActivity,
+                            space.created,
+                            space.teamId,
+                            space.sipAddress,
+                            space?.isExternallyOwned
+                        )
                         allSpaces.add(tempSpace)
                     } else {
                         allSpaces.add(space)
