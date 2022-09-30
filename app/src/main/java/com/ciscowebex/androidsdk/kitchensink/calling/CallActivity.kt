@@ -1,14 +1,18 @@
 package com.ciscowebex.androidsdk.kitchensink.calling
 
 import android.app.AlertDialog
+import android.app.PictureInPictureParams
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.internal.ResultImpl
@@ -22,6 +26,8 @@ import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener {
 
     lateinit var binding: ActivityCallBinding
+
+    private var pictureInPictureParamsBuilder:PictureInPictureParams.Builder? = null
 
     companion object {
         fun getOutgoingIntent(context: Context, callerName: String): Intent {
@@ -42,23 +48,27 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener {
         super.onCreate(savedInstanceState)
         tag = "CallActivity"
         DataBindingUtil.setContentView<ActivityCallBinding>(this, R.layout.activity_call)
-                .also { binding = it }
-                .apply {
-                    val callingActivity = intent.getIntExtra(Constants.Intent.CALLING_ACTIVITY_ID, 0)
+            .also { binding = it }
+            .apply {
+                val callingActivity = intent.getIntExtra(Constants.Intent.CALLING_ACTIVITY_ID, 0)
 
-                    if (callingActivity == 0) {
-                        val callerId = intent.getStringExtra(Constants.Intent.OUTGOING_CALL_CALLER_ID)
-                        val fragment = supportFragmentManager.findFragmentById(R.id.containerFragment) as CallControlsFragment
+                if (callingActivity == 0) {
+                    val callerId = intent.getStringExtra(Constants.Intent.OUTGOING_CALL_CALLER_ID)
+                    val fragment = supportFragmentManager.findFragmentById(R.id.containerFragment) as CallControlsFragment
 
-                        callerId?.let {
-                            fragment.dialOutgoingCall(callerId)
-                        }
-                    } else if (intent.action == Constants.Action.WEBEX_CALL_ACTION){
-                        intent?.getStringExtra(Constants.Intent.CALL_ID) ?.let { callId ->
-                            handleIncomingWebexCallFromFCM(callId)
-                        }
+                    callerId?.let {
+                        fragment.dialOutgoingCall(callerId)
+                    }
+                } else if (intent.action == Constants.Action.WEBEX_CALL_ACTION){
+                    intent?.getStringExtra(Constants.Intent.CALL_ID) ?.let { callId ->
+                        handleIncomingWebexCallFromFCM(callId)
                     }
                 }
+            }
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            pictureInPictureParamsBuilder = PictureInPictureParams.Builder()
+        }
     }
 
     private fun handleIncomingWebexCallFromFCM(callId: String) {
@@ -93,16 +103,16 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener {
 
     private fun toBeShownOnLockScreen() {
         window.addFlags(
-                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-                        or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                    or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setTurnScreenOn(true)
             setShowWhenLocked(true)
         } else {
             window.addFlags(
-                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                            or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                        or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
             )
         }
     }
@@ -134,5 +144,52 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener {
                 Log.d(tag, "hangup error: ${result.error?.errorMessage}")
             }
         })
+
+
     }
+
+    private fun pictureInPictureMode(){
+        Log.d(tag, "pictureInPictureMode: Try to enter PIP mode")
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            Log.d(tag, "pictureInPictureMode: Supports PIP")
+            val fragment = supportFragmentManager.findFragmentById(R.id.containerFragment) as CallControlsFragment
+            val aspectRatio = fragment.aspectRatio()
+            pictureInPictureParamsBuilder?.setAspectRatio(aspectRatio)?.build()
+            pictureInPictureParamsBuilder?.build()?.let { enterPictureInPictureMode(it) }
+        }
+        else{
+            Log.d(tag, "pictureInPictureMode: Doesn't support PIP")
+            Toast.makeText(this, "Your device doesn't support PIP", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            Log.d(tag, "onUserLeaveHint: was not in PIP")
+            pictureInPictureMode()
+        }
+        else{
+            Log.d(tag, "onUserLeaveHint: Already in PIP")
+        }
+    }
+
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration?
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        val fragment = supportFragmentManager.findFragmentById(R.id.containerFragment) as CallControlsFragment
+        if(isInPictureInPictureMode){
+            Log.d(tag, "onPictureInPictureModeChanged: Entered PIP")
+            fragment.pipVisibility(View.GONE)
+        }
+        else{
+            Log.d(tag, "onPictureInPictureModeChanged: Exited PIP")
+            fragment.pipVisibility(View.VISIBLE)
+        }
+    }
+
+
+
 }

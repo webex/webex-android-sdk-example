@@ -1,6 +1,8 @@
 package com.ciscowebex.androidsdk.kitchensink.cucm
 
 import android.app.AlertDialog
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -19,6 +21,7 @@ import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.auth.PhoneServiceRegistrationFailureReason
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
 import com.ciscowebex.androidsdk.kitchensink.KitchenSinkApp.Companion.isUCSSOLogin
+import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
 
 
@@ -30,46 +33,43 @@ class UCLoginActivity : BaseActivity() {
 
     var isUCSSOLoginSuccessful = false
 
+    companion object {
+        enum class OnActivityStartAction {
+            ShowSSOLogin,
+            ShowNonSSOLogin
+        }
+
+        fun getIntent(context: Context, onActivityStartAction: String? = null, ssoUrl: String = ""): Intent {
+            val intent = Intent(context, UCLoginActivity::class.java)
+            intent.putExtra(Constants.Intent.KEY_UC_LOGIN_PAGE_ACTION, onActivityStartAction)
+            intent.putExtra(Constants.Intent.KEY_SSO_URL, ssoUrl)
+            return intent
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         tag = "UCLoginActivity"
         DataBindingUtil.setContentView<ActivityCucmLoginBinding>(this, R.layout.activity_cucm_login)
                 .also { binding = it }
                 .apply {
+                    // If HomeActivity starts the UC login process
+                    val onActivityStartAction = intent.getStringExtra(Constants.Intent.KEY_UC_LOGIN_PAGE_ACTION)
+                    onActivityStartAction?.let {
+                        if (it == OnActivityStartAction.ShowSSOLogin.name) {
+                            onActionShowSSOLogin(intent.getStringExtra(Constants.Intent.KEY_SSO_URL).orEmpty())
+                        } else if (it == OnActivityStartAction.ShowNonSSOLogin.name) {
+                            onActionShowNonSSOLogin()
+                        }
+                    }
                     webexViewModel.cucmLiveData.observe(this@UCLoginActivity, Observer {
                         if (it != null) {
                             when (WebexRepository.CucmEvent.valueOf(it.first.name)) {
                                 WebexRepository.CucmEvent.ShowSSOLogin -> {
-                                    Log.d(tag, "Callback : Show sso login with url : ${it.second}")
-                                    progressBar.visibility = View.GONE
-                                    ssologinWebview.visibility = View.VISIBLE
-
-                                    nonSSOAlertDialog?.dismiss()
-                                    ucSettingsAlertDialog?.dismiss()
-
-                                    isUCSSOLogin = true
-                                    UCSSOWebViewAuthenticator.launchWebView(ssologinWebview, it.second, CompletionHandler { result ->
-                                        if (result.isSuccessful) {
-                                            Log.d(tag, "UCLoginActivity SSO login Successful")
-
-                                            Handler(Looper.getMainLooper()).post {
-                                                ssologinWebview.visibility = View.GONE
-                                                progressBar.visibility = View.VISIBLE
-                                                updateUCLoginStatusUI(getString(R.string.uc_login_success))
-                                            }
-                                        } else {
-                                            Log.d(tag, "UCLoginActivity SSO login Failed")
-                                            Handler(Looper.getMainLooper()).post {
-                                                binding.ssologinWebview.visibility = View.GONE
-                                                binding.progressBar.visibility = View.GONE
-                                                updateUCLoginStatusUI(getString(R.string.uc_login_failed))
-                                            }
-                                        }
-                                    })
+                                    onActionShowSSOLogin(it.second)
                                 }
                                 WebexRepository.CucmEvent.ShowNonSSOLogin -> {
-                                    Log.d(tag, "Callback : Show non sso login")
-                                    showUCNonSSOLoginDialog()
+                                    onActionShowNonSSOLogin()
                                 }
                                 WebexRepository.CucmEvent.OnUCLoggedIn -> {
                                     Log.d(tag, "Callback : Uc logged in")
@@ -128,12 +128,48 @@ class UCLoginActivity : BaseActivity() {
                                 binding.ssologinWebview.visibility = View.GONE
                                 binding.progressBar.visibility = View.GONE
                                 updateUCLoginStatusUI(getString(R.string.uc_login_success))
+
+                                updatePhoneServiceConnectionUI("Phone services state : ${webexViewModel.getUCServerConnectionStatus().name}")
                             }
                         } else {
                             showUCLoginSettingsDialog()
                         }
                     }
                 }
+    }
+
+    private fun onActionShowSSOLogin(ssoUrl: String) {
+        Log.d(tag, "Callback : Show sso login with url : $ssoUrl")
+        binding.progressBar.visibility = View.GONE
+        binding.ssologinWebview.visibility = View.VISIBLE
+
+        nonSSOAlertDialog?.dismiss()
+        ucSettingsAlertDialog?.dismiss()
+
+        isUCSSOLogin = true
+        UCSSOWebViewAuthenticator.launchWebView(binding.ssologinWebview, ssoUrl, CompletionHandler { result ->
+            if (result.isSuccessful) {
+                Log.d(tag, "UCLoginActivity SSO login Successful")
+
+                Handler(Looper.getMainLooper()).post {
+                    binding.ssologinWebview.visibility = View.GONE
+                    binding.progressBar.visibility = View.VISIBLE
+                    updateUCLoginStatusUI(getString(R.string.uc_login_success))
+                }
+            } else {
+                Log.d(tag, "UCLoginActivity SSO login Failed")
+                Handler(Looper.getMainLooper()).post {
+                    binding.ssologinWebview.visibility = View.GONE
+                    binding.progressBar.visibility = View.GONE
+                    updateUCLoginStatusUI(getString(R.string.uc_login_failed))
+                }
+            }
+        })
+    }
+
+    private fun onActionShowNonSSOLogin() {
+        Log.d(tag, "Callback : Show non sso login")
+        showUCNonSSOLoginDialog()
     }
 
     override fun onBackPressed() {

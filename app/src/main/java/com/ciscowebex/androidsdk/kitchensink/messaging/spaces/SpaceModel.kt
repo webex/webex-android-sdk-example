@@ -4,7 +4,17 @@ import com.ciscowebex.androidsdk.space.Space
 import com.ciscowebex.androidsdk.space.Space.SpaceType
 import java.util.*
 
-data class SpaceModel(val id: String, val title: String, val spaceType: SpaceType?, val isLocked: Boolean, val lastActivity: Date, val created: Date, val teamId: String, val sipAddress: String) {
+data class SpaceModel(
+    val id: String,
+    val title: String,
+    val spaceType: SpaceType?,
+    val isLocked: Boolean,
+    val lastActivity: Date,
+    val created: Date,
+    val teamId: String,
+    val sipAddress: String,
+    val isExternallyOwned: Boolean?
+) {
 
     val createdDateTimeString: String = created.toString()
     val lastActivityTimestampString: String = lastActivity.toString()
@@ -29,6 +39,7 @@ data class SpaceModel(val id: String, val title: String, val spaceType: SpaceTyp
         result = 31 * result + sipAddress.hashCode()
         result = 31 * result + createdDateTimeString.hashCode()
         result = 31 * result + lastActivityTimestampString.hashCode()
+        result = 31 * result + isExternallyOwned.hashCode()
         return result
     }
 
@@ -37,7 +48,7 @@ data class SpaceModel(val id: String, val title: String, val spaceType: SpaceTyp
             return SpaceModel(space?.id.orEmpty(), space?.title.orEmpty(), space?.type,
                     space?.isLocked ?: false, space?.lastActivity
                     ?: Date(), space?.created ?: Date(),
-                    space?.teamId.orEmpty(), space?.sipAddress.orEmpty())
+                    space?.teamId.orEmpty(), space?.sipAddress.orEmpty(), space?.isExternallyOwned)
         }
     }
 

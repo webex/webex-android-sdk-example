@@ -8,38 +8,15 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/peopleOptionsLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="false"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/people_actions"
-            app:layout_constraintBottom_toTopOf="@id/actionsSeparator"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <View
-            android:id="@+id/actionsSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/peopleOptionsLabel" />
-
-        <TextView
             android:id="@+id/fetchPersonByID"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingVertical="@dimen/size_8dp"
             android:text="@string/people_fetch_person_id"
-            android:background="@color/green"
-            android:textColor="@color/white"
             android:textAlignment="center"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/actionsSeparator"/>
+            app:layout_constraintStart_toStartOf="parent"/>
 
         <View
             android:id="@+id/fetchPersonByIDSeparator"
@@ -56,8 +33,6 @@
             android:layout_height="wrap_content"
             android:paddingVertical="@dimen/size_8dp"
             android:text="@string/people_post_message_id"
-            android:background="@color/lightYellow"
-            android:textColor="@color/white"
             android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -78,8 +53,6 @@
             android:layout_height="wrap_content"
             android:paddingVertical="@dimen/size_8dp"
             android:text="@string/people_post_message_email"
-            android:background="@color/blue"
-            android:textColor="@color/white"
             android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -95,6 +68,46 @@
             app:layout_constraintTop_toBottomOf="@id/postMessageByEmail" />
 
         <TextView
+            android:id="@+id/updatePerson"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingVertical="@dimen/size_8dp"
+            android:text="@string/update_person"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/postMessageByEmailSeparator"/>
+
+        <View
+            android:id="@+id/updatePersonSeparator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/updatePerson" />
+
+        <TextView
+            android:id="@+id/deletePerson"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingVertical="@dimen/size_8dp"
+            android:text="@string/delete_person"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/updatePersonSeparator"/>
+
+        <View
+            android:id="@+id/deletePersonSeparator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/deletePerson" />
+
+        <TextView
             android:id="@+id/cancel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -105,7 +118,7 @@
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/postMessageByEmailSeparator" />
+            app:layout_constraintTop_toTopOf="@id/deletePersonSeparator" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

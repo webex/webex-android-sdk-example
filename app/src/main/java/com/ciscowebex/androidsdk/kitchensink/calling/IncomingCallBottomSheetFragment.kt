@@ -6,22 +6,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.ciscowebex.androidsdk.kitchensink.databinding.BottomSheetWithRecyclerViewBinding
+import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemCallMeetingBinding
 import com.ciscowebex.androidsdk.phone.Call
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.ciscowebex.androidsdk.kitchensink.databinding.BottomSheetIncomingCallsBinding
-import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemCallMeetingBinding
 
 class IncomingCallBottomSheetFragment(val onBottomSheetDismissed: (BottomSheetDialogFragment) -> Unit): BottomSheetDialogFragment() {
     companion object {
         const val TAG = "IncomingCallBottomSheetFragment"
     }
 
-    private lateinit var binding: BottomSheetIncomingCallsBinding
+    private lateinit var binding: BottomSheetWithRecyclerViewBinding
     var adapter: IncomingInfoAdapter? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return BottomSheetIncomingCallsBinding.inflate(inflater, container, false).also { binding = it }.apply {
-            binding.incomingRecyclerView.adapter = adapter
+        return BottomSheetWithRecyclerViewBinding.inflate(inflater, container, false).also { binding = it }.apply {
+            binding.recyclerView.adapter = adapter
             Log.d(TAG, "showIncomingCallBottomSheet adapter $adapter")
             imgClose.setOnClickListener { onBottomSheetDismissed(this@IncomingCallBottomSheetFragment) }
         }.root

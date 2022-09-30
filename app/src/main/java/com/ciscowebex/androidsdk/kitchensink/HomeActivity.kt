@@ -119,7 +119,7 @@ class HomeActivity : BaseActivity() {
                     }
 
                     ivUcLogin.setOnClickListener {
-                        startActivity(Intent(this@HomeActivity, UCLoginActivity::class.java))
+                        startActivity(UCLoginActivity.getIntent(this@HomeActivity))
                     }
 
                     ivWebhook.setOnClickListener {
@@ -177,6 +177,34 @@ class HomeActivity : BaseActivity() {
         webexViewModel.setMembershipObserver()
         webexViewModel.setMessageObserver()
         webexViewModel.setCalendarMeetingObserver()
+
+        // UC Login
+        webexViewModel.startUCServices()
+        observeUCLoginData()
+    }
+
+    private fun observeUCLoginData() {
+        webexViewModel.cucmLiveData.observe(this@HomeActivity, Observer {
+            Log.d(tag, "uc login observer called : ${it.first.name}")
+            if (it != null) {
+                when (WebexRepository.CucmEvent.valueOf(it.first.name)) {
+                    WebexRepository.CucmEvent.OnUCLoggedIn, WebexRepository.CucmEvent.OnUCServerConnectionStateChanged -> {
+                        updateUCData()
+                    }
+                    WebexRepository.CucmEvent.ShowSSOLogin -> {
+                        startActivity(UCLoginActivity.getIntent(this@HomeActivity,
+                            UCLoginActivity.Companion.OnActivityStartAction.ShowSSOLogin.name,
+                            it.second))
+                    }
+
+                    WebexRepository.CucmEvent.ShowNonSSOLogin -> {
+                        startActivity(UCLoginActivity.getIntent(this@HomeActivity, UCLoginActivity.Companion.OnActivityStartAction.ShowNonSSOLogin.name))
+                    }
+                    else -> {
+                    }
+                }
+            }
+        })
     }
 
     private fun showMessageIfCameFromNotification() {
@@ -217,12 +245,13 @@ class HomeActivity : BaseActivity() {
         }
 
         when (webexViewModel.ucServerConnectionStatus) {
-            UCLoginServerConnectionStatus.Connected -> {
-                binding.ucServerConnectionStatusTextView.text = resources.getString(R.string.phone_service_connected)
-                binding.ucServerConnectionStatusTextView.visibility = View.VISIBLE
-            }
             UCLoginServerConnectionStatus.Failed -> {
                 val text = resources.getString(R.string.phone_service_failed) + " " + webexViewModel.ucServerConnectionFailureReason
+                binding.ucServerConnectionStatusTextView.text = text
+                binding.ucServerConnectionStatusTextView.visibility = View.VISIBLE
+            }
+            UCLoginServerConnectionStatus.Connected, UCLoginServerConnectionStatus.Connecting -> {
+                val text = resources.getString(R.string.phone_services_connection_status) + webexViewModel.ucServerConnectionStatus.name
                 binding.ucServerConnectionStatusTextView.text = text
                 binding.ucServerConnectionStatusTextView.visibility = View.VISIBLE
             }

@@ -1,38 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent">
 
-        <RelativeLayout
+        <SearchView
+            android:id="@+id/search_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_gray_border"
+            android:iconifiedByDefault="false"
+            android:queryHint="Search Here"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:queryBackground="@null" />
 
-            <SearchView
-                android:id="@+id/search_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/size_8dp"
-                android:layout_marginTop="@dimen/size_8dp"
-                android:layout_marginEnd="@dimen/size_8dp"
-                android:background="@drawable/bg_gray_border"
-                android:iconifiedByDefault="false"
-                android:queryHint="Search Here"
-                app:queryBackground="@null" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/search_view"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_view"
+            app:layout_constraintVertical_bias="0.0" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/search_view"
-                android:layout_marginLeft="5dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="5dp"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addPersonsFAB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/blue"
+            android:contentDescription="@string/add_person"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_baseline_add_24" />
 
-        </RelativeLayout>
-    </androidx.core.widget.NestedScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

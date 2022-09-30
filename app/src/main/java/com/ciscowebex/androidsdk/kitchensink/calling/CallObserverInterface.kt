@@ -1,7 +1,10 @@
 package com.ciscowebex.androidsdk.kitchensink.calling
 
+import com.ciscowebex.androidsdk.phone.Breakout
+import com.ciscowebex.androidsdk.phone.BreakoutSession
 import com.ciscowebex.androidsdk.phone.Call
 import com.ciscowebex.androidsdk.phone.CallObserver
+import com.ciscowebex.androidsdk.phone.BreakoutSession.BreakoutSessionError
 
 /*
 * This interface is written to overcome the limitation of live data postValue.
@@ -21,4 +24,17 @@ interface CallObserverInterface {
     fun onCpuHitThreshold() {}
     fun onPhotoCaptured(imageData: ByteArray?) {}
     fun onMediaQualityInfoChanged(mediaQualityInfo: Call.MediaQualityInfo)
+
+    // Breakout Sessions
+    fun onBroadcastMessageReceivedFromHost(message: String)
+    fun onHostAskingReturnToMainSession()
+    fun onJoinableSessionUpdated(breakoutSessions: List<BreakoutSession>)
+    fun onJoinedSessionUpdated(breakoutSession: BreakoutSession)
+    fun onReturnedToMainSession()
+    fun onSessionClosing()
+    fun onSessionEnabled()
+    fun onSessionJoined(breakoutSession: BreakoutSession)
+    fun onSessionStarted(breakout: Breakout)
+    fun onBreakoutUpdated(breakout: Breakout)
+    fun onBreakoutError(error: BreakoutSessionError)
 }

@@ -25,7 +25,8 @@ class CallBottomSheetFragment(val showIncomingCallsClickListener: (Call?) -> Uni
                               val forceLandscapeClickListener: (Call?) -> Unit,
                               val cameraOptionsClickListener: (Call?) -> Unit,
                               val multiStreamOptionsClickListener: (Call?) -> Unit,
-                              val sendDTMFClickListener: (Call?) -> Unit): BottomSheetDialogFragment() {
+                              val sendDTMFClickListener: (Call?) -> Unit,
+                              val showBreakoutSessions: () -> Unit): BottomSheetDialogFragment() {
     companion object {
         val TAG = "CallBottomSheetFragment"
     }
@@ -192,9 +193,6 @@ class CallBottomSheetFragment(val showIncomingCallsClickListener: (Call?) -> Uni
                 toggleWXAClickListener(call)
             }
 
-            val canControlWXAStr = if (call?.getWXA()?.canControlWXA() == true) "Can control WXA" else "Can not control WXA"
-            Toast.makeText(activity, canControlWXAStr, Toast.LENGTH_LONG).show()
-
             val showDTMFOption = call?.isSendingDTMFEnabled() ?: false
 
             if (showDTMFOption) {
@@ -210,6 +208,11 @@ class CallBottomSheetFragment(val showIncomingCallsClickListener: (Call?) -> Uni
             multiStreamOptions.setOnClickListener {
                 dismiss()
                 multiStreamOptionsClickListener(call)
+            }
+
+            breakoutSessions.setOnClickListener {
+                dismiss()
+                showBreakoutSessions()
             }
 
             cancel.setOnClickListener { dismiss() }

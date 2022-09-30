@@ -93,7 +93,10 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
         AnswerFailed,
         AssociationCallCompleted,
         AssociationCallFailed,
-        MeetingPinOrPasswordRequired
+        MeetingPinOrPasswordRequired,
+        CaptchaRequired,
+        InCorrectPassword,
+        InCorrectPasswordWithCaptcha
     }
 
     enum class CalendarMeetingEvent {
@@ -104,6 +107,7 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
 
     data class CallLiveData(val event: CallEvent,
                             val call: Call? = null,
+                            val captcha: Phone.Captcha? = null,
                             val sharingLabel: String? = null,
                             val errorMessage: String? = null,
                             val callMembershipEvent: CallObserver.CallMembershipChangedEvent? = null,

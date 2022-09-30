@@ -109,7 +109,7 @@ class WebhooksActivity : AppCompatActivity() {
                 .apply {
                     builder.setView(this.root)
 
-                    builder.setPositiveButton(getString(R.string.webhook_create)) { dialog, _ ->
+                    builder.setPositiveButton(getString(R.string.create)) { dialog, _ ->
                         val name = nameEditText.text.toString()
                         val targetUrl = targetUrlEditText.text.toString()
                         val resource = resourceEditText.text.toString()
@@ -145,7 +145,7 @@ class WebhooksActivity : AppCompatActivity() {
                         }
                     }
 
-                    builder.setPositiveButton(getString(R.string.webhook_update)) { dialog, _ ->
+                    builder.setPositiveButton(getString(R.string.update)) { dialog, _ ->
 
                         val name = nameEditText.text.toString()
                         val targetUrl = targetUrlEditText.text.toString()

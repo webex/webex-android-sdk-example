@@ -3,6 +3,7 @@ package com.ciscowebex.androidsdk.kitchensink.calling
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.Dialog
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -11,12 +12,16 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
+import android.media.AudioAttributes
+import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.util.Pair
+import android.util.Rational
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
@@ -30,9 +35,12 @@ import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.WebexError
 import com.ciscowebex.androidsdk.kitchensink.R
@@ -65,12 +73,15 @@ import com.ciscowebex.androidsdk.phone.MediaStreamChangeEventType
 import com.ciscowebex.androidsdk.phone.MediaStreamChangeEventInfo
 import com.ciscowebex.androidsdk.phone.MediaStreamType
 import com.ciscowebex.androidsdk.phone.Phone
-import org.koin.android.ext.android.inject
 import com.ciscowebex.androidsdk.phone.VirtualBackground
+import com.ciscowebex.androidsdk.phone.Breakout
+import com.ciscowebex.androidsdk.phone.BreakoutSession
+import org.koin.android.ext.android.inject
 import com.ciscowebex.androidsdk.utils.internal.MimeUtils
 import java.io.File
 import java.util.Date
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface {
     private val TAG = "CallControlsFragment"
@@ -91,11 +102,24 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     private lateinit var multiStreamDataOptionsBottomSheetFragment: MultiStreamDataOptionsBottomSheetFragment
     private lateinit var mediaStreamBottomSheetFragment: MediaStreamBottomSheetFragment
     private lateinit var photoViewerBottomSheetFragment: PhotoViewerBottomSheetFragment
+    private lateinit var breakoutSessionBottomSheetFragment: BreakoutSessionsBottomSheetFragment
     private lateinit var incomingInfoAdapter: IncomingCallBottomSheetFragment.IncomingInfoAdapter
+    private lateinit var breakoutSessionsAdapter: BreakoutSessionsBottomSheetFragment.BreakoutSessionsAdapter
     private val mAuxStreamViewMap: HashMap<View, AuxStreamViewHolder> = HashMap()
     private var callerId: String = ""
     var bottomSheetFragment: BackgroundOptionsBottomSheetFragment? = null
     var onCallActionListener: OnCallActionListener? = null
+    private var breakoutSessions : List<BreakoutSession> = emptyList()
+    private var breakout: Breakout? = null
+    private var dialType = DialType.NONE;
+    private val mediaPlayer: MediaPlayer = MediaPlayer()
+    private lateinit var passwordDialogBinding: DialogEnterMeetingPinBinding
+    private lateinit var passwordDialog : Dialog
+
+
+    // Is true when trying to join a Breakout Session, and becomes false when successfully joined or error occurs
+    // Call onDisconnected is fired when user is the last one to leave main session and tries to join a breakout session.
+    private var attemptingToJoinABreakoutSession = false
 
     interface OnCallActionListener {
         fun onEndAndAnswer(currentCallId: String, newCallId: String, handler: CompletionHandler<Boolean>)
@@ -114,6 +138,12 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         OFF,
         ON,
         DISABLED
+    }
+
+    enum class DialType {
+        NONE,
+        HOST,
+        OTHERS
     }
 
     class AuxStreamViewHolder(var item: View) {
@@ -149,6 +179,10 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             setUpViews()
             observerCallLiveData()
             initAudioManager()
+
+//        Enable below line to check is USM is enabled
+//        Toast.makeText(requireActivity().applicationContext, "isUSMEnabled ${webexViewModel.webex.phone.isUnifiedSpaceMeetingEnabled()}", Toast.LENGTH_LONG).show()
+
         }.root
     }
 
@@ -170,7 +204,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         binding.ibHoldCall.isSelected = isOnHold ?: false
     }
 
-    private fun getMediaOption(isModerator: Boolean = false, pin: String = ""): MediaOption {
+    private fun getMediaOption(isModerator: Boolean = false, pin: String = "", captcha: String = "", captchaId: String = ""): MediaOption {
         val mediaOption: MediaOption
         if (webexViewModel.callCapability == WebexRepository.CallCap.Audio_Only) {
             mediaOption = MediaOption.audioOnly()
@@ -180,13 +214,15 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         }
         mediaOption.setModerator(isModerator)
         mediaOption.setPin(pin)
+        mediaOption.setCaptchaCode(captcha)
+        mediaOption.setCaptchaId(captchaId)
         return mediaOption
     }
 
-    fun dialOutgoingCall(callerId: String, isModerator: Boolean = false, pin: String = "") {
+    fun dialOutgoingCall(callerId: String, isModerator: Boolean = false, pin: String = "", captcha: String = "", captchaId: String = "") {
         Log.d(TAG, "dialOutgoingCall")
         this.callerId = callerId
-        webexViewModel.dial(callerId, getMediaOption(isModerator, pin))
+        webexViewModel.dial(callerId, getMediaOption(isModerator, pin, captcha, captchaId))
     }
 
     private fun checkLicenseAPIs() {
@@ -199,6 +235,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
     override fun onConnected(call: Call?) {
         Log.d(TAG, "CallObserver onConnected callId: ${call?.getCallId()}, hasAnyoneJoined: ${webexViewModel.hasAnyoneJoined()}, " +
+                "correlationId: ${call?.getCorrelationId()}"+
                 "isMeeting: ${webexViewModel.isMeeting()}," +
                 "isPmr: ${webexViewModel.isPmr()}," +
                 "isSelfCreator: ${webexViewModel.isSelfCreator()}," +
@@ -295,7 +332,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             }
             else -> {
                 val schedules = call?.getSchedules()
-                if (localClose) {
+                if (localClose && !attemptingToJoinABreakoutSession) {
                     if (schedules == null && !isIncomingActivity) {
                         /**
                          * Taken care of space call when local left
@@ -633,6 +670,85 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         updateNetworkStatusChange(mediaQualityInfo)
     }
 
+    override fun onBroadcastMessageReceivedFromHost(message: String) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            showDialogWithMessage(requireContext(), R.string.message_from_host, message)
+        }
+    }
+
+    override fun onHostAskingReturnToMainSession() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            Toast.makeText(requireContext(), getString(R.string.host_asking_return_to_main), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onJoinableSessionUpdated(breakoutSessions: List<BreakoutSession>) {
+        this.breakoutSessions = breakoutSessions
+        breakoutSessionsAdapter.sessions = breakoutSessions.toMutableList()
+        if (breakoutSessionBottomSheetFragment.isAdded && breakoutSessionBottomSheetFragment.isVisible) {
+            breakoutSessionsAdapter.notifyDataSetChanged()
+        }
+        Log.d(tag, "BreakoutSession Joinable sessions updated : size -> ${breakoutSessions.size}")
+    }
+
+    override fun onJoinedSessionUpdated(breakoutSession: BreakoutSession) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            binding.tvName.text = breakoutSession.getName()
+        }
+    }
+
+    override fun onReturnedToMainSession() {
+        breakout = null
+        val callInfo = webexViewModel.currentCallId?.let { webexViewModel.getCall(it) }
+        lifecycleScope.launch(Dispatchers.Main) {
+            binding.callingHeader.text = getString(R.string.onCall)
+            binding.tvName.text = callInfo?.getTitle()
+            binding.btnReturnToMainSession.visibility = View.INVISIBLE
+        }
+    }
+
+    override fun onSessionClosing() {
+        val closingText = "Breakout Session: Closing in ${breakout?.getDelay()} seconds"
+        lifecycleScope.launch(Dispatchers.Main) {
+            Toast.makeText(requireContext(), closingText, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    override fun onSessionEnabled() {
+        Log.d(tag, "BreakoutSession onSessionEnabled()")
+        lifecycleScope.launch(Dispatchers.Main) {
+            Toast.makeText(requireContext(), getString(R.string.breakout_session_enabled), Toast.LENGTH_LONG).show()
+        }
+    }
+
+    override fun onSessionJoined(breakoutSession: BreakoutSession) {
+        attemptingToJoinABreakoutSession = false
+        lifecycleScope.launch(Dispatchers.Main) {
+            binding.callingHeader.text = getString(R.string.breakout_session)
+            binding.tvName.text = breakoutSession.getName()
+            binding.btnReturnToMainSession.visibility = View.VISIBLE
+        }
+    }
+
+    override fun onSessionStarted(breakout: Breakout) {
+        this.breakout = breakout
+        lifecycleScope.launch(Dispatchers.Main) {
+            Toast.makeText(requireContext(), getString(R.string.breakout_session_started), Toast.LENGTH_LONG).show()
+        }
+    }
+
+    override fun onBreakoutUpdated(breakout: Breakout) {
+        this.breakout = breakout
+    }
+
+    override fun onBreakoutError(error: BreakoutSession.BreakoutSessionError) {
+        attemptingToJoinABreakoutSession = false
+        val errorText = "${getString(R.string.breakout_error_occured)} : ${error.name}"
+        lifecycleScope.launch(Dispatchers.Main) {
+            showDialogWithMessage(requireContext(), R.string.error_occurred, errorText)
+        }
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     private fun observerCallLiveData() {
 
@@ -695,28 +811,37 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 when (event) {
                     WebexRepository.CallEvent.DialCompleted -> {
                         Log.d(tag, "callingLiveData DIAL_COMPLETED callerId: ${call?.getCallId()}")
+                        dismissErrorDialog()
                         onCallJoined(call)
                         handleCUCMControls(call)
                     }
                     WebexRepository.CallEvent.DialFailed -> {
+                        dismissErrorDialog()
                         val callActivity = activity as CallActivity?
                         callActivity?.alertDialog(true, errorMessage ?: "")
                     }
                     WebexRepository.CallEvent.AnswerCompleted -> {
                         webexViewModel.currentCallId = call?.getCallId()
                         Log.d(TAG, "answer Lambda callInfo Id: ${call?.getCallId()}")
+                        dismissErrorDialog()
                         onCallJoined(call)
                         handleCUCMControls(null)
                     }
                     WebexRepository.CallEvent.AnswerFailed -> {
                         Log.d(TAG, "answer Lambda failed $errorMessage")
+                        dismissErrorDialog()
                         callEndedUIUpdate(call?.getCallId().orEmpty())
                     }
-                    WebexRepository.CallEvent.MeetingPinOrPasswordRequired -> {
-                        Log.d(TAG, "CallObserver MeetingPinOrPasswordRequired : " + call?.getCallId())
-                        onMeetingHostPinError()
+                    WebexRepository.CallEvent.MeetingPinOrPasswordRequired,
+                    WebexRepository.CallEvent.InCorrectPassword,
+                    WebexRepository.CallEvent.CaptchaRequired,
+                    WebexRepository.CallEvent.InCorrectPasswordWithCaptcha-> {
+                        Log.d(TAG, "Call Observer Error case : " + it.errorMessage)
+                        onMeetingHostPinError(it.captcha, event)
                     }
-                    else -> {}
+                    else -> {
+                        dismissErrorDialog()
+                    }
                 }
             }
         })
@@ -849,44 +974,171 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         return LocalFile(file, null, thumbnail, null)
     }
 
-    private fun onMeetingHostPinError() {
-        showDialogWithMessage(requireContext(), getString(R.string.meeting_error), getString(R.string.are_you_host), cancelable = false,
+    private fun onMeetingHostPinError(captcha: Phone.Captcha?, error: WebexRepository.CallEvent) {
+
+        if(dialType == DialType.NONE) { // this is the case when the dialed called first time, so decide the dial type here
+            showDialogWithMessage(requireContext(), getString(R.string.meeting_error), getString(R.string.are_you_host), cancelable = false,
                 onPositiveButtonClick = { dialog, _ ->
                     dialog.dismiss()
-                    handleMeetingPinInput(true)
+                    dialType = DialType.HOST
+                    createErrorDialog(true, captcha, error)
 
                 },
                 onNegativeButtonClick = { dialog, _ ->
                     dialog.dismiss()
-                    handleMeetingPinInput(false)
+                    dialType = DialType.OTHERS
+                    createErrorDialog(false, captcha, error)
                 })
+        } else { // second time onwards just set host or others to bypass the host confirming dialog
+            if(passwordDialog.isShowing) {
+                updateErrorDialog(captcha, error)
+            } else {
+                createErrorDialog(dialType == DialType.HOST, captcha, error)
+            }
+        }
     }
 
-    private fun handleMeetingPinInput(isHost: Boolean) {
-        val builder: androidx.appcompat.app.AlertDialog.Builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+    private fun updateErrorDialog(
+        captchaData: Phone.Captcha? = null,
+        error: WebexRepository.CallEvent = WebexRepository.CallEvent.MeetingPinOrPasswordRequired
+    ) {
+        val isCaptchaAvailable = (captchaData!=null)
+        passwordDialogBinding.root.apply {
+            if(isCaptchaAvailable) {
+                passwordDialogBinding.captchaRootLayout.visibility = View.VISIBLE
+                Glide.with(requireContext())
+                    .load(captchaData?.getImageUrl()) // image url
+                    .placeholder(R.color.black) // any placeholder to load at start
+                    .centerCrop()
+                    .into(passwordDialogBinding.captchImage)
+                passwordDialogBinding.captchaAudio.tag = captchaData?.getAudioUrl()
+                passwordDialogBinding.submit.tag = captchaData
+            } else {
+                passwordDialogBinding.captchaRootLayout.visibility = View.GONE
+            }
 
-        builder.setTitle(R.string.calling)
-        builder.setCancelable(false)
-        val hint = if (isHost) R.string.enter_host_key else R.string.enter_meeting_pin
+            passwordDialogBinding.progressBar.visibility = View.GONE
+            passwordDialogBinding.submit.visibility = View.VISIBLE
 
-        DialogEnterMeetingPinBinding.inflate(layoutInflater)
-                .apply {
-                    builder.setView(this.root)
-                    pinTitleLabel.text = getString(hint)
-                    builder.setPositiveButton(android.R.string.ok) { _, _ ->
-                        if (pinTitleEditText.text.isEmpty()) {
-                            val error = if (isHost) getString(R.string.host_key_required) else getString(R.string.meeting_pin_required)
-                            Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
-                            return@setPositiveButton
-                        }
+            passwordDialogBinding.pinTitleEditText.text.clear()
+            passwordDialogBinding.captchaInputText.text.clear()
 
-                        dialOutgoingCall(callerId, isHost, pinTitleEditText.text.toString())
-                    }
-                    builder.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
+            when (error) {
+                WebexRepository.CallEvent.MeetingPinOrPasswordRequired,
+                WebexRepository.CallEvent.CaptchaRequired-> {
+                    passwordDialogBinding.errorText.text = ""
+                }
+                WebexRepository.CallEvent.InCorrectPassword ,
+                WebexRepository.CallEvent.InCorrectPasswordWithCaptcha -> {
+                    passwordDialogBinding.errorText.text = getString(R.string.incorrectPin)
+                }
+                else -> { }
+            }
+        }
+    }
 
-                    builder.show()
+    private fun createErrorDialog(
+        isHost: Boolean,
+        captchaData: Phone.Captcha? = null,
+        error: WebexRepository.CallEvent = WebexRepository.CallEvent.MeetingPinOrPasswordRequired
+    ) {
+
+        passwordDialogBinding = DialogEnterMeetingPinBinding.inflate(layoutInflater)
+            .apply {
+
+                // Captcha data validation if any
+                if (captchaData != null) {
+                    captchaRootLayout.visibility = View.VISIBLE
+                    Glide.with(requireContext())
+                        .load(captchaData.getImageUrl()) // image url
+                        .placeholder(R.color.black) // any placeholder to load at start
+                        .centerCrop()
+                        .into(captchImage)
+                    captchaAudio.tag = captchaData.getAudioUrl()
+                } else {
+                    captchaRootLayout.visibility = View.GONE
                 }
 
+                // Prepare error message
+                errorText.text = ""
+                if (error == WebexRepository.CallEvent.InCorrectPassword ||
+                    error == WebexRepository.CallEvent.InCorrectPasswordWithCaptcha
+                ) {
+                    errorText.text = getString(R.string.incorrectPin)
+                }
+
+                // Handle submit action for pin and captcha
+                submit.tag = captchaData
+                submit.setOnClickListener {
+                    it.let {
+                        // reset the previous error
+                        errorText.text = ""
+
+                        if (pinTitleEditText.text.isEmpty()) {
+                            val error = if (isHost) getString(R.string.host_key_required) else getString(R.string.meeting_pin_required)
+                            errorText.text = error
+                        } else if(captchaData != null && captchaInputText.text.isEmpty()) {
+                            val error = getString(R.string.captcha_empty_error)
+                            errorText.text = error
+                        } else{
+                            submit.visibility = View.INVISIBLE
+                            progressBar.visibility = View.VISIBLE
+                            val data = it.tag as Phone.Captcha?
+
+                            dialOutgoingCall(
+                                callerId,
+                                isHost,
+                                pinTitleEditText.text.toString(),
+                                captchaInputText.text.toString(),
+                                data?.getId()?:"")
+                        }
+                    }
+                }
+
+                //initialize audio action
+                captchaAudio.setOnClickListener {
+                    it?.let{
+                        playAudio(it.tag as String)
+                    }
+                }
+
+                //initialize refresh action
+                refresh.setOnClickListener {
+                    mediaPlayer.reset()
+                    webexViewModel.refreshCaptcha()
+                }
+            }
+
+        val title = if (isHost) R.string.enter_host_key else R.string.enter_meeting_pin
+        passwordDialog.setTitle(title)
+        passwordDialog.setContentView(passwordDialogBinding.root)
+        passwordDialog.show()
+    }
+
+    private fun dismissErrorDialog(){
+        if(passwordDialog.isShowing) passwordDialog.dismiss()
+    }
+
+    private fun playAudio(url: String) {
+        try {
+            val uri: Uri = Uri.parse(url)
+            mediaPlayer.stop()
+            mediaPlayer.reset()
+            mediaPlayer.setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build()
+            )
+            mediaPlayer.setDataSource(requireContext(), uri)
+            mediaPlayer.prepareAsync()
+
+            mediaPlayer.setOnPreparedListener {
+                it.start()
+            }
+        } catch (e: java.lang.Exception) {
+            println(e.toString())
+        }
     }
 
     private fun audioEventChanged(callMembership: CallMembership?, call: Call?, isSendingAudio: Boolean? = null, isRemoteSendingAudio: Boolean? = null) {
@@ -1033,6 +1285,12 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             incomingCallCancelEvent
         )
 
+        breakoutSessionsAdapter = BreakoutSessionsBottomSheetFragment.BreakoutSessionsAdapter {
+            webexViewModel.joinBreakoutSession(it)
+            breakoutSessionBottomSheetFragment.dismiss()
+            attemptingToJoinABreakoutSession = true
+        }
+
         callOptionsBottomSheetFragment = CallBottomSheetFragment(
                 { call -> showIncomingCallBottomSheet()},
                 { call -> showTranscriptions(call) },
@@ -1047,7 +1305,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 { call -> forceLandscapeClickListener(call) },
                 { call -> cameraOptionsClickListener(call) },
                 { call -> multiStreamOptionsClickListener(call) },
-                { call -> sendDTMFClickListener(call) })
+                { call -> sendDTMFClickListener(call) },
+                { showBreakoutSessions()})
 
         multiStreamOptionsBottomSheetFragment = MultiStreamOptionsBottomSheetFragment({ call -> setCategoryAOptionClickListener(call) },
             { call -> setCategoryBOptionClickListener(call) },
@@ -1064,6 +1323,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             { renderView, personID -> closeStreamStreamClickListener(renderView, personID) } )
 
         initIncomingCallBottomSheet()
+
+        breakoutSessionBottomSheetFragment = BreakoutSessionsBottomSheetFragment()
 
         cameraOptionsBottomSheetFragment = CameraOptionsBottomSheetFragment({ call -> zoomFactorClickListener(call) },
                 { call -> torchModeClickListener(call) },
@@ -1125,10 +1386,21 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         binding.ibScreenShare.setOnClickListener(this)
         binding.mainContentLayout.setOnClickListener(this)
         binding.ibMoreOption.setOnClickListener(this)
+        binding.btnReturnToMainSession.setOnClickListener(this)
 
         initAddedCallControls()
         binding.ivNetworkSignal.setOnClickListener(this)
         binding.ivNetworkSignal.visibility = View.GONE
+        binding.btnReturnToMainSession.visibility = View.INVISIBLE
+
+        passwordDialog = Dialog(requireContext())
+    }
+
+    private fun showBreakoutSessions() {
+        breakoutSessionsAdapter.sessions = breakoutSessions.toMutableList()
+        breakoutSessionBottomSheetFragment.adapter = breakoutSessionsAdapter
+        activity?.supportFragmentManager?.let { breakoutSessionBottomSheetFragment.show(it, BreakoutSessionsBottomSheetFragment.TAG) }
+        breakoutSessionsAdapter.notifyDataSetChanged()
     }
 
     fun answerCall(call: Call) {
@@ -1208,6 +1480,9 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 binding.ivNetworkSignal -> {
                     val text = "Network Status : ${currentNetworkStatus.name}"
                     Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
+                }
+                binding.btnReturnToMainSession -> {
+                    webexViewModel.returnToMainSession()
                 }
                 else -> {
                 }
@@ -1381,7 +1656,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             binding.callingHeader.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
             binding.tvName.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
         } else {
-            val status = isMainStageRemoteUnMuted()
+            val status = isMainStageRemoteVideoUnMuted()
             if (status) {
                 binding.callingHeader.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                 binding.tvName.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
@@ -1444,7 +1719,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         if (toHide) {
             binding.remoteViewLayout.visibility = View.GONE
         } else {
-            val status = isMainStageRemoteUnMuted()
+            val status = isMainStageRemoteVideoUnMuted()
             if (status) {
                 binding.remoteViewLayout.visibility = View.VISIBLE
             }
@@ -1486,8 +1761,6 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         }
 
         Handler(Looper.getMainLooper()).post {
-
-            binding.ivNetworkSignal.visibility = View.VISIBLE
             val layout = webexViewModel.getCompositedLayout()
             Log.d(TAG, "onCallConnected getCompositedLayout: $layout")
             binding.ivNetworkSignal.visibility = View.VISIBLE
@@ -1613,7 +1886,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 if (webexViewModel.isRemoteVideoMuted) {
                     binding.remoteViewLayout.visibility = View.GONE
                 } else {
-                    val status = isMainStageRemoteUnMuted()
+                    val status = isMainStageRemoteVideoUnMuted()
                     if (status) {
                         binding.remoteViewLayout.visibility = View.VISIBLE
                     }
@@ -1774,7 +2047,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 if (webexViewModel.isRemoteScreenShareON) {
                     resizeRemoteVideoView()
                 }
-                val status = isMainStageRemoteUnMuted()
+                val status = isMainStageRemoteVideoUnMuted()
 
                 if (status) {
                     binding.remoteViewLayout.visibility = View.VISIBLE
@@ -1810,23 +2083,23 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         }
     }
 
-    private fun isMainStageRemoteUnMuted() : Boolean {
+    private fun isMainStageRemoteVideoUnMuted() : Boolean {
         var status = false
          if (!webexViewModel.isRemoteVideoMuted) {
-             Log.d(TAG, "CallControlsFragment isMainStageRemoteUnMuted isRemoteVideoMuted false")
+             Log.d(TAG, "CallControlsFragment isMainStageRemoteVideoUnMuted isRemoteVideoMuted false")
              val streams = webexViewModel.getMediaStreams()
-             Log.d(TAG, "CallControlsFragment isMainStageRemoteUnMuted streams: ${streams?.size}")
+             Log.d(TAG, "CallControlsFragment isMainStageRemoteVideoUnMuted streams: ${streams?.size}")
              streams?.let { streamList ->
                  val stream = streamList.find { stream -> stream.getStreamType() == MediaStreamType.Stream1 }
                  stream?.let { st ->
-                     Log.d(TAG, "CallControlsFragment isMainStageRemoteUnMuted found stream")
+                     Log.d(TAG, "CallControlsFragment isMainStageRemoteVideoUnMuted found stream")
                      status = st.getPerson()?.isSendingVideo() ?: false
                  }
              } ?: run {
                  status = true
              }
          }
-        Log.d(TAG, "CallControlsFragment isMainStageRemoteUnMuted return status: $status")
+        Log.d(TAG, "CallControlsFragment isMainStageRemoteVideoUnMuted return status: $status")
         return status
     }
 
@@ -1933,11 +2206,12 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     private fun showCallHeader(callId: String) {
         Handler(Looper.getMainLooper()).post {
             try {
-                val callInfo = webexViewModel.getCall(callId)
-                Log.d(TAG, "CallControlsFragment showCallHeader callerId: $callId, callInfo title: ${callInfo?.getTitle()}")
-
-                binding.tvName.text = callInfo?.getTitle()
-                binding.callingHeader.text = getString(R.string.onCall)
+                if (breakout == null) {
+                    val callInfo = webexViewModel.getCall(callId)
+                    Log.d(TAG, "CallControlsFragment showCallHeader callerId: $callId, callInfo title: ${callInfo?.getTitle()}")
+                    binding.tvName.text = callInfo?.getTitle()
+                    binding.callingHeader.text = getString(R.string.onCall)
+                }
             } catch (e: Exception) {
                 Log.d(TAG, "error: ${e.message}")
             }
@@ -2472,5 +2746,59 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 requireActivity().resources.getDimension(R.dimen.local_video_view_width).toInt()
         }
         binding.localViewLayout.requestLayout()
+    }
+
+    fun pipVisibility(currentView: Int) {
+        if(currentView == View.GONE){
+            binding.videoCallLayout.layoutParams.height=400
+            if(binding.screenShareView.isVisible){
+                binding.remoteViewLayout.visibility=currentView
+            }
+        }else{
+            binding.videoCallLayout.layoutParams.height = resources.getDimension(R.dimen.video_view_height).toInt()
+            binding.remoteViewLayout.visibility=currentView
+        }
+
+        binding.localViewLayout.visibility = currentView
+        binding.viewAuxVideosContainer.visibility = currentView
+        binding.ivNetworkSignal.visibility = currentView
+        binding.tvRemoteUserName.visibility = currentView
+        binding.ivRemoteAudioState.visibility = currentView
+        binding.callingHeader.visibility = currentView
+        binding.tvName.visibility = currentView
+        binding.optionButtonsContainer.visibility = currentView
+        binding.ibMute.visibility = currentView
+        binding.ibHoldCall.visibility = currentView
+        binding.ibSpeaker.visibility = currentView
+        binding.controlsRow2.visibility = currentView
+        binding.ibVideo.visibility = currentView
+        binding.ibParticipants.visibility = currentView
+        binding.controlsRow3.visibility = currentView
+        binding.ibScreenShare.visibility = currentView
+        binding.ibSwapCamera.visibility = currentView
+        binding.ibMoreOption.visibility = currentView
+        binding.ivCancelCall.visibility = currentView
+        var returnToMainSessionVisibility = View.INVISIBLE
+        if (currentView == View.VISIBLE && breakout != null) {
+            returnToMainSessionVisibility = View.VISIBLE
+        }
+        binding.btnReturnToMainSession.visibility = returnToMainSessionVisibility
+    }
+    
+    fun aspectRatio(): Rational {
+        var ar = Rational(binding.videoCallLayout.width, binding.videoCallLayout.height)
+        return ar
+    }
+
+    override fun onPause() {
+        Log.d(tag, "BreakoutSession onPause() called")
+        super.onPause()
+    }
+
+    override fun onStop() {
+        Log.d(tag, "BreakoutSession onStop() called")
+        dismissErrorDialog()
+        mediaPlayer.reset()
+        super.onStop()
     }
 }

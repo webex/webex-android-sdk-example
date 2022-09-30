@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp">
+
+        <Button
+            android:id="@+id/meetingJoinButton"
+            android:layout_width="@dimen/icon_join_button_width"
+            android:layout_height="@dimen/icon_join_button_height"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:backgroundTint="@color/green"
+            android:text="@string/call_meeting_join" />
+
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="5dp"
+            android:layout_toStartOf="@+id/meetingJoinButton"
+            android:padding="6dp"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            tools:text="Title" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_alignParentBottom="true"
+            android:background="@android:color/black" />
+
+    </RelativeLayout>
+
+</layout>
