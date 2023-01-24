@@ -128,6 +128,14 @@ class SpacesRepository(private val webex: Webex) : MessagingRepository(webex) {
         }.toObservable()
     }
 
+    fun setSpacesSyncCompletedListener(): Observable<Boolean> {
+        return Single.create<Boolean> { emitter ->
+            webex.spaces.setOnSpaceSyncingStatusChangedListener() { result ->
+                emitter.onSuccess(result.data ?: false)
+            }
+        }.toObservable()
+    }
+
     // Commenting out but keeping this code for now in order to test encoding/decoding related code changes.
     // We can delete once encoding/decoding code is put in proper format and returns proper error state(IN FORM OF ENUM) from Omnius layer
     /*fun encodeDecodeTest() {

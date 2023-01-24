@@ -24,8 +24,8 @@ android {
         applicationId "com.cisco.sdk_android"
         minSdkVersion Versions.minSdk
         targetSdkVersion Versions.targetSdk
-        versionCode 37000
-        versionName "3.7.0"
+        versionCode 38000
+        versionName "3.8.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "CLIENT_ID", "${CLIENT_ID}"
@@ -38,6 +38,10 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+        debug {
+            minifyEnabled false
+            debuggable true
         }
     }
     buildFeatures {
@@ -63,7 +67,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.ciscowebex:androidsdk:3.7.0'
+    implementation 'com.ciscowebex:webexsdk:3.8.0'
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation Dependencies.kotlinStdLib
     implementation Dependencies.coreKtx

@@ -25,6 +25,12 @@ class SearchViewModel(private val searchRepo: SearchRepository, private val spac
 
     private val _spaceEventLiveData = MutableLiveData<Pair<WebexRepository.SpaceEvent, Any?>>()
 
+    private val _spacesSyncCompletedLiveData = MutableLiveData<Boolean>()
+    val spacesSyncCompletedLiveData: LiveData<Boolean> = _spacesSyncCompletedLiveData
+
+    private val _initialSpacesSyncCompletedLiveData = MutableLiveData<Boolean>()
+    val initialSpacesSyncCompletedLiveData: LiveData<Boolean> = _initialSpacesSyncCompletedLiveData
+
     val titles =
             listOf("Call", "Search", "History", "Spaces", "Meetings")
 
@@ -66,5 +72,21 @@ class SearchViewModel(private val searchRepo: SearchRepository, private val spac
                 _searchResult.postValue(emptyList())
             }).autoDispose()
         }
+    }
+
+    fun setSpacesSyncCompletedListener() {
+        spacesRepo.setSpacesSyncCompletedListener().observeOn(AndroidSchedulers.mainThread()).subscribe { isSyncing ->
+            _spacesSyncCompletedLiveData.postValue(isSyncing)
+        }.autoDispose()
+    }
+
+    fun setOnInitialSpacesSyncCompletedListener() {
+        webexRepo.setOnInitialSpacesSyncCompletedListener() {
+            _initialSpacesSyncCompletedLiveData.postValue(true)
+        }
+    }
+
+    fun isSpacesSyncCompleted(): Boolean {
+        return webexRepo.webex.spaces.isSpacesSyncCompleted()
     }
 }

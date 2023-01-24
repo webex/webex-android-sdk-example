@@ -32,7 +32,7 @@
             android:layout_marginBottom="20dp"
             android:foreground="?attr/selectableItemBackgroundBorderless"
             android:padding="10dp"
-            android:text="@string/closed_captions"
+            android:text="@string/show_transcriptions"
             android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@id/close"
             app:layout_constraintTop_toTopOf="parent" />

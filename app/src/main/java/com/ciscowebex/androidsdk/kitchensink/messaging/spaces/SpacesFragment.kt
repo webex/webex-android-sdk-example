@@ -26,6 +26,7 @@ import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
 import com.ciscowebex.androidsdk.space.Space
 import com.ciscowebex.androidsdk.space.SpaceClient
+import com.google.android.material.snackbar.Snackbar
 import org.koin.android.ext.android.inject
 
 class SpacesFragment : Fragment() {
@@ -185,6 +186,17 @@ class SpacesFragment : Fragment() {
         spacesViewModel.getSpaceReadStatusList(maxSpaces)
     }
 
+    override fun onResume() {
+        super.onResume()
+        checkForInitialSpacesSync()
+    }
+
+    private fun checkForInitialSpacesSync() {
+        if (!spacesViewModel.isSpacesSyncCompleted()) {
+            Snackbar.make(binding.root, getString(R.string.syncing_spaces), Snackbar.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         handleActivityResult(requestCode, resultCode, data)
@@ -268,6 +280,20 @@ class SpacesFragment : Fragment() {
                 spacesClientAdapter.notifyItemRemoved(index)
             }
         })
+
+
+        spacesViewModel.spacesSyncCompletedLiveData.observe(viewLifecycleOwner) { isSyncing ->
+            if (isSyncing) {
+                Snackbar.make(binding.root, getString(R.string.syncing_spaces), Snackbar.LENGTH_SHORT).show()
+            } else {
+                Log.d(tag, getString(R.string.not_syncing_spaces))
+            }
+        }
+
+
+        spacesViewModel.initialSpacesSyncCompletedLiveData.observe(viewLifecycleOwner) {
+            Log.d(tag, getString(R.string.initial_spaces_sync_completed))
+        }
     }
 
     // Dialog to display various options of adding person to space

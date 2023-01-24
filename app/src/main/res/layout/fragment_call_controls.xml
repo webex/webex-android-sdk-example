@@ -241,7 +241,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:animateLayoutChanges="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -329,6 +329,21 @@
                 app:layout_constraintTop_toBottomOf="@+id/controlsRow2">
 
                 <ImageButton
+                    android:id="@+id/ib_directtransfer_call"
+                    android:layout_width="@dimen/icon_size_normal"
+                    android:layout_height="@dimen/icon_size_normal"
+                    android:background="@drawable/circle_filled_dark_gray"
+                    android:contentDescription="@string/transfer_call"
+                    android:padding="@dimen/padding_normal"
+                    android:src="@drawable/ic_baseline_directions_24"
+                    android:visibility="visible"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintEnd_toStartOf="@+id/ib_screen_share"
+                    app:layout_constraintHorizontal_chainStyle="spread"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageButton
                     android:id="@+id/ib_screen_share"
                     android:layout_width="@dimen/icon_size_normal"
                     android:layout_height="@dimen/icon_size_normal"
@@ -371,12 +386,38 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/controlsRow4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:layout_marginTop="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/controlsRow3">
+
+                <ImageButton
+                    android:id="@+id/ib_switch_to_audio_video_call"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/circle_filled_dark_gray"
+                    android:contentDescription="@string/audio_video_call"
+                    android:padding="@dimen/padding_normal"
+                    android:visibility="invisible"
+                    android:src="@drawable/ic_turn_off_video"
+                    app:layout_constraintBottom_toBottomOf="@id/controlsRow4"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <androidx.constraintlayout.widget.Group
                 android:id="@+id/controlGroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                app:constraint_referenced_ids="option_buttons_container, controlsRow2, controlsRow3"/>
+                app:constraint_referenced_ids="option_buttons_container, controlsRow2, controlsRow3, controlsRow4"/>
 
             <ImageView
                 android:id="@+id/iv_cancel_call"

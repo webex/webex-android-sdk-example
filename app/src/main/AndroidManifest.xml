@@ -56,6 +56,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -71,6 +72,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name=".calling.LockScreenActivity"
+            android:showOnLockScreen="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            />
+
+        <service
+            android:name=".CallRejectService"
+            android:enabled="true"
+            android:exported="true" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -132,7 +144,6 @@
             android:supportsPictureInPicture="true"
             android:turnScreenOn="true"
             tools:ignore="UnusedAttribute" />
-
         <activity
             android:name=".search.SearchActivity"
             android:screenOrientation="portrait" />
@@ -166,7 +177,6 @@
         <activity
             android:name=".calling.calendarMeeting.details.CalendarMeetingDetailsActivity"
             android:screenOrientation="portrait" />
-
         <activity
             android:name=".calling.CucmCallActivity"
             android:screenOrientation="portrait" />
@@ -191,7 +201,6 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/default_notification_channel_id" />
-
     </application>
 
 </manifest>

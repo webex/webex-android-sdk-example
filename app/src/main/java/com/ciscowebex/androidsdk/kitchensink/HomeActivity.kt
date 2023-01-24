@@ -31,6 +31,7 @@ import com.ciscowebex.androidsdk.kitchensink.utils.FileUtils
 import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils
 import com.ciscowebex.androidsdk.message.LocalFile
 import com.ciscowebex.androidsdk.phone.Phone
+import com.google.android.material.snackbar.Snackbar
 import org.koin.android.ext.android.inject
 
 class HomeActivity : BaseActivity() {
@@ -86,10 +87,10 @@ class HomeActivity : BaseActivity() {
         })
 
 
-        webexViewModel.cucmLiveData.observe(this@HomeActivity, Observer {
+        webexViewModel.ucLiveData.observe(this@HomeActivity, Observer {
             if (it != null) {
-                when (WebexRepository.CucmEvent.valueOf(it.first.name)) {
-                    WebexRepository.CucmEvent.OnUCServerConnectionStateChanged -> {
+                when (WebexRepository.UCCallEvent.valueOf(it.first.name)) {
+                    WebexRepository.UCCallEvent.OnUCServerConnectionStateChanged -> {
                         updateUCData()
                     }
                     else -> {}
@@ -106,9 +107,15 @@ class HomeActivity : BaseActivity() {
             }
         })
 
+        webexViewModel.initialSpacesSyncCompletedLiveData.observe(this@HomeActivity) {
+            Log.d(tag, getString(R.string.initial_spaces_sync_completed))
+        }
+
         DataBindingUtil.setContentView<ActivityHomeBinding>(this, R.layout.activity_home)
                 .also { binding = it }
                 .apply {
+
+                    binding.version.text = "Version : "+BuildConfig.VERSION_NAME
 
                     ivStartCall.setOnClickListener {
                         startActivity(Intent(this@HomeActivity, SearchActivity::class.java))
@@ -184,20 +191,20 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun observeUCLoginData() {
-        webexViewModel.cucmLiveData.observe(this@HomeActivity, Observer {
+        webexViewModel.ucLiveData.observe(this@HomeActivity, Observer {
             Log.d(tag, "uc login observer called : ${it.first.name}")
             if (it != null) {
-                when (WebexRepository.CucmEvent.valueOf(it.first.name)) {
-                    WebexRepository.CucmEvent.OnUCLoggedIn, WebexRepository.CucmEvent.OnUCServerConnectionStateChanged -> {
+                when (WebexRepository.UCCallEvent.valueOf(it.first.name)) {
+                    WebexRepository.UCCallEvent.OnUCLoggedIn, WebexRepository.UCCallEvent.OnUCServerConnectionStateChanged -> {
                         updateUCData()
                     }
-                    WebexRepository.CucmEvent.ShowSSOLogin -> {
+                    WebexRepository.UCCallEvent.ShowSSOLogin -> {
                         startActivity(UCLoginActivity.getIntent(this@HomeActivity,
                             UCLoginActivity.Companion.OnActivityStartAction.ShowSSOLogin.name,
                             it.second))
                     }
 
-                    WebexRepository.CucmEvent.ShowNonSSOLogin -> {
+                    WebexRepository.UCCallEvent.ShowNonSSOLogin -> {
                         startActivity(UCLoginActivity.getIntent(this@HomeActivity, UCLoginActivity.Companion.OnActivityStartAction.ShowNonSSOLogin.name))
                     }
                     else -> {
@@ -234,12 +241,27 @@ class HomeActivity : BaseActivity() {
         updateUCData()
         webexViewModel.setIncomingListener()
         addVirtualBackground()
+        checkForInitialSpacesSync()
     }
 
+    private fun checkForInitialSpacesSync() {
+        if (!webexViewModel.isSpacesSyncCompleted()) {
+            Snackbar.make(binding.root, getString(R.string.syncing_spaces), Snackbar.LENGTH_SHORT).show()
+        }
+    }
+
+
     private fun updateUCData() {
-        Log.d(tag, "updateUCData isCUCMServerLoggedIn: ${webexViewModel.repository.isCUCMServerLoggedIn} ucServerConnectionStatus: ${webexViewModel.repository.ucServerConnectionStatus}")
-        if (webexViewModel.isCUCMServerLoggedIn) {
+        Log.d(tag, "updateUCData isUCServerLoggedIn: ${webexViewModel.repository.isUCServerLoggedIn} ucServerConnectionStatus: ${webexViewModel.repository.ucServerConnectionStatus}")
+        if (webexViewModel.isUCServerLoggedIn) {
             binding.ucLoginStatusTextView.visibility = View.VISIBLE
+            if(webexViewModel.getCallingType() == Phone.CallingType.WebexCalling)  {
+                binding.ucLoginStatusTextView.text = getString(R.string.wxc_loggedIn)
+            } else if(webexViewModel.getCallingType() == Phone.CallingType.WebexForBroadworks)  {
+                binding.ucLoginStatusTextView.text = getString(R.string.webexforbroadworks_loggedIn)
+            } else if (webexViewModel.getCallingType() == Phone.CallingType.CUCM){
+                binding.ucLoginStatusTextView.text = getString(R.string.uc_loggedIn)
+            }
         } else {
             binding.ucLoginStatusTextView.visibility = View.GONE
         }
@@ -250,7 +272,7 @@ class HomeActivity : BaseActivity() {
                 binding.ucServerConnectionStatusTextView.text = text
                 binding.ucServerConnectionStatusTextView.visibility = View.VISIBLE
             }
-            UCLoginServerConnectionStatus.Connected, UCLoginServerConnectionStatus.Connecting -> {
+            UCLoginServerConnectionStatus.Connected, UCLoginServerConnectionStatus.Connecting, UCLoginServerConnectionStatus.Disconnected -> {
                 val text = resources.getString(R.string.phone_services_connection_status) + webexViewModel.ucServerConnectionStatus.name
                 binding.ucServerConnectionStatusTextView.text = text
                 binding.ucServerConnectionStatusTextView.visibility = View.VISIBLE

@@ -39,14 +39,17 @@ import com.ciscowebex.androidsdk.phone.MediaStream
 import com.ciscowebex.androidsdk.phone.MediaStreamQuality
 import com.ciscowebex.androidsdk.phone.BreakoutSession
 import com.ciscowebex.androidsdk.phone.Breakout
-
+import com.ciscowebex.androidsdk.phone.DirectTransferResult
+import com.ciscowebex.androidsdk.phone.SwitchToAudioVideoCallResult
+import com.ciscowebex.androidsdk.phone.PhoneConnectionResult
+import com.google.firebase.installations.FirebaseInstallations
 
 class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseViewModel() {
     private val tag = "WebexViewModel"
 
     var _callMembershipsLiveData = MutableLiveData<List<CallMembership>>()
     val _muteAllLiveData = MutableLiveData<Boolean>()
-    val _cucmLiveData = MutableLiveData<Pair<WebexRepository.CucmEvent, String>>()
+    val _ucLiveData = MutableLiveData<Pair<WebexRepository.UCCallEvent, String>>()
     val _callingLiveData = MutableLiveData<WebexRepository.CallLiveData>()
     val _startAssociationLiveData = MutableLiveData<WebexRepository.CallLiveData>()
     val _startShareLiveData = MutableLiveData<Boolean>()
@@ -57,7 +60,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     var callMembershipsLiveData: LiveData<List<CallMembership>> = _callMembershipsLiveData
     val muteAllLiveData: LiveData<Boolean> = _muteAllLiveData
-    val cucmLiveData: LiveData<Pair<WebexRepository.CucmEvent, String>> = _cucmLiveData
+    val ucLiveData: LiveData<Pair<WebexRepository.UCCallEvent, String>> = _ucLiveData
     val callingLiveData: LiveData<WebexRepository.CallLiveData> = _callingLiveData
     val startAssociationLiveData: LiveData<WebexRepository.CallLiveData> = _startAssociationLiveData
     val startShareLiveData: LiveData<Boolean> = _startShareLiveData
@@ -80,6 +83,9 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     private val _virtualBgError = MutableLiveData<String>()
     val virtualBgError: LiveData<String> = _virtualBgError
+
+    private val _initialSpacesSyncCompletedLiveData = MutableLiveData<Boolean>()
+    val initialSpacesSyncCompletedLiveData: LiveData<Boolean> = _initialSpacesSyncCompletedLiveData
 
     var selfPersonId: String? = null
     var compositedLayoutState = MediaOption.CompositedVideoLayout.NOT_SUPPORTED
@@ -164,10 +170,10 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
             repository.isRemoteVideoMuted = value
         }
 
-    var isCUCMServerLoggedIn: Boolean
-        get() = repository.isCUCMServerLoggedIn
+    var isUCServerLoggedIn: Boolean
+        get() = repository.isUCServerLoggedIn
         set(value) {
-            repository.isCUCMServerLoggedIn = value
+            repository.isUCServerLoggedIn = value
         }
 
     var ucServerConnectionStatus: UCLoginServerConnectionStatus
@@ -238,7 +244,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     init {
         repository._callMembershipsLiveData = _callMembershipsLiveData
-        repository._cucmLiveData = _cucmLiveData
+        repository._ucLiveData = _ucLiveData
         repository._muteAllLiveData = _muteAllLiveData
         repository._callingLiveData = _callingLiveData
         repository._startAssociationLiveData = _startAssociationLiveData
@@ -321,6 +327,14 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         })
     }
 
+    fun connectPhoneServices(callback: CompletionHandler<PhoneConnectionResult>){
+        webex.phone.connectPhoneServices(callback)
+    }
+
+    fun disconnectPhoneServices(callback: CompletionHandler<PhoneConnectionResult>){
+        webex.phone.disconnectPhoneServices(callback)
+    }
+
     fun dial(input: String, option: MediaOption) {
         webex.phone.dial(input, option, CompletionHandler { result ->
             Log.d(tag, "dial isSuccessful: ${result.isSuccessful}")
@@ -341,11 +355,18 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
                         WebexError.ErrorCode.INVALID_PASSWORD.code -> {
                             _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.InCorrectPassword, null, null))
                         }
+
+                        WebexError.ErrorCode.INVALID_PASSWORD_OR_HOST_KEY.code -> {
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.InCorrectPasswordOrHostKey, null, null))
+                        }
                         WebexError.ErrorCode.CAPTCHA_REQUIRED.code -> {
                             _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.CaptchaRequired, null, error.data as Phone.Captcha))
                         }
                         WebexError.ErrorCode.INVALID_PASSWORD_WITH_CAPTCHA.code -> {
                             _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.InCorrectPasswordWithCaptcha, null, error.data as Phone.Captcha))
+                        }
+                        WebexError.ErrorCode.INVALID_PASSWORD_OR_HOST_KEY_WITH_CAPTCHA.code -> {
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.InCorrectPasswordOrHostKeyWithCaptcha, null, error.data as Phone.Captcha))
                         }
                         else -> {
                             _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.DialFailed, null, null, result.error?.errorMessage))
@@ -406,6 +427,9 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
             override fun onMediaChanged(event: CallObserver.MediaChangedEvent?) {
                 Log.d(tag, "CallObserver OnMediaChanged event: $event")
                 callObserverInterface?.onMediaChanged(call, event)
+                event?.getCall()
+                    ?.let { CallObjectStorage.updateCallObject(call.getCallId().toString(), it) }
+
             }
 
             override fun onCallMembershipChanged(event: CallObserver.CallMembershipChangedEvent?) {
@@ -497,9 +521,6 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     }
 
     fun muteAllParticipantAudio(callId: String) {
-        if (!isSendingAudio) {
-            muteSelfAudio(callId)
-        }
         Log.d(tag, "postParticipantData muteAllParticipantAudio: $doMuteAll")
         getCall(callId)?.muteAllParticipantAudio(doMuteAll)
     }
@@ -517,6 +538,18 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     fun muteSelfAudio(callId: String) {
         Log.d(tag, "muteSelfAudio isSendingAudio: $isSendingAudio")
         getCall(callId)?.setSendingAudio(!isSendingAudio)
+    }
+
+    fun switchToAudioOrVideoCall(callId: String, switchToVideoCall: Boolean, callback: CompletionHandler<SwitchToAudioVideoCallResult>) {
+        Log.d(tag, "switchToAudioOrVideoCall call: $switchToVideoCall")
+        if(switchToVideoCall)
+        {
+            getCall(callId)?.switchToVideoCall(callId, callback)
+        }
+        else
+        {
+            getCall(callId)?.switchToAudioCall(callId, callback)
+        }
     }
 
     fun startShare(callId: String) {
@@ -601,8 +634,8 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         webex.setUCDomainServerUrl(ucDomain, serverUrl)
     }
 
-    fun setCUCMCredential(username: String, password: String) {
-        webex.setCUCMCredential(username, password)
+    fun setCallServiceCredential(username: String, password: String) {
+        webex.setCallServiceCredential(username, password)
     }
 
     fun isUCLoggedIn(): Boolean {
@@ -654,12 +687,20 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         getCall(fromCallId)?.transferCall(toCallId)
     }
 
+    fun directTransferCall(callId: String, toPhoneNumber: String, callback: CompletionHandler<DirectTransferResult>) {
+        getCall(callId)?.directTransferCall(toPhoneNumber, callback)
+    }
+
     fun mergeCalls(currentCallId: String, targetCallId: String) {
         getCall(currentCallId)?.mergeCalls(targetCallId)
     }
 
     fun getlogFileUri(includelastRunLog: Boolean = false): Uri {
         return webex.getlogFileUri(includelastRunLog)
+    }
+
+    fun setPushTokens(id: String, token: String){
+        webex.phone.setPushTokens(KitchenSinkApp.applicationContext().packageName, id, token)
     }
 
     fun getFCMToken(personModel: PersonModel) {
@@ -670,11 +711,20 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
                             Log.w(tag, "Fetching FCM registration token failed", task.exception)
                             return
                         }
-
                         // Get new FCM registration token
                         val token: String? = task.result
-                        Log.d(tag, "$token")
                         sendTokenToServer(Pair(token, personModel))
+                        FirebaseInstallations.getInstance().id.addOnCompleteListener(object : OnCompleteListener<String?> {
+                            override fun onComplete(task: Task<String?>) {
+                                if (!task.isSuccessful) {
+                                    Log.w(tag, "Fetching FCM registration id failed", task.exception)
+                                    return
+                                }
+                                val mId = task.result
+                                if(!mId.isNullOrEmpty() && !token.isNullOrEmpty())
+                                    setPushTokens(mId, token)
+                            }
+                        })
                     }
                 })
     }
@@ -1120,5 +1170,19 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     fun returnToMainSession() {
         getCall(currentCallId.orEmpty())?.returnToMainSession()
+    }
+
+    fun getCallingType(): Phone.CallingType {
+        return webex.phone.getCallingType()
+    }
+
+    fun setOnInitialSpacesSyncCompletedListener() {
+        repository.setOnInitialSpacesSyncCompletedListener() {
+            _initialSpacesSyncCompletedLiveData.postValue(true)
+        }
+    }
+
+    fun isSpacesSyncCompleted(): Boolean {
+        return webex.spaces.isSpacesSyncCompleted()
     }
 }

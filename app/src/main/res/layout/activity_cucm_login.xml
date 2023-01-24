@@ -17,6 +17,33 @@
             android:layout_centerInParent="true"/>
 
         <LinearLayout
+            android:id="@+id/buttongroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="visible"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/connectphoneservices"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/connect_phone_services"
+                />
+
+            <Button
+                android:id="@+id/disconnectphoneservices"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/disconnect_phone_services"
+                />
+
+        </LinearLayout>
+
+
+        <LinearLayout
             android:id="@+id/ucInfoLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
