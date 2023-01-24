@@ -13,23 +13,36 @@ import android.text.Html
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.ciscowebex.androidsdk.CompletionHandler
-import com.ciscowebex.androidsdk.kitchensink.HomeActivity
+import com.ciscowebex.androidsdk.internal.ResultImpl
+import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.KitchenSinkApp
 import com.ciscowebex.androidsdk.kitchensink.R
-import com.ciscowebex.androidsdk.kitchensink.WebexRepository
+import com.ciscowebex.androidsdk.kitchensink.CallRejectService
+import com.ciscowebex.androidsdk.kitchensink.HomeActivity
 import com.ciscowebex.androidsdk.kitchensink.calling.CallActivity
 import com.ciscowebex.androidsdk.kitchensink.calling.CucmCallActivity
+import com.ciscowebex.androidsdk.kitchensink.calling.LockScreenActivity
 import com.ciscowebex.androidsdk.kitchensink.firebase.KitchenSinkFCMService.WebhookResources.CALL_MEMBERSHIPS
 import com.ciscowebex.androidsdk.kitchensink.firebase.KitchenSinkFCMService.WebhookResources.MESSAGES
 import com.ciscowebex.androidsdk.kitchensink.utils.Base64Utils
+import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.kitchensink.utils.decryptPushRESTPayload
 import com.ciscowebex.androidsdk.message.Message
 import com.ciscowebex.androidsdk.phone.Call
+import com.ciscowebex.androidsdk.phone.CallObserver
 import com.ciscowebex.androidsdk.phone.NotificationCallType
+import com.ciscowebex.androidsdk.phone.Phone
+import com.ciscowebex.androidsdk.phone.PushNotificationResult
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
+import com.google.firebase.installations.FirebaseInstallations
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import org.koin.android.ext.android.inject
 import kotlin.random.Random
@@ -38,33 +51,133 @@ import kotlin.random.Random
 class KitchenSinkFCMService : FirebaseMessagingService() {
 
     private val repository: WebexRepository by inject()
+    private var payloadPushRest: PushRestPayloadModel? = null
 
-    private fun processFCMMessage(remoteMessage: RemoteMessage){
+    private fun processPushMessageInternal(msg :String, handler: CompletionHandler<PushNotificationResult>) {
+        repository.webex.phone.setIncomingCallListener(object : Phone.IncomingCallListener {
+            override fun onIncomingCall(call: Call?) {
+                call?.let {
+                    Log.d(TAG, "processFCMMessage Call object ${it.getCallId()} ${it.getTitle()}")
+                    CallObjectStorage.addCallObject(call)
+                    it.getCallId()?.let { callId ->
+                        var title = it.getTitle() ?: "Unknown"
+                        if(title.contains("Unknown")){
+                            // For CUCM calls, if title is empty get it from push payload
+                            title = getDisplayNameFromPushForCallId(callId)
+                        }
+                        sendNotificationForCall(callId, title, title)
+                    }
+
+                } ?: run {
+                    Log.d(TAG, "processFCMMessage Call object null")
+                }
+
+                call?.setObserver(object : CallObserver {
+                    override fun onDisconnected(event: CallObserver.CallDisconnectedEvent?) {
+                        super.onDisconnected(event)
+                        val notificationManager =
+                            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+                        notificationManager?.cancel(Constants.Notification.WEBEX_CALLING)
+                    }
+                })
+            }
+        })
+        repository.webex.phone.processPushNotification(msg) {
+            if (it.isSuccessful) {
+                if (it.data == PushNotificationResult.NoError) {
+                    Log.d(TAG, it.data.toString())
+                    handler.onComplete(ResultImpl.success(PushNotificationResult.NoError))
+                }
+                else if(it.data == PushNotificationResult.NotWebexCallingPush) {
+                    Log.d(TAG, it.data.toString())
+                    handler.onComplete(ResultImpl.success(PushNotificationResult.NotWebexCallingPush))
+                }
+            }
+        }
+    }
+
+    private fun processFCMMessage(remoteMessage: RemoteMessage) {
+        GlobalScope.launch(Dispatchers.Main) {
+            val fcmDataPayload = repository.webex.phone.buildNotificationPayload(remoteMessage.data, remoteMessage.messageId.orEmpty())
+            val authorised = repository.webex.authenticator?.isAuthorized()
+            if (authorised == true) {
+                processPushMessageInternal(fcmDataPayload) {
+                    if (it.isSuccessful && it.data == PushNotificationResult.NotWebexCallingPush) {
+                        cucmPushRestFlow(remoteMessage)
+                    }
+                }
+            }
+            else {
+                repository.webex.initialize {
+                    if (repository.webex.authenticator?.isAuthorized() == true) {
+                        processPushMessageInternal(fcmDataPayload) {
+                            if (it.isSuccessful && it.data == PushNotificationResult.NotWebexCallingPush) {
+                                cucmPushRestFlow(remoteMessage)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // For CUCM PUSHREST get name from call Id.
+    private fun getDisplayNameFromPushForCallId(callId: String): String {
+        payloadPushRest?.let {
+            it.pushid?.let { pushId ->
+                run{
+                    val actualCallId = repository.webex.getCallIdByNotificationId(pushId, NotificationCallType.Cucm)
+                    if(actualCallId == callId){
+                        // Cached payloadPushRest belongs to current call. Return display name
+                        return it.displayname ?: "Unknown"
+                    }
+                }
+            }
+        }
+        return "Unknown"
+    }
+
+
+    private fun getDisplayNameFromPush(): String {
+        // For CUCM initially the title is null/unknown initially
+        // so using the display name that comes in push
+        return payloadPushRest?.displayname?: "Unknown"
+    }
+
+    private fun getCallFromPush(pushId: String): Call? {
+        val actualCallId = repository.webex.getCallIdByNotificationId(pushId, NotificationCallType.Cucm)
+        val callInfo = repository.getCall(actualCallId)
+        return callInfo
+    }
+
+    private fun cucmPushRestFlow(remoteMessage: RemoteMessage) {
+        if (KitchenSinkApp.inForeground) return
         var notificationData: FCMPushModel?
         if (remoteMessage.data.isNotEmpty()) {
             // CUCM Push Rest Flow
             val map = remoteMessage.data
             val pushRestPayload = map["body"]
             if (!pushRestPayload.isNullOrEmpty()) {
-                Handler(Looper.getMainLooper()).post{
-                    if(repository.webex.authenticator?.isAuthorized() == false) {
-                        repository.webex.initialize { result ->
-                            if (result.error == null) {
-                                Log.d(TAG, "Starting UC services in FCM service")
-                                repository.webex.startUCServices()
-                            }
-                        }
-                    }else{
-                        Log.d(TAG, "Starting UC services in FCM service")
-                        repository.webex.startUCServices()
-                    }
+                GlobalScope.launch(Dispatchers.Main) {
+                    Log.d(TAG, "Starting UC services in FCM service")
+                    repository.webex.startUCServices()
                 }
-
                 Log.d(TAG, "Payload from PushREST : $pushRestPayload")
                 val decryptedPayload = decryptPushRESTPayload(pushRestPayload)
                 Log.d(TAG, "Decrypted payload : $decryptedPayload")
-                val pushRestPayloadJson = getPushRestPayloadModel(decryptedPayload)
-                buildCallNotification(pushRestPayloadJson)
+                payloadPushRest = getPushRestPayloadModel(decryptedPayload)
+                payloadPushRest?.let {
+                    it.pushid?.let { pushid ->
+                        run {
+                            var call = getCallFromPush(pushid)
+                            call?.let {
+                                it.getCallId()?.let { callId ->
+                                    sendNotificationForCall(callId, getDisplayNameFromPush(), getDisplayNameFromPush())
+                                }
+                            }
+                        }
+                    }
+                }
             } else {
                 // FCM triggered via webhook from push notification server
                 val data = map["data"]
@@ -83,7 +196,10 @@ class KitchenSinkFCMService : FirebaseMessagingService() {
                             }
                         }
                         else -> {
-                            Log.d(TAG, "Unknown resource found : Resource: ${notificationData?.resource}")
+                            Log.d(
+                                TAG,
+                                "Unknown resource found : Resource: ${notificationData?.resource}"
+                            )
                         }
                     }
                 }
@@ -91,11 +207,11 @@ class KitchenSinkFCMService : FirebaseMessagingService() {
         }
     }
 
+
+
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         Log.d(TAG, "From: " + remoteMessage.from)
         Log.d(TAG, "APP chg isInForeground: " + KitchenSinkApp.inForeground)
-
-        if (KitchenSinkApp.inForeground) return
 
         if(!(application as KitchenSinkApp).loadModules()){
             Log.w(TAG, "Login type unknown")
@@ -117,8 +233,8 @@ class KitchenSinkFCMService : FirebaseMessagingService() {
     private fun buildCallNotification(data: PushRestPayloadModel) {
         Handler(Looper.getMainLooper()).postDelayed({
             if(data.pushid != null){
-                Log.d(TAG, "Pushid is "+data.pushid); //CUCM flow
-                if (data.type == "incomingcall") //data.type = incomingcall,missedcall
+                Log.d(TAG, "pushId is "+data.pushid) //CUCM flow
+                if (data.type == "incomingCall") //data.type = incomingCall,missedCall
                     sendCucmCallNotification(data.pushid, data.displaynumber)
             }else {
                 Log.d(TAG, "Push id is null")
@@ -190,7 +306,7 @@ class KitchenSinkFCMService : FirebaseMessagingService() {
 
     private fun buildMessageNotification(notificationData: FCMPushModel?) {
         val roomId = Base64Utils.decodeString(notificationData?.data?.roomId)
-        repository.listMessages(roomId, CompletionHandler {
+        repository.listMessages(roomId) {
             Log.d(TAG, "message size: ${it.data?.size}")
             val size = it.data?.size ?: 0
             if (size > 0) {
@@ -198,16 +314,24 @@ class KitchenSinkFCMService : FirebaseMessagingService() {
                 Log.d(TAG, "last message: ${message?.getText()}")
 
                 Log.d(TAG, "Fetching person details")
-                repository.getPerson(Base64Utils.decodeString(notificationData?.data?.personId), CompletionHandler { personResult ->
+                repository.getPerson(
+                    Base64Utils.decodeString(notificationData?.data?.personId)
+                ) { personResult ->
                     Log.d(TAG, "Fetching space details")
-                    repository.getSpace(Base64Utils.decodeString(notificationData?.data?.roomId), CompletionHandler { spaceResult ->
-                        sendNotification(personResult.data?.displayName.orEmpty(), spaceResult.data?.title.orEmpty(), message)
-                    })
-                })
+                    repository.getSpace(
+                        Base64Utils.decodeString(notificationData?.data?.roomId)
+                    ) { spaceResult ->
+                        sendNotification(
+                            personResult.data?.displayName.orEmpty(),
+                            spaceResult.data?.title.orEmpty(),
+                            message
+                        )
+                    }
+                }
             } else {
                 Log.d(TAG, "message not found")
             }
-        })
+        }
     }
 
     private fun getFCMModel(data: String): FCMPushModel {
@@ -226,6 +350,79 @@ class KitchenSinkFCMService : FirebaseMessagingService() {
      */
     override fun onNewToken(token: String) {
         Log.d(TAG, "Refreshed token: $token")
+        if(!(application as KitchenSinkApp).loadModules()){
+            Log.w(TAG, "Login type unknown")
+            return
+        }
+
+        val setToken = {
+            FirebaseInstallations.getInstance().id.addOnCompleteListener(object : OnCompleteListener<String?> {
+                override fun onComplete(task: Task<String?>) {
+                    if (!task.isSuccessful) {
+                        Log.w(TAG, "Fetching FCM registration id failed", task.exception)
+                        return
+                    }
+                    val mId = task.result
+                    mId?.let {
+                        repository.webex.phone.setPushTokens(KitchenSinkApp.applicationContext().packageName, it, token)
+                    }
+                }
+            })
+        }
+
+        val authorised = repository.webex.authenticator?.isAuthorized()
+        if (authorised == true) {
+            setToken()
+        }
+        else {
+            repository.webex.initialize {
+                if (repository.webex.authenticator?.isAuthorized() == true) {
+                    setToken()
+                }
+            }
+        }
+
+    }
+
+    private fun sendNotificationForCall(callId:String, number: String, spaceTitle: String) {
+        val notificationId = Constants.Notification.WEBEX_CALLING
+
+        val acceptIntent = CallActivity.getCallAcceptIntent(this, callId = callId)
+        val rejectIntent = CallRejectService.getCallRejectIntent(this,callId = callId)
+        val fullScreenIntent = LockScreenActivity.getLockScreenIntent(this, callId = callId)
+
+
+        val acceptPendingIntent = PendingIntent.getActivity(this, Constants.Intent.ACCEPT_REQUEST_CODE, acceptIntent,
+                (PendingIntent.FLAG_UPDATE_CURRENT))
+        val rejectPendingIntent = PendingIntent.getService(this, Constants.Intent.REJECT_REQUEST_CODE, rejectIntent,
+                (PendingIntent.FLAG_UPDATE_CURRENT))
+        val fullScreenPendingIntent = PendingIntent.getActivity(this, Constants.Intent.FULLSCREEN_REQUEST_CODE, fullScreenIntent,
+                (PendingIntent.FLAG_UPDATE_CURRENT))
+        val channelId = "Calls"
+        val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        val notificationBuilder = NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(R.drawable.app_notification_icon)
+                .setContentTitle(spaceTitle)
+                .setContentText(number)
+                .setAutoCancel(true)
+                .setSound(defaultSoundUri)
+                .addAction(0, "Accept", acceptPendingIntent)
+                .addAction(0, "Reject", rejectPendingIntent)
+                .setFullScreenIntent(fullScreenPendingIntent, true)
+                .setCategory(NotificationCompat.CATEGORY_CALL)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+
+        // Since android Oreo notification channel is needed.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(channelId,
+                    "Calls",
+                    NotificationManager.IMPORTANCE_HIGH)
+            notificationManager?.createNotificationChannel(channel)
+        }
+        notificationManager?.notify(notificationId, notificationBuilder.build())
     }
 
     /**

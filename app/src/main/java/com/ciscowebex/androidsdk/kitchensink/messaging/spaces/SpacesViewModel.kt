@@ -39,6 +39,12 @@ class SpacesViewModel(private val spacesRepo: SpacesRepository,
     private val _deleteSpace = MutableLiveData<String>()
     val deleteSpace: LiveData<String> = _deleteSpace
 
+    private val _spacesSyncCompletedLiveData = MutableLiveData<Boolean>()
+    val spacesSyncCompletedLiveData: LiveData<Boolean> = _spacesSyncCompletedLiveData
+
+    private val _initialSpacesSyncCompletedLiveData = MutableLiveData<Boolean>()
+    val initialSpacesSyncCompletedLiveData: LiveData<Boolean> = _initialSpacesSyncCompletedLiveData
+
     private val addOnCallSuffix = " (On Call)"
 
     private val TAG = "SpacesViewModel"
@@ -136,6 +142,22 @@ class SpacesViewModel(private val spacesRepo: SpacesRepository,
         messagingRepo.markMessageAsRead(spaceId).observeOn(AndroidSchedulers.mainThread()).subscribe({ success ->
             _markSpaceRead.postValue(success)
         }, { error -> _spaceError.postValue(error.message) }).autoDispose()
+    }
+
+    fun setOnInitialSpacesSyncCompletedListener() {
+        webexRepository.setOnInitialSpacesSyncCompletedListener() {
+            _initialSpacesSyncCompletedLiveData.postValue(true)
+        }
+    }
+
+    fun setSpacesSyncCompletedListener() {
+        spacesRepo.setSpacesSyncCompletedListener().observeOn(AndroidSchedulers.mainThread()).subscribe { isSyncing ->
+            _spacesSyncCompletedLiveData.postValue(isSyncing)
+        }.autoDispose()
+    }
+
+    fun isSpacesSyncCompleted(): Boolean {
+        return webexRepository.webex.spaces.isSpacesSyncCompleted()
     }
 
     private fun refreshSpaces() {

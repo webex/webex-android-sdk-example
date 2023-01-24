@@ -9,6 +9,7 @@ import com.ciscowebex.androidsdk.people.Person
 import com.ciscowebex.androidsdk.space.Space
 import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.auth.PhoneServiceRegistrationFailureReason
+import com.ciscowebex.androidsdk.auth.UCLoginFailureReason
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
 import com.ciscowebex.androidsdk.auth.UCSSOFailureReason
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
@@ -35,7 +36,7 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
         Audio_Video
     }
 
-    enum class CucmEvent {
+    enum class UCCallEvent {
         ShowSSOLogin,
         ShowNonSSOLogin,
         OnUCLoginFailed,
@@ -96,7 +97,9 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
         MeetingPinOrPasswordRequired,
         CaptchaRequired,
         InCorrectPassword,
-        InCorrectPasswordWithCaptcha
+        InCorrectPasswordWithCaptcha,
+        InCorrectPasswordOrHostKey,
+        InCorrectPasswordOrHostKeyWithCaptcha
     }
 
     enum class CalendarMeetingEvent {
@@ -139,13 +142,13 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
     var spaceCallId:String? = null
 
     val participantMuteMap = hashMapOf<String, Boolean>()
-    var isCUCMServerLoggedIn = false
+    var isUCServerLoggedIn = false
     var ucServerConnectionStatus: UCLoginServerConnectionStatus = UCLoginServerConnectionStatus.Idle
     var ucServerConnectionFailureReason: PhoneServiceRegistrationFailureReason = PhoneServiceRegistrationFailureReason.Unknown
 
     var _callMembershipsLiveData: MutableLiveData<List<CallMembership>>? = null
     var _muteAllLiveData: MutableLiveData<Boolean>? = null
-    var _cucmLiveData: MutableLiveData<Pair<CucmEvent, String>>? = null
+    var _ucLiveData: MutableLiveData<Pair<UCCallEvent, String>>? = null
     var _callingLiveData: MutableLiveData<CallLiveData>? = null
     var _startAssociationLiveData: MutableLiveData<CallLiveData>? = null
     var _startShareLiveData: MutableLiveData<Boolean>? = null
@@ -348,48 +351,52 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
         return webex.phone.getMaxVirtualBackgroundItems()
     }
 
+    fun setOnInitialSpacesSyncCompletedListener(handler: CompletionHandler<Void>) {
+        webex.spaces.setOnInitialSpacesSyncCompletedListener(handler)
+    }
+
     // Callbacks
     override fun loadUCSSOViewInBackground(ssoUrl: String) {
-        _cucmLiveData?.postValue(Pair(CucmEvent.ShowSSOLogin, ssoUrl))
+        _ucLiveData?.postValue(Pair(UCCallEvent.ShowSSOLogin, ssoUrl))
         Log.d(tag, "showUCSSOLoginView")
     }
 
     override fun showUCNonSSOLoginView() {
-        _cucmLiveData?.postValue(Pair(CucmEvent.ShowNonSSOLogin, ""))
+        _ucLiveData?.postValue(Pair(UCCallEvent.ShowNonSSOLogin, ""))
         Log.d(tag, "showUCNonSSOLoginView")
     }
 
-    override fun onUCLoginFailed() {
-        _cucmLiveData?.postValue(Pair(CucmEvent.OnUCLoginFailed, ""))
-        Log.d(tag, "onUCLoginFailed")
-        isCUCMServerLoggedIn = false
+    override fun onUCLoginFailed(failureReason: UCLoginFailureReason) {
+        isUCServerLoggedIn = false
+        _ucLiveData?.postValue(Pair(UCCallEvent.OnUCLoginFailed, failureReason.name))
+        Log.d(tag, "onUCLoginFailed with reason: $failureReason")
     }
 
     override fun onUCLoggedIn() {
-        _cucmLiveData?.postValue(Pair(CucmEvent.OnUCLoggedIn, ""))
+        isUCServerLoggedIn = true
+        _ucLiveData?.postValue(Pair(UCCallEvent.OnUCLoggedIn, ""))
         Log.d(tag, "onUCLoggedIn")
-        isCUCMServerLoggedIn = true
     }
 
     override fun onUCServerConnectionStateChanged(status: UCLoginServerConnectionStatus, failureReason: PhoneServiceRegistrationFailureReason) {
         Log.d(tag, "onUCServerConnectionStateChanged status: $status failureReason: $failureReason")
         ucServerConnectionStatus = status
         ucServerConnectionFailureReason = failureReason
-        _cucmLiveData?.postValue(Pair(CucmEvent.OnUCServerConnectionStateChanged, ""))
+        _ucLiveData?.postValue(Pair(UCCallEvent.OnUCServerConnectionStateChanged, ""))
     }
 
     override fun showUCSSOBrowser() {
-        _cucmLiveData?.postValue(Pair(CucmEvent.ShowUCSSOBrowser, ""))
+        _ucLiveData?.postValue(Pair(UCCallEvent.ShowUCSSOBrowser, ""))
         Log.d(tag, "showUCSSOBrowser")
     }
 
     override fun hideUCSSOBrowser() {
-        _cucmLiveData?.postValue(Pair(CucmEvent.HideUCSSOBrowser, ""))
+        _ucLiveData?.postValue(Pair(UCCallEvent.HideUCSSOBrowser, ""))
         Log.d(tag, "hideUCSSOBrowser")
     }
 
     override fun onUCSSOLoginFailed(failureReason: UCSSOFailureReason) {
-        _cucmLiveData?.postValue(Pair(CucmEvent.OnSSOLoginFailed, failureReason.name))
+        _ucLiveData?.postValue(Pair(UCCallEvent.OnSSOLoginFailed, failureReason.name))
         Log.d(tag, "onUCSSOLoginFailed : reason = ${failureReason.name}")
     }
 }

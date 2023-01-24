@@ -48,9 +48,15 @@ This demo support Android device with **Android 7.0** or later
       }
       ```
 3. Add the following dependency in module level Gradle file and press sync-now
-   ```
-   implementation files('libs/WebexSDK.aar')
-   ```
+   
+    - For Full SDK
+      ```
+        implementation files('libs/WebexSDK.aar')
+      ```
+    - For Meeting SDK
+      ```
+        implementation files('libs/WebexSDK-Meeting.aar')
+      ```
 ### Option 2
 
    1. Add the following repository to your top-level `build.gradle` file:
@@ -64,13 +70,20 @@ This demo support Android device with **Android 7.0** or later
             }
         }
         ```
-  2. Add the `webex-android-sdk` library as a dependency for your app in the `build.gradle` file:
+   2. Add the `webex-android-sdk` library as a dependency for your app in the `build.gradle` file:
 
-        ```
-        dependencies {
-            implementation 'com.ciscowebex:androidsdk:3.7.0'
-        }
-        ```
+       - For Full SDK
+         ```
+         dependencies {
+             implementation 'com.ciscowebex:webexsdk:3.8.0'
+         }
+         ```
+       - For Meeting SDK
+         ```
+         dependencies {
+         implementation 'com.ciscowebex:webexsdk-meeting:3.8.0'
+         }
+         ```
 
 ## Usage
 

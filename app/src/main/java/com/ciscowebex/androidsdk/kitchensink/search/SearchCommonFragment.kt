@@ -18,6 +18,7 @@ import com.ciscowebex.androidsdk.kitchensink.databinding.FragmentCommonBinding
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.kitchensink.utils.formatCallDurationTime
 import com.ciscowebex.androidsdk.phone.CallHistoryRecord
+import com.google.android.material.snackbar.Snackbar
 import org.koin.android.ext.android.inject
 import java.text.SimpleDateFormat
 
@@ -82,6 +83,13 @@ class SearchCommonFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         searchViewModel.loadData(taskType, Constants.DefaultMax.SPACE_MAX)
+        checkForInitialSpacesSync()
+    }
+
+    private fun checkForInitialSpacesSync() {
+        if (!searchViewModel.isSpacesSyncCompleted()) {
+            Snackbar.make(binding.root, getString(R.string.syncing_spaces), Snackbar.LENGTH_SHORT).show()
+        }
     }
 
     private fun setUpViewModelObservers() {
@@ -133,6 +141,7 @@ class SearchCommonFragment : Fragment() {
                         var dateAndDurationString = SimpleDateFormat("dd/MM/yyyy hh:mm a").format(callRecord.startTime)
                         dateAndDurationString += " (" + formatCallDurationTime(callRecord.duration * 1000) + ")"
                         itemModel.dateAndDuration = dateAndDurationString
+                        itemModel.isMissedCall = callRecord.isMissedCall
                         //add in array list
                         itemModelList.add(itemModel)
                     }
@@ -185,6 +194,19 @@ class SearchCommonFragment : Fragment() {
                 else -> {}
             }
         })
+
+        searchViewModel.spacesSyncCompletedLiveData.observe(viewLifecycleOwner) { isSyncing ->
+            if (isSyncing) {
+                Snackbar.make(binding.root, getString(R.string.syncing_spaces), Snackbar.LENGTH_SHORT).show()
+            } else {
+                Log.d(tag, getString(R.string.not_syncing_spaces))
+            }
+        }
+
+
+        searchViewModel.initialSpacesSyncCompletedLiveData.observe(viewLifecycleOwner) {
+            Log.d(tag, getString(R.string.initial_spaces_sync_completed))
+        }
     }
 
     private fun updateSpaceCallStatus(spaceId: String, callStarted: Boolean) {
@@ -226,6 +248,7 @@ class SearchCommonFragment : Fragment() {
         var isExternallyOwned = false
         var dateAndDuration = ""
         var callDirection = CallHistoryRecord.CallDirection.UNDEFINED
+        var isMissedCall = false
     }
 
     class CustomAdapter() : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
@@ -261,13 +284,15 @@ class SearchCommonFragment : Fragment() {
                 if (itemModel.callDirection == CallHistoryRecord.CallDirection.OUTGOING) {
                     binding.callDirection.visibility = View.VISIBLE
                     binding.callDirection.setImageResource(R.drawable.ic_call_outgoing)
+                } else if(itemModel.isMissedCall) {
+                    binding.callDirection.visibility = View.VISIBLE
+                    binding.callDirection.setImageResource(R.drawable.ic_missed_call)
                 } else if (itemModel.callDirection == CallHistoryRecord.CallDirection.INCOMING) {
                     binding.callDirection.visibility = View.VISIBLE
                     binding.callDirection.setImageResource(R.drawable.ic_call_incoming)
                 } else {
                     binding.callDirection.visibility = View.GONE
                 }
-
                 if (itemModel.dateAndDuration.isNotEmpty()) {
                     binding.startTimeAndDuration.visibility = View.VISIBLE
                     binding.startTimeAndDuration.text = itemModel.dateAndDuration

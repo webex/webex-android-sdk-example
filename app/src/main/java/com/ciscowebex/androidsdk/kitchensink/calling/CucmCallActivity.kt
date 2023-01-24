@@ -9,8 +9,6 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
-import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
 import com.ciscowebex.androidsdk.kitchensink.KitchenSinkApp
 import com.ciscowebex.androidsdk.kitchensink.R
@@ -120,18 +118,18 @@ class CucmCallActivity : AppCompatActivity() {
 
     private fun fetchCallDetails(pushId: String) {
         Log.d(TAG, "fetchCallDetails for push $pushId")
-        webexViewModel.cucmLiveData.observe(this@CucmCallActivity, {
+        webexViewModel.ucLiveData.observe(this@CucmCallActivity, {
             if (it != null) {
                 Log.d(TAG, "CUCM Event : ${it.first.name} ${webexViewModel.ucServerConnectionStatus}")
-                when (WebexRepository.CucmEvent.valueOf(it.first.name)) {
-                    WebexRepository.CucmEvent.OnUCLoggedIn -> {
+                when (WebexRepository.UCCallEvent.valueOf(it.first.name)) {
+                    WebexRepository.UCCallEvent.OnUCLoggedIn -> {
                         Log.d(TAG, "UC Login completed")
                     }
-                    WebexRepository.CucmEvent.OnUCServerConnectionStateChanged -> {
+                    WebexRepository.UCCallEvent.OnUCServerConnectionStateChanged -> {
                         handleUCConnectionStateChange()
                     }
                     else -> {
-                        Log.d(TAG, "CUCM Event details : ${WebexRepository.CucmEvent.valueOf(it.first.name)}")
+                        Log.d(TAG, "CUCM Event details : ${WebexRepository.UCCallEvent.valueOf(it.first.name)}")
                     }
                 }
             } else {

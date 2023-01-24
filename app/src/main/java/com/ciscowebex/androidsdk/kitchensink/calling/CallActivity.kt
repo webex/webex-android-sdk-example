@@ -1,6 +1,7 @@
 package com.ciscowebex.androidsdk.kitchensink.calling
 
 import android.app.AlertDialog
+import android.app.NotificationManager
 import android.app.PictureInPictureParams
 import android.content.Context
 import android.content.Intent
@@ -42,6 +43,17 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener {
             intent.putExtra(Constants.Intent.CALL_ID, callId)
             return intent
         }
+
+        fun getCallAcceptIntent(context: Context, callId: String? = null): Intent {
+            val intent = Intent(context, CallActivity::class.java)
+            intent.action = Constants.Action.WEBEX_CALL_ACCEPT_ACTION
+            intent.putExtra(Constants.Intent.CALLING_ACTIVITY_ID, 1)
+            intent.putExtra(Constants.Intent.CALL_ID, callId)
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            return intent
+        }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,12 +75,20 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener {
                     intent?.getStringExtra(Constants.Intent.CALL_ID) ?.let { callId ->
                         handleIncomingWebexCallFromFCM(callId)
                     }
+                } else if (intent.action == Constants.Action.WEBEX_CALL_ACCEPT_ACTION) {
+                    val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+                    notificationManager?.cancel(Constants.Notification.WEBEX_CALLING)
                 }
             }
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             pictureInPictureParamsBuilder = PictureInPictureParams.Builder()
         }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
     }
 
     private fun handleIncomingWebexCallFromFCM(callId: String) {
@@ -182,11 +202,11 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener {
         val fragment = supportFragmentManager.findFragmentById(R.id.containerFragment) as CallControlsFragment
         if(isInPictureInPictureMode){
             Log.d(tag, "onPictureInPictureModeChanged: Entered PIP")
-            fragment.pipVisibility(View.GONE)
+            fragment.pipVisibility(View.GONE, isInPictureInPictureMode)
         }
         else{
             Log.d(tag, "onPictureInPictureModeChanged: Exited PIP")
-            fragment.pipVisibility(View.VISIBLE)
+            fragment.pipVisibility(View.VISIBLE, isInPictureInPictureMode)
         }
     }
 

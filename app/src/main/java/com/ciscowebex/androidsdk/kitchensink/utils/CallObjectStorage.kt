@@ -14,6 +14,15 @@ object CallObjectStorage {
         }
     }
 
+    fun updateCallObject(callId: String, call: Call) {
+        synchronized(this) {
+            val callIndex = getCallObjectIndex(callId)
+            if (callIndex != -1) {
+                callObjects[callIndex] = call
+            }
+        }
+    }
+
     fun removeCallObject(callId: String) {
         synchronized(this) {
             val itr = callObjects.iterator()
@@ -33,8 +42,18 @@ object CallObjectStorage {
                     return call
                 }
             }
-
             return null
+        }
+    }
+
+    fun getCallObjectIndex(callId: String): Int {
+        synchronized(this) {
+            for (call in callObjects) {
+                if (call.getCallId() == callId) {
+                    return callObjects.indexOf(call)
+                }
+            }
+            return -1
         }
     }
 

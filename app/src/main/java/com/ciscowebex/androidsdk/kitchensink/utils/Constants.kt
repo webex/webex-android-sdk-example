@@ -16,6 +16,9 @@ class Constants {
         const val CALENDAR_MEETING_ID = "CALENDAR_MEETING_ID"
         const val KEY_UC_LOGIN_PAGE_ACTION = "KEY_UC_LOGIN_PAGE_ACTION"
         const val KEY_SSO_URL = "KEY_SSO_URL"
+        const val ACCEPT_REQUEST_CODE = 1001
+        const val REJECT_REQUEST_CODE = 1002
+        const val FULLSCREEN_REQUEST_CODE = 1001
     }
     object Bundle {
         const val MESSAGE_ID = "messageId"
@@ -31,6 +34,8 @@ class Constants {
         const val MESSAGE_ACTION = "MESSAGE_ACTION"
         const val WEBEX_CALL_ACTION = "WEBEX_CALL_ACTION"
         const val WEBEX_CUCM_CALL_ACTION = "WEBEX_CUCM_CALL_ACTION"
+        const val WEBEX_CALL_ACCEPT_ACTION = "WEBEX_CALL_ACCEPT_ACTION"
+        const val WEBEX_CALL_REJECT_ACTION = "WEBEX_CALL_REJECT_ACTION"
     }
     object Keys {
         const val PushRestEncryptionKey = "PeShVmYq3s6v9yaBwE1H3McQfTjWnZr4"  //256 bit AES key, use base64 encoded key to send to cucm endpoint
@@ -43,5 +48,8 @@ class Constants {
     object DefaultMax {
         const val SPACE_MAX = 100
         const val TEAM_MAX = 100
+    }
+    object Notification{
+        const val WEBEX_CALLING = 123456
     }
 }
