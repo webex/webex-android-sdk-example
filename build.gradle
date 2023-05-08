@@ -29,6 +29,7 @@ allprojects {
         maven {
             url 'https://devhub.cisco.com/artifactory/webexsdk/'
         }
+        flatDir { dirs 'aars'} //add this line
     }
 }
 

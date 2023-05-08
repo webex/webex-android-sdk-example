@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccent">#03DAC5</color>
+    <color name="lightYellow">#F2A62C</color>
+    <color name="yellow50">#D67F04</color>
+    <color name="lightGreen">#44CF50</color>
+    <color name="green">#24AB31</color>
+    <color name="blue">#1DC4F2</color>
+    <color name="red">#FF5C4A</color>
+    <color name="lightGray">#F2F4F5</color>
+    <color name="black">#000</color>
+    <color name="gray90">#24282B</color>
+    <color name="gray60">#737678</color>
+    <color name="alphaWhite">#90FFFFFF</color>
+    <color name="white">#FFFFFF</color>
+
+    <color name="transparent">#00000000</color>
+    <!--Red colors-->
+    <color name="red_50">#F7644A</color>
+    <color name="red_60">#D4371C</color>
+
+    <!--Gray colors-->
+    <color name="gray_40">#B2B2B2</color>
+    <color name="gray_50">#949494</color>
+    <color name="gray_60">#707070</color>
+    <color name="gray_70">#545454</color>
+    <color name="gray_80">#3B3B3B</color>
+
+    <!-- Negative Colors -->
+    <color name="negative_base">@color/red_50</color>
+    <color name="negative_base_pressed">@color/red_60</color>
+    <color name="negative_shade">@color/red_60</color>
+
+
+    <color name="blue_40">#07C1F5</color>
+    <color name="primary_base">@color/blue_40</color>
+</resources>

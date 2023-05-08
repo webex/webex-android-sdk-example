@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <RelativeLayout
+        android:id="@+id/rootListItemAttachment"
+        android:layout_width="match_parent"
+        android:foreground="?attr/selectableItemBackground"
+        android:clickable="false"
+        android:layout_height="wrap_content"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:focusable="true">
+        <RelativeLayout
+            android:id="@+id/buttonLayout"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/ic_attachment_cancel"
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tvUploadPercentage"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/textMedium"
+            android:layout_marginEnd="@dimen/dimen_4dp"
+            android:layout_marginStart="@dimen/dimen_4dp"
+            android:layout_toStartOf="@+id/buttonLayout"
+            tools:text="100%"
+            android:layout_centerVertical="true"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_toStartOf="@+id/tvUploadPercentage">
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/size_16sp"
+                tools:text="File Name"
+                android:maxLines="1"/>
+            <TextView
+                android:id="@+id/path"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/size_12sp"
+                tools:text="File Name"
+                android:layout_marginTop="5dp"
+                android:textStyle="italic"
+                android:maxLines="2"/>
+        </LinearLayout>
+    </RelativeLayout>
+
+</layout>

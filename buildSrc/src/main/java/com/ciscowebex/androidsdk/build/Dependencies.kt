@@ -5,10 +5,10 @@ object Versions {
     const val koin= "2.2.3"
 
     const val ndkVersion = "21.3.6528147"
-    const val buildTools = "30.0.3"
+    const val buildTools = "33.0.2"
 
-    const val compileSdk = 30
-    const val targetSdk = 29
+    const val compileSdk = 33
+    const val targetSdk = 31
     const val minSdk = 24
 
     const val cmake = "3.12.4+"
@@ -51,7 +51,7 @@ object Dependencies {
         const val espressoIntents = "androidx.test.espresso:espresso-intents:3.3.0"
         const val fragmentScenerio = "androidx.fragment:fragment-testing:1.2.5"
         const val rules = "androidx.test:rules:1.3.0"
-        const val testExt = "androidx.test:core-ktx:1.3.0"
+        const val testExt = "androidx.test:core-ktx:1.4.0-beta01"
         const val mockk = "io.mockk:mockk-android:1.12.1"
     }
 }

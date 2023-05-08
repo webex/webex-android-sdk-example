@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:707417346294:android:b21c5f7f2bab7db1d19cd7",
         "android_client_info": {
-          "package_name": "com.cisco.sdk_android"
+          "package_name": "com.cisco.sdk_android.kitchensink"
         }
       },
       "oauth_client": [

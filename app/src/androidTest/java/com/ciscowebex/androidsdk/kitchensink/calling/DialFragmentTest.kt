@@ -6,7 +6,7 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ciscowebex.androidsdk.kitchensink.KitchenSinkTest
-import com.ciscowebex.androidsdk.kitchensink.R
+import com.ciscowebex.androidsdk.kitchensink.ondemand.R
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import org.hamcrest.CoreMatchers.allOf
 import org.junit.Test

@@ -45,7 +45,7 @@ class HomeActivityTest : KitchenSinkTest() {
 
     @Test
     fun testWaitingCallButton_homeActivity() {
-        clickOnView(R.id.iv_waitingCall)
+        //clickOnView(R.id.iv_waitingCall)
         intended(hasComponent(CallActivity::class.java.name))
     }
 

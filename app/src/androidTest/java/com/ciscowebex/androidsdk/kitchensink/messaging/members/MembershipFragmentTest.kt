@@ -9,7 +9,7 @@ import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
 import com.ciscowebex.androidsdk.kitchensink.KitchenSinkTest
-import com.ciscowebex.androidsdk.kitchensink.R
+import com.ciscowebex.androidsdk.kitchensink.ondemand.R
 import com.ciscowebex.androidsdk.kitchensink.messaging.MessagingActivity
 import org.junit.Before
 import org.junit.Test

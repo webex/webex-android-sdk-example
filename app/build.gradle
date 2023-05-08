@@ -21,22 +21,26 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8
     }
     defaultConfig {
-        applicationId "com.cisco.sdk_android"
+        applicationId "com.cisco.sdk_android.kitchensink"
         minSdkVersion Versions.minSdk
         targetSdkVersion Versions.targetSdk
-        versionCode 38000
-        versionName "3.8.0"
+        versionCode 3900
+        versionName "3.9.0-ondemand"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "CLIENT_ID", "${CLIENT_ID}"
         buildConfigField "String", "CLIENT_SECRET", "${CLIENT_SECRET}"
         buildConfigField "String", "SCOPE", "${SCOPE}"
         buildConfigField "String", "REDIRECT_URI", "${REDIRECT_URI}"
+
+        buildConfigField "String", "FEDRAMP_CLIENT_ID", "${FEDRAMP_CLIENT_ID}"
+        buildConfigField "String", "FEDRAMP_CLIENT_SECRET", "${FEDRAMP_CLIENT_SECRET}"
+        buildConfigField "String", "FEDRAMP_REDIRECT_URI", "${FEDRAMP_REDIRECT_URI}"
     }
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
         debug {
@@ -47,63 +51,58 @@ android {
     buildFeatures {
         dataBinding true
     }
-    splits {
-        // Configures multiple APKs based on ABI.
-        abi {
-            // Enables building multiple APKs per ABI.
-            enable true
 
-            // By default all ABIs are included, so use reset() and include to specify that we only
-            // want APKs for x86, armeabi-v7a, and mips.
-            reset()
-
-            // Specifies a list of ABIs that Gradle should create APKs for.
-            include "x86", "x86_64", "armeabi-v7a", "arm64-v8a"
-
-            // Specifies that we want to also generate a universal APK that includes all ABIs.
-            universalApk true
+    flavorDimensions 'sdktype'
+    productFlavors {
+        full {
+            dimension 'sdktype'
+            matchingFallbacks = ["full"]
+        }
+        meeting {
+            dimension 'sdktype'
+            versionNameSuffix '-meeting'
+            matchingFallbacks = ["meeting"]
+        }
+        wxc {
+            dimension 'sdktype'
+            versionNameSuffix '-wxc'
+            matchingFallbacks = ["wxc"]
         }
     }
+    dynamicFeatures = [':dynamicModule']
+
 }
 
 dependencies {
-    implementation 'com.ciscowebex:webexsdk:3.8.0'
-    implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation Dependencies.kotlinStdLib
-    implementation Dependencies.coreKtx
-    implementation Dependencies.appCompat
-    implementation Dependencies.constraintLayout
-    implementation Dependencies.material
-    implementation Dependencies.recyclerview
-    implementation Dependencies.cardview
-    implementation Dependencies.viewpager2
-    implementation Dependencies.koin
-    implementation Dependencies.koinViewModel
-    implementation Dependencies.swiperefresh
-    implementation Dependencies.media
-    implementation Dependencies.nimbusJosh
+    api fileTree(dir: "libs", include: ["*.jar"])
+    api Dependencies.kotlinStdLib
+    api Dependencies.coreKtx
+    api Dependencies.appCompat
+    api Dependencies.constraintLayout
+    api Dependencies.material
+    api Dependencies.recyclerview
+    api Dependencies.cardview
+    api Dependencies.viewpager2
+    api Dependencies.koin
+    api Dependencies.koinViewModel
+    api Dependencies.swiperefresh
+    api Dependencies.media
+    api Dependencies.nimbusJosh
 
     // RXJAVA
-    implementation Dependencies.rxjava
-    implementation Dependencies.rxandroid
-    implementation Dependencies.rxkotlin
+    api Dependencies.rxjava
+    api Dependencies.rxandroid
+    api Dependencies.rxkotlin
+    implementation 'androidx.core:core-splashscreen:1.0.0-beta02'
 
-    testImplementation Dependencies.Test.junit
-    androidTestImplementation Dependencies.Test.androidxJunit
-    androidTestImplementation Dependencies.Test.espressoCore
-    androidTestImplementation Dependencies.Test.espressoContrib
-    androidTestImplementation Dependencies.Test.espressoWeb
-    androidTestImplementation Dependencies.Test.espressoIntents
-    androidTestImplementation Dependencies.Test.rules
-    androidTestImplementation Dependencies.Test.testExt
-    debugImplementation (Dependencies.Test.fragmentScenerio) {
-        exclude group: 'androidx.test', module: 'monitor'
-    }
-    implementation platform(Dependencies.firebaseBom)
-    implementation Dependencies.firebaseMessaging
-    implementation Dependencies.firebaseAnalytics
-    implementation Dependencies.firebaseCrashlytics
-    implementation Dependencies.gson
-    implementation Dependencies.glide
+    api platform(Dependencies.firebaseBom)
+    api Dependencies.firebaseMessaging
+    api Dependencies.firebaseAnalytics
+    api Dependencies.firebaseCrashlytics
+    api Dependencies.gson
+    api Dependencies.glide
+
+    api 'com.google.android.play:core-ktx:1.8.1'
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
 }

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        android:padding="20dp">
+
+        <com.ciscowebex.androidsdk.phone.MediaRenderView
+            android:id="@+id/preview"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/preview_video_view_height"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            android:id="@+id/changeBgButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/preview"
+            android:layout_marginTop="16dp"
+            android:text="@string/change_virtual_background" />
+
+        <RelativeLayout
+            android:id="@+id/cameraLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/changeBgButton"
+            android:layout_marginTop="16dp">
+
+            <TextView
+                android:id="@+id/textViewCallCamera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/call_camera" />
+
+            <RadioGroup
+                android:id="@+id/cameraRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textViewCallCamera"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/closePreview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="@string/close" />
+
+                <RadioButton
+                    android:id="@+id/frontCamera"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/front" />
+
+                <RadioButton
+                    android:id="@+id/backCamera"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/back" />
+            </RadioGroup>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/limitLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/cameraLayout">
+
+            <TextView
+                android:id="@+id/tvLimit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="@string/virtual_bg_limit" />
+
+            <EditText
+                android:id="@+id/textLimit"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/margin12dp"
+                android:layout_toEndOf="@+id/tvLimit"
+                android:gravity="center"
+                android:imeOptions="actionDone"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:maxLength="3"
+                android:maxLines="1"
+                android:text="3" />
+
+            <Button
+                android:id="@+id/setLimitButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/textLimit"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="10dp"
+                android:text="@string/set_limit" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id= "@+id/isPhotoCaptureSupportedLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/limitLayout">
+            <TextView
+                android:id="@+id/isPhotoCaptureSupported"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/isPhotoCaptureSupported" />
+
+            <RadioGroup
+                android:id="@+id/isPhotoCaptureSupportedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/isPhotoCaptureSupported"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/isPhotoCaptureSupportedTrue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="@string/isPhotoCaptureSupportedTrue" />
+
+                <RadioButton
+                    android:id="@+id/isPhotoCaptureSupportedFalse"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/isPhotoCaptureSupportedFalse" />
+            </RadioGroup>
+        </RelativeLayout>
+
+    </RelativeLayout>
+</layout>
