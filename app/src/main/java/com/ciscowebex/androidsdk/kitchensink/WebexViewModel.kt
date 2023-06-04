@@ -22,6 +22,7 @@ import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
 import com.ciscowebex.androidsdk.kitchensink.calling.CallObserverInterface
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
 import com.ciscowebex.androidsdk.message.LocalFile
+import com.ciscowebex.androidsdk.phone.ShareConfig
 import com.ciscowebex.androidsdk.phone.BreakoutSession.BreakoutSessionError
 import com.ciscowebex.androidsdk.phone.Call
 import com.ciscowebex.androidsdk.phone.CallObserver
@@ -42,7 +43,10 @@ import com.ciscowebex.androidsdk.phone.Breakout
 import com.ciscowebex.androidsdk.phone.DirectTransferResult
 import com.ciscowebex.androidsdk.phone.SwitchToAudioVideoCallResult
 import com.ciscowebex.androidsdk.phone.PhoneConnectionResult
+import com.ciscowebex.androidsdk.phone.ReceivingNoiseInfo
+import com.ciscowebex.androidsdk.phone.ReceivingNoiseRemovalEnableResult
 import com.google.firebase.installations.FirebaseInstallations
+import java.io.PrintWriter
 
 class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseViewModel() {
     private val tag = "WebexViewModel"
@@ -71,6 +75,8 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     private val _incomingListenerLiveData = MutableLiveData<Call?>()
     val incomingListenerLiveData: LiveData<Call?> = _incomingListenerLiveData
+    private val _hasConflictCalls = MutableLiveData<Boolean>()
+    val hasConflictCalls: LiveData<Boolean> = _hasConflictCalls
 
     private val _signOutListenerLiveData = MutableLiveData<Boolean>()
     val signOutListenerLiveData: LiveData<Boolean> = _signOutListenerLiveData
@@ -291,18 +297,19 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     }
 
     fun setIncomingListener() {
-        webex.phone.setIncomingCallListener(object : Phone.IncomingCallListener {
-            override fun onIncomingCall(call: Call?) {
-                call?.let {
-                    Log.d(tag, "setIncomingCallListener Call object : ${it.getCallId()}, correlationId : ${it.getCorrelationId()}")
-                    CallObjectStorage.addCallObject(it)
-                    _incomingListenerLiveData.postValue(it)
-                    setCallObserver(it)
-                } ?: run {
-                    Log.d(tag, "setIncomingCallListener Call object null")
+        if(!repository.isIncomingCallListenerSet("viewmodel"+this)) {
+            repository.setIncomingCallListener("viewmodel"+this, object : Phone.IncomingCallListener {
+                override fun onIncomingCall(call: Call?, hasActiveConflictCalls : Boolean) {
+                    call?.let {
+                        Log.d(tag, "setIncomingCallListener Call object : ${it.getCallId()}, correlationId : ${it.getCorrelationId()}")
+                        _incomingListenerLiveData.postValue(it)
+                        _hasConflictCalls.postValue(hasActiveConflictCalls)
+                    } ?: run {
+                        Log.d(tag, "setIncomingCallListener Call object null")
+                    }
                 }
-            }
-        })
+            })
+        }
     }
 
     fun setFCMIncomingListenerObserver(callId: String) {
@@ -310,10 +317,6 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         call?.let {
             setCallObserver(it)
         }
-    }
-
-    fun setGlobalIncomingListener() {
-        repository.setIncomingListener()
     }
 
     fun signOut() {
@@ -398,106 +401,131 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         })
     }
 
+
+    inner class VMCallObserver(val call:Call) : CallObserver {
+        override fun onConnected(call: Call?) {
+            Log.d(tag, "CallObserver onConnected")
+            callObserverInterface?.onConnected(call)
+        }
+
+        override fun onRinging(call: Call?) {
+            Log.d(tag, "CallObserver onRinging")
+            callObserverInterface?.onRinging(call)
+        }
+
+        override fun onStartRinging(call: Call?, ringerType: Call.RingerType) {
+            Log.d(tag, "CallObserver onStartRinging")
+            callObserverInterface?.onStartRinging(call, ringerType)
+        }
+
+        override fun onStopRinging(call: Call?, ringerType: Call.RingerType) {
+            Log.d(tag, "CallObserver onStopRinging")
+            callObserverInterface?.onStopRinging(call, ringerType)
+        }
+
+        override fun onWaiting(call: Call?, reason: Call.WaitReason?) {
+            Log.d(tag, "CallObserver onWaiting reason: $reason")
+            callObserverInterface?.onWaiting(call)
+        }
+
+        override fun onDisconnected(event: CallObserver.CallDisconnectedEvent?) {
+            Log.d(tag, "CallObserver onDisconnected event: ${this@WebexViewModel} $callObserverInterface $event")
+            callObserverInterface?.onDisconnected(call, event)
+        }
+
+        override fun onInfoChanged(call: Call?) {
+            callObserverInterface?.onInfoChanged(call)
+        }
+
+        override fun onMediaChanged(event: CallObserver.MediaChangedEvent?) {
+            Log.d(tag, "CallObserver OnMediaChanged event: $event")
+            callObserverInterface?.onMediaChanged(call, event)
+            event?.getCall()
+                ?.let { CallObjectStorage.updateCallObject(call.getCallId().toString(), it) }
+
+        }
+
+        override fun onCallMembershipChanged(event: CallObserver.CallMembershipChangedEvent?) {
+            Log.d(tag, "CallObserver onCallMembershipChanged event: $event")
+            callObserverInterface?.onCallMembershipChanged(call, event)
+            getParticipants(event?.getCall()?.getCallId().orEmpty())
+        }
+
+        override fun onScheduleChanged(call: Call?) {
+            callObserverInterface?.onScheduleChanged(call)
+        }
+
+        override fun onCpuHitThreshold() {
+            callObserverInterface?.onCpuHitThreshold()
+        }
+
+        override fun onPhotoCaptured(imageData: ByteArray?) {
+            callObserverInterface?.onPhotoCaptured(imageData)
+        }
+
+        override fun onMediaQualityInfoChanged(mediaQualityInfo: Call.MediaQualityInfo) {
+            callObserverInterface?.onMediaQualityInfoChanged(mediaQualityInfo)
+        }
+
+        override fun onBroadcastMessageReceivedFromHost(message: String) {
+            callObserverInterface?.onBroadcastMessageReceivedFromHost(message)
+        }
+
+        override fun onHostAskingReturnToMainSession() {
+            callObserverInterface?.onHostAskingReturnToMainSession()
+        }
+
+        override fun onJoinableSessionUpdated(breakoutSessions: List<BreakoutSession>) {
+            callObserverInterface?.onJoinableSessionUpdated(breakoutSessions)
+        }
+
+        override fun onJoinedSessionUpdated(breakoutSession: BreakoutSession) {
+            callObserverInterface?.onJoinedSessionUpdated(breakoutSession)
+        }
+
+        override fun onReturnedToMainSession() {
+            callObserverInterface?.onReturnedToMainSession()
+        }
+
+        override fun onSessionClosing() {
+            callObserverInterface?.onSessionClosing()
+        }
+
+        override fun onSessionEnabled() {
+            callObserverInterface?.onSessionEnabled()
+        }
+
+        override fun onSessionJoined(breakoutSession: BreakoutSession) {
+            callObserverInterface?.onSessionJoined(breakoutSession)
+        }
+
+        override fun onSessionStarted(breakout: Breakout) {
+            callObserverInterface?.onSessionStarted(breakout)
+        }
+
+        override fun onBreakoutUpdated(breakout: Breakout) {
+            callObserverInterface?.onBreakoutUpdated(breakout)
+        }
+
+        override fun onBreakoutError(error: BreakoutSessionError) {
+            callObserverInterface?.onBreakoutError(error)
+        }
+
+        override fun onReceivingNoiseInfoChanged(info: ReceivingNoiseInfo) {
+            callObserverInterface?.onReceivingNoiseInfoChanged(info)
+        }
+    }
+
+    val callObserverMap : HashMap<String, VMCallObserver> = HashMap()
+
     fun setCallObserver(call: Call) {
-        call.setObserver(object : CallObserver {
-            override fun onConnected(call: Call?) {
-                Log.d(tag, "CallObserver onConnected")
-                callObserverInterface?.onConnected(call)
-            }
-
-            override fun onRinging(call: Call?) {
-                Log.d(tag, "CallObserver onRinging")
-                callObserverInterface?.onRinging(call)
-            }
-
-            override fun onWaiting(call: Call?, reason: Call.WaitReason?) {
-                Log.d(tag, "CallObserver onWaiting reason: $reason")
-                callObserverInterface?.onWaiting(call)
-            }
-
-            override fun onDisconnected(event: CallObserver.CallDisconnectedEvent?) {
-                Log.d(tag, "CallObserver onDisconnected event: $event")
-                callObserverInterface?.onDisconnected(call, event)
-            }
-
-            override fun onInfoChanged(call: Call?) {
-                callObserverInterface?.onInfoChanged(call)
-            }
-
-            override fun onMediaChanged(event: CallObserver.MediaChangedEvent?) {
-                Log.d(tag, "CallObserver OnMediaChanged event: $event")
-                callObserverInterface?.onMediaChanged(call, event)
-                event?.getCall()
-                    ?.let { CallObjectStorage.updateCallObject(call.getCallId().toString(), it) }
-
-            }
-
-            override fun onCallMembershipChanged(event: CallObserver.CallMembershipChangedEvent?) {
-                Log.d(tag, "CallObserver onCallMembershipChanged event: $event")
-                callObserverInterface?.onCallMembershipChanged(call, event)
-                getParticipants(event?.getCall()?.getCallId().orEmpty())
-            }
-
-            override fun onScheduleChanged(call: Call?) {
-                callObserverInterface?.onScheduleChanged(call)
-            }
-
-            override fun onCpuHitThreshold() {
-                callObserverInterface?.onCpuHitThreshold()
-            }
-
-            override fun onPhotoCaptured(imageData: ByteArray?) {
-                callObserverInterface?.onPhotoCaptured(imageData)
-            }
-
-            override fun onMediaQualityInfoChanged(mediaQualityInfo: Call.MediaQualityInfo) {
-                callObserverInterface?.onMediaQualityInfoChanged(mediaQualityInfo)
-            }
-
-            override fun onBroadcastMessageReceivedFromHost(message: String) {
-                callObserverInterface?.onBroadcastMessageReceivedFromHost(message)
-            }
-
-            override fun onHostAskingReturnToMainSession() {
-                callObserverInterface?.onHostAskingReturnToMainSession()
-            }
-
-            override fun onJoinableSessionUpdated(breakoutSessions: List<BreakoutSession>) {
-                callObserverInterface?.onJoinableSessionUpdated(breakoutSessions)
-            }
-
-            override fun onJoinedSessionUpdated(breakoutSession: BreakoutSession) {
-                callObserverInterface?.onJoinedSessionUpdated(breakoutSession)
-            }
-
-            override fun onReturnedToMainSession() {
-                callObserverInterface?.onReturnedToMainSession()
-            }
-
-            override fun onSessionClosing() {
-                callObserverInterface?.onSessionClosing()
-            }
-
-            override fun onSessionEnabled() {
-                callObserverInterface?.onSessionEnabled()
-            }
-
-            override fun onSessionJoined(breakoutSession: BreakoutSession) {
-                callObserverInterface?.onSessionJoined(breakoutSession)
-            }
-
-            override fun onSessionStarted(breakout: Breakout) {
-                callObserverInterface?.onSessionStarted(breakout)
-            }
-
-            override fun onBreakoutUpdated(breakout: Breakout) {
-                callObserverInterface?.onBreakoutUpdated(breakout)
-            }
-
-            override fun onBreakoutError(error: BreakoutSessionError) {
-                callObserverInterface?.onBreakoutError(error)
-            }
-        })
+        // check if existing observer is present. Reuse it
+        var observer = callObserverMap[call.getCallId()]
+        if(observer == null){
+            observer = VMCallObserver(call)
+            callObserverMap[call.getCallId()!!] = observer
+        }
+        repository.setCallObserver(call,observer)
     }
 
     fun setReceivingVideo(call: Call, receiving: Boolean) {
@@ -552,16 +580,16 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         }
     }
 
-    fun startShare(callId: String) {
+    fun startShare(callId: String, shareConfig: ShareConfig?) {
         getCall(callId)?.startSharing(CompletionHandler { result ->
             _startShareLiveData.postValue(result.isSuccessful)
-        })
+        }, shareConfig)
     }
 
-    fun startShare(callId: String, notification: Notification?, notificationId: Int) {
+    fun startShare(callId: String, notification: Notification?, notificationId: Int, shareConfig: ShareConfig?) {
         getCall(callId)?.startSharing(notification, notificationId, CompletionHandler { result ->
             _startShareLiveData.postValue(result.isSuccessful)
-        })
+        }, shareConfig)
     }
 
     fun setSendingSharing(callId: String, value: Boolean) {
@@ -623,7 +651,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     fun getParticipants(_callId: String) {
         val callParticipants = getCall(_callId)?.getMemberships() ?: ArrayList()
-        repository._callMembershipsLiveData?.postValue(callParticipants)
+        _callMembershipsLiveData.postValue(callParticipants)
 
         callParticipants.forEach {
             repository.participantMuteMap[it.getPersonId()] = it.isSendingAudio()
@@ -788,6 +816,15 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     fun setVideoEnableCamera2Setting(value: Boolean) {
         webex.phone.setAdvancedSetting(AdvancedSetting.VideoEnableCamera2(value) as AdvancedSetting<*>)
+    }
+
+    fun enablePhotoCaptureSetting(value :Boolean){
+        webex.phone.setAdvancedSetting((AdvancedSetting.EnablePhotoCapture(value) as AdvancedSetting<*>))
+    }
+
+    fun getEnablePhotoCaptureSetting(): Boolean? {
+        return webex.phone.getAdvancedSetting(AdvancedSetting.EnablePhotoCapture::class)
+            ?.getValue() as Boolean?
     }
 
     fun switchAudioMode(mode: Call.AudioOutputMode) {
@@ -1184,5 +1221,42 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     fun isSpacesSyncCompleted(): Boolean {
         return webex.spaces.isSpacesSyncCompleted()
+    }
+
+    fun getReceivingNoiseInfo(): ReceivingNoiseInfo? {
+        return getCall(currentCallId.orEmpty())?.getReceivingNoiseInfo()
+    }
+
+    fun enableReceivingNoiseRemoval(enable: Boolean, callback: CompletionHandler<ReceivingNoiseRemovalEnableResult>) {
+        getCall(currentCallId.orEmpty())?.enableReceivingNoiseRemoval(enable, callback)
+    }
+
+
+    fun isVideoEnabled(): Boolean {
+        return getCall(currentCallId.orEmpty())?.isVideoEnabled() ?: false
+    }
+
+    fun cleanup() {
+        repository.removeIncomingCallListener("viewmodel"+this)
+        for (entry in callObserverMap.entries.iterator()) {
+            repository.removeCallObserver(entry.key, entry.value)
+        }
+        callObserverMap.clear()
+    }
+
+    @Synchronized
+    fun clearCallObservers(callId: String) {
+        repository.clearCallObservers(callId)
+    }
+
+    fun enableStreams() {
+        webex.phone.enableStreams(true)
+    }
+
+    fun printObservers(writer : PrintWriter) {
+        writer.println("******** Call Observers **********")
+        callObserverMap.forEach { (key, value) -> writer.println("$key = $value") }
+        writer.println("******************")
+        repository.printObservers(writer)
     }
 }

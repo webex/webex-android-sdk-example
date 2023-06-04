@@ -5,6 +5,7 @@ import com.ciscowebex.androidsdk.phone.BreakoutSession
 import com.ciscowebex.androidsdk.phone.Call
 import com.ciscowebex.androidsdk.phone.CallObserver
 import com.ciscowebex.androidsdk.phone.BreakoutSession.BreakoutSessionError
+import com.ciscowebex.androidsdk.phone.ReceivingNoiseInfo
 
 /*
 * This interface is written to overcome the limitation of live data postValue.
@@ -15,6 +16,8 @@ import com.ciscowebex.androidsdk.phone.BreakoutSession.BreakoutSessionError
 interface CallObserverInterface {
     fun onConnected(call: Call?) {}
     fun onRinging(call: Call?) {}
+    fun onStartRinging(call:Call? , ringerType: Call.RingerType)
+    fun onStopRinging(call: Call?, ringerType: Call.RingerType)
     fun onWaiting(call: Call?) {}
     fun onDisconnected(call: Call?, event: CallObserver.CallDisconnectedEvent?) {}
     fun onInfoChanged(call: Call?) {}
@@ -37,4 +40,5 @@ interface CallObserverInterface {
     fun onSessionStarted(breakout: Breakout)
     fun onBreakoutUpdated(breakout: Breakout)
     fun onBreakoutError(error: BreakoutSessionError)
+    fun onReceivingNoiseInfoChanged(info: ReceivingNoiseInfo)
 }

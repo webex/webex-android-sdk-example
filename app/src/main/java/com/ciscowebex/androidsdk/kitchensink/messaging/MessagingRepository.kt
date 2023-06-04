@@ -117,33 +117,31 @@ open class MessagingRepository(private val webex: Webex) {
 
     fun downloadFile(remoteFile: RemoteFile, file: File, progressEmitter: Emitter<Double>, completionEmitter: Emitter<Pair<FileDownloadEvent, String>>) {
         webex.messages.downloadFile(remoteFile, file,
-                object : MessageClient.ProgressHandler {
-                    override fun onProgress(bytes: Double) {
-                        Log.d(tag, "downloadFile bytes: $bytes")
-                        progressEmitter.onNext(bytes)
+            { bytes ->
+                Log.d(tag, "downloadFile bytes: $bytes")
+                progressEmitter.onNext(bytes)
+            },
+            { fileUrlResult ->
+                if (fileUrlResult.isSuccessful) {
+                    Log.d(tag, "downloadFile onComplete success: ${fileUrlResult.data}")
+                    fileUrlResult.data?.let {
+                        completionEmitter.onNext(Pair(FileDownloadEvent.DOWNLOAD_COMPLETE, it.toString()))
+                    } ?: run {
+                        completionEmitter.onNext(Pair(FileDownloadEvent.DOWNLOAD_FAILED, "Download file error occurred"))
                     }
-                },
-                CompletionHandler { fileUrlResult ->
-                    if (fileUrlResult.isSuccessful) {
-                        Log.d(tag, "downloadFile onComplete success: ${fileUrlResult.data}")
-                        fileUrlResult.data?.let {
-                            completionEmitter.onNext(Pair(FileDownloadEvent.DOWNLOAD_COMPLETE, it.toString()))
+                } else {
+                    Log.d(tag, "downloadFile onComplete failed")
+                    fileUrlResult.error?.let {
+                        it.errorMessage?.let { errorMessage ->
+                            completionEmitter.onNext(Pair(FileDownloadEvent.DOWNLOAD_FAILED, errorMessage))
                         } ?: run {
                             completionEmitter.onNext(Pair(FileDownloadEvent.DOWNLOAD_FAILED, "Download file error occurred"))
                         }
-                    } else {
-                        Log.d(tag, "downloadFile onComplete failed")
-                        fileUrlResult.error?.let {
-                            it.errorMessage?.let { errorMessage ->
-                                completionEmitter.onNext(Pair(FileDownloadEvent.DOWNLOAD_FAILED, errorMessage))
-                            } ?: run {
-                                completionEmitter.onNext(Pair(FileDownloadEvent.DOWNLOAD_FAILED, "Download file error occurred"))
-                            }
-                        } ?: run {
-                            completionEmitter.onNext(Pair(FileDownloadEvent.DOWNLOAD_FAILED, "Download file error occurred"))
-                        }
+                    } ?: run {
+                        completionEmitter.onNext(Pair(FileDownloadEvent.DOWNLOAD_FAILED, "Download file error occurred"))
                     }
                 }
+            }
         )
     }
 }

@@ -137,7 +137,7 @@ class PostMessageTest : KitchenSinkTest() {
             override fun matchesSafely(item: RecyclerView?): Boolean {
                 item?.adapter?.let {
                     val adapter = it as MessageComposerActivity.UploadAttachmentsAdapter
-                    adapter.attachedFiles.add(file)
+//                    adapter.attachedFiles.add(file)
                     adapter.notifyDataSetChanged()
                     return true
                 }

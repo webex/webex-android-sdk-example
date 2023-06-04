@@ -79,4 +79,19 @@ object SharedPrefUtils {
 
         return false
     }
+
+    fun getFedrampPref(context:Context): Boolean {
+        val pref = context.getSharedPreferences(Constants.Keys.KitchenSinkSharedPref, Context.MODE_PRIVATE)
+
+        pref?.let {
+            return pref.getBoolean(Constants.Keys.Fedramp, false)
+        }
+
+        return false
+    }
+
+    fun saveFedrampPref(context:Context, enabled: Boolean) {
+        val pref = context.getSharedPreferences(Constants.Keys.KitchenSinkSharedPref, Context.MODE_PRIVATE)
+        pref?.edit()?.putBoolean(Constants.Keys.Fedramp, enabled)?.apply()
+    }
 }

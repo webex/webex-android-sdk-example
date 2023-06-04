@@ -112,17 +112,20 @@ class ParticipantsFragment : DialogFragment(), ParticipantsAdapter.OnItemActionL
 
     }
 
-    fun showToast(message: String) {
+    private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
     }
 
-    override fun onParticipantMuted(participantId: String) {
+    override fun onParticipantMuted(participantId: String, hasPairedParticipant: Boolean) {
         currentCallId?.let {
             if (webexViewModel.getCall(webexViewModel.currentCallId.orEmpty())?.isCUCMCall() == false || webexViewModel.selfPersonId == participantId) {
                 webexViewModel.muteParticipant(it, participantId)
                 adapter.notifyDataSetChanged()
             } else {
                 showToast(getString(R.string.mute_feature_is_not_available_for_cucm_calls))
+            }
+            if(hasPairedParticipant) {
+                showToast(getString(R.string.mute_feature_paired_participant))
             }
         }
     }

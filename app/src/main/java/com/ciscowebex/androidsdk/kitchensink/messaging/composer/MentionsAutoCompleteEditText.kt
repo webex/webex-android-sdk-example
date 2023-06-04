@@ -46,7 +46,7 @@ interface BackPressedListener {
 }
 
 interface CreateInputConnectionListener {
-    fun onCreateInputConnection(outAttrs: EditorInfo, inputConnection: InputConnection): InputConnection
+    fun onCreateInputConnection(outAttrs: EditorInfo, inputConnection: InputConnection?): InputConnection
 }
 
 class MentionSpan(val context: Context, val mention: Mention) : ClickableSpan() {
@@ -230,7 +230,7 @@ class MentionsAutoCompleteEditText @JvmOverloads constructor(context: Context, a
         return super.onKeyPreIme(keyCode, event)
     }
 
-    override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
+    override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? {
         val ic = super.onCreateInputConnection(outAttrs)
         createInputConnectionListener?.apply {
             return onCreateInputConnection(outAttrs, ic)

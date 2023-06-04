@@ -7,13 +7,13 @@ import android.view.View
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
-import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityCameraConfigBinding
 import com.ciscowebex.androidsdk.kitchensink.utils.extensions.toast
 import com.ciscowebex.androidsdk.message.LocalFile
+import com.ciscowebex.androidsdk.phone.AdvancedSetting
 import com.ciscowebex.androidsdk.phone.Phone
 import com.ciscowebex.androidsdk.phone.VirtualBackground
 import com.ciscowebex.androidsdk.utils.internal.MimeUtils
@@ -29,6 +29,7 @@ class SetupCameraActivity: BaseActivity() {
 
     lateinit var binding: ActivityCameraConfigBinding
     private var cameraCap: CameraCap = CameraCap.Front
+    private var enablePhotoCapture:Boolean = true
     private lateinit var callCap: WebexRepository.CallCap
     var bottomSheetFragment: BackgroundOptionsBottomSheetFragment? = null
 
@@ -41,7 +42,7 @@ class SetupCameraActivity: BaseActivity() {
                 .also { binding = it }
                 .apply {
                     cameraCap = getDefaultCamera()
-
+                    enablePhotoCapture = getEnablePhotoCaptureSetting() == true
                     callCap = webexViewModel.callCapability
 
                     when (cameraCap) {
@@ -56,6 +57,13 @@ class SetupCameraActivity: BaseActivity() {
                         CameraCap.Close -> {
                             closePreview()
                         }
+                    }
+
+                    if(enablePhotoCapture) {
+                        isPhotoCaptureSupportedTrue.isChecked = true
+                    }
+                    else {
+                        isPhotoCaptureSupportedFalse.isChecked = true
                     }
 
                     cameraRadioGroup.setOnCheckedChangeListener { _, checkedId ->
@@ -74,6 +82,17 @@ class SetupCameraActivity: BaseActivity() {
 
                     changeBgButton.setOnClickListener {
                         webexViewModel.fetchVirtualBackgrounds()
+                    }
+
+                    isPhotoCaptureSupportedButton.setOnCheckedChangeListener { _, checkedId ->
+                        when(checkedId) {
+                            R.id.isPhotoCaptureSupportedTrue -> {
+                                enablePhotoCaptureSetting(true)
+                            }
+                            R.id.isPhotoCaptureSupportedFalse -> {
+                                enablePhotoCaptureSetting(false)
+                            }
+                        }
                     }
 
                     val limit = webexViewModel.getMaxVirtualBackgrounds()
@@ -172,6 +191,14 @@ class SetupCameraActivity: BaseActivity() {
 
     private fun closePreview() {
         stopPreview()
+    }
+
+    private fun enablePhotoCaptureSetting(value: Boolean) {
+        webexViewModel.enablePhotoCaptureSetting(value)
+    }
+
+    private fun getEnablePhotoCaptureSetting(): Boolean? {
+        return webexViewModel.getEnablePhotoCaptureSetting()
     }
 
     private fun setAndStartFrontCamera() {

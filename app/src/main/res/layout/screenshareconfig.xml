@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/screenShareConfig">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/shareConfigLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="50dp" />
+
+        <TextView
+            android:id="@+id/shareOptimizeType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/shareOptimizeType"
+            android:padding="@dimen/size_8dp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"/>
+
+        <RadioGroup
+            android:id="@+id/optimizeTypeRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_below="@+id/shareOptimizeType"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/noOptimizeType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/noShareType" />
+
+            <RadioButton
+                android:id="@+id/defaultShare"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/defaultShare" />
+
+            <RadioButton
+                android:id="@+id/autoDetection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/autoDetection" />
+
+            <RadioButton
+                android:id="@+id/optimizeForText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/optimizeForText" />
+
+            <RadioButton
+                android:id="@+id/optimizeForVideo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/optimizeForMotionAndVideo" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/enableAudio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/enableAudio"
+            android:layout_below="@+id/optimizeTypeRadioGroup"
+            android:padding="@dimen/size_8dp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"/>
+
+        <RadioGroup
+            android:id="@+id/enableAudioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_below="@+id/enableAudio"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/enableAudioTrue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="True" />
+
+            <RadioButton
+                android:id="@+id/enableAudioFalse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="False" />
+
+        </RadioGroup>
+    </RelativeLayout>
+</layout>

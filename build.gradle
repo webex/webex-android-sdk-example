@@ -6,13 +6,12 @@ buildscript {
     ext.dokka_version = Versions.dokka
     repositories {
         google()
-//        jcenter()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.2'
+        classpath 'com.android.tools.build:gradle:7.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
-        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:${Versions.dokka}"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${Versions.dokka}"
         classpath 'com.google.gms:google-services:4.3.10'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.1'
         // NOTE: Do not place your application dependencies here; they belong
@@ -23,12 +22,12 @@ buildscript {
 allprojects {
     repositories {
         google()
-//        jcenter()
         mavenCentral()
         mavenLocal()
         maven {
             url 'https://devhub.cisco.com/artifactory/webexsdk/'
         }
+        flatDir { dirs 'aars' }
     }
 }
 

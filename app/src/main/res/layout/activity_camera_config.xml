@@ -41,7 +41,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/textViewCallCamera"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:orientation="horizontal">
 
                 <RadioButton
@@ -106,5 +106,42 @@
                 android:layout_marginStart="10dp"
                 android:text="@string/set_limit" />
         </RelativeLayout>
+
+        <RelativeLayout
+            android:id= "@+id/isPhotoCaptureSupportedLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/limitLayout">
+            <TextView
+                android:id="@+id/isPhotoCaptureSupported"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/isPhotoCaptureSupported" />
+
+            <RadioGroup
+                android:id="@+id/isPhotoCaptureSupportedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/isPhotoCaptureSupported"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/isPhotoCaptureSupportedTrue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="@string/isPhotoCaptureSupportedTrue" />
+
+                <RadioButton
+                    android:id="@+id/isPhotoCaptureSupportedFalse"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/isPhotoCaptureSupportedFalse" />
+            </RadioGroup>
+        </RelativeLayout>
+
     </RelativeLayout>
 </layout>

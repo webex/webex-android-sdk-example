@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<restrictions xmlns:android="http://schemas.android.com/apk/res/android">
+    <restriction
+        android:description="@string/appconfig_fedramp_description"
+        android:key="fedRampEnabled"
+        android:restrictionType="bool"
+        android:title="@string/appconfig_fedramp_title"
+        android:defaultValue="false"/>
+</restrictions>
+

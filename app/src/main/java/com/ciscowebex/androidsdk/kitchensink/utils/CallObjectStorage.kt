@@ -62,4 +62,8 @@ object CallObjectStorage {
             callObjects.clear()
         }
     }
+
+    fun size() : Int{
+        return callObjects.size
+    }
 }

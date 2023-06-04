@@ -64,6 +64,7 @@ class SpacesFragment : Fragment() {
             addSpacesFAB.setOnClickListener {
                 showAddSpaceDialog()
             }
+            spacesViewModel.setSpacesSyncCompletedListener()
 
             spacesViewModel.setSpaceEventListener(object : SpaceEventListener {
                 override fun onUpdate(space: Space) {
@@ -287,6 +288,7 @@ class SpacesFragment : Fragment() {
                 Snackbar.make(binding.root, getString(R.string.syncing_spaces), Snackbar.LENGTH_SHORT).show()
             } else {
                 Log.d(tag, getString(R.string.not_syncing_spaces))
+                Snackbar.make(binding.root, getString(R.string.not_syncing_spaces), Snackbar.LENGTH_SHORT).show()
             }
         }
 

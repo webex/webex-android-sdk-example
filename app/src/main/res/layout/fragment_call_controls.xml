@@ -6,7 +6,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        >
 
         <TextView
             android:id="@+id/incoming_call_header"
@@ -353,8 +354,8 @@
                     app:layout_constraintEnd_toStartOf="@+id/ib_swap_camera"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintHorizontal_chainStyle="spread"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintStart_toEndOf="@+id/ib_directtransfer_call"
+                    app:layout_constraintTop_toTopOf="@+id/ib_directtransfer_call" />
 
                 <ImageButton
                     android:id="@+id/ib_swap_camera"
@@ -442,6 +443,22 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 android:visibility="visible" />
+
+
+            <ImageView
+                android:id="@+id/iv_receiving_noise_removal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_circle_translucent_white"
+                android:padding="@dimen/padding_4dp"
+                android:src="@drawable/ic_noise_none_filled"
+                android:visibility="invisible"
+                tools:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@id/iv_cancel_call"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toEndOf="@id/iv_cancel_call"
+                app:layout_constraintTop_toTopOf="@id/iv_cancel_call" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
