@@ -50,6 +50,7 @@ import com.ciscowebex.androidsdk.kitchensink.calling.participants.ParticipantsFr
 import com.ciscowebex.androidsdk.kitchensink.calling.transcription.TranscriptionsDialogFragment
 import com.ciscowebex.androidsdk.kitchensink.databinding.DialogEnterMeetingPinBinding
 import com.ciscowebex.androidsdk.kitchensink.databinding.FragmentCallControlsBinding
+import com.ciscowebex.androidsdk.kitchensink.databinding.ScreenshareconfigBinding
 import com.ciscowebex.androidsdk.kitchensink.person.PersonViewModel
 import com.ciscowebex.androidsdk.kitchensink.setup.BackgroundOptionsBottomSheetFragment
 import com.ciscowebex.androidsdk.kitchensink.utils.AudioManagerUtils
@@ -77,6 +78,8 @@ import com.ciscowebex.androidsdk.phone.Phone
 import com.ciscowebex.androidsdk.phone.VirtualBackground
 import com.ciscowebex.androidsdk.phone.Breakout
 import com.ciscowebex.androidsdk.phone.BreakoutSession
+import com.ciscowebex.androidsdk.phone.ReceivingNoiseInfo
+import com.ciscowebex.androidsdk.phone.ShareConfig
 import org.koin.android.ext.android.inject
 import com.ciscowebex.androidsdk.utils.internal.MimeUtils
 import java.io.File
@@ -84,10 +87,11 @@ import java.util.Date
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.bind
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface {
     private val TAG = "CallControlsFragment"
-    private lateinit var webexViewModel: WebexViewModel
+    val webexViewModel: WebexViewModel by viewModel()
     private lateinit var binding: FragmentCallControlsBinding
     private var callFailed = false
     private var isIncomingActivity = false
@@ -118,11 +122,12 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     private lateinit var passwordDialogBinding: DialogEnterMeetingPinBinding
     private lateinit var passwordDialog : Dialog
     private var isInPipMode = false;
-
+    private var screenShareOptionsDialog: AlertDialog? = null
 
     // Is true when trying to join a Breakout Session, and becomes false when successfully joined or error occurs
     // Call onDisconnected is fired when user is the last one to leave main session and tries to join a breakout session.
     private var attemptingToJoinABreakoutSession = false
+    private val mHandler = Handler(Looper.getMainLooper())
 
     interface OnCallActionListener {
         fun onEndAndAnswer(currentCallId: String, newCallId: String, handler: CompletionHandler<Boolean>)
@@ -178,9 +183,9 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return DataBindingUtil.inflate<FragmentCallControlsBinding>(LayoutInflater.from(context),
                 R.layout.fragment_call_controls, container, false).also { binding = it }.apply {
-            webexViewModel = (activity as? CallActivity)?.webexViewModel!!
             Log.d(TAG, "CallControlsFragment onCreateView webexViewModel: $webexViewModel")
-            setUpViews()
+
+            setUpViews(getArguments())
             observerCallLiveData()
             initAudioManager()
 
@@ -201,6 +206,11 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         webexViewModel.currentCallId?.let {
             onVideoStreamingChanged(it)
         }
+        webexViewModel.enableStreams()
+    }
+
+    fun getCurrentActiveCallId() : String?{
+        return webexViewModel.currentCallId
     }
 
     private fun checkIsOnHold() {
@@ -247,9 +257,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 "isScheduledMeeting: ${webexViewModel.isScheduledMeeting()}")
 
         onCallConnected(call?.getCallId().orEmpty(), call?.isCUCMCall() ?: false, call?.isWebexCallingOrWebexForBroadworks() ?: false)
-        ringerManager.stopRinger(if (isIncomingActivity) RingerManager.RingerType.Incoming else RingerManager.RingerType.Outgoing)
         webexViewModel.sendFeedback(call?.getCallId().orEmpty(), 5, "Testing Comments SDK-v3")
-        webexViewModel.setShareMaxCaptureFPSSetting(5)
+        webexViewModel.setShareMaxCaptureFPSSetting(30)
 
         val exposureDuration = webexViewModel.getCameraExposureDuration()
         val exposureISO = webexViewModel.getCameraExposureISO()
@@ -268,9 +277,14 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         }
     }
 
-    override fun onRinging(call: Call?) {
-        Log.d(TAG, "CallObserver OnRinging : " + call?.getCallId())
-        ringerManager.startRinger(RingerManager.RingerType.Outgoing)
+    override fun onStartRinging(call: Call?, ringerType: Call.RingerType) {
+        Log.d(tag, "startRinger: $ringerType")
+        ringerManager.startRinger(ringerType)
+    }
+
+    override fun onStopRinging(call: Call?, ringerType: Call.RingerType) {
+        Log.d(tag, "stopRinger: $ringerType")
+        ringerManager.stopRinger(ringerType)
     }
 
     override fun onWaiting(call: Call?) {
@@ -356,20 +370,20 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             }
         }
 
-        ringerManager.stopRinger(if (isIncomingActivity) RingerManager.RingerType.Incoming else RingerManager.RingerType.Outgoing)
+        (activity as CallActivity).onDisconnected(call, event)
     }
 
     override fun onInfoChanged(call: Call?) {
         Log.d(TAG, "CallObserver onInfoChanged : " + call?.getCallId())
 
-        Handler(Looper.getMainLooper()).post {
+        mHandler.post {
             call?.let { _call ->
                 binding.ibHoldCall.isSelected = _call.isOnHold()
                 Log.d(TAG, "CallObserver onInfoChanged isSendingDTMFEnabled : " + _call.isSendingDTMFEnabled())
 
                 if (_call.isSendingDTMFEnabled() && !callOptionsBottomSheetFragment.isDTMFOptionEnabled()) {
                     Log.d(TAG, "CallObserver onInfoChanged DTMF Enabled")
-                    Toast.makeText(activity, "DTMF Option Enabled", Toast.LENGTH_LONG).show()
+                    Toast.makeText(activity, "DTMF Option Enabled", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -456,7 +470,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             return
         }
 
-        Handler(Looper.getMainLooper()).post {
+        mHandler.post {
             Log.d(TAG, "CallObserver OnMediaChanged MediaStreamAvailabilityEvent: ${event.isAvailable()}")
             val list = webexViewModel.getMediaStreams()
             list?.let { mediaList ->
@@ -509,7 +523,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     }
 
     private fun mediaStreamInfoChangedListener(type: MediaStreamChangeEventType, info: MediaStreamChangeEventInfo) {
-        Handler(Looper.getMainLooper()).post {
+        mHandler.post {
             Log.d(tag, "CallObserver OnMediaChanged setOnMediaStreamInfoChanged type: $type  name: ${info.getStream().getPerson()?.getDisplayName()}")
             when (type) {
                 MediaStreamChangeEventType.Video -> {
@@ -750,6 +764,19 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         val errorText = "${getString(R.string.breakout_error_occured)} : ${error.name}"
         lifecycleScope.launch(Dispatchers.Main) {
             showDialogWithMessage(requireContext(), R.string.error_occurred, errorText)
+        }
+    }
+
+    override fun onReceivingNoiseInfoChanged(info: ReceivingNoiseInfo) {
+        Log.d(tag, "ReceivingNoiseRemoval: Info change noiseDetected = ${info.isNoiseDetected()}, NREnabled = ${info.isNoiseRemovalEnabled()}")
+
+        binding.ivReceivingNoiseRemoval.visibility = View.VISIBLE
+        if (info.isNoiseDetected() && !info.isNoiseRemovalEnabled()) {
+            binding.ivReceivingNoiseRemoval.setImageResource(R.drawable.ic_noise_detected_filled)
+        } else if (!info.isNoiseRemovalEnabled()) {
+            binding.ivReceivingNoiseRemoval.setImageResource(R.drawable.ic_noise_none_filled)
+        } else if (info.isNoiseRemovalEnabled()) {
+            binding.ivReceivingNoiseRemoval.setImageResource(R.drawable.ic_noise_detected_canceled_filled)
         }
     }
 
@@ -1157,7 +1184,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     }
 
     private fun audioEventChanged(callMembership: CallMembership?, call: Call?, isSendingAudio: Boolean? = null, isRemoteSendingAudio: Boolean? = null) {
-        Handler(Looper.getMainLooper()).post {
+        mHandler.post {
             callMembership?.let { member ->
                 if (member.getPersonId() == webexViewModel.selfPersonId) {
                     val audioMuted = !member.isSendingAudio()
@@ -1213,7 +1240,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     }
 
     private fun handleCallControls(call: Call?) {
-        Handler(Looper.getMainLooper()).post {
+        mHandler.post {
             Log.d(TAG, "handleCallControls isAddedCall = ${webexViewModel.isAddedCall}")
             webexViewModel.currentCallId?.let { callId ->
 
@@ -1231,8 +1258,11 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                             binding.ibAdd.visibility = View.INVISIBLE
                             binding.ibVideo.visibility = View.INVISIBLE
                         }
-                        it.isWebexCallingOrWebexForBroadworks() -> {
+                        it.isWebexCallingOrWebexForBroadworks() && webexViewModel.isVideoEnabled() -> {
                             binding.ibSwitchToAudioVideoCall.visibility = View.VISIBLE
+                        }
+                        !webexViewModel.isVideoEnabled() && !(webexViewModel.isMeeting()) -> {
+                            binding.ibVideo.visibility = View.INVISIBLE
                         }
                         !it.isCUCMCall() && !it.isWebexCallingOrWebexForBroadworks() -> {
                             binding.ibAdd.visibility = View.GONE
@@ -1251,14 +1281,18 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
     override fun onDestroyView() {
         super.onDestroyView()
+        webexViewModel.currentCallId?.let {
+            webexViewModel.setVideoRenderViews(it)
+        }
+        webexViewModel.cleanup()
         webexViewModel.callObserverInterface = null
+        mHandler.removeCallbacksAndMessages(null)
     }
 
-    private fun setUpViews() {
+    private fun setUpViews(bundle: Bundle?) {
         Log.d(TAG, "setUpViews fragment")
         personViewModel.getMe()
         videoViewState(true)
-
         webexViewModel.callObserverInterface = this
 
         webexViewModel.enableBackgroundStream(webexViewModel.enableBgStreamtoggle)
@@ -1360,18 +1394,18 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
         photoViewerBottomSheetFragment = PhotoViewerBottomSheetFragment()
 
-        callingActivity = activity?.intent?.getIntExtra(Constants.Intent.CALLING_ACTIVITY_ID, 0)!!
-        val incomingCallId = activity?.intent?.getStringExtra(Constants.Intent.CALL_ID) ?: ""
+        callingActivity = bundle?.getInt(Constants.Intent.CALLING_ACTIVITY_ID, 0)!!
+        val incomingCallId = bundle.getString(Constants.Intent.CALL_ID) ?: ""
         if (callingActivity == 1) {
             isIncomingActivity = true
             binding.mainContentLayout.visibility = View.GONE
             binding.incomingCallHeader.visibility = View.VISIBLE
-            val acceptedCall = activity?.intent?.action == Constants.Action.WEBEX_CALL_ACCEPT_ACTION
+            val acceptedCall = bundle.getBoolean(Constants.Action.WEBEX_CALL_ACCEPT_ACTION)
             if(!acceptedCall) {
                 incomingLayoutState(false)
             }
 
-            ringerManager.startRinger(RingerManager.RingerType.Incoming)
+            ringerManager.startRinger(Call.RingerType.Incoming)
             val _call = CallObjectStorage.getCallObject(incomingCallId)
             _call?.let { call ->
                 webexViewModel.setCallObserver(call)
@@ -1379,27 +1413,45 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
             if(acceptedCall){
                 _call?.let {
-                    answerCall(it)
+                    if(it.getStatus() != Call.CallStatus.CONNECTED) { // For resumed fragments
+                        answerCall(it)
+                    }else{
+                        binding.incomingCallHeader.visibility = View.GONE
+                        incomingLayoutState(true)
+                        onCallJoined(it)
+                        handleCallControls(it)
+                        onConnected(it)
+                        webexViewModel.currentCallId = it.getCallId()
+                        it.holdCall(false)
+                    }
                 }
             }
 
-            onIncomingCall(_call, !acceptedCall)
+            if(_call?.getStatus() != Call.CallStatus.CONNECTED) {
+                onIncomingCall(_call, !acceptedCall)
+            }
 
-            webexViewModel.setIncomingListener()
-            webexViewModel.incomingListenerLiveData.observe(viewLifecycleOwner, Observer {
-                it?.let {
-                    Log.d(tag, "incomingListenerLiveData: ${it.getCallId()}")
-                    onIncomingCall(it)
-                }
-            })
         } else {
             isIncomingActivity = false
             binding.incomingCallHeader.visibility = View.GONE
             incomingLayoutState(true)
 
             binding.callingHeader.text = getString(R.string.calling)
-            val callerId = activity?.intent?.getStringExtra(Constants.Intent.OUTGOING_CALL_CALLER_ID)
+            val callerId = bundle.getString(Constants.Intent.OUTGOING_CALL_CALLER_ID)
             binding.tvName.text = callerId
+            val _call = CallObjectStorage.getCallObject(incomingCallId)
+            _call?.let{
+                webexViewModel.setCallObserver(it)
+                if(it.getStatus() == Call.CallStatus.CONNECTED){
+                    binding.incomingCallHeader.visibility = View.GONE
+                    incomingLayoutState(true)
+                    onCallJoined(it)
+                    handleCallControls(it)
+                    onConnected(it)
+                    webexViewModel.currentCallId = it.getCallId()
+                    it.holdCall(false)
+                }
+            }
         }
 
         binding.ibMute.setOnClickListener(this)
@@ -1407,15 +1459,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         binding.ibSpeaker.setOnClickListener(this)
         binding.ibAdd.setOnClickListener(this)
         binding.ibTransferCall.setOnClickListener(this)
-        if (webexViewModel.getCallingType() == Phone.CallingType.WebexCalling || webexViewModel.getCallingType() == Phone.CallingType.WebexForBroadworks) {
-            binding.ibDirecttransferCall.setOnClickListener(this)
-        }
-        else if(webexViewModel.getCall(webexViewModel.currentCallId.toString())?.isGroupCall() == true) {
-            binding.ibDirecttransferCall.visibility = View.GONE
-        }
-        else {
-            binding.ibDirecttransferCall.visibility = View.GONE
-        }
+        binding.ibDirecttransferCall.setOnClickListener(this)
+        binding.ibDirecttransferCall.visibility = View.GONE
 
         binding.ibHoldCall.setOnClickListener(this)
         binding.ivCancelCall.setOnClickListener(this)
@@ -1427,6 +1472,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         binding.ibMoreOption.setOnClickListener(this)
         binding.btnReturnToMainSession.setOnClickListener(this)
         binding.ibSwitchToAudioVideoCall.setOnClickListener(this)
+        binding.ivReceivingNoiseRemoval.setOnClickListener(this)
 
         initAddedCallControls()
         binding.ivNetworkSignal.setOnClickListener(this)
@@ -1452,7 +1498,6 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             if (webexViewModel.hasAnyoneJoined()) {
                 bottomSheet.dismiss()
             } else {
-                ringerManager.stopRinger(RingerManager.RingerType.Incoming)
                 requireActivity().finish()
             }
         }
@@ -1532,6 +1577,22 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 binding.btnReturnToMainSession -> {
                     webexViewModel.returnToMainSession()
                 }
+                binding.ivReceivingNoiseRemoval -> {
+                    if (webexViewModel.getReceivingNoiseInfo()?.isNoiseRemovalEnabled() == true)
+                        webexViewModel.enableReceivingNoiseRemoval(false) {
+                            if (it.isSuccessful)
+                                Log.d(TAG, "ReceivingNoiseRemoval enableAPIResult = successfully disabled NR")
+                            else
+                                Log.d(TAG, "ReceivingNoiseRemoval enableAPIResult = error : ${it.error?.errorMessage.orEmpty()}")
+                        }
+                    else
+                        webexViewModel.enableReceivingNoiseRemoval(true) {
+                            if (it.isSuccessful)
+                                Log.d(TAG, "ReceivingNoiseRemoval enableAPIResult = successfully enabled NR")
+                            else
+                                Log.d(TAG, "ReceivingNoiseRemoval enableAPIResult = error : ${it.error?.errorMessage.orEmpty()}")
+                        }
+                }
                 else -> {
                 }
             }
@@ -1561,6 +1622,17 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
         } ?: run {
             binding.ibScreenShare.visibility = View.INVISIBLE
+        }
+    }
+
+    private fun directTransferButtonStateUpdate() {
+        webexViewModel.currentCallId?.let {callId ->
+            val call = webexViewModel.getCall(callId)
+            call?.let {
+                if (it.isWebexCallingOrWebexForBroadworks() && !it.isGroupCall()) {
+                    binding.ibDirecttransferCall.visibility = View.VISIBLE
+                }
+            }
         }
     }
 
@@ -1630,19 +1702,68 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
         webexViewModel.currentCallId?.let {
             val isSharing = isLocalSharing(it)
-            Log.d(TAG, "shareScreen isSharing: $isSharing")
-            if (!isSharing) {
-                updateScreenShareButtonState(ShareButtonState.DISABLED)
-                if (requireContext().applicationInfo.targetSdkVersion >= 29) {
-                    webexViewModel.startShare(webexViewModel.currentCallId.orEmpty(), buildScreenShareForegroundServiceNotification(), SHARE_SCREEN_FOREGROUND_SERVICE_NOTIFICATION_ID)
-                } else {
-                    webexViewModel.startShare(webexViewModel.currentCallId.orEmpty())
-                }
-            } else {
+            if(!isSharing) {
+                screenShareConfigDialog()
+            }
+            else {
                 updateScreenShareButtonState(ShareButtonState.DISABLED)
                 webexViewModel.currentCallId?.let { id -> webexViewModel.stopShare(id) }
             }
+            Log.d(TAG, "shareScreen isSharing: $isSharing")
         }
+    }
+
+    private fun screenShareConfigDialog() {
+        val builder = AlertDialog.Builder(requireContext())
+        var shareConfig:ShareConfig? = ShareConfig()
+        builder.setTitle(getString(R.string.screenShare_config))
+        ScreenshareconfigBinding.inflate(layoutInflater).apply {
+            builder.setView(this.root)
+            optimizeTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+                when (checkedId) {
+                    R.id.defaultShare -> {
+                        shareConfig?.setShareType(Call.ShareOptimizeType.Default)
+                    }
+                    R.id.autoDetection -> {
+                        shareConfig?.setShareType(Call.ShareOptimizeType.AutoDetection)
+                    }
+                    R.id.optimizeForText -> {
+                        shareConfig?.setShareType(Call.ShareOptimizeType.OptimizeText)
+                    }
+                    R.id.optimizeForVideo -> {
+                        shareConfig?.setShareType(Call.ShareOptimizeType.OptimizeVideo)
+                    }
+                    R.id.noOptimizeType -> {
+                        shareConfig = null
+                    }
+                }
+            }
+            enableAudioGroup.setOnCheckedChangeListener { _, checkedId ->
+                when (checkedId) {
+                    R.id.enableAudioTrue -> {
+                        shareConfig?.setEnableAudio(true)
+                    }
+                    R.id.enableAudioFalse -> {
+                        shareConfig?.setEnableAudio(false)
+                    }
+                }
+            }
+            builder.setPositiveButton(android.R.string.ok) { _, _ ->
+                updateScreenShareButtonState(ShareButtonState.DISABLED)
+                if (requireContext().applicationInfo.targetSdkVersion >= 29) {
+                    webexViewModel.startShare(webexViewModel.currentCallId.orEmpty(), buildScreenShareForegroundServiceNotification(), SHARE_SCREEN_FOREGROUND_SERVICE_NOTIFICATION_ID, shareConfig)
+                } else {
+                    webexViewModel.startShare(webexViewModel.currentCallId.orEmpty(), shareConfig)
+                }
+            }
+            builder.setNeutralButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
+            builder.setOnDismissListener {
+                screenShareOptionsDialog = null
+            }
+        }
+        screenShareOptionsDialog = builder.create()
+        screenShareOptionsDialog?.setCanceledOnTouchOutside(false)
+        screenShareOptionsDialog?.show()
     }
 
     fun needBackPressed(): Boolean {
@@ -1657,6 +1778,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     fun onBackPressed() {
         endCall()
     }
+
 
     private fun endCall() {
         if (isIncomingActivity) {
@@ -1808,7 +1930,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             webexViewModel.currentCallId = callId
         }
 
-        Handler(Looper.getMainLooper()).post {
+        mHandler.post {
             val layout = webexViewModel.getCompositedLayout()
             Log.d(TAG, "onCallConnected getCompositedLayout: $layout")
             binding.ivNetworkSignal.visibility = View.VISIBLE
@@ -1822,7 +1944,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 webexViewModel.getCall(callId)?.setMultiStreamObserver(object : MultiStreamObserver {
                     override fun onAuxStreamChanged(event: MultiStreamObserver.AuxStreamChangedEvent?) {
                         Log.d(tag, "MultiStreamObserver onAuxStreamChanged : $event")
-                        Handler(Looper.getMainLooper()).post {
+                        mHandler.post {
                             val auxStream: AuxStream? = event?.getAuxStream()
 
                             when (event) {
@@ -1943,6 +2065,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 binding.controlGroup.visibility = View.VISIBLE
 
                 screenShareButtonVisibilityState()
+                directTransferButtonStateUpdate()
                 videoViewTextColorState(webexViewModel.isRemoteVideoMuted)
 
             }
@@ -2011,13 +2134,13 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             return
         }
 
-        Handler(Looper.getMainLooper()).post {
+        mHandler.post {
 
             val callInfo = webexViewModel.getCall(callId)
 
             val remoteSharing = isReceivingSharing(callId)
             val localSharing = isLocalSharing(callId)
-            Log.d(TAG, "CallControlsFragment onScreenShareStateChanged isRemoteSharing: ${remoteSharing}, isLocalSharing: ${localSharing}")
+            Log.d(TAG, "CallControlsFragment onScreenShareStateChanged isRemoteSharing: $remoteSharing, isLocalSharing: $localSharing")
 
             if (localSharing) {
                 updateScreenShareButtonState(ShareButtonState.ON)
@@ -2034,7 +2157,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             return
         }
 
-        Handler(Looper.getMainLooper()).post {
+        mHandler.post {
 
             val remoteSharing = isReceivingSharing(callId)
             val localSharing = isLocalSharing(callId)
@@ -2074,65 +2197,76 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             return
         }
 
-        Handler(Looper.getMainLooper()).post {
-
-            if (webexViewModel.isLocalVideoMuted) {
-                localVideoViewState(true)
-            } else {
-                localVideoViewState(false)
-                val pair = webexViewModel.getVideoRenderViews(callId)
-                if (pair.first == null) {
-                    webexViewModel.setVideoRenderViews(callId, binding.localView, binding.remoteView)
-                }
-            }
-
-            if (webexViewModel.isRemoteVideoMuted) {
-                binding.remoteViewLayout.visibility = View.GONE
-
-                binding.ivRemoteAudioState.visibility = View.GONE
-                binding.tvRemoteUserName.visibility = View.GONE
-            } else {
-                if (webexViewModel.isRemoteScreenShareON) {
-                    resizeRemoteVideoView()
-                }
-                val status = isMainStageRemoteVideoUnMuted()
-
-                if (status) {
-                    binding.remoteViewLayout.visibility = View.VISIBLE
+        mHandler.post {
+            if(isAdded) {
+                if (webexViewModel.isLocalVideoMuted) {
+                    localVideoViewState(true)
+                } else {
+                    localVideoViewState(false)
                     val pair = webexViewModel.getVideoRenderViews(callId)
-                    if (pair.second == null) {
-                        webexViewModel.setVideoRenderViews(callId, binding.localView, binding.remoteView)
+                    if (pair.first == null) {
+                        webexViewModel.setVideoRenderViews(
+                            callId,
+                            binding.localView,
+                            binding.remoteView
+                        )
                     }
+                }
 
-                    if (webexViewModel.streamMode != Phone.VideoStreamMode.COMPOSITED) {
-                        if (!webexViewModel.multistreamNewApproach) {
+                if (webexViewModel.isRemoteVideoMuted) {
+                    binding.remoteViewLayout.visibility = View.GONE
+
+                    binding.ivRemoteAudioState.visibility = View.GONE
+                    binding.tvRemoteUserName.visibility = View.GONE
+                } else {
+                    if (webexViewModel.isRemoteScreenShareON) {
+                        resizeRemoteVideoView()
+                    }
+                    val status = isMainStageRemoteVideoUnMuted()
+
+                    if (status) {
+                        binding.remoteViewLayout.visibility = View.VISIBLE
+                        val pair = webexViewModel.getVideoRenderViews(callId)
+                        if (pair.second == null) {
+                            webexViewModel.setVideoRenderViews(
+                                callId,
+                                binding.localView,
+                                binding.remoteView
+                            )
+                        }
+
+                        if (webexViewModel.streamMode != Phone.VideoStreamMode.COMPOSITED) {
+                            if (!webexViewModel.multistreamNewApproach) {
+                                binding.ivRemoteAudioState.visibility = View.GONE
+                                binding.tvRemoteUserName.visibility = View.GONE
+                            } else {
+                                binding.ivRemoteAudioState.visibility = View.VISIBLE
+                                binding.tvRemoteUserName.visibility = View.VISIBLE
+                            }
+                        } else {
                             binding.ivRemoteAudioState.visibility = View.GONE
                             binding.tvRemoteUserName.visibility = View.GONE
-                        } else {
-                            binding.ivRemoteAudioState.visibility = View.VISIBLE
-                            binding.tvRemoteUserName.visibility = View.VISIBLE
                         }
-                    } else {
-                        binding.ivRemoteAudioState.visibility = View.GONE
-                        binding.tvRemoteUserName.visibility = View.GONE
                     }
                 }
-            }
 
-            videoViewTextColorState(webexViewModel.isRemoteVideoMuted)
+                videoViewTextColorState(webexViewModel.isRemoteVideoMuted)
 
-            Log.d(TAG, "CallControlsFragment onVideoStreamingChanged isLocalVideoMuted: ${webexViewModel.isLocalVideoMuted}, isRemoteVideoMuted: ${webexViewModel.isRemoteVideoMuted}")
+                Log.d(
+                    TAG,
+                    "CallControlsFragment onVideoStreamingChanged isLocalVideoMuted: ${webexViewModel.isLocalVideoMuted}, isRemoteVideoMuted: ${webexViewModel.isRemoteVideoMuted}"
+                )
 
-            if (webexViewModel.isLocalVideoMuted) {
-                videoButtonState(true)
-            } else {
-                videoButtonState(false)
-            }
-            if(isInPipMode && !webexViewModel.isRemoteVideoMuted)
-            {
-                localVideoViewState(true)
-                binding.ivRemoteAudioState.visibility = View.GONE
-                binding.tvRemoteUserName.visibility = View.GONE
+                if (webexViewModel.isLocalVideoMuted) {
+                    videoButtonState(true)
+                } else {
+                    videoButtonState(false)
+                }
+                if (isInPipMode && !webexViewModel.isRemoteVideoMuted) {
+                    localVideoViewState(true)
+                    binding.ivRemoteAudioState.visibility = View.GONE
+                    binding.tvRemoteUserName.visibility = View.GONE
+                }
             }
         }
     }
@@ -2176,13 +2310,13 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     }
 
     internal fun handleFCMIncomingCall(callId: String) {
-        Handler(Looper.getMainLooper()).post {
+        mHandler.post {
             webexViewModel.setFCMIncomingListenerObserver(callId)
         }
     }
 
     private fun onIncomingCall(call: Call?, showBottomSheet : Boolean = true) {
-        Handler(Looper.getMainLooper()).post {
+        mHandler.post {
             Log.d(TAG, "CallControlsFragment onIncomingCall callerId: ${call?.getCallId()}, callInfo title: ${call?.getTitle()}")
             binding.incomingCallHeader.visibility = View.GONE
             val schedules= call?.getSchedules()
@@ -2214,13 +2348,15 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             incomingInfoAdapter.info.clear()
             incomingInfoAdapter.info.addAll(incomingCalls)
             if(showBottomSheet) {
-                showIncomingCallBottomSheet()
+                if(!incomingInfoAdapter.info.isEmpty()) {
+                    showIncomingCallBottomSheet()
+                }
             }
         }
     }
 
     private fun showIncomingCallBottomSheet() {
-        Log.d(TAG, "showIncomingCallBottomSheet")
+        Log.d(TAG, "showIncomingCallBottomSheet "+incomingCallBottomSheetFragment)
         if (!incomingCallBottomSheetFragment.isAdded && !incomingCallBottomSheetFragment.isVisible) {
             incomingCallBottomSheetFragment.adapter = incomingInfoAdapter
             incomingCallBottomSheetFragment.isCancelable = false
@@ -2242,7 +2378,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
     private fun onCallJoined(call: Call?) {
         Log.d(TAG, "CallControlsFragment onCallJoined callerId: ${call?.getCallId().orEmpty()}, currentCallId: ${webexViewModel.currentCallId}")
-        Handler(Looper.getMainLooper()).post {
+        mHandler.post {
             if (call?.getCallId().orEmpty() == webexViewModel.currentCallId) {
                 showCallHeader(call?.getCallId().orEmpty())
                 call?.let {
@@ -2260,7 +2396,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     }
 
     private fun showCallHeader(callId: String) {
-        Handler(Looper.getMainLooper()).post {
+        mHandler.post {
             try {
                 if (breakout == null) {
                     val callInfo = webexViewModel.getCall(callId)
@@ -2277,7 +2413,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     private fun onCallFailed(callId: String, failedError: WebexError<Any>?) {
         Log.d(TAG, "CallControlsFragment onCallFailed callerId: $callId")
 
-        Handler(Looper.getMainLooper()).post {
+        mHandler.post {
             if (webexViewModel.isAddedCall) {
                 resumePrevCallIfAdded(callId)
                 updateCallHeader()
@@ -2293,7 +2429,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     private fun onCallDisconnected(call: Call?) {
         call?.let { _call ->
             Log.d(TAG, "CallControlsFragment onCallDisconnected callerId: ${_call.getCallId().orEmpty()}")
-            Handler(Looper.getMainLooper()).post {
+            mHandler.post {
                 val schedules = call.getSchedules()
                 schedules?.let {
                     incomingLayoutState(false)
@@ -2308,15 +2444,15 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
     private fun onCallTerminated(callId: String) {
         Log.d(TAG, "CallControlsFragment onCallTerminated callerId: $callId")
+        webexViewModel.clearCallObservers(callId)
+        CallObjectStorage.removeCallObject(callId)
 
-        Handler(Looper.getMainLooper()).post {
+        mHandler.post {
             if (webexViewModel.isAddedCall) {
                 resumePrevCallIfAdded(callId)
                 updateCallHeader()
                 initAddedCallControls()
             }
-
-            CallObjectStorage.removeCallObject(callId)
 
             if (!callFailed && !webexViewModel.isAddedCall) {
                 callEndedUIUpdate(callId, true)
@@ -2698,7 +2834,10 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
     private fun takePhotoClickListener(call: Call?) {
         Log.d(TAG, "takePhotoClickListener")
-        webexViewModel.takePhoto()
+        val success = webexViewModel.takePhoto()
+        if(!success) {
+            Toast.makeText(activity, "Photo capture not supported", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun zoomfactorValueSetListener(factor: Float) {

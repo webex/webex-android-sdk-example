@@ -33,7 +33,7 @@ class CallRejectService : Service() {
         if(intent != null){
             if(intent.action == Constants.Action.WEBEX_CALL_REJECT_ACTION){
                 val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
-                notificationManager?.cancel(Constants.Notification.WEBEX_CALLING)
+                notificationManager?.cancel(Constants.Notification.WEBEX_CALL)
                 val callId = intent.getStringExtra(Constants.Intent.CALL_ID)
                 if(!callId.isNullOrBlank()) {
                     val call = repository.getCall(callId)

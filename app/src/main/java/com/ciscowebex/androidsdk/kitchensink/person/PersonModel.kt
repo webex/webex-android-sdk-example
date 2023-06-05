@@ -7,7 +7,7 @@ import kotlinx.android.parcel.Parcelize
 import java.util.*
 
 @Parcelize
-data class PersonModel(val personId: String, val emails: List<String>, val displayName: String,
+data class PersonModel(val personId: String, val encodedId: String, val emails: List<String>, val displayName: String,
                        val nickName: String, val firstName: String, val lastName: String,
                        val avatar: String, val orgId: String, val created: Date,
                        val lastActivity: String, val status: String, val type: String,
@@ -28,6 +28,7 @@ data class PersonModel(val personId: String, val emails: List<String>, val displ
 
     override fun hashCode(): Int {
         var result = personId.hashCode()
+        result = 31 * result + encodedId.hashCode()
         result = 31 * result + emails.hashCode()
         result = 31 * result + displayName.hashCode()
         result = 31 * result + nickName.hashCode()
@@ -44,7 +45,7 @@ data class PersonModel(val personId: String, val emails: List<String>, val displ
 
     companion object {
         fun convertToPersonModel(person: Person?): PersonModel {
-            return PersonModel(person?.id.orEmpty(), person?.emails.orEmpty(), person?.displayName.orEmpty(),
+            return PersonModel(person?.id.orEmpty(), person?.encodedId.orEmpty(), person?.emails.orEmpty(), person?.displayName.orEmpty(),
                     person?.nickName.orEmpty(), person?.firstName.orEmpty(), person?.lastName.orEmpty(),
                     person?.avatar.orEmpty(), person?.orgId.orEmpty(), person?.created ?: Date(),
                     person?.lastActivity.orEmpty(), person?.status.orEmpty(), person?.type.orEmpty(),

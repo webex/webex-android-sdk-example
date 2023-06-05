@@ -50,6 +50,16 @@
                 android:text="@string/mute_all_self"
                 android:visibility="gone"
                 android:maxLines="1" />
+
+            <TextView
+                android:id="@+id/infoDeviceType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:gravity="center_vertical"
+                android:textSize="12sp"
+                android:textStyle="italic"
+                android:maxLines="1" />
         </LinearLayout>
 
 

@@ -1,18 +1,18 @@
 package com.ciscowebex.androidsdk.build
 
 object Versions {
-    const val kotlin = "1.6.10"
+    const val kotlin = "1.6.20"
     const val koin= "2.2.3"
 
-    const val ndkVersion = "21.3.6528147"
+    const val ndkVersion = "24.0.8215888"
     const val buildTools = "30.0.3"
 
-    const val compileSdk = 30
+    const val compileSdk = 33
     const val targetSdk = 29
     const val minSdk = 24
 
-    const val cmake = "3.12.4+"
-    const val dokka = "0.9.18"
+    const val cmake = "3.24.0+"
+    const val dokka = "1.7.10"
 }
 
 object Dependencies {
@@ -23,7 +23,7 @@ object Dependencies {
     const val rxandroid = "io.reactivex.rxjava2:rxandroid:2.1.1"
     const val rxkotlin = "io.reactivex.rxjava2:rxkotlin:2.4.0"
     const val coreKtx = "androidx.core:core-ktx:1.3.0"
-    const val appCompat = "androidx.appcompat:appcompat:1.2.0"
+    const val appCompat = "androidx.appcompat:appcompat:1.6.1"
     const val constraintLayout = "androidx.constraintlayout:constraintlayout:1.1.3"
     const val okhttp = "com.squareup.okhttp3:okhttp:3.0.1"
     const val material = "com.google.android.material:material:1.1.0"
@@ -49,7 +49,7 @@ object Dependencies {
         const val espressoContrib = "androidx.test.espresso:espresso-contrib:3.1.0"
         const val espressoWeb = "androidx.test.espresso:espresso-web:3.3.0"
         const val espressoIntents = "androidx.test.espresso:espresso-intents:3.3.0"
-        const val fragmentScenerio = "androidx.fragment:fragment-testing:1.2.5"
+        const val fragmentScenerio = "androidx.fragment:fragment-testing:1.5.5"
         const val rules = "androidx.test:rules:1.3.0"
         const val testExt = "androidx.test:core-ktx:1.3.0"
         const val mockk = "io.mockk:mockk-android:1.12.1"

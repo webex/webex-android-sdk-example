@@ -43,12 +43,14 @@ class LockScreenActivity : AppCompatActivity() {
                         val call = repository.getCall(callId)
                         binding.callerinfo.text = call?.getTitle()
 
-                        call?.setObserver(object : CallObserver {
-                            override fun onDisconnected(event: CallObserver.CallDisconnectedEvent?) {
-                                super.onDisconnected(event)
-                                finish()
-                            }
-                        })
+                        call?.let{
+                            repository.setCallObserver(it, object : CallObserver {
+                                override fun onDisconnected(event: CallObserver.CallDisconnectedEvent?) {
+                                    super.onDisconnected(event)
+                                    finish()
+                                }
+                            })
+                        }
 
                         binding.accept.setOnClickListener {
                             val intent = CallActivity.getCallAcceptIntent(this@LockScreenActivity, callId)

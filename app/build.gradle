@@ -24,14 +24,17 @@ android {
         applicationId "com.cisco.sdk_android"
         minSdkVersion Versions.minSdk
         targetSdkVersion Versions.targetSdk
-        versionCode 38000
-        versionName "3.8.0"
+        versionCode 39000
+        versionName "3.9.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "CLIENT_ID", "${CLIENT_ID}"
         buildConfigField "String", "CLIENT_SECRET", "${CLIENT_SECRET}"
         buildConfigField "String", "SCOPE", "${SCOPE}"
         buildConfigField "String", "REDIRECT_URI", "${REDIRECT_URI}"
+        buildConfigField "String", "FEDRAMP_CLIENT_ID", "${FEDRAMP_CLIENT_ID}"
+        buildConfigField "String", "FEDRAMP_CLIENT_SECRET", "${FEDRAMP_CLIENT_SECRET}"
+        buildConfigField "String", "FEDRAMP_REDIRECT_URI", "${FEDRAMP_REDIRECT_URI}"
     }
 
     buildTypes {
@@ -64,10 +67,31 @@ android {
             universalApk true
         }
     }
+    flavorDimensions 'sdktype'
+    productFlavors {
+        full {
+            dimension 'sdktype'
+            matchingFallbacks = ["full"]
+        }
+        meeting {
+            dimension 'sdktype'
+            versionNameSuffix '-meeting'
+            matchingFallbacks = ["meeting"]
+        }
+        wxc {
+            dimension 'sdktype'
+            versionNameSuffix '-wxc'
+            matchingFallbacks = ["wxc"]
+        }
+    }
 }
 
 dependencies {
-    implementation 'com.ciscowebex:webexsdk:3.8.0'
+
+    // At a time only one WebexSDK should be used.
+    implementation 'com.ciscowebex:webexsdk-wxc:3.9.0' //For webexCalling flavor
+    //implementation 'com.ciscowebex:webexsdk-meeting:3.9.0' // For meeting flavor
+    //implementation 'com.ciscowebex:webexsdk:3.9.0' // For full flavor
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation Dependencies.kotlinStdLib
     implementation Dependencies.coreKtx

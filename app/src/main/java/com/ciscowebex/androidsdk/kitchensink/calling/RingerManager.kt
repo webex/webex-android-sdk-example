@@ -10,18 +10,16 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
+import android.util.SparseIntArray
 import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
 import com.ciscowebex.androidsdk.kitchensink.R
+import com.ciscowebex.androidsdk.phone.Call
 import org.koin.core.component.KoinComponent
 import java.io.IOException
 
 
 open class RingerManager(private val androidContext: Context): KoinComponent {
-    enum class RingerType {
-        Incoming,
-        Outgoing
-    }
 
     private val tag = "RingerManager"
 
@@ -31,56 +29,114 @@ open class RingerManager(private val androidContext: Context): KoinComponent {
                                                 .setMaxStreams(1)
                                                 .setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION).build())
                                                 .build()
+    private val dtmfSoundPool: SoundPool = SoundPool.Builder().setMaxStreams(1).setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING).build()).build()
     private var incomingCallPlayer: MediaPlayer? = null
-
+    private val INCALL_RINGTONE_COUNT = 5
+    private val DTMF_RINGTONE_COUNT = 12
+    private val inCallSoundArray: SparseIntArray = SparseIntArray(INCALL_RINGTONE_COUNT)
+    private val dtmfSoundArray: SparseIntArray = SparseIntArray(DTMF_RINGTONE_COUNT)
     private var currentPlayingToneId = 0
+    private var dtmfSoundPlaying = false
+    private var inCallSoundPlaying = false
     private var audioFocusGainForRingtone = false
     private var needAudioFocusForCall = false
     private val ringerLock = Any()
-    private var outGoingCallId = 0
 
     init {
         loadInCallTones()
+        loadDtmfTones()
     }
 
     private fun loadInCallTones() {
-        outGoingCallId = inCallSoundPool.load(androidContext, R.raw.ring_back, 1)
+        inCallSoundArray.put(0, inCallSoundPool.load(androidContext, R.raw.call_1_1_ringback, 1))
+        inCallSoundArray.put(1, inCallSoundPool.load(androidContext, R.raw.reconnect, 1))
+        inCallSoundArray.put(2, inCallSoundPool.load(androidContext, R.raw.busytone, 1))
+        inCallSoundArray.put(3, inCallSoundPool.load(androidContext, R.raw.callwaiting, 1))
+        inCallSoundArray.put(4,inCallSoundPool.load(androidContext, R.raw.fastbusy, 1))
     }
 
-    private fun playOutgoingCallTone() {
+    private fun loadDtmfTones() {
+        dtmfSoundArray.put(0, dtmfSoundPool.load(androidContext, R.raw.keypad_digit_0, 1))
+        dtmfSoundArray.put(1, dtmfSoundPool.load(androidContext, R.raw.keypad_digit_1, 1))
+        dtmfSoundArray.put(2, dtmfSoundPool.load(androidContext, R.raw.keypad_digit_2, 1))
+        dtmfSoundArray.put(3, dtmfSoundPool.load(androidContext, R.raw.keypad_digit_3, 1))
+        dtmfSoundArray.put(4, dtmfSoundPool.load(androidContext, R.raw.keypad_digit_4, 1))
+        dtmfSoundArray.put(5, dtmfSoundPool.load(androidContext, R.raw.keypad_digit_5, 1))
+        dtmfSoundArray.put(6, dtmfSoundPool.load(androidContext, R.raw.keypad_digit_6, 1))
+        dtmfSoundArray.put(7, dtmfSoundPool.load(androidContext, R.raw.keypad_digit_7, 1))
+        dtmfSoundArray.put(8, dtmfSoundPool.load(androidContext, R.raw.keypad_digit_8, 1))
+        dtmfSoundArray.put(9, dtmfSoundPool.load(androidContext, R.raw.keypad_digit_9, 1))
+        dtmfSoundArray.put(10, dtmfSoundPool.load(androidContext, R.raw.keypad_digit_asterisk, 1))
+        dtmfSoundArray.put(11, dtmfSoundPool.load(androidContext, R.raw.keypad_digit_hash, 1))
+    }
+
+    private fun playCallTone(ringerType: Call.RingerType) {
         if (currentPlayingToneId != 0) return
+        inCallSoundPlaying = true
         val streamVolume = getStreamVolume(AudioManager.STREAM_VOICE_CALL)
-        currentPlayingToneId = inCallSoundPool.play(outGoingCallId, streamVolume, streamVolume, 1, -1, 1.toFloat())
+        when(ringerType) {
+            Call.RingerType.Outgoing -> currentPlayingToneId = inCallSoundPool.play(inCallSoundArray[0], streamVolume, streamVolume, 1, -1, 1.toFloat())
+            Call.RingerType.Reconnect ->  currentPlayingToneId = inCallSoundPool.play(inCallSoundArray[1], streamVolume, streamVolume, 1, 5, 1.toFloat())
+            Call.RingerType.BusyTone ->  currentPlayingToneId = inCallSoundPool.play(inCallSoundArray[2], streamVolume, streamVolume, 1, 5, 1.toFloat())
+            Call.RingerType.CallWaiting ->  currentPlayingToneId = inCallSoundPool.play(inCallSoundArray[3], streamVolume, streamVolume, 1, -1, 1.toFloat())
+            Call.RingerType.NotFound ->  currentPlayingToneId = inCallSoundPool.play(inCallSoundArray[4], streamVolume, streamVolume, 1, 5, 1.toFloat())
+            else -> Log.d(tag,"Incall tone not available")
+        }
+
         Log.d(tag, "currentPlayingToneId=$currentPlayingToneId")
     }
 
-    fun startRinger(type: RingerType) {
+    private fun playDtmfTone(ringerType: Call.RingerType) {
+        val streamVolume = getStreamVolume(AudioManager.STREAM_DTMF)
+        dtmfSoundPlaying = true
+        when(ringerType)
+        {
+            Call.RingerType.DTMF_0 -> currentPlayingToneId = dtmfSoundPool.play(dtmfSoundArray[0], streamVolume, streamVolume, 1, 1, 1.toFloat())
+            Call.RingerType.DTMF_1 -> currentPlayingToneId = dtmfSoundPool.play(dtmfSoundArray[1], streamVolume, streamVolume, 1, 1, 1.toFloat())
+            Call.RingerType.DTMF_2 -> currentPlayingToneId = dtmfSoundPool.play(dtmfSoundArray[2], streamVolume, streamVolume, 1, 1, 1.toFloat())
+            Call.RingerType.DTMF_3 -> currentPlayingToneId = dtmfSoundPool.play(dtmfSoundArray[3], streamVolume, streamVolume, 1, 1, 1.toFloat())
+            Call.RingerType.DTMF_4 -> currentPlayingToneId = dtmfSoundPool.play(dtmfSoundArray[4], streamVolume, streamVolume, 1, 1, 1.toFloat())
+            Call.RingerType.DTMF_5 -> currentPlayingToneId = dtmfSoundPool.play(dtmfSoundArray[5], streamVolume, streamVolume, 1, 1, 1.toFloat())
+            Call.RingerType.DTMF_6 -> currentPlayingToneId = dtmfSoundPool.play(dtmfSoundArray[6], streamVolume, streamVolume, 1, 1, 1.toFloat())
+            Call.RingerType.DTMF_7 -> currentPlayingToneId = dtmfSoundPool.play(dtmfSoundArray[7], streamVolume, streamVolume, 1, 1, 1.toFloat())
+            Call.RingerType.DTMF_8 -> currentPlayingToneId = dtmfSoundPool.play(dtmfSoundArray[8], streamVolume, streamVolume, 1, 1, 1.toFloat())
+            Call.RingerType.DTMF_9 -> currentPlayingToneId = dtmfSoundPool.play(dtmfSoundArray[9], streamVolume, streamVolume, 1, 1, 1.toFloat())
+            Call.RingerType.DTMF_STAR -> currentPlayingToneId = dtmfSoundPool.play(dtmfSoundArray[10], streamVolume, streamVolume, 1, 1, 1.toFloat())
+            Call.RingerType.DTMF_POUND -> currentPlayingToneId = dtmfSoundPool.play(dtmfSoundArray[11], streamVolume, streamVolume, 1, 1, 1.toFloat())
+            else -> Log.d(tag, "type not found")
+        }
+    }
+
+    fun startRinger(type: Call.RingerType) {
         Log.d(tag, "startRinger type: $type")
         synchronized(ringerLock) {
             handleStartRinger(type)
         }
     }
 
-    fun stopRinger(type: RingerType) {
+    fun stopRinger(type: Call.RingerType) {
         Log.d(tag, "stopRinger type: $type")
         synchronized(ringerLock) {
             handleStopRinger(type)
         }
     }
 
-    private fun handleStartRinger(type: RingerType) {
+    private fun handleStartRinger(type: Call.RingerType) {
         Log.d(tag, "handleStartRinger type: $type")
         when (type) {
-            RingerType.Incoming -> playIncomingTone()
-            RingerType.Outgoing -> playOutgoingCallTone()
+            Call.RingerType.Incoming -> playIncomingTone()
+            Call.RingerType.Outgoing,Call.RingerType.CallWaiting, Call.RingerType.NotFound, Call.RingerType.BusyTone, Call.RingerType.Reconnect -> playCallTone(type)
+            Call.RingerType.DTMF_0, Call.RingerType.DTMF_1, Call.RingerType.DTMF_2, Call.RingerType.DTMF_3, Call.RingerType.DTMF_4, Call.RingerType.DTMF_5, Call.RingerType.DTMF_6, Call.RingerType.DTMF_7,
+            Call.RingerType.DTMF_8, Call.RingerType.DTMF_9, Call.RingerType.DTMF_STAR, Call.RingerType.DTMF_POUND -> playDtmfTone(type)
         }
     }
 
-    private fun handleStopRinger(type: RingerType) {
+    private fun handleStopRinger(type: Call.RingerType) {
         Log.d(tag, "handleStopRinger type: $type")
         when (type) {
-            RingerType.Incoming -> stopIncomingTone()
-            RingerType.Outgoing -> stopCallTone()
+            Call.RingerType.Incoming -> stopIncomingTone()
+            else ->
+                stopCallTone()
         }
     }
 
@@ -112,7 +168,7 @@ open class RingerManager(private val androidContext: Context): KoinComponent {
 
     private fun setupMediaPlayer(mediaPlayer: MediaPlayer?) {
         Log.d(tag, "setupMediaPlayer")
-        val incomingCallToneUri: Uri = Uri.parse("android.resource://" + androidContext.packageName + "/" + R.raw.notification_oneone_call)
+        val incomingCallToneUri: Uri = Uri.parse("android.resource://" + androidContext.packageName + "/" + R.raw.call_1_1_ringtone)
         mediaPlayer?.run {
             try {
                 setDataSource(androidContext, incomingCallToneUri)
@@ -243,7 +299,10 @@ open class RingerManager(private val androidContext: Context): KoinComponent {
     private fun stopCallTone() {
         Log.d(tag, "stopCallTone currentPlayingToneId=$currentPlayingToneId")
         if (currentPlayingToneId != 0) {
-            inCallSoundPool.stop(currentPlayingToneId)
+            if(inCallSoundPlaying)
+                inCallSoundPool.stop(currentPlayingToneId)
+            if(dtmfSoundPlaying)
+                dtmfSoundPool.stop(currentPlayingToneId)
             currentPlayingToneId = 0
         }
     }

@@ -8,14 +8,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.ciscowebex.androidsdk.kitchensink.KitchenSinkApp
 import com.ciscowebex.androidsdk.kitchensink.R
+import com.ciscowebex.androidsdk.kitchensink.WebexViewModel
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityLoginBinding
+import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils
 import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils.clearEmailPref
 import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils.getLoginTypePref
 import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils.saveEmailPref
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogForInputEmail
+import com.ciscowebex.androidsdk.utils.AppConfiguration
+import com.ciscowebex.androidsdk.utils.SettingsStore
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoginActivity : AppCompatActivity() {
     lateinit var binding: ActivityLoginBinding
+    private val webexViewModel: WebexViewModel by viewModel()
 
     enum class LoginType(var value: String) {
         OAuth("OAuth"),
@@ -27,32 +33,13 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AppConfiguration.setContext(applicationContext)
         DataBindingUtil.setContentView<ActivityLoginBinding>(this, R.layout.activity_login)
                 .also { binding = it }
                 .apply {
 
                     val type = getLoginTypePref(this@LoginActivity)
-
-                    when (type) {
-                        LoginType.JWT.value -> {
-                            loginTypeCalled = LoginType.JWT
-                            (application as KitchenSinkApp).loadKoinModules(loginTypeCalled)
-                            startActivity(Intent(this@LoginActivity, JWTLoginActivity::class.java))
-                            finish()
-                        }
-                        LoginType.AccessToken.value -> {
-                            loginTypeCalled = LoginType.AccessToken
-                            (application as KitchenSinkApp).loadKoinModules(loginTypeCalled)
-                            startActivity(Intent(this@LoginActivity, AccessTokenLoginActivity::class.java))
-                            finish()
-                        }
-                        LoginType.OAuth.value -> {
-                            loginTypeCalled = LoginType.OAuth
-                            (application as KitchenSinkApp).loadKoinModules(loginTypeCalled)
-                            startActivity(Intent(this@LoginActivity, OAuthWebLoginActivity::class.java))
-                            finish()
-                        }
-                    }
+                    loadModules(type)
 
                     btnJwtLogin.setOnClickListener {
                         buttonClicked(LoginType.JWT)
@@ -65,7 +52,43 @@ class LoginActivity : AppCompatActivity() {
                     btnAccessLogin.setOnClickListener {
                         buttonClicked(LoginType.AccessToken)
                     }
+
+                    if(AppConfiguration.containsFedRampRestrictions()) {
+                        fedrampToggle.isChecked = SettingsStore.isFedRAMPEmployee()
+                        fedrampToggle.isClickable = false
+                        fedrampToggle.alpha = 0.4f
+                    } else {
+                        fedrampToggle.isChecked = SharedPrefUtils.getFedrampPref(applicationContext)
+                    }
+
+                    fedrampToggle.setOnCheckedChangeListener { _, isChecked ->
+                        SharedPrefUtils.saveFedrampPref(applicationContext, isChecked)
+                        loadModules(type)
+                    }
                 }
+    }
+
+    private fun loadModules(type: String?) {
+        when (type) {
+            LoginType.JWT.value -> {
+                loginTypeCalled = LoginType.JWT
+                (application as KitchenSinkApp).loadKoinModules(loginTypeCalled)
+                startActivity(Intent(this@LoginActivity, JWTLoginActivity::class.java))
+                finish()
+            }
+            LoginType.AccessToken.value -> {
+                loginTypeCalled = LoginType.AccessToken
+                (application as KitchenSinkApp).loadKoinModules(loginTypeCalled)
+                startActivity(Intent(this@LoginActivity, AccessTokenLoginActivity::class.java))
+                finish()
+            }
+            LoginType.OAuth.value -> {
+                loginTypeCalled = LoginType.OAuth
+                (application as KitchenSinkApp).loadKoinModules(loginTypeCalled)
+                startActivity(Intent(this@LoginActivity, OAuthWebLoginActivity::class.java))
+                finish()
+            }
+        }
     }
 
     private fun buttonClicked(type: LoginType) {
@@ -99,20 +122,27 @@ class LoginActivity : AppCompatActivity() {
 
     private fun startOAuthActivity() {
         (application as KitchenSinkApp).loadKoinModules(loginTypeCalled)
+        enableBackgroundConnection()
         startActivity(Intent(this@LoginActivity, OAuthWebLoginActivity::class.java))
         finish()
     }
 
     private fun startJWTActivity() {
         (application as KitchenSinkApp).loadKoinModules(loginTypeCalled)
+        enableBackgroundConnection()
         startActivity(Intent(this@LoginActivity, JWTLoginActivity::class.java))
         finish()
     }
 
     private fun startAccessTokenActivity() {
         (application as KitchenSinkApp).loadKoinModules(loginTypeCalled)
+        enableBackgroundConnection()
         startActivity(Intent(this@LoginActivity, AccessTokenLoginActivity::class.java))
         finish()
+    }
+
+    private fun enableBackgroundConnection() {
+        webexViewModel.enableBackgroundConnection(webexViewModel.enableBgConnectiontoggle)
     }
 
     private fun showEmailDialog(type: LoginType) {

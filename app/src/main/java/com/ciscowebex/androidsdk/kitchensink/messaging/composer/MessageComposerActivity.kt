@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -33,6 +34,8 @@ import com.ciscowebex.androidsdk.message.LocalFile
 import com.ciscowebex.androidsdk.message.Message
 import com.ciscowebex.androidsdk.utils.EmailAddress
 import com.ciscowebex.androidsdk.utils.internal.MimeUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import java.io.File
 
@@ -125,9 +128,9 @@ class MessageComposerActivity : AppCompatActivity() {
                         }
                     }
 
-                    val onAttachmentCrossClick: (File) -> Unit = { file ->
-                        Log.d(tag, "onAttachmentCrossClick path: ${file.absolutePath}")
-                        val position = attachmentAdapter.attachedFiles.indexOf(file)
+                    val onAttachmentCrossClick: (FileWrapper) -> Unit = { fileWrapper ->
+                        Log.d(tag, "onAttachmentCrossClick path: ${fileWrapper.file.absolutePath}")
+                        val position = attachmentAdapter.attachedFiles.indexOf(fileWrapper)
                         attachmentAdapter.attachedFiles.removeAt(position)
                         attachmentAdapter.notifyItemRemoved(position)
                     }
@@ -220,20 +223,30 @@ class MessageComposerActivity : AppCompatActivity() {
         Log.d(tag, "PICKFILE_REQUEST_CODE filePath: $filePath")
         Log.d(tag, "PICKFILE_REQUEST_CODE file Exist: ${file.exists()}")
 
-        attachmentAdapter.attachedFiles.add(file)
+        val wrapper = FileWrapper(file, 0.0)
+        attachmentAdapter.attachedFiles.add(wrapper)
         attachmentAdapter.notifyDataSetChanged()
     }
 
     private fun processAttachmentFiles(): ArrayList<LocalFile> {
         val files = ArrayList<LocalFile>()
 
-        for (file in attachmentAdapter.attachedFiles) {
+        for (fileWrapper in attachmentAdapter.attachedFiles) {
             var thumbnail: LocalFile.Thumbnail? = null
             //To get the thumbnail of the image and video, provide the same file in the thumbnail field also. SDK will process the data to fetch the thumbnail for the image and video
-            if (MimeUtils.getContentTypeByFilename(file.name) == MimeUtils.ContentType.IMAGE || MimeUtils.getContentTypeByFilename(file.name) == MimeUtils.ContentType.VIDEO) {
-                thumbnail = LocalFile.Thumbnail(file, null, resources.getInteger(R.integer.attachment_thumbnail_width), resources.getInteger(R.integer.attachment_thumbnail_height))
+            if (MimeUtils.getContentTypeByFilename(fileWrapper.file.name) == MimeUtils.ContentType.IMAGE || MimeUtils.getContentTypeByFilename(fileWrapper.file.name) == MimeUtils.ContentType.VIDEO) {
+                thumbnail = LocalFile.Thumbnail(fileWrapper.file, null, resources.getInteger(R.integer.attachment_thumbnail_width), resources.getInteger(R.integer.attachment_thumbnail_height))
             }
-            val localFile = LocalFile(file, null, thumbnail, null)
+            val localFile = LocalFile(fileWrapper.file, null, thumbnail) { percentageUploaded ->
+                val position = attachmentAdapter.findItemByName(fileWrapper.file.name)
+                Log.d("UploadTest", "uploaded % = $percentageUploaded & position found = $position")
+                if (position != -1) {
+                    attachmentAdapter.attachedFiles[position].uploadPercentage = percentageUploaded
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        attachmentAdapter.notifyItemChanged(position)
+                    }
+                }
+            }
             files.add(localFile)
         }
 
@@ -355,10 +368,7 @@ class MessageComposerActivity : AppCompatActivity() {
         } ?: run {
             messageComposerViewModel.postToSpace(spaceId, text, messageContent.messageInputMentions, files)
         }
-
-        if (progress) {
-            showProgress()
-        }
+        showProgress()
     }
 
     private fun showProgress() {
@@ -401,10 +411,21 @@ class MessageComposerActivity : AppCompatActivity() {
         }
     }
 
-    class UploadAttachmentsAdapter(private val onAttachmentCrossClick: (File) -> Unit) : RecyclerView.Adapter<UploadAttachmentsAdapter.AttachmentViewHolder>() {
-        var attachedFiles: MutableList<File> = mutableListOf()
+    inner class FileWrapper(val file: File, var uploadPercentage: Double)
+
+    class UploadAttachmentsAdapter(private val onAttachmentCrossClick: (FileWrapper) -> Unit) : RecyclerView.Adapter<UploadAttachmentsAdapter.AttachmentViewHolder>() {
+        var attachedFiles: MutableList<FileWrapper> = mutableListOf()
+        fun findItemByName(name : String): Int {
+            attachedFiles.forEachIndexed { index, item ->
+                if (item.file.name == name) {
+                    return index
+                }
+            }
+            return -1
+        }
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UploadAttachmentsAdapter.AttachmentViewHolder {
             val binding = ListItemUploadAttachmentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            binding.tvUploadPercentage.visibility = View.INVISIBLE
             return AttachmentViewHolder(binding, onAttachmentCrossClick)
         }
 
@@ -416,16 +437,22 @@ class MessageComposerActivity : AppCompatActivity() {
             holder.bind(attachedFiles[position])
         }
 
-        inner class AttachmentViewHolder(private val binding: ListItemUploadAttachmentBinding, private val onAttachmentCrossClick: (File) -> Unit) : RecyclerView.ViewHolder(binding.root) {
+        inner class AttachmentViewHolder(private val binding: ListItemUploadAttachmentBinding, private val onAttachmentCrossClick: (FileWrapper) -> Unit) : RecyclerView.ViewHolder(binding.root) {
             init {
                 binding.buttonLayout.setOnClickListener {
                     onAttachmentCrossClick(attachedFiles[adapterPosition])
                 }
             }
 
-            fun bind(file: File) {
-                binding.name.text = file.name
-                binding.path.text = file.path
+            fun bind(fileWrapper: FileWrapper) {
+                binding.name.text = fileWrapper.file.name
+                binding.path.text = fileWrapper.file.path
+                val percentageUploaded = "${fileWrapper.uploadPercentage}%"
+                if (fileWrapper.uploadPercentage > 0) {
+                    binding.tvUploadPercentage.visibility = View.VISIBLE
+                    binding.tvUploadPercentage.text = percentageUploaded
+                }
+                binding.executePendingBindings()
             }
         }
     }

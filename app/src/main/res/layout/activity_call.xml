@@ -7,14 +7,31 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".calling.CallActivity">
-        <fragment
-            android:id="@+id/containerFragment"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/callQueue"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="LinearLayoutManager"
+            android:elevation="3dp"
+            android:visibility="gone"
+            />
+
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragment_container_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/callQueue"
             android:tag="Control"
             app:layout_constraintStart_toStartOf="parent"
-            class="com.ciscowebex.androidsdk.kitchensink.calling.CallControlsFragment" />
+             />
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

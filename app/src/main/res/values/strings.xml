@@ -307,6 +307,7 @@
     <string name="enter_user_email_address">Enter email address of user</string>
     <string name="enter_dtmf_number">Enter DTMF number</string>
     <string name="mute_feature_is_not_available_for_cucm_calls">Mute feature is not available for CUCM calls</string>
+    <string name="mute_feature_paired_participant">This will mute/unmute all paired participants</string>
     <string name="set_log_level">Set Log Level</string>
     <string name="enable_console_log">Enable Console Log</string>
     <string-array name="logFilterArray">
@@ -431,4 +432,15 @@
     <string name="syncing_spaces">Syncing spaces ...</string>
     <string name="initial_spaces_sync_completed">Initial Spaces Sync Completed successfully</string>
     <string name="not_syncing_spaces">Not syncing spaces</string>
+    <string name="isPhotoCaptureSupported">PhotoCapture Supported:</string>
+    <string name="isPhotoCaptureSupportedTrue">True</string>
+    <string name="isPhotoCaptureSupportedFalse">False</string>
+    <string name="screenShare_config">Screenshare Config</string>
+    <string name="shareOptimizeType">Share Optimize Type:</string>
+    <string name="autoDetection">Auto Detection</string>
+    <string name="optimizeForText">Optimize for Text and Images</string>
+    <string name="optimizeForMotionAndVideo">Optimize for Motion and Video</string>
+    <string name="defaultShare">Default</string>
+    <string name="enableAudio">Enable Audio:</string>
+    <string name="noShareType">None</string>
 </resources>

@@ -11,28 +11,32 @@ import androidx.lifecycle.Observer
 import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.auth.OAuthWebViewAuthenticator
 import com.ciscowebex.androidsdk.auth.TokenAuthenticator
+import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
 import com.ciscowebex.androidsdk.kitchensink.auth.LoginActivity
-import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityHomeBinding
-import com.ciscowebex.androidsdk.kitchensink.messaging.MessagingActivity
+import com.ciscowebex.androidsdk.kitchensink.calling.CallActivity
 import com.ciscowebex.androidsdk.kitchensink.cucm.UCLoginActivity
+import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityHomeBinding
+import com.ciscowebex.androidsdk.kitchensink.extras.ExtrasActivity
+import com.ciscowebex.androidsdk.kitchensink.messaging.MessagingActivity
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.detail.MessageDetailsDialogFragment
 import com.ciscowebex.androidsdk.kitchensink.person.PersonDialogFragment
 import com.ciscowebex.androidsdk.kitchensink.person.PersonViewModel
+import com.ciscowebex.androidsdk.kitchensink.search.SearchActivity
+import com.ciscowebex.androidsdk.kitchensink.setup.SetupActivity
+import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
+import com.ciscowebex.androidsdk.kitchensink.utils.FileUtils
+import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils
 import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils.clearLoginTypePref
 import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils.saveLoginTypePref
 import com.ciscowebex.androidsdk.kitchensink.webhooks.WebhooksActivity
-import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
-import com.ciscowebex.androidsdk.kitchensink.calling.CallActivity
-import com.ciscowebex.androidsdk.kitchensink.extras.ExtrasActivity
-import com.ciscowebex.androidsdk.kitchensink.search.SearchActivity
-import com.ciscowebex.androidsdk.kitchensink.setup.SetupActivity
-import com.ciscowebex.androidsdk.kitchensink.utils.FileUtils
-import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils
 import com.ciscowebex.androidsdk.message.LocalFile
 import com.ciscowebex.androidsdk.phone.Phone
 import com.google.android.material.snackbar.Snackbar
 import org.koin.android.ext.android.inject
+import java.io.FileDescriptor
+import java.io.PrintWriter
+
 
 class HomeActivity : BaseActivity() {
 
@@ -45,9 +49,9 @@ class HomeActivity : BaseActivity() {
 
         val authenticator = webexViewModel.webex.authenticator
 
-        webexViewModel.enableBackgroundConnection(webexViewModel.enableBgConnectiontoggle)
         webexViewModel.setLogLevel(webexViewModel.logFilter)
         webexViewModel.enableConsoleLogger(webexViewModel.isConsoleLoggerEnabled)
+        webexViewModel.setOnInitialSpacesSyncCompletedListener()
 
         if(SharedPrefUtils.isAppBackgroundRunningPreferred(this)) {
             KitchenSinkForegroundService.startForegroundService(this)
@@ -101,14 +105,24 @@ class HomeActivity : BaseActivity() {
         webexViewModel.incomingListenerLiveData.observe(this@HomeActivity, Observer {
             it?.let {
                 Log.d(tag, "incomingListenerLiveData: ${it.getCallId()}")
-                Handler(Looper.getMainLooper()).post {
-                    startActivity(CallActivity.getIncomingIntent(this, it.getCallId()))
+                val callId = it.getCallId()
+                if(callId != null){
+                    if(CallObjectStorage.getCallObject(callId) != null){
+                        if(!it.isWebexCallingOrWebexForBroadworks() && !it.isCUCMCall()) {
+                            // For Webex Calling call is notified in FCM service with accept decline button even for foreground case
+                            // So not notifying here in home screen
+                            Handler(Looper.getMainLooper()).post {
+                                startActivity(CallActivity.getIncomingIntent(this, it.getCallId()))
+                            }
+                        }
+                    }
                 }
             }
         })
 
         webexViewModel.initialSpacesSyncCompletedLiveData.observe(this@HomeActivity) {
             Log.d(tag, getString(R.string.initial_spaces_sync_completed))
+            Snackbar.make(binding.root, getString(R.string.initial_spaces_sync_completed), Snackbar.LENGTH_LONG).show()
         }
 
         DataBindingUtil.setContentView<ActivityHomeBinding>(this, R.layout.activity_home)
@@ -301,5 +315,17 @@ class HomeActivity : BaseActivity() {
                 }
             })
         }
+    }
+
+    override fun dump(
+        prefix: String,
+        fd: FileDescriptor?,
+        writer: PrintWriter,
+        args: Array<out String>?
+    ) {
+        super.dump(prefix, fd, writer, args)
+        writer.println(" ")
+        writer.println("Dump logs: ")
+        webexViewModel.printObservers(writer)
     }
 }

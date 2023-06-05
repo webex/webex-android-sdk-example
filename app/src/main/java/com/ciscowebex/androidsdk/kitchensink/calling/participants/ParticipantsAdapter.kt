@@ -3,6 +3,7 @@ package com.ciscowebex.androidsdk.kitchensink.calling.participants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.databinding.ParticipantsHeaderItemBinding
@@ -58,6 +59,7 @@ class ParticipantsAdapter(private val participants: ArrayList<Any>, private val 
             binding.tvName.text = participant.getDisplayName()
             binding.imgMute.setImageResource(R.drawable.ic_mic_off_24)
             binding.imgMute.visibility = if(!participant.isSendingAudio()) View.VISIBLE else View.INVISIBLE
+            binding.infoDeviceType.text = participant.getDeviceType().name
 
             val personId = participant.getPersonId()
 
@@ -67,7 +69,10 @@ class ParticipantsAdapter(private val participants: ArrayList<Any>, private val 
             else {
                 binding.infoLabelView.visibility = View.GONE
             }
-            binding.root.setOnClickListener { itemClickListener.onParticipantMuted(personId)}
+            binding.root.setOnClickListener {
+                val pairedMembership = participant.getPairedMemberships()
+                itemClickListener.onParticipantMuted(personId, pairedMembership?.isNotEmpty() == true)
+            }
             binding.root.setOnLongClickListener {
                 itemClickListener.onLetInClicked(participant)
                 true
@@ -85,7 +90,7 @@ class ParticipantsAdapter(private val participants: ArrayList<Any>, private val 
     }
 
     interface OnItemActionListener{
-        fun onParticipantMuted(participantId: String)
+        fun onParticipantMuted(participantId: String, hasPairedParticipant: Boolean)
         fun onLetInClicked(callMembership: CallMembership)
     }
 }

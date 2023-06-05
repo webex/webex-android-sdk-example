@@ -42,6 +42,7 @@ class Constants {
         const val KitchenSinkSharedPref = "KSSharedPref"
         const val LoginType = "LoginType"
         const val Email = "Email"
+        const val Fedramp = "fedramp_enabled"
         const val IsVirtualBgAdded = "IsVirtualBgAdded"
         const val IsBackgroundRunningEnabled = "IsBackgroundRunningEnabled"
     }
@@ -50,6 +51,6 @@ class Constants {
         const val TEAM_MAX = 100
     }
     object Notification{
-        const val WEBEX_CALLING = 123456
+        const val WEBEX_CALL = 123456
     }
 }
