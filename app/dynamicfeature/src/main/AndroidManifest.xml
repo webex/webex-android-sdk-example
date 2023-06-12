@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:dist="http://schemas.android.com/apk/distribution"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.ciscowebex.androidsdk.kitchensink"
+    split="@string/title_dynamicfeature">
+
+    <dist:module
+        dist:instant="false"
+        dist:title="@string/title_dynamicfeature">
+        <dist:delivery>
+            <dist:on-demand />
+        </dist:delivery>
+        <dist:fusing dist:include="true" />
+    </dist:module>
+
+    <application>
+        <activity
+            android:name=".calling.LockScreenActivity"
+            android:showOnLockScreen="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true" />
+
+        <service
+            android:name=".CallRejectService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity android:name=".extras.ExtrasActivity" />
+        <activity
+            android:name=".auth.JWTLoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".auth.AccessTokenLoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".auth.OAuthWebLoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".messaging.search.MessagingSearchActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".messaging.MessagingActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".messaging.teams.detail.TeamDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".messaging.spaces.detail.SpaceDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".messaging.spaces.members.MembershipActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".messaging.spaces.members.membersReadStatus.MembershipReadStatusActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".messaging.spaces.readStatusDetails.SpaceReadStatusDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".auth.LoginActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name=".calling.CallActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize"
+            android:launchMode="singleTask"
+            android:resizeableActivity="true"
+            android:showOnLockScreen="true"
+            android:showWhenLocked="true"
+            android:supportsPictureInPicture="true"
+            android:turnScreenOn="true"
+            tools:ignore="UnusedAttribute" />
+        <activity
+            android:name=".search.SearchActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".HomeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".setup.SetupActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".setup.SetupCameraActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".calling.DialerActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".cucm.UCLoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".messaging.teams.membership.TeamMembershipActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".messaging.spaces.detail.FileViewerActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".messaging.composer.MessageComposerActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".webhooks.WebhooksActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".calling.calendarMeeting.details.CalendarMeetingDetailsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".calling.CucmCallActivity"
+            android:screenOrientation="portrait" />
+
+        <service
+            android:name=".firebase.KitchenSinkFCMService"
+            android:exported="false">
+        </service>
+        <service
+            android:name=".KitchenSinkForegroundService"
+            android:exported="false" />
+    </application>
+</manifest>

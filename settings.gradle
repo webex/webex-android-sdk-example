@@ -1,2 +1,6 @@
 include ':app'
+
 rootProject.name = "kitchenSink"
+include ':dynamicfeature'
+
+project(":dynamicfeature").projectDir = new File(rootDir, "app/dynamicfeature")
