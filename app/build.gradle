@@ -90,8 +90,11 @@ android {
 }
 
 dependencies {
-//    implementation(project(path: ":sdk"))
-    implementation 'com.ciscowebex:webexsdk:3.9.1'
+
+    // At a time only one WebexSDK should be used.
+    implementation 'com.ciscowebex:webexsdk-wxc:3.9.1' //For webexCalling flavor
+    //implementation 'com.ciscowebex:webexsdk-meeting:3.9.1' // For meeting flavor
+    //implementation 'com.ciscowebex:webexsdk:3.9.1' // For full flavor
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation Dependencies.kotlinStdLib
     implementation Dependencies.coreKtx
