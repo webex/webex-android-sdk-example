@@ -19,15 +19,7 @@ import com.ciscowebex.androidsdk.membership.Membership
 import com.ciscowebex.androidsdk.membership.MembershipObserver
 import com.ciscowebex.androidsdk.message.LocalFile
 import com.ciscowebex.androidsdk.message.MessageObserver
-import com.ciscowebex.androidsdk.phone.Breakout
-import com.ciscowebex.androidsdk.phone.BreakoutSession
-import com.ciscowebex.androidsdk.phone.Call
-import com.ciscowebex.androidsdk.phone.CallMembership
-import com.ciscowebex.androidsdk.phone.MediaOption
-import com.ciscowebex.androidsdk.phone.Phone
-import com.ciscowebex.androidsdk.phone.VirtualBackground
-import com.ciscowebex.androidsdk.phone.CallObserver
-import com.ciscowebex.androidsdk.phone.NotificationCallType
+import com.ciscowebex.androidsdk.phone.*
 import com.ciscowebex.androidsdk.space.SpaceObserver
 import java.io.PrintWriter
 
@@ -655,6 +647,15 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
             observers?.let { it ->
                 it.forEach { observer ->
                     observer.onMediaChanged(event)
+                }
+            }
+        }
+
+        override fun onReceivingNoiseInfoChanged(info: ReceivingNoiseInfo) {
+            val observers: MutableList<CallObserver>? = _callObservers[_callId]
+            observers?.let { it ->
+                it.forEach { observer ->
+                    observer.onReceivingNoiseInfoChanged(info)
                 }
             }
         }

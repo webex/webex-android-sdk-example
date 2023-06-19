@@ -55,7 +55,6 @@ class MessageComposerViewModel(private val composerRepo: MessageComposerReposito
 
     fun postToPerson(id: String, message: Message.Text, files: ArrayList<LocalFile>? = null) {
         composerRepo.postToPerson(id, message, files).observeOn(AndroidSchedulers.mainThread()).subscribe({ result ->
-            Log.d(tag, "postToPersonID result: $result")
             _postMessages.postValue(result)
         }, { error -> _postMessageError.postValue(error.message) }).autoDispose()
     }

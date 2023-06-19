@@ -14,6 +14,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.internal.ResultImpl
+import com.ciscowebex.androidsdk.kitchensink.BuildConfig
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.KitchenSinkApp
 import com.ciscowebex.androidsdk.kitchensink.R
@@ -118,7 +119,23 @@ class KitchenSinkFCMService : FirebaseMessagingService() {
 
     private fun processFCMMessage(remoteMessage: RemoteMessage) {
         GlobalScope.launch(Dispatchers.Main) {
-            val fcmDataPayload = repository.webex.phone.buildNotificationPayload(remoteMessage.data, remoteMessage.messageId.orEmpty())
+            var payload = remoteMessage.data
+
+            var fcmDataPayload = "none"
+            for ((key, value) in payload) {
+                Log.i(TAG, "$key = $value")
+                // If its from webhook unpack and use. else regular flow
+                if(key == "pinpoint.jsonBody") {
+                    val jsonValue = JSONObject(value)
+                    Log.i(TAG, "" + jsonValue["webhookTelephonyPush"])
+                    fcmDataPayload = (jsonValue["webhookTelephonyPush"] as String)
+                    break
+                }
+            }
+
+            if(fcmDataPayload == "none"){
+                fcmDataPayload = repository.webex.phone.buildNotificationPayload(remoteMessage.data, remoteMessage.messageId.orEmpty())
+            }
             val authorised = repository.webex.authenticator?.isAuthorized()
             if (authorised == true) {
                 processPushMessageInternal(fcmDataPayload) {
@@ -391,7 +408,13 @@ class KitchenSinkFCMService : FirebaseMessagingService() {
                     }
                     val mId = task.result
                     mId?.let {
-                        repository.webex.phone.setPushTokens(KitchenSinkApp.applicationContext().packageName, it, token)
+                        if(BuildConfig.WEBHOOK_URL.isEmpty()) {
+                            repository.webex.phone.setPushTokens(
+                                KitchenSinkApp.applicationContext().packageName,
+                                it,
+                                token
+                            )
+                        }
                     }
                 }
             })
