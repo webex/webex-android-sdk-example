@@ -728,7 +728,9 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     }
 
     fun setPushTokens(id: String, token: String){
-        webex.phone.setPushTokens(KitchenSinkApp.applicationContext().packageName, id, token)
+        if(BuildConfig.WEBHOOK_URL.isEmpty()) {
+            webex.phone.setPushTokens(KitchenSinkApp.applicationContext().packageName, id, token)
+        }
     }
 
     fun getFCMToken(personModel: PersonModel) {
@@ -759,9 +761,10 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     private fun sendTokenToServer(it: Pair<String?, PersonModel>) {
         val json = JSONObject()
-        json.put("token", it.first)
-        json.put("personId", it.second.personId)
-        json.put("email", it.second.emailList)
+        json.put("pushProvider", "FCM")
+        json.put("deviceToken", it.first)
+        json.put("userId", it.second.encodedId)
+        //json.put("voipToken", "NA")
         RegisterTokenService().execute(json.toString())
     }
 
