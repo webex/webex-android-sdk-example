@@ -24,8 +24,8 @@ android {
         applicationId "com.cisco.sdk_android.sample.kitchensink"
         minSdkVersion Versions.minSdk
         targetSdkVersion Versions.targetSdk
-        versionCode 390012
-        versionName "3.9.0.12-ondemand"
+        versionCode 390017
+        versionName "3.9.0.17-ondemand"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "CLIENT_ID", "${CLIENT_ID}"
