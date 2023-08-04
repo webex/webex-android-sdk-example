@@ -233,10 +233,15 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         return mediaOption
     }
 
-    fun dialOutgoingCall(callerId: String, isModerator: Boolean = false, pin: String = "", captcha: String = "", captchaId: String = "") {
+    fun dialOutgoingCall(callerId: String, isModerator: Boolean = false, pin: String = "", captcha: String = "", captchaId: String = "", isCucmOrWxcCall: Boolean) {
         Log.d(TAG, "dialOutgoingCall")
         this.callerId = callerId
-        webexViewModel.dial(callerId, getMediaOption(isModerator, pin, captcha, captchaId))
+        if(isCucmOrWxcCall) {
+            webexViewModel.dialPhoneNumber(callerId, getMediaOption(isModerator, pin, captcha, captchaId))
+        }
+        else {
+            webexViewModel.dial(callerId, getMediaOption(isModerator, pin, captcha, captchaId))
+        }
     }
 
     private fun checkLicenseAPIs() {
@@ -249,11 +254,12 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
     override fun onConnected(call: Call?) {
         Log.d(TAG, "CallObserver onConnected callId: ${call?.getCallId()}, hasAnyoneJoined: ${webexViewModel.hasAnyoneJoined()}, " +
-                "correlationId: ${call?.getCorrelationId()}"+
-                "isMeeting: ${webexViewModel.isMeeting()}," +
-                "isPmr: ${webexViewModel.isPmr()}," +
-                "isSelfCreator: ${webexViewModel.isSelfCreator()}," +
-                "isSpaceMeeting: ${webexViewModel.isSpaceMeeting()}"+
+                "correlationId: ${call?.getCorrelationId()}, "+
+                "externalTrackingId: ${call?.getExternalTrackingId()}, "+
+                "isMeeting: ${webexViewModel.isMeeting()}, " +
+                "isPmr: ${webexViewModel.isPmr()}, " +
+                "isSelfCreator: ${webexViewModel.isSelfCreator()}, " +
+                "isSpaceMeeting: ${webexViewModel.isSpaceMeeting()}, "+
                 "isScheduledMeeting: ${webexViewModel.isScheduledMeeting()}")
 
         onCallConnected(call?.getCallId().orEmpty(), call?.isCUCMCall() ?: false, call?.isWebexCallingOrWebexForBroadworks() ?: false)
@@ -846,7 +852,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                         onCallJoined(call)
                         handleCallControls(call)
                     }
-                    WebexRepository.CallEvent.DialFailed -> {
+                    WebexRepository.CallEvent.DialFailed, WebexRepository.CallEvent.WrongApiCalled -> {
                         dismissErrorDialog()
                         val callActivity = activity as CallActivity?
                         callActivity?.alertDialog(true, errorMessage ?: "")
@@ -1126,12 +1132,10 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                             progressBar.visibility = View.VISIBLE
                             val data = it.tag as Phone.Captcha?
 
-                            dialOutgoingCall(
-                                callerId,
-                                isHost,
+                            dialOutgoingCall(callerId, isHost,
                                 pinTitleEditText.text.toString(),
                                 captchaInputText.text.toString(),
-                                data?.getId()?:"")
+                                data?.getId()?:"", false)
                         }
                     }
                 }
@@ -1314,6 +1318,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
         val incomingCallPickEvent: (Call?) -> Unit = { call ->
             Log.d(tag, "incomingCallPickEvent")
+            ringerManager.stopRinger(Call.RingerType.Incoming)
             call?.let {
                 if (webexViewModel.hasAnyoneJoined()) {
                     onCallActionListener?.onEndAndAnswer(
@@ -1330,6 +1335,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
         val incomingCallCancelEvent: (Call?) -> Unit = { call ->
             Log.d(tag, "incomingCallEndEvent callId: ${call?.getCallId()}")
+            ringerManager.stopRinger(Call.RingerType.Incoming)
             endIncomingCall(call?.getCallId().orEmpty())
         }
 
@@ -1403,9 +1409,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             val acceptedCall = bundle.getBoolean(Constants.Action.WEBEX_CALL_ACCEPT_ACTION)
             if(!acceptedCall) {
                 incomingLayoutState(false)
+                ringerManager.startRinger(Call.RingerType.Incoming)
             }
-
-            ringerManager.startRinger(Call.RingerType.Incoming)
             val _call = CallObjectStorage.getCallObject(incomingCallId)
             _call?.let { call ->
                 webexViewModel.setCallObserver(call)
@@ -1495,6 +1500,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
     private fun initIncomingCallBottomSheet() {
         incomingCallBottomSheetFragment = IncomingCallBottomSheetFragment { bottomSheet ->
+            ringerManager.stopRinger(Call.RingerType.Incoming)
             if (webexViewModel.hasAnyoneJoined()) {
                 bottomSheet.dismiss()
             } else {
@@ -1785,6 +1791,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             if (!incomingCallBottomSheetFragment.isVisible) {
                 webexViewModel.currentCallId?.let {
                     webexViewModel.hangup(it)
+                    activity?.finish()
                 } ?: run {
                     activity?.finish()
                 }
@@ -1795,6 +1802,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         } else {
             webexViewModel.currentCallId?.let {
                 webexViewModel.hangup(it)
+                activity?.finish()
             } ?: run {
                 activity?.finish()
             }
@@ -2044,6 +2052,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 }
 
                 webexViewModel.isLocalVideoMuted = isSelfVideoMuted
+
+                onVideoStreamingChanged(callId)
 
                 if (webexViewModel.isLocalVideoMuted) {
                     localVideoViewState(true)
@@ -2400,7 +2410,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             try {
                 if (breakout == null) {
                     val callInfo = webexViewModel.getCall(callId)
-                    Log.d(TAG, "CallControlsFragment showCallHeader callerId: $callId, callInfo title: ${callInfo?.getTitle()}")
+                    Log.d(TAG, "CallControlsFragment showCallHeader callerId: $callId")
                     binding.tvName.text = callInfo?.getTitle()
                     binding.callingHeader.text = getString(R.string.onCall)
                 }

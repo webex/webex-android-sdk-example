@@ -264,6 +264,15 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/toggle_buttons_container" />
 
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switch_callType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Switch to UC/WebexCalling call"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <ViewSwitcher
             android:id="@+id/toggle_buttons_container"
             android:layout_width="wrap_content"
@@ -285,6 +294,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/ic_dialpad" />
+
         </ViewSwitcher>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -44,7 +44,7 @@ class IncomingCallBottomSheetFragment(val onBottomSheetDismissed: (BottomSheetDi
     class IncomingInfoViewHolder(
         private val binding: ListItemCallMeetingBinding,
         private val IncomingCallPickEvent: (Call?) -> Unit,
-        private val incomingCallCancelEvent: (Call?) -> Unit
+        private val IncomingCallCancelEvent: (Call?) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
         var item: IncomingCallInfoModel? = null
         val tag = "IncomingInfoViewHolder"
@@ -81,7 +81,7 @@ class IncomingCallBottomSheetFragment(val onBottomSheetDismissed: (BottomSheetDi
             binding.ivCancelCall.setOnClickListener {
                 item?.let { model ->
                     if (model is OneToOneIncomingCallModel) {
-                        incomingCallCancelEvent(model.call)
+                        IncomingCallCancelEvent(model.call)
                     }
                 }
             }

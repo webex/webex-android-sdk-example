@@ -57,6 +57,10 @@ This demo support Android device with **Android 7.0** or later
       ```
         implementation files('libs/WebexSDK-Meeting.aar')
       ```
+    - For WebexCalling SDK
+      ```
+        implementation files('libs/WebexSDK-Wxc.aar')
+      ```
 ### Option 2
 
    1. Add the following repository to your top-level `build.gradle` file:
@@ -75,13 +79,19 @@ This demo support Android device with **Android 7.0** or later
        - For Full SDK
          ```
          dependencies {
-             implementation 'com.ciscowebex:webexsdk:3.8.0'
+             implementation 'com.ciscowebex:webexsdk:3.9.1.3-SNAPSHOT'
          }
          ```
        - For Meeting SDK
          ```
          dependencies {
-         implementation 'com.ciscowebex:webexsdk-meeting:3.8.0'
+         implementation 'com.ciscowebex:webexsdk-meeting:3.9.1.3-SNAPSHOT'
+         }
+         ```
+       - For WebexCalling SDK
+         ```
+         dependencies {
+         implementation 'com.ciscowebex:webexsdk-wxc:3.9.1.3-SNAPSHOT'
          }
          ```
 

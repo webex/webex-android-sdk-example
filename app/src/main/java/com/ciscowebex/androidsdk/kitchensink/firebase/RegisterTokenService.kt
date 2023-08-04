@@ -2,6 +2,7 @@ package com.ciscowebex.androidsdk.kitchensink.firebase
 
 import android.os.AsyncTask
 import android.util.Log
+import com.ciscowebex.androidsdk.kitchensink.BuildConfig
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
@@ -9,14 +10,16 @@ import java.net.URL
 
 class RegisterTokenService : AsyncTask<String, String, String>(){
     val tag = "RegisterTokenService"
-    private val tokenServiceUrl = "https://serene-meadow-01887.herokuapp.com/register"
+    private val tokenServiceUrl:String = BuildConfig.WEBHOOK_URL
 
     override fun doInBackground(vararg params: String?): String {
         var result = ""
-        try {
-            result = registerToken(params[0].orEmpty())
-        }catch (e: Exception){
-            Log.d(tag, "Error in register token", e)
+        if(!tokenServiceUrl.isEmpty()) {
+            try {
+                result = registerToken(params[0].orEmpty())
+            } catch (e: Exception) {
+                Log.d(tag, "Error in register token", e)
+            }
         }
         return result
     }
@@ -37,12 +40,11 @@ class RegisterTokenService : AsyncTask<String, String, String>(){
         val con: HttpURLConnection = url.openConnection() as HttpURLConnection
         con.requestMethod = "POST"
 
-        con.setRequestProperty("Content-Type", "application/json; utf-8")
+        con.setRequestProperty("Content-Type", "application/json")
         con.setRequestProperty("Accept", "application/json")
 
         con.doOutput = true
 
-        Log.d(tag, "request body: $jsonInputString")
         con.outputStream.use { os ->
             val input = jsonInputString.toByteArray(charset("utf-8"))
             os.write(input, 0, input.size)
