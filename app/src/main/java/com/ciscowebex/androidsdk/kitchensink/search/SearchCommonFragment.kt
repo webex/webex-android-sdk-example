@@ -142,6 +142,7 @@ class SearchCommonFragment : Fragment() {
                         dateAndDurationString += " (" + formatCallDurationTime(callRecord.duration * 1000) + ")"
                         itemModel.dateAndDuration = dateAndDurationString
                         itemModel.isMissedCall = callRecord.isMissedCall
+                        itemModel.isPhoneNumber = callRecord.isPhoneNumber
                         //add in array list
                         itemModelList.add(itemModel)
                     }
@@ -249,6 +250,7 @@ class SearchCommonFragment : Fragment() {
         var dateAndDuration = ""
         var callDirection = CallHistoryRecord.CallDirection.UNDEFINED
         var isMissedCall = false
+        var isPhoneNumber = false
     }
 
     class CustomAdapter() : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
@@ -272,7 +274,7 @@ class SearchCommonFragment : Fragment() {
             fun bind(itemModel: ItemModel) {
                 binding.listItem = itemModel
                 binding.image.setOnClickListener {
-                    it.context.startActivity(CallActivity.getOutgoingIntent(it.context, itemModel.callerId))
+                    it.context.startActivity(CallActivity.getOutgoingIntent(it.context, itemModel.callerId, itemModel.isPhoneNumber))
                 }
 
                 if (itemModel.ongoing) {
