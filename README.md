@@ -48,15 +48,6 @@ This demo support Android device with **Android 7.0** or later
       }
       ```
 3. Add the following dependency in module level Gradle file and press sync-now
-   
-    - For Full SDK
-      ```
-        implementation files('libs/WebexSDK.aar')
-      ```
-    - For Meeting SDK
-      ```
-        implementation files('libs/WebexSDK-Meeting.aar')
-      ```
     - For WebexCalling SDK
       ```
         implementation files('libs/WebexSDK-Wxc.aar')
@@ -69,29 +60,16 @@ This demo support Android device with **Android 7.0** or later
             repositories {
                 jcenter()
                 maven {
-                    url 'https://devhub.cisco.com/artifactory/webexsdk/'
+                    url 'https://devhub.cisco.com/artifactory/webexsdk-SNAPSHOT/'
                 }
             }
         }
         ```
    2. Add the `webex-android-sdk` library as a dependency for your app in the `build.gradle` file:
-
-       - For Full SDK
-         ```
-         dependencies {
-             implementation 'com.ciscowebex:webexsdk:3.9.1'
-         }
-         ```
-       - For Meeting SDK
-         ```
-         dependencies {
-         implementation 'com.ciscowebex:webexsdk-meeting:3.9.1'
-         }
-         ```
        - For WebexCalling SDK
          ```
          dependencies {
-         implementation 'com.ciscowebex:webexsdk-wxc:3.9.1'
+         implementation 'com.ciscowebex:webexsdk-wxc:3.9.2.1-SNAPSHOT'
          }
          ```
 
@@ -103,8 +81,13 @@ For example see [README](https://github.com/webex/webex-android-sdk/blob/master/
 
  Please update below constants in gradle.properties
  ```
+ SCOPE=""
+ ```
+
+ Please update below constants in local.properties
+ ```
  CLIENT_ID=""
  CLIENT_SECRET=""
- SCOPE=""
+ WEBHOOK_URL=""
  REDIRECT_URI=""
  ```
