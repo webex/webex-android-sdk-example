@@ -101,10 +101,15 @@ For example see [README](https://github.com/webex/webex-android-sdk/blob/master/
 
 ## Note
 
- Please update below constants in gradle.properties
+ Please update the below constant in gradle.properties
+ ```
+ SCOPE=""
+ ```
+
+ Please update below constants in local.properties file
  ```
  CLIENT_ID=""
  CLIENT_SECRET=""
- SCOPE=""
  REDIRECT_URI=""
+ WEBHOOK_URL=""
  ```
