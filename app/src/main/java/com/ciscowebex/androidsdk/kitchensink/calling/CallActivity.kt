@@ -43,10 +43,11 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener, 
 
 
     companion object {
-        fun getOutgoingIntent(context: Context, callerName: String): Intent {
+        fun getOutgoingIntent(context: Context, callerName: String, callType: Boolean): Intent {
             val intent = Intent(context, CallActivity::class.java)
             intent.putExtra(Constants.Intent.CALLING_ACTIVITY_ID, 0)
             intent.putExtra(Constants.Intent.OUTGOING_CALL_CALLER_ID, callerName)
+            intent.putExtra(Constants.Intent.CALL_TYPE, callType)
             return intent
         }
         fun getIncomingIntent(context: Context, callId: String? = null): Intent {
@@ -83,9 +84,9 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener, 
                 Handler(Looper.getMainLooper()).postDelayed({
                     if (callingActivity == 0) {
                         val callerId = intent.getStringExtra(Constants.Intent.OUTGOING_CALL_CALLER_ID)
-
+                        val switchToUcmOrBroadworksCall = intent.getBooleanExtra(Constants.Intent.CALL_TYPE, false)
                         callerId?.let {
-                            fragment.dialOutgoingCall(callerId)
+                            fragment.dialOutgoingCall(callerId, isCucmOrWxcCall = switchToUcmOrBroadworksCall)
                         }
                     } else if (intent.action == Constants.Action.WEBEX_CALL_ACTION){
                         intent?.getStringExtra(Constants.Intent.CALL_ID) ?.let { callId ->
@@ -492,13 +493,10 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener, 
         val rejectIntent = CallRejectService.getCallRejectIntent(this,callId = callId)
         val fullScreenIntent = LockScreenActivity.getLockScreenIntent(this, callId = callId)
 
-
-        val acceptPendingIntent = PendingIntent.getActivity(this, Constants.Intent.ACCEPT_REQUEST_CODE, acceptIntent,
-            (PendingIntent.FLAG_UPDATE_CURRENT))
-        val rejectPendingIntent = PendingIntent.getService(this, Constants.Intent.REJECT_REQUEST_CODE, rejectIntent,
-            (PendingIntent.FLAG_UPDATE_CURRENT))
-        val fullScreenPendingIntent = PendingIntent.getActivity(this, Constants.Intent.FULLSCREEN_REQUEST_CODE, fullScreenIntent,
-            (PendingIntent.FLAG_UPDATE_CURRENT))
+        val intentFlag = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        val acceptPendingIntent = PendingIntent.getActivity(this, Constants.Intent.ACCEPT_REQUEST_CODE, acceptIntent, intentFlag)
+        val rejectPendingIntent = PendingIntent.getService(this, Constants.Intent.REJECT_REQUEST_CODE, rejectIntent, intentFlag)
+        val fullScreenPendingIntent = PendingIntent.getActivity(this, Constants.Intent.FULLSCREEN_REQUEST_CODE, fullScreenIntent, intentFlag)
         val channelId = "Calls"
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(this, channelId)

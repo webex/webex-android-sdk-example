@@ -127,6 +127,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".auth.LoginActivity"
+            android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -143,6 +144,7 @@
             android:showWhenLocked="true"
             android:supportsPictureInPicture="true"
             android:turnScreenOn="true"
+            android:exported="true"
             tools:ignore="UnusedAttribute" />
         <activity
             android:name=".search.SearchActivity"

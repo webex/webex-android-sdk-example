@@ -19,6 +19,7 @@ class Constants {
         const val ACCEPT_REQUEST_CODE = 1001
         const val REJECT_REQUEST_CODE = 1002
         const val FULLSCREEN_REQUEST_CODE = 1001
+        const val CALL_TYPE = "SwitchCallType"
     }
     object Bundle {
         const val MESSAGE_ID = "messageId"

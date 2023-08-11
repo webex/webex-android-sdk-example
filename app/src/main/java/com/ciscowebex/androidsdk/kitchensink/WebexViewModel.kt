@@ -338,6 +338,33 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         webex.phone.disconnectPhoneServices(callback)
     }
 
+    fun dialPhoneNumber(input:String, option: MediaOption) {
+        webex.phone.dialPhoneNumber(input, option, CompletionHandler { result ->
+            Log.i(tag, "dialPhoneNumber isSuccessful: ${result.isSuccessful}")
+            if (result.isSuccessful) {
+                result.data?.let { _call ->
+                    CallObjectStorage.addCallObject(_call)
+                    currentCallId = _call.getCallId()
+                    setCallObserver(_call)
+                    _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.DialCompleted, _call))
+                }
+            } else {
+                result.error?.let { error ->
+                    when(error.errorCode){
+                        WebexError.ErrorCode.INVALID_API_ERROR.code -> {
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.WrongApiCalled, null, null, result.error?.errorMessage))
+                        }
+                        else -> {
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.DialFailed, null, null, result.error?.errorMessage))
+                        }
+                    }
+                } ?: run {
+                    _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.DialFailed, null, null, result.error?.errorMessage))
+                }
+            }
+        })
+    }
+
     fun dial(input: String, option: MediaOption) {
         webex.phone.dial(input, option, CompletionHandler { result ->
             Log.d(tag, "dial isSuccessful: ${result.isSuccessful}")

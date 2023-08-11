@@ -64,8 +64,7 @@ class KitchenSinkForegroundService : Service() {
 
         val title = context.getString(R.string.app_running_in_background_notification_title)
         val mainActivity = Intent(this, LoginActivity::class.java)
-        val pendingIntent =
-                PendingIntent.getActivity(this, 0, mainActivity, 0)
+        val pendingIntent = PendingIntent.getActivity(this, 0, mainActivity, PendingIntent.FLAG_IMMUTABLE or 0)
         return NotificationCompat.Builder(
                 context,
                 "ks_01"

@@ -18,6 +18,7 @@ class DialFragment : Fragment() {
 
     lateinit var binding: FragmentCallBinding
     private var isAddingCall = false
+    private var switchToCucmOrWxcCallToggle = false
 
     companion object{
         private const val IS_ADDING_CALL = "isAddingCall"
@@ -62,10 +63,11 @@ class DialFragment : Fragment() {
             if(isAddingCall){
                 val intent = Intent()
                 intent.putExtra(CALLER_ID, dialText)
+                intent.putExtra("switchToUcOrWebexCalling", switchToCucmOrWxcCallToggle)
                 activity?.setResult(Activity.RESULT_OK, intent)
                 activity?.finish()
             }else{
-                startActivity(context?.let { ctx -> CallActivity.getOutgoingIntent(ctx, dialText) })
+                startActivity(context?.let { ctx -> CallActivity.getOutgoingIntent(ctx, dialText, switchToCucmOrWxcCallToggle) })
             }
         }
 
@@ -73,6 +75,10 @@ class DialFragment : Fragment() {
             binding.dialButtonsContainer.visibility = View.GONE
             enableInput()
             binding.toggleButtonsContainer.showNext()
+        }
+
+        binding.switchCallType.setOnCheckedChangeListener {_, isChecked ->
+            switchToCucmOrWxcCallToggle = isChecked
         }
 
         binding.ibBackspace.setOnClickListener {
