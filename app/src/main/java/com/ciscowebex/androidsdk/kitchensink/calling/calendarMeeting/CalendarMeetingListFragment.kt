@@ -157,19 +157,19 @@ class CalendarMeetingListFragment : Fragment() {
 
     private fun joinByMeetingId(meetingId: String) {
         context?.let {
-            startActivity(CallActivity.getOutgoingIntent(it, meetingId))
+            startActivity(CallActivity.getOutgoingIntent(it, meetingId, false))
         }
     }
 
     private fun joinByMeetingLink(meetingLink: String) {
         context?.let {
-            startActivity(CallActivity.getOutgoingIntent(it, meetingLink))
+            startActivity(CallActivity.getOutgoingIntent(it, meetingLink, false))
         }
     }
 
     private fun joinBySipUrl(sipUrl: String) {
         context?.let {
-            startActivity(CallActivity.getOutgoingIntent(it, sipUrl))
+            startActivity(CallActivity.getOutgoingIntent(it, sipUrl, false))
         }
     }
 
