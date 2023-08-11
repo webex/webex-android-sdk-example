@@ -79,19 +79,19 @@ This demo support Android device with **Android 7.0** or later
        - For Full SDK
          ```
          dependencies {
-             implementation 'com.ciscowebex:webexsdk:3.9.1'
+             implementation 'com.ciscowebex:webexsdk:3.9.2'
          }
          ```
        - For Meeting SDK
          ```
          dependencies {
-         implementation 'com.ciscowebex:webexsdk-meeting:3.9.1'
+         implementation 'com.ciscowebex:webexsdk-meeting:3.9.2'
          }
          ```
        - For WebexCalling SDK
          ```
          dependencies {
-         implementation 'com.ciscowebex:webexsdk-wxc:3.9.1'
+         implementation 'com.ciscowebex:webexsdk-wxc:3.9.2'
          }
          ```
 
@@ -101,10 +101,15 @@ For example see [README](https://github.com/webex/webex-android-sdk/blob/master/
 
 ## Note
 
- Please update below constants in gradle.properties
+ Please update the below constant in gradle.properties
+ ```
+ SCOPE=""
+ ```
+
+ Please update below constants in local.properties file
  ```
  CLIENT_ID=""
  CLIENT_SECRET=""
- SCOPE=""
  REDIRECT_URI=""
+ WEBHOOK_URL=""
  ```
