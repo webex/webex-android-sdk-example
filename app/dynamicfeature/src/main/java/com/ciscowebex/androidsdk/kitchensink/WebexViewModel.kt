@@ -20,6 +20,7 @@ import com.ciscowebex.androidsdk.auth.PhoneServiceRegistrationFailureReason
 import com.ciscowebex.androidsdk.auth.TokenAuthenticator
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
 import com.ciscowebex.androidsdk.kitchensink.base.BaseViewModel
+import com.ciscowebex.androidsdk.kitchensink.base.BuildConfig
 import com.ciscowebex.androidsdk.kitchensink.base.KitchenSinkApp
 import com.ciscowebex.androidsdk.kitchensink.calling.CallObserverInterface
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
@@ -50,15 +51,14 @@ import com.ciscowebex.androidsdk.phone.ReceivingNoiseRemovalEnableResult
 import com.google.firebase.installations.FirebaseInstallations
 import java.io.PrintWriter
 
-
-class WebexViewModel(val webex: Webex, val repository: com.ciscowebex.androidsdk.kitchensink.WebexRepository) : BaseViewModel() {
+class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseViewModel() {
     private val tag = "WebexViewModel"
 
     var _callMembershipsLiveData = MutableLiveData<List<CallMembership>>()
     val _muteAllLiveData = MutableLiveData<Boolean>()
-    val _ucLiveData = MutableLiveData<Pair<com.ciscowebex.androidsdk.kitchensink.WebexRepository.UCCallEvent, String>>()
-    val _callingLiveData = MutableLiveData<com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData>()
-    val _startAssociationLiveData = MutableLiveData<com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData>()
+    val _ucLiveData = MutableLiveData<Pair<WebexRepository.UCCallEvent, String>>()
+    val _callingLiveData = MutableLiveData<WebexRepository.CallLiveData>()
+    val _startAssociationLiveData = MutableLiveData<WebexRepository.CallLiveData>()
     val _startShareLiveData = MutableLiveData<Boolean>()
     val _stopShareLiveData = MutableLiveData<Boolean>()
     val _setCompositeLayoutLiveData = MutableLiveData<Pair<Boolean, String>>()
@@ -67,9 +67,9 @@ class WebexViewModel(val webex: Webex, val repository: com.ciscowebex.androidsdk
 
     var callMembershipsLiveData: LiveData<List<CallMembership>> = _callMembershipsLiveData
     val muteAllLiveData: LiveData<Boolean> = _muteAllLiveData
-    val ucLiveData: LiveData<Pair<com.ciscowebex.androidsdk.kitchensink.WebexRepository.UCCallEvent, String>> = _ucLiveData
-    val callingLiveData: LiveData<com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData> = _callingLiveData
-    val startAssociationLiveData: LiveData<com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData> = _startAssociationLiveData
+    val ucLiveData: LiveData<Pair<WebexRepository.UCCallEvent, String>> = _ucLiveData
+    val callingLiveData: LiveData<WebexRepository.CallLiveData> = _callingLiveData
+    val startAssociationLiveData: LiveData<WebexRepository.CallLiveData> = _startAssociationLiveData
     val startShareLiveData: LiveData<Boolean> = _startShareLiveData
     val stopShareLiveData: LiveData<Boolean> = _stopShareLiveData
     val setCompositeLayoutLiveData: LiveData<Pair<Boolean, String>> = _setCompositeLayoutLiveData
@@ -107,7 +107,7 @@ class WebexViewModel(val webex: Webex, val repository: com.ciscowebex.androidsdk
     var torchMode = Call.TorchMode.OFF
     var flashMode = Call.FlashMode.OFF
 
-    var callCapability: com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallCap
+    var callCapability: WebexRepository.CallCap
         get() = repository.callCapability
         set(value) {
             repository.callCapability = value
@@ -264,13 +264,13 @@ class WebexViewModel(val webex: Webex, val repository: com.ciscowebex.androidsdk
     fun setLogLevel(logLevel: String) {
         var level: Webex.LogLevel = Webex.LogLevel.ALL
         when (logLevel) {
-            com.ciscowebex.androidsdk.kitchensink.WebexRepository.LogLevel.ALL.name -> level = Webex.LogLevel.ALL
-            com.ciscowebex.androidsdk.kitchensink.WebexRepository.LogLevel.VERBOSE.name -> level = Webex.LogLevel.VERBOSE
-            com.ciscowebex.androidsdk.kitchensink.WebexRepository.LogLevel.INFO.name -> level = Webex.LogLevel.INFO
-            com.ciscowebex.androidsdk.kitchensink.WebexRepository.LogLevel.WARNING.name -> level = Webex.LogLevel.WARNING
-            com.ciscowebex.androidsdk.kitchensink.WebexRepository.LogLevel.DEBUG.name -> level = Webex.LogLevel.DEBUG
-            com.ciscowebex.androidsdk.kitchensink.WebexRepository.LogLevel.ERROR.name -> level = Webex.LogLevel.ERROR
-            com.ciscowebex.androidsdk.kitchensink.WebexRepository.LogLevel.NO.name -> level = Webex.LogLevel.NO
+            WebexRepository.LogLevel.ALL.name -> level = Webex.LogLevel.ALL
+            WebexRepository.LogLevel.VERBOSE.name -> level = Webex.LogLevel.VERBOSE
+            WebexRepository.LogLevel.INFO.name -> level = Webex.LogLevel.INFO
+            WebexRepository.LogLevel.WARNING.name -> level = Webex.LogLevel.WARNING
+            WebexRepository.LogLevel.DEBUG.name -> level = Webex.LogLevel.DEBUG
+            WebexRepository.LogLevel.ERROR.name -> level = Webex.LogLevel.ERROR
+            WebexRepository.LogLevel.NO.name -> level = Webex.LogLevel.NO
         }
         webex.setLogLevel(level)
     }
@@ -341,6 +341,33 @@ class WebexViewModel(val webex: Webex, val repository: com.ciscowebex.androidsdk
         webex.phone.disconnectPhoneServices(callback)
     }
 
+    fun dialPhoneNumber(input:String, option: MediaOption) {
+        webex.phone.dialPhoneNumber(input, option, CompletionHandler { result ->
+            Log.i(tag, "dialPhoneNumber isSuccessful: ${result.isSuccessful}")
+            if (result.isSuccessful) {
+                result.data?.let { _call ->
+                    CallObjectStorage.addCallObject(_call)
+                    currentCallId = _call.getCallId()
+                    setCallObserver(_call)
+                    _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.DialCompleted, _call))
+                }
+            } else {
+                result.error?.let { error ->
+                    when(error.errorCode){
+                        WebexError.ErrorCode.INVALID_API_ERROR.code -> {
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.WrongApiCalled, null, null, result.error?.errorMessage))
+                        }
+                        else -> {
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.DialFailed, null, null, result.error?.errorMessage))
+                        }
+                    }
+                } ?: run {
+                    _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.DialFailed, null, null, result.error?.errorMessage))
+                }
+            }
+        })
+    }
+
     fun dial(input: String, option: MediaOption) {
         webex.phone.dial(input, option, CompletionHandler { result ->
             Log.d(tag, "dial isSuccessful: ${result.isSuccessful}")
@@ -349,56 +376,38 @@ class WebexViewModel(val webex: Webex, val repository: com.ciscowebex.androidsdk
                     CallObjectStorage.addCallObject(_call)
                     currentCallId = _call.getCallId()
                     setCallObserver(_call)
-                    _callingLiveData.postValue(
-                        com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData(
-                            com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallEvent.DialCompleted, _call))
+                    _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.DialCompleted, _call))
                 }
             } else {
                 result.error?.let { error ->
 
                     when(error.errorCode){
                         WebexError.ErrorCode.HOST_PIN_OR_MEETING_PASSWORD_REQUIRED.code -> {
-                            _callingLiveData.postValue(
-                                com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData(
-                                    com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallEvent.MeetingPinOrPasswordRequired, null))
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.MeetingPinOrPasswordRequired, null))
                         }
                         WebexError.ErrorCode.INVALID_PASSWORD.code -> {
-                            _callingLiveData.postValue(
-                                com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData(
-                                    com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallEvent.InCorrectPassword, null, null))
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.InCorrectPassword, null, null))
                         }
 
                         WebexError.ErrorCode.INVALID_PASSWORD_OR_HOST_KEY.code -> {
-                            _callingLiveData.postValue(
-                                com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData(
-                                    com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallEvent.InCorrectPasswordOrHostKey, null, null))
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.InCorrectPasswordOrHostKey, null, null))
                         }
                         WebexError.ErrorCode.CAPTCHA_REQUIRED.code -> {
-                            _callingLiveData.postValue(
-                                com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData(
-                                    com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallEvent.CaptchaRequired, null, error.data as Phone.Captcha))
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.CaptchaRequired, null, error.data as Phone.Captcha))
                         }
                         WebexError.ErrorCode.INVALID_PASSWORD_WITH_CAPTCHA.code -> {
-                            _callingLiveData.postValue(
-                                com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData(
-                                    com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallEvent.InCorrectPasswordWithCaptcha, null, error.data as Phone.Captcha))
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.InCorrectPasswordWithCaptcha, null, error.data as Phone.Captcha))
                         }
                         WebexError.ErrorCode.INVALID_PASSWORD_OR_HOST_KEY_WITH_CAPTCHA.code -> {
-                            _callingLiveData.postValue(
-                                com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData(
-                                    com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallEvent.InCorrectPasswordOrHostKeyWithCaptcha, null, error.data as Phone.Captcha))
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.InCorrectPasswordOrHostKeyWithCaptcha, null, error.data as Phone.Captcha))
                         }
                         else -> {
-                            _callingLiveData.postValue(
-                                com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData(
-                                    com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallEvent.DialFailed, null, null, result.error?.errorMessage))
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.DialFailed, null, null, result.error?.errorMessage))
                         }
 
                     }
                 } ?: run {
-                    _callingLiveData.postValue(
-                        com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData(
-                            com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallEvent.DialFailed, null, null, result.error?.errorMessage))
+                    _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.DialFailed, null, null, result.error?.errorMessage))
                 }
             }
         })
@@ -406,9 +415,7 @@ class WebexViewModel(val webex: Webex, val repository: com.ciscowebex.androidsdk
 
     fun refreshCaptcha() {
         webex.phone.refreshMeetingCaptcha() {
-            _callingLiveData.postValue(
-                com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData(
-                    com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallEvent.CaptchaRequired, null, it.data))
+            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.CaptchaRequired, null, it.data))
         }
     }
 
@@ -416,14 +423,10 @@ class WebexViewModel(val webex: Webex, val repository: com.ciscowebex.androidsdk
         call.answer(mediaOption, CompletionHandler { result ->
             if (result.isSuccessful) {
                 result.data.let {
-                    _callingLiveData.postValue(
-                        com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData(
-                            com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallEvent.AnswerCompleted, call))
+                    _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.AnswerCompleted, call))
                 }
             } else {
-                _callingLiveData.postValue(
-                    com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData(
-                        com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallEvent.AnswerFailed, null, null, result.error?.errorMessage))
+                _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.AnswerFailed, null, null, result.error?.errorMessage))
             }
         })
     }
@@ -728,15 +731,11 @@ class WebexViewModel(val webex: Webex, val repository: com.ciscowebex.androidsdk
                 Log.d(tag, "startAssociatedCall Lambda isSuccessful")
                 result.data?.let {
                     setCallObserver(it)
-                    _startAssociationLiveData.postValue(
-                        com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData(
-                            com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallEvent.AssociationCallCompleted, it))
+                    _startAssociationLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.AssociationCallCompleted, it))
                 }
             } else {
                 Log.d(tag, "startAssociatedCall Lambda isSuccessful 5")
-                _startAssociationLiveData.postValue(
-                    com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallLiveData(
-                        com.ciscowebex.androidsdk.kitchensink.WebexRepository.CallEvent.AssociationCallFailed, null, null, result.error?.errorMessage))
+                _startAssociationLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.AssociationCallFailed, null, null, result.error?.errorMessage))
                 Log.d(tag, "startAssociatedCall Lambda isSuccessful 6")
             }
         })
@@ -759,40 +758,43 @@ class WebexViewModel(val webex: Webex, val repository: com.ciscowebex.androidsdk
     }
 
     fun setPushTokens(id: String, token: String){
-        webex.phone.setPushTokens(KitchenSinkApp.applicationContext().packageName, id, token)
+        if(BuildConfig.WEBHOOK_URL.isEmpty()) {
+            webex.phone.setPushTokens(KitchenSinkApp.applicationContext().packageName, id, token)
+        }
     }
 
     fun getFCMToken(personModel: PersonModel) {
         FirebaseMessaging.getInstance().token
-                .addOnCompleteListener(object : OnCompleteListener<String?> {
-                    override fun onComplete(task: Task<String?>) {
-                        if (!task.isSuccessful) {
-                            Log.w(tag, "Fetching FCM registration token failed", task.exception)
-                            return
-                        }
-                        // Get new FCM registration token
-                        val token: String? = task.result
-                        sendTokenToServer(Pair(token, personModel))
-                        FirebaseInstallations.getInstance().id.addOnCompleteListener(object : OnCompleteListener<String?> {
-                            override fun onComplete(task: Task<String?>) {
-                                if (!task.isSuccessful) {
-                                    Log.w(tag, "Fetching FCM registration id failed", task.exception)
-                                    return
-                                }
-                                val mId = task.result
-                                if(!mId.isNullOrEmpty() && !token.isNullOrEmpty())
-                                    setPushTokens(mId, token)
-                            }
-                        })
+            .addOnCompleteListener(object : OnCompleteListener<String?> {
+                override fun onComplete(task: Task<String?>) {
+                    if (!task.isSuccessful) {
+                        Log.w(tag, "Fetching FCM registration token failed", task.exception)
+                        return
                     }
-                })
+                    // Get new FCM registration token
+                    val token: String? = task.result
+                    sendTokenToServer(Pair(token, personModel))
+                    FirebaseInstallations.getInstance().id.addOnCompleteListener(object : OnCompleteListener<String?> {
+                        override fun onComplete(task: Task<String?>) {
+                            if (!task.isSuccessful) {
+                                Log.w(tag, "Fetching FCM registration id failed", task.exception)
+                                return
+                            }
+                            val mId = task.result
+                            if(!mId.isNullOrEmpty() && !token.isNullOrEmpty())
+                                setPushTokens(mId, token)
+                        }
+                    })
+                }
+            })
     }
 
     private fun sendTokenToServer(it: Pair<String?, PersonModel>) {
         val json = JSONObject()
-        json.put("token", it.first)
-        json.put("personId", it.second.personId)
-        json.put("email", it.second.emailList)
+        json.put("pushProvider", "FCM")
+        json.put("deviceToken", it.first)
+        json.put("userId", it.second.encodedId)
+        //json.put("voipToken", "NA")
         RegisterTokenService().execute(json.toString())
     }
 
@@ -912,10 +914,10 @@ class WebexViewModel(val webex: Webex, val repository: com.ciscowebex.androidsdk
     fun getUserPreferredMaxBandwidth():Int{
         var videoBandwidth:Int
         when (maxVideoBandwidth) {
-            com.ciscowebex.androidsdk.kitchensink.WebexRepository.BandWidthOptions.BANDWIDTH_90P.name -> videoBandwidth = Phone.DefaultBandwidth.MAX_BANDWIDTH_90P.getValue()
-            com.ciscowebex.androidsdk.kitchensink.WebexRepository.BandWidthOptions.BANDWIDTH_180P.name -> videoBandwidth = Phone.DefaultBandwidth.MAX_BANDWIDTH_180P.getValue()
-            com.ciscowebex.androidsdk.kitchensink.WebexRepository.BandWidthOptions.BANDWIDTH_360P.name -> videoBandwidth = Phone.DefaultBandwidth.MAX_BANDWIDTH_360P.getValue()
-            com.ciscowebex.androidsdk.kitchensink.WebexRepository.BandWidthOptions.BANDWIDTH_1080P.name -> videoBandwidth = Phone.DefaultBandwidth.MAX_BANDWIDTH_1080P.getValue()
+            WebexRepository.BandWidthOptions.BANDWIDTH_90P.name -> videoBandwidth = Phone.DefaultBandwidth.MAX_BANDWIDTH_90P.getValue()
+            WebexRepository.BandWidthOptions.BANDWIDTH_180P.name -> videoBandwidth = Phone.DefaultBandwidth.MAX_BANDWIDTH_180P.getValue()
+            WebexRepository.BandWidthOptions.BANDWIDTH_360P.name -> videoBandwidth = Phone.DefaultBandwidth.MAX_BANDWIDTH_360P.getValue()
+            WebexRepository.BandWidthOptions.BANDWIDTH_1080P.name -> videoBandwidth = Phone.DefaultBandwidth.MAX_BANDWIDTH_1080P.getValue()
             else ->{
                 videoBandwidth = Phone.DefaultBandwidth.MAX_BANDWIDTH_720P.getValue()
             }

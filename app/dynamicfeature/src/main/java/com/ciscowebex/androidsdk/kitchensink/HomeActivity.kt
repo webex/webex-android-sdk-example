@@ -16,6 +16,7 @@ import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
 import com.ciscowebex.androidsdk.kitchensink.auth.LoginActivity
 import com.ciscowebex.androidsdk.kitchensink.base.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.base.KitchenSinkApp
+import com.ciscowebex.androidsdk.kitchensink.base.KitchenSinkForegroundService
 import com.ciscowebex.androidsdk.kitchensink.calling.CallActivity
 import com.ciscowebex.androidsdk.kitchensink.cucm.UCLoginActivity
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityHomeBinding

@@ -62,6 +62,35 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:707417346294:android:e225de5f56489e9cd19cd7",
+        "android_client_info": {
+          "package_name": "com.cisco.sdk_android.wxc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "707417346294-sc7gohgcphcumbm6nvf1541rij58ouse.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAioUqm-U11HAfDkk1RTAtJ_u2lfjQSLE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "707417346294-sc7gohgcphcumbm6nvf1541rij58ouse.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

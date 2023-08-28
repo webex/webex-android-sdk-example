@@ -7,6 +7,7 @@
     <string name="appconfig_fedramp_title">Enforce FedRAMP login</string>
     <string name="appconfig_fedramp_description">Ensure FedRAMP login for MDM users</string>
     <string name="installing">Installing...</string>
-      <string name="title_dynamicfeature">dynamicfeature</string>
+    <string name="title_dynamicfeature">dynamicfeature</string>
+    <string name="app_running_in_background_notification_title">Kitchen Sink running in background</string>
 
 </resources>

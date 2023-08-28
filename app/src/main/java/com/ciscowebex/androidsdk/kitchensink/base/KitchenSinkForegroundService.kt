@@ -1,4 +1,4 @@
-package com.ciscowebex.androidsdk.kitchensink
+package com.ciscowebex.androidsdk.kitchensink.base
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -13,7 +13,6 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.ciscowebex.androidsdk.kitchensink.auth.LoginActivity
 
 class KitchenSinkForegroundService : Service() {
 
@@ -63,7 +62,7 @@ class KitchenSinkForegroundService : Service() {
         mNotificationManager?.createNotificationChannel(notificationChannel)
 
         val title = context.getString(R.string.app_running_in_background_notification_title)
-        val mainActivity = Intent(this, LoginActivity::class.java)
+        val mainActivity = Intent(this, SplashActivity::class.java)
         val pendingIntent =
                 PendingIntent.getActivity(this, 0, mainActivity, 0)
         return NotificationCompat.Builder(

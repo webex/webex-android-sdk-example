@@ -24,8 +24,8 @@ android {
         applicationId "com.cisco.sdk_android.sample.kitchensink"
         minSdkVersion Versions.minSdk
         targetSdkVersion Versions.targetSdk
-        versionCode 390017
-        versionName "3.9.0.17-ondemand"
+        versionCode 390026
+        versionName "3.9.0.26-ondemand"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "CLIENT_ID", "${CLIENT_ID}"
@@ -36,6 +36,7 @@ android {
         buildConfigField "String", "FEDRAMP_CLIENT_ID", "${FEDRAMP_CLIENT_ID}"
         buildConfigField "String", "FEDRAMP_CLIENT_SECRET", "${FEDRAMP_CLIENT_SECRET}"
         buildConfigField "String", "FEDRAMP_REDIRECT_URI", "${FEDRAMP_REDIRECT_URI}"
+        buildConfigField "String", "WEBHOOK_URL", "${WEBHOOK_URL}"
     }
 
     buildTypes {
@@ -105,5 +106,4 @@ dependencies {
 
     api 'com.google.android.play:core-ktx:1.8.1'
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-
 }

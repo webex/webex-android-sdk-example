@@ -10,14 +10,17 @@ import com.google.android.play.core.splitcompat.SplitCompatApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
+import kotlin.reflect.full.createInstance
 
 const val PROVIDER_CLASS = "com.ciscowebex.androidsdk.kitchensink.DynamicModuleProvider"
+const val FCM_PROVIDER_CLASS = "com.ciscowebex.androidsdk.kitchensink.firebase.KitchenSinkFCMService"
 class KitchenSinkApp : SplitCompatApplication(), LifecycleObserver {
 
 
 
     companion object {
         lateinit var dmProvider: IDynamicModule
+        var isWebexSplitInstalled = false
         lateinit var instance: KitchenSinkApp
             private set
 
