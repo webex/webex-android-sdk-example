@@ -107,13 +107,5 @@
         <activity
             android:name=".calling.CucmCallActivity"
             android:screenOrientation="portrait" />
-
-        <service
-            android:name=".firebase.KitchenSinkFCMService"
-            android:exported="false">
-        </service>
-        <service
-            android:name=".KitchenSinkForegroundService"
-            android:exported="false" />
     </application>
 </manifest>

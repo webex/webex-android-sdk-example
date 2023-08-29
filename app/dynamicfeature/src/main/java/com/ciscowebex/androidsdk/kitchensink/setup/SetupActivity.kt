@@ -8,7 +8,7 @@ import android.widget.AdapterView
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import com.ciscowebex.androidsdk.kitchensink.base.BaseActivity
-import com.ciscowebex.androidsdk.kitchensink.KitchenSinkForegroundService
+import com.ciscowebex.androidsdk.kitchensink.base.KitchenSinkForegroundService
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.WebexViewModel

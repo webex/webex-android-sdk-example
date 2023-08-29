@@ -28,6 +28,7 @@ import com.ciscowebex.androidsdk.phone.Phone
 import com.ciscowebex.androidsdk.phone.VirtualBackground
 import com.ciscowebex.androidsdk.phone.CallObserver
 import com.ciscowebex.androidsdk.phone.NotificationCallType
+import com.ciscowebex.androidsdk.phone.ReceivingNoiseInfo
 import com.ciscowebex.androidsdk.space.SpaceObserver
 import java.io.PrintWriter
 
@@ -102,7 +103,8 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
         InCorrectPassword,
         InCorrectPasswordWithCaptcha,
         InCorrectPasswordOrHostKey,
-        InCorrectPasswordOrHostKeyWithCaptcha
+        InCorrectPasswordOrHostKeyWithCaptcha,
+        WrongApiCalled
     }
 
     enum class CalendarMeetingEvent {
@@ -655,6 +657,15 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
             observers?.let { it ->
                 it.forEach { observer ->
                     observer.onMediaChanged(event)
+                }
+            }
+        }
+
+        override fun onReceivingNoiseInfoChanged(info: ReceivingNoiseInfo) {
+            val observers: MutableList<CallObserver>? = _callObservers[_callId]
+            observers?.let { it ->
+                it.forEach { observer ->
+                    observer.onReceivingNoiseInfoChanged(info)
                 }
             }
         }

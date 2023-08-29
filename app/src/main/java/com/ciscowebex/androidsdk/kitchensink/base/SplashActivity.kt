@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.bumptech.glide.Glide
 import com.ciscowebex.androidsdk.kitchensink.base.KitchenSinkApp.Companion.dmProvider
+import com.ciscowebex.androidsdk.kitchensink.base.KitchenSinkApp.Companion.isWebexSplitInstalled
 import com.google.android.play.core.splitinstall.*
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
@@ -142,6 +143,7 @@ class SplashActivity : Activity() {
     private fun onSuccessfulLoad(moduleName: String, launch: Boolean) {
 
         dmProvider = Class.forName(PROVIDER_CLASS).kotlin.createInstance() as IDynamicModule
+        isWebexSplitInstalled = true
 
         if (launch) {
             when (moduleName) {

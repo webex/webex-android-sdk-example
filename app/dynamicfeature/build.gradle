@@ -77,5 +77,6 @@ repositories {
 
 dependencies {
     implementation project(':app')
-    implementation 'com.ciscowebex:webexsdk-wxc:3.9.0'
+    //implementation files('libs/WebexSDK-Wxc.aar')
+    implementation 'com.ciscowebex:webexsdk-wxc:3.9.2'
 }
