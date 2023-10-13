@@ -91,7 +91,7 @@ This demo support Android device with **Android 7.0** or later
        - For WebexCalling SDK
          ```
          dependencies {
-         implementation 'com.ciscowebex:webexsdk-wxc:3.9.2'
+         implementation 'com.ciscowebex:webexsdk-wxc:3.10.0'
          }
          ```
 
