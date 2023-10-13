@@ -4,10 +4,10 @@
     xmlns:grid="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/rootLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/incoming_call_header"
@@ -216,19 +216,19 @@
                     android:padding="@dimen/padding_normal"
                     android:src="@drawable/ic_call_hold"
                     app:layout_constraintBottom_toBottomOf="@+id/ib_mute"
-                    app:layout_constraintEnd_toStartOf="@+id/ib_speaker"
+                    app:layout_constraintEnd_toStartOf="@+id/ib_audio_mode"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/ib_mute"
                     app:layout_constraintTop_toTopOf="@+id/ib_mute" />
 
                 <ImageButton
-                    android:id="@+id/ib_speaker"
+                    android:id="@+id/ib_audio_mode"
                     android:layout_width="@dimen/icon_size_normal"
                     android:layout_height="@dimen/icon_size_normal"
-                    android:background="@drawable/speaker_button_selector"
-                    android:contentDescription="@string/speaker"
+                    android:background="@drawable/circle_filled_dark_gray"
+                    android:contentDescription="@string/audio_mode"
                     android:padding="@dimen/padding_normal"
-                    android:src="@drawable/ic_speaker"
+                    android:src="@drawable/ic_earpiece"
                     app:layout_constraintBottom_toBottomOf="@+id/ib_hold_call"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -462,6 +462,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </layout>

@@ -20,10 +20,13 @@ import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.adapters.SpaceRead
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.adapters.SpacesClientAdapter
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.listeners.SpaceEventListener
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipActivity
+import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipModel
+import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipViewModel
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.membersReadStatus.MembershipReadStatusActivity
 import com.ciscowebex.androidsdk.kitchensink.person.PersonModel
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
+import com.ciscowebex.androidsdk.kitchensink.utils.stateToDrawable
 import com.ciscowebex.androidsdk.space.Space
 import com.ciscowebex.androidsdk.space.SpaceClient
 import com.google.android.material.snackbar.Snackbar
@@ -31,13 +34,14 @@ import org.koin.android.ext.android.inject
 
 class SpacesFragment : Fragment() {
     private val TAG = SpacesFragment::class.java.simpleName
+    private val spacesViewModel: SpacesViewModel by inject()
+    private val membershipViewModel: MembershipViewModel by inject()
+
     private val requestCodeSearchPersonToAddToSpace = 1919
     private lateinit var binding: FragmentSpacesBinding
     private lateinit var spacesClientAdapter: SpacesClientAdapter
     private val spacesReadClientAdapter: SpaceReadStatusClientAdapter = SpaceReadStatusClientAdapter()
-
-    private val spacesViewModel: SpacesViewModel by inject()
-
+    private val directMembers = mutableSetOf<MembershipModel>()
     private var selectedSpaceListItem: SpaceModel? = null
     private val addOnCallSuffix = "(On Call)"
     private val maxSpaces = 100
@@ -192,6 +196,11 @@ class SpacesFragment : Fragment() {
         checkForInitialSpacesSync()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        membershipViewModel.stopWatchingPresence()
+    }
+
     private fun checkForInitialSpacesSync() {
         if (!spacesViewModel.isSpacesSyncCompleted()) {
             Snackbar.make(binding.root, getString(R.string.syncing_spaces), Snackbar.LENGTH_SHORT).show()
@@ -222,6 +231,25 @@ class SpacesFragment : Fragment() {
     }
 
     private fun setUpObservers() {
+
+        membershipViewModel.presenceChangeLiveData.observe(viewLifecycleOwner) { presence ->
+            directMembers.find { it.personId == presence.getContactId() }?.let { member ->
+                val position = spacesClientAdapter.getPositionById(member.spaceId)
+                if(position >= 0) {
+                    spacesClientAdapter.spaces[position].presenceStatus =
+                        stateToDrawable(this@SpacesFragment.requireContext(), presence.getState())
+                    spacesClientAdapter.notifyItemChanged(position)
+                }
+            }
+        }
+
+        membershipViewModel.memberships.observe(viewLifecycleOwner) {
+            if(it.size == 2) { // 1-1 space should have exactly 2 members
+                directMembers.add(it[1])
+                membershipViewModel.startWatchingPresence(mutableListOf(it[1].personId))
+            }
+        }
+
         spacesViewModel.readStatusList.observe(this@SpacesFragment.viewLifecycleOwner, Observer { list ->
             list?.let {
                 spacesReadClientAdapter.spaceReadStatusList = it
@@ -237,6 +265,13 @@ class SpacesFragment : Fragment() {
                 spacesClientAdapter.spaces.clear()
                 spacesClientAdapter.spaces.addAll(it)
                 spacesClientAdapter.notifyDataSetChanged()
+
+                //Fetch members for presence status for 1-1 space result
+                spacesClientAdapter.spaces.forEach {space ->
+                    if (space.spaceType == Space.SpaceType.DIRECT) {
+                        membershipViewModel.getMembersIn(space.id, 2)
+                    }
+                }
             }
         })
 

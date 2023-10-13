@@ -33,7 +33,20 @@
     <color name="negative_base_pressed">@color/red_60</color>
     <color name="negative_shade">@color/red_60</color>
 
-
     <color name="blue_40">#07C1F5</color>
     <color name="primary_base">@color/blue_40</color>
+
+    <!-- Presence related colors -->
+    <color name="green_60">#1D805F</color>
+    <color name="orange_60">#C74F0E</color>
+    <color name="presence_icon_active">@color/green_60</color>
+    <color name="presence_icon_inactive">@color/gray_70</color>
+    <color name="presence_icon_dnd">@color/red_60</color>
+    <color name="presence_icon_quiet_hours">@color/gray_70</color>
+    <color name="presence_icon_busy">@color/red_60</color>
+    <color name="presence_icon_ooo">@color/gray_70</color>
+    <color name="presence_icon_meeting">@color/orange_60</color>
+    <color name="presence_icon_call">@color/orange_60</color>
+    <color name="presence_icon_schedule">@color/orange_60</color>
+    <color name="presence_icon_presenting">@color/red_60</color>
 </resources>

@@ -1,5 +1,6 @@
 package com.ciscowebex.androidsdk.kitchensink.person
 
+import android.graphics.drawable.Drawable
 import android.os.Parcelable
 import com.ciscowebex.androidsdk.people.Person
 import com.ciscowebex.androidsdk.people.PersonRole
@@ -16,6 +17,8 @@ data class PersonModel(val personId: String, val encodedId: String, val emails: 
 
     val createdString: String = created.toString()
     val emailList = emails.joinToString()
+    var presenceStatusText: String = ""
+    var presenceStatusDrawable: Drawable? = null
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

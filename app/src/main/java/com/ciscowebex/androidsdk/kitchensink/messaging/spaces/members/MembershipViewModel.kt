@@ -1,13 +1,17 @@
 package com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.ciscowebex.androidsdk.kitchensink.BaseViewModel
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.membership.Membership
+import com.ciscowebex.androidsdk.people.Presence
+import com.ciscowebex.androidsdk.people.PresenceHandle
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 class MembershipViewModel(private val membershipRepo: MembershipRepository, private val webexRepository: WebexRepository) : BaseViewModel() {
+
     private val _memberships = MutableLiveData<List<MembershipModel>>()
     val memberships: LiveData<List<MembershipModel>> = _memberships
 
@@ -22,6 +26,10 @@ class MembershipViewModel(private val membershipRepo: MembershipRepository, priv
 
     private val _membershipEventLiveData = MutableLiveData<Pair<WebexRepository.MembershipEvent, Membership?>>()
     val membershipEventLiveData: LiveData<Pair<WebexRepository.MembershipEvent, Membership?>> = _membershipEventLiveData
+
+    private val _presenceChangeLiveData = MutableLiveData<Presence>()
+    val presenceChangeLiveData : LiveData<Presence> = _presenceChangeLiveData
+    private var membersPresence: List<PresenceHandle>? = null
 
     init {
         webexRepository._membershipEventLiveData = _membershipEventLiveData
@@ -56,4 +64,15 @@ class MembershipViewModel(private val membershipRepo: MembershipRepository, priv
         }, { error -> _membershipError.postValue(error.message) }).autoDispose()
     }
 
+    fun startWatchingPresence(memberIds: List<String>) {
+        membersPresence = webexRepository.webex.people.startWatchingPresences(memberIds) {
+            it.data?.let { presence -> _presenceChangeLiveData.postValue(presence) }
+        }.filter {
+            it.isValid()
+        }
+    }
+
+    fun stopWatchingPresence() {
+        membersPresence?.let { webexRepository.webex.people.stopWatchingPresences(it) }
+    }
 }

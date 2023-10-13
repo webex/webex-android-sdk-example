@@ -29,6 +29,8 @@ import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityCallBinding
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.phone.*
+import com.ciscowebex.androidsdk.phone.closedCaptions.CaptionItem
+import com.ciscowebex.androidsdk.phone.closedCaptions.ClosedCaptionsInfo
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 
@@ -456,6 +458,14 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener, 
     }
 
     override fun onStopRinging(call: Call?, ringerType: Call.RingerType) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onClosedCaptionsArrived(closedCaptions: CaptionItem) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onClosedCaptionsInfoChanged(closedCaptionsInfo: ClosedCaptionsInfo) {
         TODO("Not yet implemented")
     }
 

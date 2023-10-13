@@ -102,7 +102,7 @@
     <string name="more_option">MoreOption</string>
     <string name="mute">Mute</string>
     <string name="hold">Hold</string>
-    <string name="speaker">Speaker</string>
+    <string name="audio_mode">Audio Mode</string>
     <string name="add_call">Add Call</string>
     <string name="merge_call">Merge Calls</string>
     <string name="video">Video</string>
@@ -133,6 +133,7 @@
     <string name="person_id">Person Id:</string>
     <string name="person_email">Person Email:</string>
     <string name="person_display_name">Person Display Name:</string>
+    <string name="person_presence_status">Person Status</string>
     <string name="is_moderator">Moderator:</string>
     <string name="is_monitor">Monitor:</string>
     <string name="person_org_id">Person Org Id:</string>
@@ -443,4 +444,31 @@
     <string name="defaultShare">Default</string>
     <string name="enableAudio">Enable Audio:</string>
     <string name="noShareType">None</string>
+    <string name="closedCaptionOptions">Closed Caption Options</string>
+
+    <!-- Presence related Strings -->
+    <string name="presence_active">Active</string>
+    <string name="presence_inactive">Away</string>
+    <string name="presence_busy">Busy</string>
+    <string name="presence_dnd">DND</string>
+    <string name="presence_ooo">Out Of Office</string>
+    <string name="presence_call">In-Call</string>
+    <string name="presence_meeting">In-Meeting</string>
+    <string name="presence_presenting">Sharing Content</string>
+    <string name="presence_calendar">Scheduled Event</string>
+    <string name="presence_unknown">Unknown</string>
+    <string name="presence_pending">Pending</string>
+    <string name="presence_quiet">Quiet</string>
+
+    <!-- Closed Captions related strings -->
+    <string name="cc_title">Closed Captions</string>
+    <string name="cc_switch_label">Enable captions</string>
+    <string name="cc_spoken_language">Spoken Language: %1$s</string>
+    <string name="cc_translated_language">Translated Language: %1$s</string>
+    <string name="cc_show_captions">Show Captions</string>
+    <string name="cc_select_language">Select Language</string>
+    <string name="select_speaker">Speaker</string>
+    <string name="select_phone_earpiece">Phone Earpiece</string>
+    <string name="select_bluetooth">Bluetooth</string>
+    <string name="select_headset">Wired Headset</string>
 </resources>

@@ -46,6 +46,11 @@ import com.ciscowebex.androidsdk.WebexError
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.WebexViewModel
+import com.ciscowebex.androidsdk.kitchensink.calling.captions.ClosedCaptionsController
+import com.ciscowebex.androidsdk.kitchensink.calling.captions.ClosedCaptionsViewModel
+import com.ciscowebex.androidsdk.kitchensink.calling.captions.LanguageData
+import com.ciscowebex.androidsdk.kitchensink.calling.captions.REQUEST_CODE_SPOKEN_LANGUAGE
+import com.ciscowebex.androidsdk.kitchensink.calling.captions.REQUEST_CODE_TRANSLATION_LANGUAGE
 import com.ciscowebex.androidsdk.kitchensink.calling.participants.ParticipantsFragment
 import com.ciscowebex.androidsdk.kitchensink.calling.transcription.TranscriptionsDialogFragment
 import com.ciscowebex.androidsdk.kitchensink.databinding.DialogEnterMeetingPinBinding
@@ -56,6 +61,7 @@ import com.ciscowebex.androidsdk.kitchensink.setup.BackgroundOptionsBottomSheetF
 import com.ciscowebex.androidsdk.kitchensink.utils.AudioManagerUtils
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
+import com.ciscowebex.androidsdk.kitchensink.utils.Constants.Intent.CLOSED_CAPTION_LANGUAGE_ITEM
 import com.ciscowebex.androidsdk.kitchensink.utils.extensions.toast
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogForDTMF
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
@@ -80,18 +86,21 @@ import com.ciscowebex.androidsdk.phone.Breakout
 import com.ciscowebex.androidsdk.phone.BreakoutSession
 import com.ciscowebex.androidsdk.phone.ReceivingNoiseInfo
 import com.ciscowebex.androidsdk.phone.ShareConfig
+import com.ciscowebex.androidsdk.phone.closedCaptions.CaptionItem
+import com.ciscowebex.androidsdk.phone.closedCaptions.ClosedCaptionsInfo
 import org.koin.android.ext.android.inject
 import com.ciscowebex.androidsdk.utils.internal.MimeUtils
+import kotlinx.coroutines.CoroutineScope
 import java.io.File
 import java.util.Date
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.bind
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface {
     private val TAG = "CallControlsFragment"
     val webexViewModel: WebexViewModel by viewModel()
+    val captionsViewModel: ClosedCaptionsViewModel by viewModel()
     private lateinit var binding: FragmentCallControlsBinding
     private var callFailed = false
     private var isIncomingActivity = false
@@ -109,8 +118,10 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     private lateinit var mediaStreamBottomSheetFragment: MediaStreamBottomSheetFragment
     private lateinit var photoViewerBottomSheetFragment: PhotoViewerBottomSheetFragment
     private lateinit var breakoutSessionBottomSheetFragment: BreakoutSessionsBottomSheetFragment
+    private lateinit var switchAudioBottomSheetFragment: SwitchAudioBottomSheetFragment
     private lateinit var incomingInfoAdapter: IncomingCallBottomSheetFragment.IncomingInfoAdapter
     private lateinit var breakoutSessionsAdapter: BreakoutSessionsBottomSheetFragment.BreakoutSessionsAdapter
+    private lateinit var captionsController: ClosedCaptionsController
     private val mAuxStreamViewMap: HashMap<View, AuxStreamViewHolder> = HashMap()
     private var callerId: String = ""
     var bottomSheetFragment: BackgroundOptionsBottomSheetFragment? = null
@@ -786,6 +797,28 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         }
     }
 
+    override fun onClosedCaptionsArrived(captions: CaptionItem) {
+        CoroutineScope(Dispatchers.Main).launch {
+            captionsController.showCaptionView(binding.rootLayout, captions)
+            if(captions.isFinal) {
+                captionsViewModel.updateData(captions)
+                Log.d(TAG, " Captions are arrived from ${captions.getDisplayName()}")
+            }
+        }
+    }
+
+    override fun onClosedCaptionsInfoChanged(closedCaptionsInfo: ClosedCaptionsInfo) {
+        Log.d(
+            TAG,
+            " Captions Info changed: current spkn: ${
+                closedCaptionsInfo.getCurrentSpokenLanguage().getLanguageTitle()
+            } and trns ${closedCaptionsInfo.getCurrentTranslationLanguage().getLanguageTitle()}"
+        )
+        captionsController.setLanguages(requireContext(), closedCaptionsInfo) { intent, code ->
+            startActivityForResult(intent, code)
+        }
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     private fun observerCallLiveData() {
 
@@ -881,6 +914,10 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                     else -> {
                         dismissErrorDialog()
                     }
+                }
+
+                call?.let {
+                    captionsController = ClosedCaptionsController(call)
                 }
             }
         })
@@ -1351,21 +1388,22 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         }
 
         callOptionsBottomSheetFragment = CallBottomSheetFragment(
-                { call -> showIncomingCallBottomSheet()},
-                { call -> showTranscriptions(call) },
-                { call -> toggleWXAClickListener(call) },
-                { call -> receivingVideoListener(call) },
-                { call -> receivingAudioListener(call) },
-                { call -> receivingSharingListener(call) },
-                { call -> scalingModeClickListener(call) },
-                { call -> virtualBackgroundOptionsClickListener(call) },
-                { call -> compositeStreamLayoutClickListener(call) },
-                { call -> swapVideoClickListener(call) },
-                { call -> forceLandscapeClickListener(call) },
-                { call -> cameraOptionsClickListener(call) },
-                { call -> multiStreamOptionsClickListener(call) },
-                { call -> sendDTMFClickListener(call) },
-                { showBreakoutSessions()})
+            { call -> showIncomingCallBottomSheet()},
+            { call -> showTranscriptions(call) },
+            { call -> toggleWXAClickListener(call) },
+            { call -> receivingVideoListener(call) },
+            { call -> receivingAudioListener(call) },
+            { call -> receivingSharingListener(call) },
+            { call -> scalingModeClickListener(call) },
+            { call -> virtualBackgroundOptionsClickListener(call) },
+            { call -> compositeStreamLayoutClickListener(call) },
+            { call -> swapVideoClickListener(call) },
+            { call -> forceLandscapeClickListener(call) },
+            { call -> cameraOptionsClickListener(call) },
+            { call -> multiStreamOptionsClickListener(call) },
+            { call -> sendDTMFClickListener(call) },
+            { showBreakoutSessions() },
+            { call -> showCaptionDialog(call) })
 
         multiStreamOptionsBottomSheetFragment = MultiStreamOptionsBottomSheetFragment({ call -> setCategoryAOptionClickListener(call) },
             { call -> setCategoryBOptionClickListener(call) },
@@ -1399,6 +1437,9 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             { x -> cameraAutoExposureValueSetClickListener(x) })
 
         photoViewerBottomSheetFragment = PhotoViewerBottomSheetFragment()
+
+        switchAudioBottomSheetFragment = SwitchAudioBottomSheetFragment({toggleAudioMode(AudioMode.EARPIECE)},
+            {toggleAudioMode(AudioMode.SPEAKER)}, {toggleAudioMode(AudioMode.BLUETOOTH)}, {toggleAudioMode(AudioMode.WIRED_HEADSET)})
 
         callingActivity = bundle?.getInt(Constants.Intent.CALLING_ACTIVITY_ID, 0)!!
         val incomingCallId = bundle.getString(Constants.Intent.CALL_ID) ?: ""
@@ -1461,7 +1502,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
         binding.ibMute.setOnClickListener(this)
         binding.ibParticipants.setOnClickListener(this)
-        binding.ibSpeaker.setOnClickListener(this)
+        binding.ibAudioMode.setOnClickListener(this)
         binding.ibAdd.setOnClickListener(this)
         binding.ibTransferCall.setOnClickListener(this)
         binding.ibDirecttransferCall.setOnClickListener(this)
@@ -1487,6 +1528,12 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         passwordDialog = Dialog(requireContext())
     }
 
+    private fun showCaptionDialog(call: Call?) {
+        captionsController.showCaptionDialog(requireContext(), call) {intent, code ->
+            startActivityForResult(intent, code)
+        }
+    }
+
     private fun showBreakoutSessions() {
         breakoutSessionsAdapter.sessions = breakoutSessions.toMutableList()
         breakoutSessionBottomSheetFragment.adapter = breakoutSessionsAdapter
@@ -1496,6 +1543,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
     fun answerCall(call: Call) {
         webexViewModel.answer(call, getMediaOption())
+        captionsController = ClosedCaptionsController(call)
     }
 
     private fun initIncomingCallBottomSheet() {
@@ -1519,8 +1567,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                     val dialog = ParticipantsFragment.newInstance(callId)
                     dialog.show(childFragmentManager, ParticipantsFragment::javaClass.name)
                 }
-                binding.ibSpeaker -> {
-                    toggleSpeaker(v)
+                binding.ibAudioMode -> {
+                    switchAudioBottomSheetFragment.show(childFragmentManager, SwitchAudioBottomSheetFragment::javaClass.name)
                 }
                 binding.ibAdd -> {
                     //while associating a call, existing call needs to be put on hold
@@ -2077,9 +2125,19 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 screenShareButtonVisibilityState()
                 directTransferButtonStateUpdate()
                 videoViewTextColorState(webexViewModel.isRemoteVideoMuted)
-
+                updateAudioModeButton()
             }
+        }
+    }
 
+    private fun updateAudioModeButton() {
+        webexViewModel.getCurrentAudioOutputMode()?.let { outputMode ->
+            when (outputMode) {
+                Call.AudioOutputMode.PHONE -> binding.ibAudioMode.setImageResource(R.drawable.ic_earpiece)
+                Call.AudioOutputMode.SPEAKER -> binding.ibAudioMode.setImageResource(R.drawable.ic_speaker)
+                Call.AudioOutputMode.BLUETOOTH_HEADSET -> binding.ibAudioMode.setImageResource(R.drawable.ic_bluetooth)
+                Call.AudioOutputMode.HEADSET -> binding.ibAudioMode.setImageResource(R.drawable.ic_headset)
+            }
         }
     }
 
@@ -2302,22 +2360,40 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         return status
     }
 
-    private fun toggleSpeaker(v: View) {
-        v.isSelected = !v.isSelected
-        when {
-            v.isSelected -> {
-                webexViewModel.switchAudioMode(Call.AudioOutputMode.SPEAKER)
+    private fun toggleAudioMode(mode: AudioMode) {
+        when (mode) {
+            AudioMode.SPEAKER -> {
+                webexViewModel.switchAudioMode(Call.AudioOutputMode.SPEAKER) {
+                    if (it.data == true)
+                        binding.ibAudioMode.setImageResource(R.drawable.ic_speaker)
+                }
             }
-            audioManagerUtils?.isBluetoothHeadsetConnected == true -> {
-                webexViewModel.switchAudioMode(Call.AudioOutputMode.BLUETOOTH_HEADSET)
+            AudioMode.BLUETOOTH -> {
+                webexViewModel.switchAudioMode(Call.AudioOutputMode.BLUETOOTH_HEADSET) {
+                    if (it.data == true)
+                        binding.ibAudioMode.setImageResource(R.drawable.ic_bluetooth)
+                }
             }
-            audioManagerUtils?.isWiredHeadsetOn == true -> {
-                webexViewModel.switchAudioMode(Call.AudioOutputMode.HEADSET)
+            AudioMode.EARPIECE -> {
+                webexViewModel.switchAudioMode(Call.AudioOutputMode.PHONE) {
+                    if (it.data == true)
+                        binding.ibAudioMode.setImageResource(R.drawable.ic_earpiece)
+                }
             }
-            else -> {
-                webexViewModel.switchAudioMode(Call.AudioOutputMode.PHONE)
+            AudioMode.WIRED_HEADSET -> {
+                webexViewModel.switchAudioMode(Call.AudioOutputMode.HEADSET) {
+                    if (it.data == true)
+                        binding.ibAudioMode.setImageResource(R.drawable.ic_headset)
+                }
             }
         }
+    }
+
+    enum class AudioMode {
+        SPEAKER,
+        EARPIECE,
+        BLUETOOTH,
+        WIRED_HEADSET
     }
 
     internal fun handleFCMIncomingCall(callId: String) {
@@ -2599,9 +2675,18 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             val callNumber = data?.getStringExtra(CALLER_ID) ?: ""
             //start call association to add new person on call
             startAssociatedCall(callNumber, CallAssociationType.Transfer, true)
-        }else if (requestCode == REQUEST_CODE_BLINDTRANSFER && resultCode == Activity.RESULT_OK){
+        } else if (requestCode == REQUEST_CODE_BLINDTRANSFER && resultCode == Activity.RESULT_OK) {
             val callNumber = data?.getStringExtra(CALLER_ID) ?: ""
             directTransferCall(callNumber)
+        } else if (
+            (requestCode == REQUEST_CODE_SPOKEN_LANGUAGE || requestCode == REQUEST_CODE_TRANSLATION_LANGUAGE) &&
+            resultCode == Activity.RESULT_OK
+        ) {
+            captionsController.handleLanguageSelection(
+                requireContext(),
+                requestCode,
+                data?.getParcelableExtra<LanguageData>(CLOSED_CAPTION_LANGUAGE_ITEM)
+            )
         }
     }
 
@@ -3002,7 +3087,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         binding.optionButtonsContainer.visibility = currentView
         binding.ibMute.visibility = currentView
         binding.ibHoldCall.visibility = currentView
-        binding.ibSpeaker.visibility = currentView
+        binding.ibAudioMode.visibility = currentView
         binding.controlsRow2.visibility = currentView
         binding.ibVideo.visibility = currentView
         binding.ibParticipants.visibility = currentView
@@ -3019,7 +3104,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         }
         binding.btnReturnToMainSession.visibility = returnToMainSessionVisibility
     }
-    
+
     fun aspectRatio(): Rational {
         var width = binding.videoCallLayout.width.toInt()
         var height = binding.videoCallLayout.height.toInt()

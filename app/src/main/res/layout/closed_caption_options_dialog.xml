@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:background="@drawable/dialog_bg"
+    android:orientation="vertical">
+
+    <Switch
+        android:id="@+id/ccSwitch"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_8dp"
+        android:text="@string/cc_switch_label"/>
+
+    <TextView
+        android:id="@+id/ccSpokenLang"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_8dp"
+        android:background="@drawable/border"
+        android:clickable="true"
+        android:drawableRight="@drawable/ic_arrow_24"
+        android:padding="@dimen/padding_8dp"
+        android:text="@string/cc_spoken_language"/>
+
+    <TextView
+        android:id="@+id/ccTranslatedLang"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_8dp"
+        android:background="@drawable/border"
+        android:clickable="true"
+        android:drawableRight="@drawable/ic_arrow_24"
+        android:padding="@dimen/padding_8dp"
+        android:text="@string/cc_translated_language" />
+
+    <TextView
+        android:id="@+id/ccShowCaptions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_8dp"
+        android:background="@drawable/border"
+        android:clickable="true"
+        android:drawableRight="@drawable/ic_arrow_24"
+        android:padding="@dimen/padding_8dp"
+        android:text="@string/cc_show_captions"/>
+
+    <Button
+        android:id="@+id/ccClose"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Close"
+        android:layout_marginTop="@dimen/padding_8dp"
+        android:layout_gravity="center_horizontal"/>
+</LinearLayout>

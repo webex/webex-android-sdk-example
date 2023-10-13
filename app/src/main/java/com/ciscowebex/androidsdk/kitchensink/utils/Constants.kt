@@ -20,6 +20,9 @@ class Constants {
         const val REJECT_REQUEST_CODE = 1002
         const val FULLSCREEN_REQUEST_CODE = 1001
         const val CALL_TYPE = "SwitchCallType"
+        const val CLOSED_CAPTION_DATA = "closed_captions_data"
+        const val CLOSED_CAPTION_LANGUAGES = "closed_captions_languages"
+        const val CLOSED_CAPTION_LANGUAGE_ITEM = "closed_captions_language_item"
     }
     object Bundle {
         const val MESSAGE_ID = "messageId"
@@ -46,6 +49,7 @@ class Constants {
         const val Fedramp = "fedramp_enabled"
         const val IsVirtualBgAdded = "IsVirtualBgAdded"
         const val IsBackgroundRunningEnabled = "IsBackgroundRunningEnabled"
+        const val appId = "c1ce50069c8b4dfba5d2f916"
     }
     object DefaultMax {
         const val SPACE_MAX = 100

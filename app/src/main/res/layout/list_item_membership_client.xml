@@ -7,6 +7,7 @@
         <variable
             name="membership"
             type="com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -92,6 +93,33 @@
             tools:text="ljkdshflakjshdjfkljasdhflasdkj" />
 
         <TextView
+            android:id="@+id/membershipPersonPresenceLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:text="@string/person_presence_status"
+            app:layout_constraintBottom_toTopOf="@+id/membershipIsModeratorLabel"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/membershipPersonEmailLabel"
+            tools:ignore="RtlSymmetry" />
+
+        <TextView
+            android:id="@+id/membershipPersonPresenceStatusTextView"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:padding="6dp"
+            android:text="@{membership.presenceStatusText}"
+            android:drawablePadding="2dp"
+            android:drawableLeft="@{membership.presenceStatusDrawable}"
+            android:ellipsize="marquee"
+            android:maxLines="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/membershipPersonEmailTextView"
+            tools:text="ljkdshflakjshdjfkljasdhflasdkj" />
+
+        <TextView
             android:id="@+id/membershipIsModeratorLabel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -109,7 +137,7 @@
             android:padding="6dp"
             android:text="@{membership.isModeratorString()}"
             app:layout_constraintStart_toStartOf="@id/guideline1"
-            app:layout_constraintTop_toBottomOf="@id/membershipPersonEmailTextView"
+            app:layout_constraintTop_toBottomOf="@id/membershipPersonPresenceStatusTextView"
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="ljkdshflakjshdjfkljasdhflasdkj" />
 

@@ -44,8 +44,11 @@
                         android:id="@+id/name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
                         android:textSize="@dimen/size_16sp"
                         android:text="@{listItem.name}"
+                        android:drawablePadding="2dp"
+                        android:drawableLeft="@{listItem.presenceStatus}"
                         tools:text="Stephen Hawking (The Second)" />
 
                     <TextView
