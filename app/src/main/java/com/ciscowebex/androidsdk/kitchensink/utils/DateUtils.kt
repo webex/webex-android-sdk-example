@@ -1,5 +1,6 @@
 package com.ciscowebex.androidsdk.kitchensink.utils
 
+import java.text.SimpleDateFormat
 import java.util.*
 
 fun getStartOfDay(date: Date): Date {
@@ -38,4 +39,10 @@ fun formatCallDurationTime(duration: Long): CharSequence {
         ""
     }
     return hh + (if (m < 10) "0$m" else "$m") + ":" + if (s < 10) "0$s" else "$s"
+}
+
+fun getCurrentDate(timeMillis: Long): String {
+    val simpleDateFormat = SimpleDateFormat("MM-dd, HH:mm a", Locale.getDefault())
+    val dateString: String = simpleDateFormat.format(timeMillis)
+    return dateString
 }
