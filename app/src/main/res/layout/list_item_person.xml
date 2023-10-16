@@ -80,13 +80,36 @@
             app:layout_constraintTop_toBottomOf="@id/displayNameTextView"
             tool:text="kjsdnfkashdkjfhasdkjfhasdkjfshjk"/>
 
+        <TextView
+            android:id="@+id/presenceLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/person_presence_status"
+            app:layout_constraintBottom_toBottomOf="@id/presenceStatusTextView"
+            app:layout_constraintEnd_toEndOf="@id/guideline1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/presenceStatusTextView" />
+
+        <TextView
+            android:id="@+id/presenceStatusTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:drawablePadding="@dimen/padding_2dp"
+            android:text="@{person.presenceStatusText}"
+            android:drawableLeft="@{person.presenceStatusDrawable}"
+            android:gravity="center_vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintTop_toBottomOf="@id/emailTextView"
+            tool:text="kjsdnfkashdkjfhasdkjfhasdkjfshjk"/>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
             android:background="@android:color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/emailTextView"/>
+            app:layout_constraintTop_toBottomOf="@id/presenceStatusTextView"/>
 
         <RelativeLayout
             android:id="@+id/progressLayout"

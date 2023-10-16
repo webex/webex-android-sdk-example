@@ -1,5 +1,6 @@
 package com.ciscowebex.androidsdk.kitchensink.search
 
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,9 +16,13 @@ import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.calling.CallActivity
 import com.ciscowebex.androidsdk.kitchensink.databinding.CommonFragmentItemListBinding
 import com.ciscowebex.androidsdk.kitchensink.databinding.FragmentCommonBinding
+import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipModel
+import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipViewModel
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.kitchensink.utils.formatCallDurationTime
+import com.ciscowebex.androidsdk.kitchensink.utils.stateToDrawable
 import com.ciscowebex.androidsdk.phone.CallHistoryRecord
+import com.ciscowebex.androidsdk.space.Space
 import com.google.android.material.snackbar.Snackbar
 import org.koin.android.ext.android.inject
 import java.text.SimpleDateFormat
@@ -25,10 +30,13 @@ import java.text.SimpleDateFormat
 
 class SearchCommonFragment : Fragment() {
     private val searchViewModel: SearchViewModel by inject()
+    private val membershipViewModel: MembershipViewModel by inject()
     private var adapter: CustomAdapter = CustomAdapter()
     private val itemModelList = mutableListOf<ItemModel>()
+    private val directMembers = mutableSetOf<MembershipModel>()
     lateinit var taskType: String
     lateinit var binding: FragmentCommonBinding
+
 
     companion object {
         object TaskType {
@@ -94,6 +102,25 @@ class SearchCommonFragment : Fragment() {
 
     private fun setUpViewModelObservers() {
         // TODO: Put common code inside a function
+        membershipViewModel.presenceChangeLiveData.observe(viewLifecycleOwner) { presence ->
+            directMembers.find { it.personId == presence.getContactId() }?.let { member ->
+                val position = adapter.getPositionById(member.spaceId)
+                if(position >= 0) {
+                    adapter.itemList[position].presenceStatus =
+                        stateToDrawable(this@SearchCommonFragment.requireContext(), presence.getStatus())
+                    adapter.notifyItemChanged(position)
+                }
+            }
+        }
+
+        membershipViewModel.memberships.observe(viewLifecycleOwner) {
+            if(it.size == 2) { // 1-1 space should have exactly 2 members
+                directMembers.add(it[1])
+                membershipViewModel.startWatchingPresence(mutableListOf(it[1].personId))
+            }
+
+        }
+
         searchViewModel.spaces.observe(viewLifecycleOwner, Observer { list ->
             list?.let {
                 if (taskType == TaskType.TaskCallHistory) it.sortedBy { it.created } else it.sortedByDescending { it.lastActivity }
@@ -114,6 +141,11 @@ class SearchCommonFragment : Fragment() {
                             itemModel.isExternallyOwned = it[i].isExternallyOwned ?: false
                             //add in array list
                             itemModelList.add(itemModel)
+
+                            //Fetch members for presence status for 1-1 space result
+                            if (it[i].spaceType == Space.SpaceType.DIRECT) {
+                                membershipViewModel.getMembersIn(id, 2)
+                            }
                         }
                     }
                     adapter.itemList = itemModelList
@@ -167,6 +199,12 @@ class SearchCommonFragment : Fragment() {
                         itemModel.callerId = space.id.orEmpty()
                         itemModel.isExternallyOwned = space.isExternallyOwned
                         itemModelList.add(itemModel)
+
+                        //Fetch members for presence status for 1-1 space result
+                        if (space.type == Space.SpaceType.DIRECT) {
+                            membershipViewModel.getMembersIn(space.id, 2)
+                        }
+
                     }
                     adapter.itemList = itemModelList
                     adapter.notifyDataSetChanged()
@@ -241,6 +279,11 @@ class SearchCommonFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        membershipViewModel.stopWatchingPresence()
+    }
+
     class ItemModel {
         var image = 0
         lateinit var name: String
@@ -251,6 +294,7 @@ class SearchCommonFragment : Fragment() {
         var callDirection = CallHistoryRecord.CallDirection.UNDEFINED
         var isMissedCall = false
         var isPhoneNumber = false
+        var presenceStatus : Drawable? = null
     }
 
     class CustomAdapter() : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {

@@ -19,8 +19,10 @@ import org.json.JSONObject
 import com.ciscowebex.androidsdk.auth.PhoneServiceRegistrationFailureReason
 import com.ciscowebex.androidsdk.auth.TokenAuthenticator
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
+import com.ciscowebex.androidsdk.internal.ResultImpl
 import com.ciscowebex.androidsdk.kitchensink.calling.CallObserverInterface
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
+import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.message.LocalFile
 import com.ciscowebex.androidsdk.phone.ShareConfig
 import com.ciscowebex.androidsdk.phone.BreakoutSession.BreakoutSessionError
@@ -45,6 +47,8 @@ import com.ciscowebex.androidsdk.phone.SwitchToAudioVideoCallResult
 import com.ciscowebex.androidsdk.phone.PhoneConnectionResult
 import com.ciscowebex.androidsdk.phone.ReceivingNoiseInfo
 import com.ciscowebex.androidsdk.phone.ReceivingNoiseRemovalEnableResult
+import com.ciscowebex.androidsdk.phone.closedCaptions.CaptionItem
+import com.ciscowebex.androidsdk.phone.closedCaptions.ClosedCaptionsInfo
 import com.google.firebase.installations.FirebaseInstallations
 import java.io.PrintWriter
 
@@ -541,6 +545,14 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         override fun onReceivingNoiseInfoChanged(info: ReceivingNoiseInfo) {
             callObserverInterface?.onReceivingNoiseInfoChanged(info)
         }
+
+        override fun onClosedCaptionsArrived(closedCaptions: CaptionItem) {
+            callObserverInterface?.onClosedCaptionsArrived(closedCaptions)
+        }
+
+        override fun onClosedCaptionsInfoChanged(closedCaptionsInfo: ClosedCaptionsInfo) {
+            callObserverInterface?.onClosedCaptionsInfoChanged(closedCaptionsInfo)
+        }
     }
 
     val callObserverMap : HashMap<String, VMCallObserver> = HashMap()
@@ -756,7 +768,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     fun setPushTokens(id: String, token: String){
         if(BuildConfig.WEBHOOK_URL.isEmpty()) {
-            webex.phone.setPushTokens(KitchenSinkApp.applicationContext().packageName, id, token)
+            webex.phone.setPushTokens(KitchenSinkApp.applicationContext().packageName, id, token, Constants.Keys.appId)
         }
     }
 
@@ -857,8 +869,20 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
             ?.getValue() as Boolean?
     }
 
-    fun switchAudioMode(mode: Call.AudioOutputMode) {
-        getCall(currentCallId.orEmpty())?.switchAudioOutput(mode)
+    fun switchAudioMode(mode: Call.AudioOutputMode, handler: CompletionHandler<Boolean>) {
+        getCall(currentCallId.orEmpty())?.switchAudioOutput(mode) { result ->
+            if (result.data == false) {
+                Log.d(tag, "ATSDK Error: Switch mode to ${mode.name} failed")
+                handler.onComplete(ResultImpl.success(false))
+            } else {
+                Log.d(tag, "ATSDK Switch mode to ${mode.name} success")
+                handler.onComplete(ResultImpl.success(true))
+            }
+        }
+    }
+
+    fun getCurrentAudioOutputMode(): Call.AudioOutputMode? {
+        return getCall(currentCallId.orEmpty())?.getCurrentAudioOutput()
     }
 
     fun enableAudioBNR(value: Boolean) {

@@ -1,5 +1,6 @@
 package com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members
 
+import android.graphics.drawable.Drawable
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpaceModel
 import com.ciscowebex.androidsdk.membership.Membership
 import java.util.*
@@ -11,14 +12,16 @@ data class MembershipModel(val membershipId: String, val personId: String, val p
     val createdDateTimeString: String = created.toString()
     val isModeratorString: String = isModerator.toString()
     val isMonitorString: String = isMonitor.toString()
+    var presenceStatusText: String = ""
+    var presenceStatusDrawable: Drawable? = null
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as SpaceModel
+        other as MembershipModel
 
-        return membershipId == other.id
+        return membershipId == other.membershipId
     }
 
     override fun hashCode(): Int {

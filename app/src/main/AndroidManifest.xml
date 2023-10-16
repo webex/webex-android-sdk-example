@@ -76,8 +76,7 @@
             android:name=".calling.LockScreenActivity"
             android:showOnLockScreen="true"
             android:showWhenLocked="true"
-            android:turnScreenOn="true"
-            />
+            android:turnScreenOn="true" />
 
         <service
             android:name=".CallRejectService"
@@ -138,13 +137,13 @@
         <activity
             android:name=".calling.CallActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize"
+            android:exported="true"
             android:launchMode="singleTask"
             android:resizeableActivity="true"
             android:showOnLockScreen="true"
             android:showWhenLocked="true"
             android:supportsPictureInPicture="true"
             android:turnScreenOn="true"
-            android:exported="true"
             tools:ignore="UnusedAttribute" />
         <activity
             android:name=".search.SearchActivity"
@@ -182,6 +181,12 @@
         <activity
             android:name=".calling.CucmCallActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".calling.captions.ClosedCaptionsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".calling.captions.ClosedCaptionsLanguageActivity"
+            android:screenOrientation="portrait" />
 
         <service
             android:name=".firebase.KitchenSinkFCMService"
@@ -204,9 +209,8 @@
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/default_notification_channel_id" />
         <meta-data
-                    android:name="android.content.APP_RESTRICTIONS"
-                    android:resource="@xml/app_restrictions" />
-
+            android:name="android.content.APP_RESTRICTIONS"
+            android:resource="@xml/app_restrictions" />
     </application>
 
 </manifest>

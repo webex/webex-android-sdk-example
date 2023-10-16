@@ -19,7 +19,11 @@ import com.ciscowebex.androidsdk.kitchensink.databinding.FragmentMembershipBindi
 import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemMembershipClientBinding
 import com.ciscowebex.androidsdk.kitchensink.person.PersonDialogFragment
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
+import com.ciscowebex.androidsdk.kitchensink.utils.getCurrentDate
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
+import com.ciscowebex.androidsdk.kitchensink.utils.stateToDrawable
+import com.ciscowebex.androidsdk.kitchensink.utils.stateToString
+import com.ciscowebex.androidsdk.people.PresenceStatus
 import org.koin.android.ext.android.inject
 
 class MembershipFragment : Fragment() {
@@ -68,12 +72,52 @@ class MembershipFragment : Fragment() {
                     membershipsRecyclerView.adapter = membershipClientAdapter
                     membershipsRecyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
 
+                    membershipViewModel.presenceChangeLiveData.observe(this@MembershipFragment.viewLifecycleOwner) {
+                        val position =
+                            membershipClientAdapter.getPositionByPersonId(it.getContactId())
+                        if (position >= 0) {
+                            membershipClientAdapter.memberships[position].apply {
+                                presenceStatusDrawable = stateToDrawable(
+                                    this@MembershipFragment.requireContext(),
+                                    it.getStatus()
+                                )
+                                presenceStatusText = stateToString(
+                                    this@MembershipFragment.requireContext(),
+                                    it.getStatus()
+                                )
+
+                                if (PresenceStatus.Inactive == it.getStatus()) {
+                                    if (it.getLastActiveTime() > 0) {
+                                        presenceStatusText =
+                                            presenceStatusText + " | last seen: " + getCurrentDate(
+                                                it.getLastActiveTime()
+                                            )
+                                    }
+                                } else {
+                                    if (it.getExpiresTime() > 0) {
+                                        presenceStatusText =
+                                            presenceStatusText + " | till: " + getCurrentDate(it.getExpiresTime())
+                                    }
+                                }
+
+                                if (!it.getCustomStatus().isNullOrEmpty()) {
+                                    presenceStatusText =
+                                        presenceStatusText + " | " + it.getCustomStatus()
+                                }
+                            }
+                            membershipClientAdapter.notifyItemChanged(position)
+                        }
+                    }
+
                     membershipViewModel.memberships.observe(this@MembershipFragment.viewLifecycleOwner, Observer { model ->
                         model?.let {
                             binding.progressLayout.visibility = View.GONE
                             membershipClientAdapter.memberships.clear()
                             membershipClientAdapter.memberships.addAll(it)
                             membershipClientAdapter.notifyDataSetChanged()
+
+                            val personList:List<String> = membershipClientAdapter.memberships.map { it.personId }
+                            membershipViewModel.startWatchingPresence(personList)
                         }
                     })
 
@@ -96,6 +140,9 @@ class MembershipFragment : Fragment() {
                                 WebexRepository.MembershipEvent.Created -> {
                                     membershipClientAdapter.memberships.add(0, MembershipModel.convertToMembershipModel(it.second))
                                     membershipClientAdapter.notifyItemInserted(0)
+
+                                    val personList:List<String> = membershipClientAdapter.memberships.map { data -> data.personId }
+                                    membershipViewModel.startWatchingPresence(personList)
                                 }
                                 WebexRepository.MembershipEvent.Updated -> {
 
@@ -124,6 +171,11 @@ class MembershipFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         getMembers()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        membershipViewModel.stopWatchingPresence()
     }
 
     private fun getMembers() {
@@ -176,6 +228,10 @@ class MembershipClientAdapter(private val spaceMembershipActionBottomSheetFragme
         return memberships.indexOfFirst { it.membershipId == membershipId }
     }
 
+    fun getPositionByPersonId(personId: String): Int {
+        return memberships.indexOfFirst { it.personId == personId }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MembershipClientViewHolder {
         return MembershipClientViewHolder(ListItemMembershipClientBinding.inflate(LayoutInflater.from(parent.context), parent, false), spaceMembershipActionBottomSheetFragment, spaceId)
     }
@@ -185,7 +241,6 @@ class MembershipClientAdapter(private val spaceMembershipActionBottomSheetFragme
     override fun onBindViewHolder(holder: MembershipClientViewHolder, position: Int) {
         holder.bind(memberships[position])
     }
-
 }
 
 class MembershipClientViewHolder(private val binding: ListItemMembershipClientBinding, private val spaceMembershipActionBottomSheetFragment: SpaceMembershipActionBottomSheetFragment, private val spaceId: String?) : RecyclerView.ViewHolder(binding.root) {

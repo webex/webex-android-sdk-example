@@ -339,6 +339,28 @@
             app:layout_constraintTop_toBottomOf="@id/breakoutSessions" />
 
         <TextView
+            android:id="@+id/closedCaptionOptions"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/lightYellow"
+            android:paddingVertical="@dimen/size_8dp"
+            android:text="@string/closedCaptionOptions"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/breakoutSessionsSeparator" />
+
+        <View
+            android:id="@+id/closedCaptionSeparator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/closedCaptionOptions" />
+
+        <TextView
             android:id="@+id/cancel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -349,6 +371,6 @@
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/breakoutSessionsSeparator" />
+            app:layout_constraintTop_toBottomOf="@id/closedCaptionSeparator" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

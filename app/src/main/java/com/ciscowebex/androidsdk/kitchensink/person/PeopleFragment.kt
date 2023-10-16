@@ -1,6 +1,8 @@
 package com.ciscowebex.androidsdk.kitchensink.person
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.InputType
 import android.view.LayoutInflater
@@ -20,8 +22,13 @@ import com.ciscowebex.androidsdk.kitchensink.databinding.DialogCreatePersonBindi
 import com.ciscowebex.androidsdk.kitchensink.databinding.FragmentPersonBinding
 import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemPersonBinding
 import com.ciscowebex.androidsdk.kitchensink.messaging.composer.MessageComposerActivity
+import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipViewModel
 import com.ciscowebex.androidsdk.kitchensink.utils.extensions.isValidEmail
+import com.ciscowebex.androidsdk.kitchensink.utils.getCurrentDate
+import com.ciscowebex.androidsdk.kitchensink.utils.stateToDrawable
+import com.ciscowebex.androidsdk.kitchensink.utils.stateToString
 import com.ciscowebex.androidsdk.people.PersonRole
+import com.ciscowebex.androidsdk.people.PresenceStatus
 import com.ciscowebex.androidsdk.utils.EmailAddress
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.koin.android.ext.android.inject
@@ -32,6 +39,7 @@ class PeopleFragment : Fragment() {
     private lateinit var peopleClientAdapter: PeopleClientAdapter
 
     private val personViewModel: PersonViewModel by inject()
+    private val membershipViewModel: MembershipViewModel by inject()
     private val commaDelimiter = ","
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -48,11 +56,55 @@ class PeopleFragment : Fragment() {
             recyclerView.adapter = peopleClientAdapter
             lifecycleOwner = this@PeopleFragment
 
+            membershipViewModel.presenceChangeLiveData.observe(this@PeopleFragment.viewLifecycleOwner) {
+                val position = peopleClientAdapter.getPositionById(it.getContactId())
+                if(position >= 0) {
+                    peopleClientAdapter.persons[position].apply {
+                        presenceStatusDrawable = stateToDrawable(
+                            this@PeopleFragment.requireContext(),
+                            it.getStatus()
+                        )
+                        presenceStatusText = stateToString(
+                            this@PeopleFragment.requireContext(),
+                            it.getStatus()
+                        )
+
+                        if (PresenceStatus.Inactive == it.getStatus()) {
+                            if (it.getLastActiveTime() > 0) {
+                                presenceStatusText =
+                                    presenceStatusText + " | last seen: " + getCurrentDate(
+                                        it.getLastActiveTime()
+                                    )
+                            }
+                        } else {
+                            if (it.getExpiresTime() > 0) {
+                                presenceStatusText =
+                                    presenceStatusText + " | till: " + getCurrentDate(it.getExpiresTime())
+                            }
+                        }
+
+                        if (!it.getCustomStatus().isNullOrEmpty()) {
+                            presenceStatusText =
+                                presenceStatusText + " | " + it.getCustomStatus()
+                        }
+                    }
+                    peopleClientAdapter.notifyItemChanged(position)
+                }
+            }
+
             personViewModel.personList.observe(this@PeopleFragment.viewLifecycleOwner, Observer { list ->
                 list?.let {
                     peopleClientAdapter.persons.clear()
                     peopleClientAdapter.persons.addAll(it)
                     peopleClientAdapter.notifyDataSetChanged()
+
+                    membershipViewModel.stopWatchingPresence()
+                    val personList = peopleClientAdapter.persons.map { data -> data.personId }
+                    // Posting on main thread as, previous stop call was also on main thread. So putting
+                    //  start watching to the last in main thread task queue
+                    Handler(Looper.getMainLooper()).post(){
+                        membershipViewModel.startWatchingPresence(personList)
+                    }
                 }
             })
 
@@ -85,6 +137,11 @@ class PeopleFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         personViewModel.getPeopleList(null, null, null, null, resources.getInteger(R.integer.person_list_size))
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        membershipViewModel.stopWatchingPresence()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -232,6 +289,10 @@ class PeopleClientAdapter(private val optionsDialogFragment: PeopleActionBottomS
 
     override fun onBindViewHolder(holder: PeopleClientViewHolder, position: Int) {
         holder.bind(persons[position])
+    }
+
+    fun getPositionById(personId: String): Int {
+        return persons.indexOfFirst { it.personId == personId }
     }
 }
 

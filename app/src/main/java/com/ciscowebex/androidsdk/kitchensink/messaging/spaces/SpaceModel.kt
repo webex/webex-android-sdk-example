@@ -1,5 +1,6 @@
 package com.ciscowebex.androidsdk.kitchensink.messaging.spaces
 
+import android.graphics.drawable.Drawable
 import com.ciscowebex.androidsdk.space.Space
 import com.ciscowebex.androidsdk.space.Space.SpaceType
 import java.util.*
@@ -18,6 +19,7 @@ data class SpaceModel(
 
     val createdDateTimeString: String = created.toString()
     val lastActivityTimestampString: String = lastActivity.toString()
+    var presenceStatus: Drawable? = null
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

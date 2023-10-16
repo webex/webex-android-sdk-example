@@ -6,6 +6,8 @@ import com.ciscowebex.androidsdk.phone.Call
 import com.ciscowebex.androidsdk.phone.CallObserver
 import com.ciscowebex.androidsdk.phone.BreakoutSession.BreakoutSessionError
 import com.ciscowebex.androidsdk.phone.ReceivingNoiseInfo
+import com.ciscowebex.androidsdk.phone.closedCaptions.CaptionItem
+import com.ciscowebex.androidsdk.phone.closedCaptions.ClosedCaptionsInfo
 
 /*
 * This interface is written to overcome the limitation of live data postValue.
@@ -41,4 +43,8 @@ interface CallObserverInterface {
     fun onBreakoutUpdated(breakout: Breakout)
     fun onBreakoutError(error: BreakoutSessionError)
     fun onReceivingNoiseInfoChanged(info: ReceivingNoiseInfo)
+
+    // Closedcaption
+    fun onClosedCaptionsArrived(closedCaptions: CaptionItem)
+    fun onClosedCaptionsInfoChanged(closedCaptionsInfo: ClosedCaptionsInfo)
 }
