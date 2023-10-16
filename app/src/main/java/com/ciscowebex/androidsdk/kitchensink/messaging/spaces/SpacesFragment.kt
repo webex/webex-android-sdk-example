@@ -237,7 +237,7 @@ class SpacesFragment : Fragment() {
                 val position = spacesClientAdapter.getPositionById(member.spaceId)
                 if(position >= 0) {
                     spacesClientAdapter.spaces[position].presenceStatus =
-                        stateToDrawable(this@SpacesFragment.requireContext(), presence.getState())
+                        stateToDrawable(this@SpacesFragment.requireContext(), presence.getStatus())
                     spacesClientAdapter.notifyItemChanged(position)
                 }
             }

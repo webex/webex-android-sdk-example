@@ -62,14 +62,14 @@ class PeopleFragment : Fragment() {
                     peopleClientAdapter.persons[position].apply {
                         presenceStatusDrawable = stateToDrawable(
                             this@PeopleFragment.requireContext(),
-                            it.getState()
+                            it.getStatus()
                         )
                         presenceStatusText = stateToString(
                             this@PeopleFragment.requireContext(),
-                            it.getState()
+                            it.getStatus()
                         )
 
-                        if (PresenceStatus.Inactive == it.getState()) {
+                        if (PresenceStatus.Inactive == it.getStatus()) {
                             if (it.getLastActiveTime() > 0) {
                                 presenceStatusText =
                                     presenceStatusText + " | last seen: " + getCurrentDate(

@@ -107,7 +107,7 @@ class SearchCommonFragment : Fragment() {
                 val position = adapter.getPositionById(member.spaceId)
                 if(position >= 0) {
                     adapter.itemList[position].presenceStatus =
-                        stateToDrawable(this@SearchCommonFragment.requireContext(), presence.getState())
+                        stateToDrawable(this@SearchCommonFragment.requireContext(), presence.getStatus())
                     adapter.notifyItemChanged(position)
                 }
             }
