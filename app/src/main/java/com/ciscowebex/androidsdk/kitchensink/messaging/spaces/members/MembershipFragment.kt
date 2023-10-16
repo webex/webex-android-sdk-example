@@ -23,7 +23,6 @@ import com.ciscowebex.androidsdk.kitchensink.utils.getCurrentDate
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
 import com.ciscowebex.androidsdk.kitchensink.utils.stateToDrawable
 import com.ciscowebex.androidsdk.kitchensink.utils.stateToString
-import com.ciscowebex.androidsdk.people.Presence
 import com.ciscowebex.androidsdk.people.PresenceStatus
 import org.koin.android.ext.android.inject
 
@@ -80,14 +79,14 @@ class MembershipFragment : Fragment() {
                             membershipClientAdapter.memberships[position].apply {
                                 presenceStatusDrawable = stateToDrawable(
                                     this@MembershipFragment.requireContext(),
-                                    it.getState()
+                                    it.getStatus()
                                 )
                                 presenceStatusText = stateToString(
                                     this@MembershipFragment.requireContext(),
-                                    it.getState()
+                                    it.getStatus()
                                 )
 
-                                if (PresenceStatus.Inactive == it.getState()) {
+                                if (PresenceStatus.Inactive == it.getStatus()) {
                                     if (it.getLastActiveTime() > 0) {
                                         presenceStatusText =
                                             presenceStatusText + " | last seen: " + getCurrentDate(
