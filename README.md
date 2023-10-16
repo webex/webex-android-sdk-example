@@ -35,33 +35,6 @@ This demo support Android device with **Android 7.0** or later
 ## Integration
 
 ### Option 1
-1. Put AAR file in libs folder of your Android project
-2. Open the project level Gradle file and add the following lines under the repositories tag, which is nested under allprojects.
-
-      ```
-      allprojects {
-        repositories {
-            jcenter()
-            google()
-            flatDir { dirs 'aars'} //add this line
-        }
-      }
-      ```
-3. Add the following dependency in module level Gradle file and press sync-now
-   
-    - For Full SDK
-      ```
-        implementation files('libs/WebexSDK.aar')
-      ```
-    - For Meeting SDK
-      ```
-        implementation files('libs/WebexSDK-Meeting.aar')
-      ```
-    - For WebexCalling SDK
-      ```
-        implementation files('libs/WebexSDK-Wxc.aar')
-      ```
-### Option 2
 
    1. Add the following repository to your top-level `build.gradle` file:
         ```
@@ -69,29 +42,16 @@ This demo support Android device with **Android 7.0** or later
             repositories {
                 jcenter()
                 maven {
-                    url 'https://devhub.cisco.com/artifactory/webexsdk/'
+                    url 'https://devhub.cisco.com/artifactory/webexsdk-SNAPSHOT/'
                 }
             }
         }
         ```
    2. Add the `webex-android-sdk` library as a dependency for your app in the `build.gradle` file:
-
-       - For Full SDK
-         ```
-         dependencies {
-             implementation 'com.ciscowebex:webexsdk:3.10.0'
-         }
-         ```
-       - For Meeting SDK
-         ```
-         dependencies {
-         implementation 'com.ciscowebex:webexsdk-meeting:3.10.0'
-         }
-         ```
        - For WebexCalling SDK
          ```
          dependencies {
-         implementation 'com.ciscowebex:webexsdk-wxc:3.10.0'
+         implementation 'com.ciscowebex:webexsdk-wxc:3.10.0-SNAPSHOT'
          }
          ```
 
