@@ -24,6 +24,7 @@ import com.ciscowebex.androidsdk.kitchensink.calling.CallObserverInterface
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.message.LocalFile
+import com.ciscowebex.androidsdk.people.ProductCapability
 import com.ciscowebex.androidsdk.phone.ShareConfig
 import com.ciscowebex.androidsdk.phone.BreakoutSession.BreakoutSessionError
 import com.ciscowebex.androidsdk.phone.Call
@@ -1277,6 +1278,10 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         return webex.spaces.isSpacesSyncCompleted()
     }
 
+    fun getProductCapability(): ProductCapability {
+        return webex.people.getProductCapability()
+    }
+
     fun getReceivingNoiseInfo(): ReceivingNoiseInfo? {
         return getCall(currentCallId.orEmpty())?.getReceivingNoiseInfo()
     }
@@ -1284,7 +1289,6 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     fun enableReceivingNoiseRemoval(enable: Boolean, callback: CompletionHandler<ReceivingNoiseRemovalEnableResult>) {
         getCall(currentCallId.orEmpty())?.enableReceivingNoiseRemoval(enable, callback)
     }
-
 
     fun isVideoEnabled(): Boolean {
         return getCall(currentCallId.orEmpty())?.isVideoEnabled() ?: false
