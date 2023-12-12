@@ -31,6 +31,7 @@ import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils.clearLoginTyp
 import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils.saveLoginTypePref
 import com.ciscowebex.androidsdk.kitchensink.webhooks.WebhooksActivity
 import com.ciscowebex.androidsdk.message.LocalFile
+import com.ciscowebex.androidsdk.people.ProductCapability
 import com.ciscowebex.androidsdk.phone.Phone
 import com.google.android.material.snackbar.Snackbar
 import org.koin.android.ext.android.inject
@@ -154,6 +155,8 @@ class HomeActivity : BaseActivity() {
 
                     ivGetMe.setOnClickListener {
                         PersonDialogFragment().show(supportFragmentManager, getString(R.string.person_detail))
+                        val capability = getProductCapability()
+                        Log.d(tag, "messaging capability: ${capability.isMessagingSupported()} calling capability: ${capability.isCallingSupported()} meeting capability: ${capability.isMeetingSupported()}")
                     }
 
                     ivFeedback.setOnClickListener {
@@ -198,7 +201,6 @@ class HomeActivity : BaseActivity() {
         webexViewModel.setMembershipObserver()
         webexViewModel.setMessageObserver()
         webexViewModel.setCalendarMeetingObserver()
-
         // UC Login
         webexViewModel.startUCServices()
         observeUCLoginData()
@@ -315,6 +317,10 @@ class HomeActivity : BaseActivity() {
                 }
             })
         }
+    }
+
+    private fun getProductCapability() : ProductCapability {
+        return webexViewModel.getProductCapability()
     }
 
     override fun dump(
