@@ -74,6 +74,28 @@
             app:layout_constraintTop_toBottomOf="@id/showTranscripts" />
 
         <TextView
+            android:id="@+id/claimHost"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/red"
+            android:paddingVertical="@dimen/size_8dp"
+            android:text="@string/claim_host"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/transcriptsSeparator"/>
+
+        <View
+            android:id="@+id/claimHostSeparator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/claimHost" />
+
+        <TextView
             android:id="@+id/enableWXA"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -84,7 +106,7 @@
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/transcriptsSeparator" />
+            app:layout_constraintTop_toBottomOf="@id/claimHostSeparator" />
 
         <View
             android:id="@+id/enableWXASeparator"

@@ -453,12 +453,28 @@
                 android:padding="@dimen/padding_4dp"
                 android:src="@drawable/ic_noise_none_filled"
                 android:visibility="invisible"
-                tools:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="@id/iv_cancel_call"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toEndOf="@id/iv_cancel_call"
-                app:layout_constraintTop_toTopOf="@id/iv_cancel_call" />
+                app:layout_constraintTop_toTopOf="@id/iv_cancel_call"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/annotation_policy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding_8dp"
+                android:src="@drawable/ic_noise_none_filled"
+                android:text="@string/annotation_policy_first"
+                android:visibility="invisible"
+                android:clickable="true"
+                android:focusable="true"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/iv_receiving_noise_removal"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/iv_receiving_noise_removal"
+                tools:visibility="visible"  />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

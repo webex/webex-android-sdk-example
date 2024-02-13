@@ -118,3 +118,6 @@
 -keep enum com.ciscowebex.androidsdk.utils.internal.NetTypes{
 *;
 }
+-keep class com.cisco.newb.** {
+ *;
+ }

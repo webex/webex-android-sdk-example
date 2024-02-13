@@ -24,7 +24,9 @@ import android.util.Pair
 import android.util.Rational
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.INVISIBLE
 import android.view.View.OnClickListener
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ImageButton
@@ -43,6 +45,8 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.WebexError
+import com.ciscowebex.androidsdk.annotation.renderer.LiveAnnotationRenderer
+import com.ciscowebex.androidsdk.kitchensink.BuildConfig
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.WebexViewModel
@@ -66,6 +70,7 @@ import com.ciscowebex.androidsdk.kitchensink.utils.extensions.toast
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogForDTMF
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
 import com.ciscowebex.androidsdk.kitchensink.utils.UIUtils
+import com.ciscowebex.androidsdk.kitchensink.utils.showDialogForHostKey
 import com.ciscowebex.androidsdk.message.LocalFile
 import com.ciscowebex.androidsdk.phone.AuxStream
 import com.ciscowebex.androidsdk.phone.Call
@@ -86,6 +91,7 @@ import com.ciscowebex.androidsdk.phone.Breakout
 import com.ciscowebex.androidsdk.phone.BreakoutSession
 import com.ciscowebex.androidsdk.phone.ReceivingNoiseInfo
 import com.ciscowebex.androidsdk.phone.ShareConfig
+import com.ciscowebex.androidsdk.phone.annotation.LiveAnnotationsPolicy
 import com.ciscowebex.androidsdk.phone.closedCaptions.CaptionItem
 import com.ciscowebex.androidsdk.phone.closedCaptions.ClosedCaptionsInfo
 import org.koin.android.ext.android.inject
@@ -128,12 +134,13 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     var onCallActionListener: OnCallActionListener? = null
     private var breakoutSessions : List<BreakoutSession> = emptyList()
     private var breakout: Breakout? = null
-    private var dialType = DialType.NONE;
+    private var dialType = DialType.NONE
     private val mediaPlayer: MediaPlayer = MediaPlayer()
     private lateinit var passwordDialogBinding: DialogEnterMeetingPinBinding
     private lateinit var passwordDialog : Dialog
-    private var isInPipMode = false;
+    private var isInPipMode = false
     private var screenShareOptionsDialog: AlertDialog? = null
+    private lateinit var annotationPermissionDialog: AlertDialog
 
     // Is true when trying to join a Breakout Session, and becomes false when successfully joined or error occurs
     // Call onDisconnected is fired when user is the last one to leave main session and tries to join a breakout session.
@@ -497,6 +504,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             if (event.isAvailable()) {
                 if (event.getStream()?.getStreamType() == MediaStreamType.Stream1) {
                     //remote media stream
+                    onVideoStreamingChanged(webexViewModel.currentCallId.toString())
                     setRemoteVideoInformation(event.getStream()?.getPerson()?.getDisplayName().orEmpty(), !(event.getStream()?.getPerson()?.isSendingAudio() ?: true))
                 } else {
                     Log.d(TAG, "CallObserver OnMediaChanged MediaStreamAvailabilityEvent personID: ${event.getStream()?.getPerson()?.getPersonId()}," +
@@ -832,6 +840,13 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             status?.let {
                 if (it) {
                     Log.d(TAG, "startShareLiveData success")
+                    // For this share screen session initialize live annotations
+                    webexViewModel.initalizeAnnotations(LiveAnnotationRenderer(requireContext()))
+                    if(BuildConfig.FLAVOR != "wxc") {
+                        binding.annotationPolicy.visibility = VISIBLE
+                        binding.annotationPolicy.text = webexViewModel.getCurrentLiveAnnotationPolicy().toString()
+                    }
+
                 } else {
                     updateScreenShareButtonState(ShareButtonState.OFF)
                     Log.d(TAG, "User cancelled screen request")
@@ -847,6 +862,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                     Log.d(TAG, "stopShareLiveData Failed")
                 }
             }
+            binding.annotationPolicy.visibility = INVISIBLE
         })
 
         webexViewModel.setCompositeLayoutLiveData.observe(viewLifecycleOwner, Observer { result ->
@@ -885,10 +901,10 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                         onCallJoined(call)
                         handleCallControls(call)
                     }
-                    WebexRepository.CallEvent.DialFailed, WebexRepository.CallEvent.WrongApiCalled -> {
+                    WebexRepository.CallEvent.DialFailed, WebexRepository.CallEvent.WrongApiCalled, WebexRepository.CallEvent.CannotStartInstantMeeting -> {
                         dismissErrorDialog()
                         val callActivity = activity as CallActivity?
-                        callActivity?.alertDialog(true, errorMessage ?: "")
+                        callActivity?.alertDialog(true, errorMessage ?: event.name)
                     }
                     WebexRepository.CallEvent.AnswerCompleted -> {
                         webexViewModel.currentCallId = call?.getCallId()
@@ -1017,6 +1033,13 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             bottomSheetFragment?.backgrounds?.add(emptyBackground)
             bottomSheetFragment?.adapter?.notifyDataSetChanged()
         })
+
+        webexViewModel.annotationEvent.observe(viewLifecycleOwner) { event ->
+            when (event) {
+                is WebexViewModel.AnnotationEvent.PERMISSION_ASK -> toggleAnnotationPermissionDialog(true, event.personId)
+                is WebexViewModel.AnnotationEvent.PERMISSION_EXPIRED -> toggleAnnotationPermissionDialog(false, event.personId)
+            }
+        }
     }
 
     private fun handleOnBackgroundChanged(virtualBackground: VirtualBackground) {
@@ -1402,6 +1425,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             { call -> cameraOptionsClickListener(call) },
             { call -> multiStreamOptionsClickListener(call) },
             { call -> sendDTMFClickListener(call) },
+            {  claimHostClickListener() },
             { showBreakoutSessions() },
             { call -> showCaptionDialog(call) })
 
@@ -1526,6 +1550,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         binding.btnReturnToMainSession.visibility = View.INVISIBLE
 
         passwordDialog = Dialog(requireContext())
+
+        binding.annotationPolicy.setOnClickListener(this)
     }
 
     private fun showCaptionDialog(call: Call?) {
@@ -1647,10 +1673,35 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                                 Log.d(TAG, "ReceivingNoiseRemoval enableAPIResult = error : ${it.error?.errorMessage.orEmpty()}")
                         }
                 }
+                binding.annotationPolicy -> {
+                    showPolicySelectionListDialog()
+                }
                 else -> {
                 }
             }
         }
+    }
+
+    private fun showPolicySelectionListDialog() {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle(getString(R.string.annotation_policy))
+        val policyList = { resources.getStringArray(R.array.annotation_policy) }
+        builder.setSingleChoiceItems(policyList(), 0) { dialog, which ->
+            when (which) {
+                0 -> {
+                    webexViewModel.setLiveAnnotationPolicy(LiveAnnotationsPolicy.NobodyCanAnnotate)
+                }
+                1 -> {
+                    webexViewModel.setLiveAnnotationPolicy(LiveAnnotationsPolicy.AnyoneCanAnnotate)
+                }
+                2 -> {
+                    webexViewModel.setLiveAnnotationPolicy(LiveAnnotationsPolicy.NeedAskForAnnotate)
+                }
+            }
+            binding.annotationPolicy.text = policyList()[which]
+            dialog.dismiss()
+        }
+        builder.show()
     }
 
     private fun mainContentLayoutClickListener() {
@@ -1818,6 +1869,26 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         screenShareOptionsDialog = builder.create()
         screenShareOptionsDialog?.setCanceledOnTouchOutside(false)
         screenShareOptionsDialog?.show()
+    }
+
+    private fun toggleAnnotationPermissionDialog(show: Boolean, personID: String?) {
+        if (show) {
+            // Show the permission dialog
+            annotationPermissionDialog = AlertDialog.Builder(context)
+                .setTitle("Live Annotation Permission")
+                .setMessage("Annotation request received.")
+                .setPositiveButton(getString(R.string.accept)) { _, _ ->
+                    webexViewModel.handleAnnotationPermission(true, personID!!)
+                }
+                .setNegativeButton(getString(R.string.cancel)) { _, _ ->
+                    webexViewModel.handleAnnotationPermission(false, personID!!)
+                }
+                .create()
+
+            annotationPermissionDialog.show()
+        } else {
+            if(annotationPermissionDialog.isShowing) annotationPermissionDialog.dismiss()
+        }
     }
 
     fun needBackPressed(): Boolean {
@@ -2783,6 +2854,24 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         })
     }
 
+    private fun claimHostClickListener() {
+        Log.d(TAG, "claimHostClickListener")
+        showDialogForHostKey(requireContext(), getString(R.string.enter_host_key), onPositiveButtonClick = { dialog: DialogInterface, number: String ->
+            webexViewModel.reclaimHost(number){
+                if (it.isSuccessful) {
+                    showToast("Reclaim Host Successful")
+                    Log.d(TAG, "Reclaim Host Successful")
+                } else {
+                    showToast("Reclaim Host failed ${it.error?.errorMessage}")
+                    Log.d(TAG, "Reclaim Host failed ${it.error?.errorMessage}")
+                }
+            }
+            dialog.dismiss()
+        }, onNegativeButtonClick = { dialog: DialogInterface, _: Int ->
+            dialog.dismiss()
+        })
+    }
+
     private fun setCategoryAOptionClickListener(call: Call?) {
         Log.d(TAG, "setCategoryAOptionClickListener")
         showMultiStreamDataOptionsBottomSheetFragment(call, MultiStreamDataOptionsBottomSheetFragment.OptionType.CategoryA)
@@ -3139,5 +3228,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         dismissErrorDialog()
         mediaPlayer.reset()
         super.onStop()
+    }
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
     }
 }

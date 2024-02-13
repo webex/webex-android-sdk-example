@@ -17,7 +17,10 @@ import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexViewModel
 import com.ciscowebex.androidsdk.kitchensink.calling.CallActivity
 import com.ciscowebex.androidsdk.kitchensink.databinding.FragmentParticipantsBinding
+import com.ciscowebex.androidsdk.kitchensink.utils.showDialogForTextBox
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
+import com.ciscowebex.androidsdk.phone.MakeHostError
+import com.ciscowebex.androidsdk.phone.InviteParticipantError
 import com.ciscowebex.androidsdk.phone.CallMembership
 import kotlinx.android.synthetic.main.fragment_participants.*
 
@@ -29,6 +32,7 @@ class ParticipantsFragment : DialogFragment(), ParticipantsAdapter.OnItemActionL
     private lateinit var webexViewModel: WebexViewModel
     private var currentCallId: String? = null
     private var selfId: String? = null
+    private var isSelfModerator: Boolean = false
 
     companion object {
         private const val CALL_KEY = "call_id"
@@ -64,9 +68,17 @@ class ParticipantsFragment : DialogFragment(), ParticipantsAdapter.OnItemActionL
     }
 
     private fun setUpViews() {
-        adapter = ParticipantsAdapter(arrayListOf(), this, selfId.orEmpty())
+        val callMembership = webexViewModel.getCall(webexViewModel.currentCallId.orEmpty())?.getMemberships()
+        for(member in callMembership.orEmpty())
+        {
+            if(member.isSelf() && member.isHost())
+            {
+                isSelfModerator = true
+                break
+            }
+        }
+        adapter = ParticipantsAdapter(arrayListOf(), this, selfId.orEmpty(), isSelfModerator)
         binding.participants.adapter = adapter
-
         val dividerItemDecoration = DividerItemDecoration(requireContext(),
                 LinearLayoutManager.VERTICAL)
         binding.participants.addItemDecoration(dividerItemDecoration)
@@ -76,7 +88,7 @@ class ParticipantsFragment : DialogFragment(), ParticipantsAdapter.OnItemActionL
             webexViewModel.getParticipants(_callId)
         }
 
-        webexViewModel.callMembershipsLiveData.observe(this, Observer {
+        webexViewModel.callMembershipsLiveData.observe(this, Observer { it ->
             it?.let { callMemberships ->
                 Log.d(tag, callMemberships.toString())
                 val data = arrayListOf<Any>()
@@ -106,6 +118,9 @@ class ParticipantsFragment : DialogFragment(), ParticipantsAdapter.OnItemActionL
             } else {
                 showToast(getString(R.string.mute_feature_is_not_available_for_cucm_calls))
             }
+        }
+        binding.inviteParticipantButton.setOnClickListener {
+            inviteParticipant()
         }
 
         binding.close.setOnClickListener { dismiss() }
@@ -144,6 +159,46 @@ class ParticipantsFragment : DialogFragment(), ParticipantsAdapter.OnItemActionL
                             dialog.dismiss()
                         })
             }
+        }
+    }
+
+    private fun inviteParticipant() {
+        showDialogForTextBox(requireContext(), getString(R.string.invite_participant), onPositiveButtonClick = { dialog: DialogInterface, invitee: String ->
+            webexViewModel.inviteParticipant(invitee) {
+                if (it.isSuccessful) {
+                    showToast("Invite Participant Successful")
+                    Log.d(tag, "Invite Participant Successful")
+                } else {
+                    showToast("Invite Participant failed ${it.error?.errorMessage}")
+                    Log.d(tag, "Invite Participant failed ${it.error?.errorMessage}")
+                }
+            }
+            dialog.dismiss()
+        }, onNegativeButtonClick = { dialog: DialogInterface, _: Int ->
+            dialog.dismiss()
+        })
+    }
+
+    override fun onMakeHostClicked(participantId: String) {
+        context?.let {
+            ctx->
+            showDialogWithMessage(ctx, getString(R.string.message), getString(R.string.assign_host_confirmation),
+                    onPositiveButtonClick = { dialog, _ ->
+                        currentCallId?.let {
+                            webexViewModel.makeHost(participantId) {
+                                if (it.isSuccessful) {
+                                    showToast(getString(R.string.assign_host_success))
+                                } else {
+                                    showToast(it.error?.errorMessage ?: getString(R.string.assign_host_failure))
+                                }
+
+                            }
+                        }
+                        dialog.dismiss()
+                    },
+                    onNegativeButtonClick = { dialog, _ ->
+                        dialog.dismiss()
+                    })
         }
     }
 }

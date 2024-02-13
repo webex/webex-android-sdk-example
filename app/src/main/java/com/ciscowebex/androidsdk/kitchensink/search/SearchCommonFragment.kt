@@ -135,7 +135,12 @@ class SearchCommonFragment : Fragment() {
                         if (item == null) {
                             val itemModel = ItemModel()
                             itemModel.name = it[i].title
-                            itemModel.image = R.drawable.ic_call
+                            if(it[i].spaceType == Space.SpaceType.DIRECT) {
+                                itemModel.image = R.drawable.ic_call
+                            }
+                            else {
+                                itemModel.image = 0
+                            }
                             itemModel.callerId = id
                             itemModel.ongoing = searchViewModel.isSpaceCallStarted() && searchViewModel.spaceCallId() == id
                             itemModel.isExternallyOwned = it[i].isExternallyOwned ?: false
@@ -317,6 +322,10 @@ class SearchCommonFragment : Fragment() {
 
             fun bind(itemModel: ItemModel) {
                 binding.listItem = itemModel
+                if(itemModel.image == 0)
+                    binding.image.visibility = View.GONE
+                else
+                    binding.image.visibility = View.VISIBLE
                 binding.image.setOnClickListener {
                     it.context.startActivity(CallActivity.getOutgoingIntent(it.context, itemModel.callerId, itemModel.isPhoneNumber))
                 }

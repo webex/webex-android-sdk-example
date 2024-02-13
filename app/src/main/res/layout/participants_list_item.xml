@@ -60,6 +60,48 @@
                 android:textSize="12sp"
                 android:textStyle="italic"
                 android:maxLines="1" />
+
+            <TextView
+                android:id="@+id/presenter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:gravity="center_vertical"
+                android:textSize="12sp"
+                android:textStyle="italic"
+                android:text="@string/presenter"
+                android:maxLines="1" />
+
+            <TextView
+                android:id="@+id/host"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:gravity="center_vertical"
+                android:textSize="12sp"
+                android:textStyle="italic"
+                android:text="@string/host"
+                android:maxLines="1" />
+
+            <TextView
+                android:id="@+id/cohost"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:gravity="center_vertical"
+                android:textSize="12sp"
+                android:textStyle="italic"
+                android:text="@string/cohost"
+                android:maxLines="1" />
+
+            <Button
+                android:id="@+id/makeHost"
+                android:layout_width="@dimen/icon_join_button_width"
+                android:layout_height="@dimen/icon_join_button_height"
+                android:backgroundTint="@color/green"
+                android:text="@string/makeHost"
+                android:textSize="10sp" />
+
         </LinearLayout>
 
 

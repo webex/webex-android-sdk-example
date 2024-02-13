@@ -28,6 +28,8 @@
     <string name="jwt_login_failed">JWT Login Failed</string>
     <string name="auth_token_login_failed">Auth Token Login Failed</string>
     <string name="call_meeting_join">Join</string>
+    <string name="assign_host">Assign as Host</string>
+    <string name="letIn_member">Let in member from lobby</string>
 
     <string name="uc_loggedIn">You are LoggedIn (CUCM)</string>
     <string name="wxc_loggedIn">You are LoggedIn (WebexCalling)</string>
@@ -261,6 +263,7 @@
     <string name="scaling_mode_not_supported">Not Supported</string>
     <string name="edit_message">Edit Message</string>
     <string name="let_in_confirmation">Do you want to let in this participant?</string>
+    <string name="add_guest_dialog">Enter email or contactId to add guest</string>
     <string name="composite_stream">Composite Layout</string>
     <string name="swap_video">Swap Video</string>
     <string name="sending_video_force_landscape">Video Force Landscape</string>
@@ -471,4 +474,18 @@
     <string name="select_phone_earpiece">Phone Earpiece</string>
     <string name="select_bluetooth">Bluetooth</string>
     <string name="select_headset">Wired Headset</string>
+    <string name="assign_host_confirmation">Do you want to assign this member as a host?\n</string>
+    <string name="assign_host_success">Host assigned successfully</string>
+    <string name="assign_host_failure">Host assigment failed</string>
+    <string name="claim_host">Claim Host</string>
+    <string name="presenter">Presenter</string>
+    <string name="cohost">CoHost</string>
+    <string name="reclaim_host">Reclaim Host</string>
+    <string name="invite_participant">Invite Participant</string>
+    <string name="makeHost">Make Host</string>
+    <string name="host">Host</string>
+
+    <!-- Annotation related strings -->
+    <string name="annotation_policy">Select Policy</string>
+    <string name="annotation_policy_first">NeedAskForAnnotate</string>
 </resources>
