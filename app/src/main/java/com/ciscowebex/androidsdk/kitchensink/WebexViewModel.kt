@@ -12,6 +12,7 @@ import com.ciscowebex.androidsdk.kitchensink.firebase.RegisterTokenService
 import com.ciscowebex.androidsdk.kitchensink.person.PersonModel
 import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.WebexError
+import com.ciscowebex.androidsdk.annotation.renderer.LiveAnnotationRenderer
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.messaging.FirebaseMessaging
@@ -34,6 +35,7 @@ import com.ciscowebex.androidsdk.phone.CallMembership
 import com.ciscowebex.androidsdk.phone.Phone
 import com.ciscowebex.androidsdk.phone.CallAssociationType
 import com.ciscowebex.androidsdk.phone.AdvancedSetting
+import com.ciscowebex.androidsdk.phone.MakeHostError
 import com.ciscowebex.androidsdk.phone.AuxStream
 import com.ciscowebex.androidsdk.phone.VirtualBackground
 import com.ciscowebex.androidsdk.phone.CameraExposureISO
@@ -44,10 +46,14 @@ import com.ciscowebex.androidsdk.phone.MediaStreamQuality
 import com.ciscowebex.androidsdk.phone.BreakoutSession
 import com.ciscowebex.androidsdk.phone.Breakout
 import com.ciscowebex.androidsdk.phone.DirectTransferResult
+import com.ciscowebex.androidsdk.phone.InviteParticipantError
 import com.ciscowebex.androidsdk.phone.SwitchToAudioVideoCallResult
 import com.ciscowebex.androidsdk.phone.PhoneConnectionResult
 import com.ciscowebex.androidsdk.phone.ReceivingNoiseInfo
 import com.ciscowebex.androidsdk.phone.ReceivingNoiseRemovalEnableResult
+import com.ciscowebex.androidsdk.phone.ReclaimHostError
+import com.ciscowebex.androidsdk.phone.annotation.LiveAnnotationListener
+import com.ciscowebex.androidsdk.phone.annotation.LiveAnnotationsPolicy
 import com.ciscowebex.androidsdk.phone.closedCaptions.CaptionItem
 import com.ciscowebex.androidsdk.phone.closedCaptions.ClosedCaptionsInfo
 import com.google.firebase.installations.FirebaseInstallations
@@ -97,6 +103,14 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     private val _initialSpacesSyncCompletedLiveData = MutableLiveData<Boolean>()
     val initialSpacesSyncCompletedLiveData: LiveData<Boolean> = _initialSpacesSyncCompletedLiveData
+
+    private val _annotationEvent = MutableLiveData<AnnotationEvent>()
+    val annotationEvent: LiveData<AnnotationEvent> get() = _annotationEvent
+    sealed class AnnotationEvent {
+        data class PERMISSION_ASK(val personId: String) : AnnotationEvent()
+        data class PERMISSION_EXPIRED(val personId: String) : AnnotationEvent()
+    }
+
 
     var selfPersonId: String? = null
     var compositedLayoutState = MediaOption.CompositedVideoLayout.NOT_SUPPORTED
@@ -403,6 +417,9 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
                         WebexError.ErrorCode.INVALID_PASSWORD_OR_HOST_KEY_WITH_CAPTCHA.code -> {
                             _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.InCorrectPasswordOrHostKeyWithCaptcha, null, error.data as Phone.Captcha))
                         }
+                        WebexError.ErrorCode.CANNOT_START_INSTANT_MEETING.code -> {
+                            _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.CannotStartInstantMeeting, null, null, result.error?.errorMessage))
+                        }
                         else -> {
                             _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.DialFailed, null, null, result.error?.errorMessage))
                         }
@@ -463,6 +480,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         override fun onDisconnected(event: CallObserver.CallDisconnectedEvent?) {
             Log.d(tag, "CallObserver onDisconnected event: ${this@WebexViewModel} $callObserverInterface $event")
             callObserverInterface?.onDisconnected(call, event)
+            annotationRenderer?.stopRendering()
         }
 
         override fun onInfoChanged(call: Call?) {
@@ -621,15 +639,22 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     }
 
     fun startShare(callId: String, shareConfig: ShareConfig?) {
-        getCall(callId)?.startSharing(CompletionHandler { result ->
-            _startShareLiveData.postValue(result.isSuccessful)
-        }, shareConfig)
+        val call = getCall(callId)
+        call?.let {
+            it.startSharing(CompletionHandler { result ->
+                _startShareLiveData.postValue(result.isSuccessful)
+
+            }, shareConfig)
+        }
     }
 
     fun startShare(callId: String, notification: Notification?, notificationId: Int, shareConfig: ShareConfig?) {
-        getCall(callId)?.startSharing(notification, notificationId, CompletionHandler { result ->
-            _startShareLiveData.postValue(result.isSuccessful)
-        }, shareConfig)
+        val call = getCall(callId)
+        call?.let {
+            it.startSharing(notification, notificationId, CompletionHandler { result ->
+                _startShareLiveData.postValue(result.isSuccessful)
+            }, shareConfig)
+        }
     }
 
     fun setSendingSharing(callId: String, value: Boolean) {
@@ -640,6 +665,80 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         getCall(callId)?.stopSharing(CompletionHandler { result ->
             _stopShareLiveData.postValue(result.isSuccessful)
         })
+    }
+
+    private var annotationRenderer: LiveAnnotationRenderer? = null
+    fun initalizeAnnotations(renderer: LiveAnnotationRenderer) {
+        getCall(currentCallId.orEmpty())?.getLiveAnnotationHandle()?.let {annotations->
+
+            annotations.setLiveAnnotationsPolicy(LiveAnnotationsPolicy.NeedAskForAnnotate){
+                if (it.isSuccessful) {
+                    Log.d(tag, "setLiveAnnotationsPolicy successful")
+                } else {
+                    Log.d(tag, "setLiveAnnotationsPolicy error: ${it.error?.errorMessage}")
+                }
+            }
+
+            annotations.setLiveAnnotationListener(object : LiveAnnotationListener {
+                override fun onLiveAnnotationRequestReceived(personId: String) {
+                    _annotationEvent.postValue(AnnotationEvent.PERMISSION_ASK(personId))
+                }
+
+                override fun onLiveAnnotationRequestExpired(personId: String) {
+                    _annotationEvent.postValue(AnnotationEvent.PERMISSION_EXPIRED(personId))
+                }
+
+                override fun onLiveAnnotationsStarted() {
+                    annotationRenderer = renderer.apply {
+                        setAnnotationRendererCallback(object : LiveAnnotationRenderer.LiveAnnotationRendererCallback {
+                            override fun onAnnotationRenderingReady() {
+                                Log.d(tag, "onAnnotationRenderingReady")
+                            }
+
+                            override fun onAnnotationRenderingStopped() {
+                                Log.d(tag, "onAnnotationRenderingStopped")
+                                getCall(currentCallId.orEmpty())?.getLiveAnnotationHandle()?.stopLiveAnnotations()
+                                annotationRenderer = null
+                            }
+                        })
+                        startRendering()
+                    }
+                }
+
+                override fun onLiveAnnotationDataArrived(data: String) {
+                    annotationRenderer?.renderData(data)
+                }
+
+                override fun onLiveAnnotationsStopped() {
+                    annotationRenderer?.stopRendering()
+                }
+
+            })
+        }
+    }
+
+    fun handleAnnotationPermission(grant: Boolean, personId: String) {
+        getCall(currentCallId.orEmpty())?.getLiveAnnotationHandle()?.respondToLiveAnnotationRequest(personId, grant) {
+            if (it.isSuccessful) {
+                Log.d(tag, "permission handled")
+            } else {
+                Log.d(tag, "permission error: ${it.error?.errorMessage}")
+            }
+        }
+    }
+
+    fun getCurrentLiveAnnotationPolicy(): LiveAnnotationsPolicy? {
+        return getCall(currentCallId.orEmpty())?.getLiveAnnotationHandle()?.getLiveAnnotationsPolicy()
+    }
+
+    fun setLiveAnnotationPolicy(policy: LiveAnnotationsPolicy) {
+        getCall(currentCallId.orEmpty())?.getLiveAnnotationHandle()?.setLiveAnnotationsPolicy(policy) {
+            if (it.isSuccessful) {
+                Log.d(tag, "setLiveAnnotationsPolicy successful")
+            } else {
+                Log.d(tag, "setLiveAnnotationsPolicy error: ${it.error?.errorMessage}")
+            }
+        }
     }
 
     fun sendFeedback(callId: String, rating: Int, comment: String) {
@@ -1268,6 +1367,30 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         return webex.phone.getCallingType()
     }
 
+    fun makeHost(participantId: String, handler: CompletionHandler<MakeHostError>) {
+        getCall(currentCallId.orEmpty())?.makeHost(participantId) { result ->
+            if (result.isSuccessful) {
+                Log.d(tag, "Make host successful")
+                handler.onComplete(ResultImpl.success())
+            } else {
+                Log.d(tag, "Make host failed")
+                handler.onComplete(ResultImpl.error(result.error?.errorMessage))
+            }
+        }
+    }
+
+    fun reclaimHost(hostKey:String, handler: CompletionHandler<ReclaimHostError>) {
+        getCall(currentCallId.orEmpty())?.reclaimHost(hostKey) { result ->
+            if (result.isSuccessful) {
+                Log.d(tag, "reclaimHost successful")
+                handler.onComplete(ResultImpl.success())
+            } else {
+                Log.d(tag, "reclaimHost failed")
+                handler.onComplete(ResultImpl.error(result.error?.errorMessage))
+            }
+        }
+    }
+
     fun setOnInitialSpacesSyncCompletedListener() {
         repository.setOnInitialSpacesSyncCompletedListener() {
             _initialSpacesSyncCompletedLiveData.postValue(true)
@@ -1294,6 +1417,18 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         return getCall(currentCallId.orEmpty())?.isVideoEnabled() ?: false
     }
 
+    fun inviteParticipant(invitee: String, callback: CompletionHandler<InviteParticipantError>) {
+        getCall(currentCallId.orEmpty())?.inviteParticipant(invitee) { result ->
+            if (result.isSuccessful) {
+                Log.d(tag, "InviteParticipant successful")
+                callback.onComplete(ResultImpl.success())
+            } else {
+                Log.d(tag, "InviteParticipant failed")
+                callback.onComplete(ResultImpl.error(result.error?.errorMessage))
+            }
+        }
+    }
+
     fun cleanup() {
         repository.removeIncomingCallListener("viewmodel"+this)
         for (entry in callObserverMap.entries.iterator()) {
@@ -1317,4 +1452,5 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         writer.println("******************")
         repository.printObservers(writer)
     }
+
 }

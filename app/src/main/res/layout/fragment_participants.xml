@@ -36,6 +36,19 @@
             app:layout_constraintTop_toTopOf="parent"
             android:text="@string/participants" />
 
+        <ImageView
+            android:id="@+id/inviteParticipantButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/gray_40"
+            android:padding="10dp"
+            android:src="@drawable/ic_add"
+            app:layout_constraintStart_toEndOf="@id/tvTitle"
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="@string/invite_participant" />
+
         <TextView
             android:id="@+id/tvMute"
             android:layout_width="wrap_content"

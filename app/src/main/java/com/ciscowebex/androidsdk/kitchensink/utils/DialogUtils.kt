@@ -64,3 +64,33 @@ fun showDialogForDTMF(context: Context, title: String, positiveButtonText: Int =
         .show()
 }
 
+fun showDialogForHostKey(context: Context, title: String, positiveButtonText: Int = android.R.string.ok,
+                         onPositiveButtonClick: (DialogInterface, String) -> Unit, negativeButtonText: Int = android.R.string.cancel,
+                         onNegativeButtonClick: (DialogInterface, Int) -> Unit) {
+    val input = EditText(context)
+    AlertDialog.Builder(context)
+        .setTitle(title)
+        .setView(input)
+        .setPositiveButton(positiveButtonText) { dialogInterface: DialogInterface, i: Int ->
+            val hostKey = input.text.toString()
+            onPositiveButtonClick(dialogInterface, hostKey)
+        }
+        .setNegativeButton(negativeButtonText, onNegativeButtonClick)
+        .show()
+}
+
+fun showDialogForTextBox(context: Context, title: String, positiveButtonText: Int = android.R.string.ok,
+                         onPositiveButtonClick: (DialogInterface, String) -> Unit, negativeButtonText: Int = android.R.string.cancel,
+                         onNegativeButtonClick: (DialogInterface, Int) -> Unit) {
+    val input = EditText(context)
+    AlertDialog.Builder(context)
+        .setTitle(title)
+        .setView(input)
+        .setPositiveButton(positiveButtonText) { dialogInterface: DialogInterface, i: Int ->
+            val text = input.text.toString()
+            onPositiveButtonClick(dialogInterface, text)
+        }
+        .setNegativeButton(negativeButtonText, onNegativeButtonClick)
+        .show()
+}
+

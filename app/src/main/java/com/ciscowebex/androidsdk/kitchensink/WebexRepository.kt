@@ -106,7 +106,8 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
         InCorrectPasswordWithCaptcha,
         InCorrectPasswordOrHostKey,
         InCorrectPasswordOrHostKeyWithCaptcha,
-        WrongApiCalled
+        WrongApiCalled,
+        CannotStartInstantMeeting
     }
 
     enum class CalendarMeetingEvent {
