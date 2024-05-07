@@ -79,31 +79,19 @@ This demo support Android device with **Android 7.0** or later
        - For Full SDK
          ```
          dependencies {
-<<<<<<< Updated upstream
-             implementation 'com.ciscowebex:webexsdk:3.11.1'
-=======
              implementation 'com.ciscowebex:webexsdk:3.11.2'
->>>>>>> Stashed changes
          }
          ```
        - For Meeting SDK
          ```
          dependencies {
-<<<<<<< Updated upstream
-         implementation 'com.ciscowebex:webexsdk-meeting:3.11.1'
-=======
          implementation 'com.ciscowebex:webexsdk-meeting:3.11.2'
->>>>>>> Stashed changes
          }
          ```
        - For WebexCalling SDK
          ```
          dependencies {
-<<<<<<< Updated upstream
-         implementation 'com.ciscowebex:webexsdk-wxc:3.11.1'
-=======
          implementation 'com.ciscowebex:webexsdk-wxc:3.11.2'
->>>>>>> Stashed changes
          }
          ```
 
