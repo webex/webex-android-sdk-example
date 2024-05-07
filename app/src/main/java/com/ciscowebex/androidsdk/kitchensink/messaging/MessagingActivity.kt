@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityMessagingBinding
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpacesFragment
@@ -18,7 +19,7 @@ import com.ciscowebex.androidsdk.kitchensink.messaging.teams.TeamsFragment
 import com.ciscowebex.androidsdk.kitchensink.person.PeopleFragment
 import com.google.android.material.tabs.TabLayoutMediator
 
-class MessagingActivity : AppCompatActivity() {
+class MessagingActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMessagingBinding
 

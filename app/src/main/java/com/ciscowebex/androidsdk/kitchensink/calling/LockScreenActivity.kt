@@ -2,9 +2,9 @@ package com.ciscowebex.androidsdk.kitchensink.calling
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
+import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.CallRejectService
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
@@ -14,7 +14,7 @@ import com.ciscowebex.androidsdk.phone.CallObserver
 import org.koin.android.ext.android.bind
 import org.koin.android.ext.android.inject
 
-class LockScreenActivity : AppCompatActivity() {
+class LockScreenActivity : BaseActivity() {
 
     lateinit var binding : ActivityLockScreenBinding
     private val repository: WebexRepository by inject()

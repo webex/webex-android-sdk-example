@@ -19,6 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityMessageComposerBinding
 import com.ciscowebex.androidsdk.kitchensink.databinding.DialogPostMessageHandlerBinding
@@ -40,7 +41,7 @@ import org.koin.android.ext.android.inject
 import java.io.File
 
 
-class MessageComposerActivity : AppCompatActivity() {
+class MessageComposerActivity : BaseActivity() {
 
     companion object {
         enum class ComposerType {
@@ -65,7 +66,6 @@ class MessageComposerActivity : AppCompatActivity() {
         }
     }
 
-    private val tag = "MessageComposerActivity"
     private val PICKFILE_REQUEST_CODE = 1005
     private lateinit var binding: ActivityMessageComposerBinding
     private val messageComposerViewModel: MessageComposerViewModel by inject()
@@ -81,6 +81,7 @@ class MessageComposerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        tag = "MessageComposerActivity"
         composerType = intent.getSerializableExtra(Constants.Intent.COMPOSER_TYPE) as ComposerType
         id = intent.getStringExtra(Constants.Intent.COMPOSER_ID)
         replyParentMessage = intent.getParcelableExtra(Constants.Intent.COMPOSER_REPLY_PARENT_MESSAGE)

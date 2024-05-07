@@ -17,7 +17,9 @@ class PersonRepository(private val webex: Webex) {
                     val person = result.data
                     emitter.onSuccess(PersonModel.convertToPersonModel(person))
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -30,7 +32,9 @@ class PersonRepository(private val webex: Webex) {
                     val person = result.data
                     emitter.onSuccess(PersonModel.convertToPersonModel(person))
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -43,7 +47,9 @@ class PersonRepository(private val webex: Webex) {
                     emitter.onSuccess(result.data?.map { PersonModel.convertToPersonModel(it) }.orEmpty())
                     Log.d(tag, "Listed persons successfully");
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                     Log.d(tag, result.error?.errorMessage ?: "");
                 }
             })
@@ -58,7 +64,9 @@ class PersonRepository(private val webex: Webex) {
                     emitter.onSuccess(PersonModel.convertToPersonModel(person))
                     Log.d(tag, "Created person successfully");
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                     Log.d(tag, result.error?.errorMessage ?: "");
                 }
             })
@@ -73,7 +81,9 @@ class PersonRepository(private val webex: Webex) {
                     emitter.onSuccess(PersonModel.convertToPersonModel(person))
                     Log.d(tag, "Updated person details successfully");
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                     Log.d(tag, result.error?.errorMessage ?: "");
                 }
             })
@@ -87,7 +97,9 @@ class PersonRepository(private val webex: Webex) {
                     emitter.onSuccess(true)
                     Log.d(tag, "Deleted person successfully");
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                     Log.d(tag, result.error?.errorMessage ?: "");
                 }
             })

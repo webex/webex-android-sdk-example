@@ -8,6 +8,7 @@ import com.ciscowebex.androidsdk.message.Message
 import com.ciscowebex.androidsdk.people.Person
 import com.ciscowebex.androidsdk.space.Space
 import com.ciscowebex.androidsdk.CompletionHandler
+import com.ciscowebex.androidsdk.WebexAuthDelegate
 import com.ciscowebex.androidsdk.auth.PhoneServiceRegistrationFailureReason
 import com.ciscowebex.androidsdk.auth.UCLoginFailureReason
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
@@ -15,6 +16,7 @@ import com.ciscowebex.androidsdk.auth.UCSSOFailureReason
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
 import com.ciscowebex.androidsdk.calendarMeeting.CalendarMeetingObserver
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.listeners.SpaceEventListener
+import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.membership.Membership
 import com.ciscowebex.androidsdk.membership.MembershipObserver
 import com.ciscowebex.androidsdk.message.LocalFile
@@ -34,7 +36,7 @@ import com.ciscowebex.androidsdk.phone.closedCaptions.ClosedCaptionsInfo
 import com.ciscowebex.androidsdk.space.SpaceObserver
 import java.io.PrintWriter
 
-class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
+class WebexRepository(val webex: Webex) : WebexUCLoginDelegate, WebexAuthDelegate {
     private val tag = "WebexRepository"
 
     enum class CallCap {
@@ -157,6 +159,7 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
     var _callMembershipsLiveData: MutableLiveData<List<CallMembership>>? = null
     var _muteAllLiveData: MutableLiveData<Boolean>? = null
     var _ucLiveData: MutableLiveData<Pair<UCCallEvent, String>>? = null
+    var _authLiveDataList: MutableList<MutableLiveData<String>?> = mutableListOf()
     var _callingLiveData: MutableLiveData<CallLiveData>? = null
     var _startAssociationLiveData: MutableLiveData<CallLiveData>? = null
     var _startShareLiveData: MutableLiveData<Boolean>? = null
@@ -173,6 +176,7 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
 
     init {
         webex.delegate = this
+        webex.authDelegate = this
     }
 
     fun clearCallData() {
@@ -396,6 +400,13 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate {
         Log.d(tag, "onUCSSOLoginFailed : reason = ${failureReason.name}")
     }
 
+    override fun onReLoginRequired() {
+        Log.d("onReAuthRequired", "live data list size : ${_authLiveDataList.size}")
+        for (liveData in _authLiveDataList) {
+            liveData?.postValue(Constants.Callbacks.RE_LOGIN_REQUIRED)
+        }
+        Log.d(tag, Constants.Callbacks.RE_LOGIN_REQUIRED)
+    }
 
     private fun registerIncomingCallListener() {
         webex.phone.setIncomingCallListener(object : Phone.IncomingCallListener {

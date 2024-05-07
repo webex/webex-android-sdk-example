@@ -30,7 +30,9 @@ open class MessagingRepository(private val webex: Webex) {
                     val space = result.data
                     emitter.onSuccess(SpaceModel.convertToSpaceModel(space))
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -43,7 +45,9 @@ open class MessagingRepository(private val webex: Webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(true)
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -55,7 +59,9 @@ open class MessagingRepository(private val webex: Webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(true)
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -67,7 +73,9 @@ open class MessagingRepository(private val webex: Webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(SpaceMessageModel.convertToSpaceMessageModel(result.data))
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
 
             })
@@ -85,7 +93,9 @@ open class MessagingRepository(private val webex: Webex) {
                                 val messageObj = result.data
                                 emitter.onSuccess(SpaceMessageModel.convertToSpaceMessageModel(messageObj))
                             } else {
-                                emitter.onError(Throwable(result.error?.errorMessage))
+                                if (!emitter.isDisposed) {
+                                    emitter.onError(Throwable(result.error?.errorMessage))
+                                }
                             }
                         })
                     } else {
@@ -108,7 +118,9 @@ open class MessagingRepository(private val webex: Webex) {
                         emitter.onError(Throwable("Unable to retrieve thumbnail"))
                     }
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()

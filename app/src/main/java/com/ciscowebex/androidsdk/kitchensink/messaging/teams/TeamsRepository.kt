@@ -16,7 +16,9 @@ class TeamsRepository(private val webex: Webex) : MessagingRepository(webex) {
                     emitter.onSuccess(result.data?.filter { !it.isDeleted }?.map { TeamModel(it.id.orEmpty(), it.name.orEmpty(), it.created) }
                             ?: emptyList())
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -30,7 +32,9 @@ class TeamsRepository(private val webex: Webex) : MessagingRepository(webex) {
                     emitter.onSuccess(TeamModel(team?.id.orEmpty(), team?.name.orEmpty(), team?.created
                             ?: Date()))
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -44,7 +48,9 @@ class TeamsRepository(private val webex: Webex) : MessagingRepository(webex) {
                     emitter.onSuccess(TeamModel(team?.id.orEmpty(), team?.name.orEmpty(), team?.created
                             ?: Date()))
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -58,7 +64,9 @@ class TeamsRepository(private val webex: Webex) : MessagingRepository(webex) {
                     emitter.onSuccess(TeamModel(team?.id.orEmpty(), team?.name.orEmpty(), team?.created
                             ?: Date()))
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -70,7 +78,9 @@ class TeamsRepository(private val webex: Webex) : MessagingRepository(webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(true)
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()

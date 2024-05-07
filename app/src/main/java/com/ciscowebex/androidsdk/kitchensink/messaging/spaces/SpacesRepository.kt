@@ -19,7 +19,9 @@ class SpacesRepository(private val webex: Webex) : MessagingRepository(webex) {
                         SpaceModel.convertToSpaceModel(it)
                     } ?: emptyList())
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -32,7 +34,9 @@ class SpacesRepository(private val webex: Webex) : MessagingRepository(webex) {
                     val space = result.data
                     emitter.onSuccess(SpaceModel.convertToSpaceModel(space))
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -45,7 +49,9 @@ class SpacesRepository(private val webex: Webex) : MessagingRepository(webex) {
                     val space = result.data
                     emitter.onSuccess(SpaceModel.convertToSpaceModel(space))
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -59,7 +65,9 @@ class SpacesRepository(private val webex: Webex) : MessagingRepository(webex) {
                         SpaceReadStatusModel.convertToSpaceReadStatusModel(it)
                     } ?: emptyList())
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -71,7 +79,9 @@ class SpacesRepository(private val webex: Webex) : MessagingRepository(webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(SpaceMeetingInfoModel.convertToSpaceMeetingInfoModel(result.data))
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -83,7 +93,9 @@ class SpacesRepository(private val webex: Webex) : MessagingRepository(webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(SpaceReadStatusModel.convertToSpaceReadStatusModel(result.data))
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -98,7 +110,9 @@ class SpacesRepository(private val webex: Webex) : MessagingRepository(webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(result.data?.map { SpaceMessageModel.convertToSpaceMessageModel(it) }.orEmpty())
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -110,7 +124,9 @@ class SpacesRepository(private val webex: Webex) : MessagingRepository(webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(true)
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -122,7 +138,9 @@ class SpacesRepository(private val webex: Webex) : MessagingRepository(webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(result.data.orEmpty())
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
