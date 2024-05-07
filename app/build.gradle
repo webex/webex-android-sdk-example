@@ -32,13 +32,8 @@ android {
         applicationId "com.cisco.sdk_android"
         minSdkVersion Versions.minSdk
         targetSdkVersion Versions.targetSdk
-<<<<<<< Updated upstream
-        versionCode 3110100
-        versionName "3.11.1"
-=======
         versionCode 3110200
         versionName "3.11.2"
->>>>>>> Stashed changes
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
