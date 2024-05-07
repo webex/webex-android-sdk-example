@@ -18,7 +18,9 @@ open class MessageComposerRepository(private val webex: Webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(result.data!!)
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -30,7 +32,9 @@ open class MessageComposerRepository(private val webex: Webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(result.data!!)
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -42,7 +46,9 @@ open class MessageComposerRepository(private val webex: Webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(result.data!!)
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -54,7 +60,9 @@ open class MessageComposerRepository(private val webex: Webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(result.data!!)
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()

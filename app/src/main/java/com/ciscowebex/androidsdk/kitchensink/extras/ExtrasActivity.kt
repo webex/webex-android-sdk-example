@@ -1,23 +1,23 @@
 package com.ciscowebex.androidsdk.kitchensink.extras
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityExtrasBinding
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
 import org.koin.android.ext.android.inject
 
-class ExtrasActivity : AppCompatActivity() {
+class ExtrasActivity : BaseActivity() {
 
     lateinit var binding: ActivityExtrasBinding
-    val tag = "ExtrasActivity"
 
     private val extrasViewModel: ExtrasViewModel by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        tag = "ExtrasActivity"
         DataBindingUtil.setContentView<ActivityExtrasBinding>(this, R.layout.activity_extras)
                 .also { binding = it }
                 .apply {

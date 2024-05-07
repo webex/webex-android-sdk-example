@@ -65,6 +65,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     var _callMembershipsLiveData = MutableLiveData<List<CallMembership>>()
     val _muteAllLiveData = MutableLiveData<Boolean>()
     val _ucLiveData = MutableLiveData<Pair<WebexRepository.UCCallEvent, String>>()
+    private val _authLiveData = MutableLiveData<String>()
     val _callingLiveData = MutableLiveData<WebexRepository.CallLiveData>()
     val _startAssociationLiveData = MutableLiveData<WebexRepository.CallLiveData>()
     val _startShareLiveData = MutableLiveData<Boolean>()
@@ -76,6 +77,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     var callMembershipsLiveData: LiveData<List<CallMembership>> = _callMembershipsLiveData
     val muteAllLiveData: LiveData<Boolean> = _muteAllLiveData
     val ucLiveData: LiveData<Pair<WebexRepository.UCCallEvent, String>> = _ucLiveData
+    val authLiveData: LiveData<String> = _authLiveData
     val callingLiveData: LiveData<WebexRepository.CallLiveData> = _callingLiveData
     val startAssociationLiveData: LiveData<WebexRepository.CallLiveData> = _startAssociationLiveData
     val startShareLiveData: LiveData<Boolean> = _startShareLiveData
@@ -270,6 +272,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     init {
         repository._callMembershipsLiveData = _callMembershipsLiveData
         repository._ucLiveData = _ucLiveData
+        repository._authLiveDataList.add(_authLiveData)
         repository._muteAllLiveData = _muteAllLiveData
         repository._callingLiveData = _callingLiveData
         repository._startAssociationLiveData = _startAssociationLiveData
@@ -297,6 +300,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     override fun onCleared() {
         repository.clearCallData()
+        repository._authLiveDataList.remove(_authLiveData)
     }
 
     fun setSpaceObserver() {

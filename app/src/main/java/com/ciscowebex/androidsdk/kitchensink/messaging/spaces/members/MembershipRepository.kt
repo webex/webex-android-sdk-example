@@ -15,7 +15,9 @@ class MembershipRepository(private val webex: Webex) {
                         MembershipModel.convertToMembershipModel(it)
                     } ?: emptyList())
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -27,7 +29,9 @@ class MembershipRepository(private val webex: Webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(MembershipModel.convertToMembershipModel(result.data))
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -39,7 +43,9 @@ class MembershipRepository(private val webex: Webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(MembershipModel.convertToMembershipModel(result.data))
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -51,7 +57,9 @@ class MembershipRepository(private val webex: Webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(true)
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -63,7 +71,9 @@ class MembershipRepository(private val webex: Webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(MembershipModel.convertToMembershipModel(result.data))
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -75,7 +85,9 @@ class MembershipRepository(private val webex: Webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(MembershipModel.convertToMembershipModel(result.data))
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -89,7 +101,9 @@ class MembershipRepository(private val webex: Webex) {
                         MembershipReadStatusModel.convertToMembershipReadStatusModel(it)
                     } ?: emptyList())
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()

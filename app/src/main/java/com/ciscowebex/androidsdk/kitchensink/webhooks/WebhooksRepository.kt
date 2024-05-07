@@ -20,7 +20,9 @@ class WebhooksRepository(private val webex: Webex) {
                         emitter.onSuccess(emptyList())
                     }
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -37,7 +39,9 @@ class WebhooksRepository(private val webex: Webex) {
                         emitter.onError(Throwable(""))
                     }
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -54,7 +58,9 @@ class WebhooksRepository(private val webex: Webex) {
                         emitter.onError(Throwable(""))
                     }
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -71,7 +77,9 @@ class WebhooksRepository(private val webex: Webex) {
                         emitter.onError(Throwable(""))
                     }
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
@@ -83,7 +91,9 @@ class WebhooksRepository(private val webex: Webex) {
                 if (result.isSuccessful) {
                     emitter.onSuccess(true)
                 } else {
-                    emitter.onError(Throwable(result.error?.errorMessage))
+                    if (!emitter.isDisposed) {
+                        emitter.onError(Throwable(result.error?.errorMessage))
+                    }
                 }
             })
         }.toObservable()
