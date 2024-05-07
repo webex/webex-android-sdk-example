@@ -58,4 +58,9 @@ class Constants {
     object Notification{
         const val WEBEX_CALL = 123456
     }
+
+    // Constants indicating callback events
+    object Callbacks {
+        const val RE_LOGIN_REQUIRED = "RE_LOGIN_REQUIRED"
+    }
 }

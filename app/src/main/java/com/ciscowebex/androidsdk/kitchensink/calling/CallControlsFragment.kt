@@ -50,6 +50,7 @@ import com.ciscowebex.androidsdk.kitchensink.BuildConfig
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.WebexViewModel
+import com.ciscowebex.androidsdk.kitchensink.auth.LoginActivity
 import com.ciscowebex.androidsdk.kitchensink.calling.captions.ClosedCaptionsController
 import com.ciscowebex.androidsdk.kitchensink.calling.captions.ClosedCaptionsViewModel
 import com.ciscowebex.androidsdk.kitchensink.calling.captions.LanguageData
@@ -1040,6 +1041,18 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 is WebexViewModel.AnnotationEvent.PERMISSION_EXPIRED -> toggleAnnotationPermissionDialog(false, event.personId)
             }
         }
+        webexViewModel.authLiveData.observe(viewLifecycleOwner, Observer {
+            if (it != null && it == Constants.Callbacks.RE_LOGIN_REQUIRED) {
+                Log.d(tag, "onReAuthRequired Re login is required by user.")
+                onSignedOut()
+            }
+        })
+    }
+
+    private fun onSignedOut() {
+        val intent = Intent(requireContext(), LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
     }
 
     private fun handleOnBackgroundChanged(virtualBackground: VirtualBackground) {

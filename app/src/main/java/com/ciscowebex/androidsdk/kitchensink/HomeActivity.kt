@@ -27,7 +27,6 @@ import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.kitchensink.utils.FileUtils
 import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils
-import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils.clearLoginTypePref
 import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils.saveLoginTypePref
 import com.ciscowebex.androidsdk.kitchensink.webhooks.WebhooksActivity
 import com.ciscowebex.androidsdk.message.LocalFile
@@ -80,10 +79,7 @@ class HomeActivity : BaseActivity() {
         webexViewModel.signOutListenerLiveData.observe(this@HomeActivity, Observer {
             it?.let {
                 if (it) {
-                    clearLoginTypePref(this)
-                    (application as KitchenSinkApp).unloadKoinModules()
-                    KitchenSinkForegroundService.stopForegroundService(this)
-                    finish()
+                    onSignedOut()
                 }
                 else {
                     binding.progressLayout.visibility = View.GONE

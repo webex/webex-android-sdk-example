@@ -12,14 +12,6 @@ object SharedPrefUtils {
         }
     }
 
-    fun clearLoginTypePref(context:Context) {
-        val pref = context.getSharedPreferences(Constants.Keys.KitchenSinkSharedPref, Context.MODE_PRIVATE)
-
-        pref?.let {
-            it.edit().remove(Constants.Keys.LoginType).apply()
-        }
-    }
-
     fun getLoginTypePref(context:Context): String? {
         val pref = context.getSharedPreferences(Constants.Keys.KitchenSinkSharedPref, Context.MODE_PRIVATE)
 

@@ -10,6 +10,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
+import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.KitchenSinkApp
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
@@ -20,9 +21,8 @@ import com.ciscowebex.androidsdk.phone.Call
 import com.ciscowebex.androidsdk.phone.NotificationCallType
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class CucmCallActivity : AppCompatActivity() {
+class CucmCallActivity : BaseActivity() {
     lateinit var binding: ActivityCucmCallBinding
-    private val webexViewModel: WebexViewModel by viewModel()
     private var mCallId: String? = null
     private var mPushId: String = ""
     private val TAG = "PUSHREST"
