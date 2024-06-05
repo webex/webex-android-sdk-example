@@ -44,12 +44,11 @@ class TeamsFragment : Fragment() {
                     { id, title -> showEditTeamDialog(id, title) },
                     { id -> showAddSpaceDialog(id) },
                     { id, title -> showDeleteTeamConfirmationDialog(id, title) },
-                    { id -> showMembers(id) }
-            )
-            teamsClientAdapter = TeamsClientAdapter(optionsDialogFragment) { position ->
-                selectedTeamListItem = teamsClientAdapter.teams[position]
-                startActivityForResult(context?.let { MessagingSearchActivity.getIntent(it) }, requestCodeSearchPersonToAddToTeam)
-            }
+                    { id -> showMembers(id) }, { item ->
+                    selectedTeamListItem = item
+                    startActivityForResult(context?.let { MessagingSearchActivity.getIntent(it) }, requestCodeSearchPersonToAddToTeam)
+                })
+            teamsClientAdapter = TeamsClientAdapter(optionsDialogFragment)
 
             teamsRecyclerView.adapter = teamsClientAdapter
             lifecycleOwner = this@TeamsFragment
@@ -218,11 +217,11 @@ class TeamsFragment : Fragment() {
     }
 }
 
-class TeamsClientAdapter(private val optionsDialogFragment: TeamActionBottomSheetFragment, private val onAddToTeamButtonClicked: (Int) -> Unit) : RecyclerView.Adapter<TeamsClientViewHolder>() {
+class TeamsClientAdapter(private val optionsDialogFragment: TeamActionBottomSheetFragment) : RecyclerView.Adapter<TeamsClientViewHolder>() {
     var teams: MutableList<TeamModel> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TeamsClientViewHolder {
-        return TeamsClientViewHolder(ListItemTeamsClientBinding.inflate(LayoutInflater.from(parent.context), parent, false), optionsDialogFragment, onAddToTeamButtonClicked)
+        return TeamsClientViewHolder(ListItemTeamsClientBinding.inflate(LayoutInflater.from(parent.context), parent, false), optionsDialogFragment)
     }
 
     override fun getItemCount(): Int = teams.size
@@ -232,13 +231,7 @@ class TeamsClientAdapter(private val optionsDialogFragment: TeamActionBottomShee
     }
 }
 
-class TeamsClientViewHolder(private val binding: ListItemTeamsClientBinding, private val optionsDialogFragment: TeamActionBottomSheetFragment,
-                            private val onAddToTeamButtonClicked: (Int) -> Unit) : RecyclerView.ViewHolder(binding.root) {
-    init {
-        binding.ivAddToTeam.setOnClickListener {
-            onAddToTeamButtonClicked(adapterPosition)
-        }
-    }
+class TeamsClientViewHolder(private val binding: ListItemTeamsClientBinding, private val optionsDialogFragment: TeamActionBottomSheetFragment) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(team: TeamModel) {
         binding.team = team
@@ -250,7 +243,7 @@ class TeamsClientViewHolder(private val binding: ListItemTeamsClientBinding, pri
         binding.teamsClientLayout.setOnLongClickListener { view ->
             optionsDialogFragment.teamId = team.id
             optionsDialogFragment.teamTitle = team.name
-
+            optionsDialogFragment.team = team
             val activity = view.context as AppCompatActivity
             activity.supportFragmentManager.let { optionsDialogFragment.show(it, "Team Options") }
 

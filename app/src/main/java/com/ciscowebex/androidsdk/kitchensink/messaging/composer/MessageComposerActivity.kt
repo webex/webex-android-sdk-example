@@ -389,7 +389,7 @@ class MessageComposerActivity : BaseActivity() {
     }
 
     private fun checkReadStoragePermissions(): Boolean {
-        if (!permissionsHelper.hasReadStoragePermission()) {
+        if (!permissionsHelper.hasStoragePermissions()) {
             Log.d(tag, "requesting read permission")
             requestPermissions(PermissionsHelper.permissionForStorage(), PermissionsHelper.PERMISSIONS_STORAGE_REQUEST)
             return true
@@ -400,6 +400,7 @@ class MessageComposerActivity : BaseActivity() {
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             PermissionsHelper.PERMISSIONS_STORAGE_REQUEST -> {
                 if (PermissionsHelper.resultForCallingPermissions(permissions, grantResults)) {

@@ -11,12 +11,14 @@ class TeamActionBottomSheetFragment(
         val editClickListener: (String, String) -> Unit,
         val addSpaceClickListener : (String) -> Unit,
         val deleteTeamClickListener : (String, String) -> Unit,
-        val getMembersClickListener : (String) -> Unit
+        val getMembersClickListener : (String) -> Unit,
+        val addMemberClickListener: (TeamModel) -> Unit
 ) : BottomSheetDialogFragment() {
 
     private lateinit var binding: BottomSheetTeamOptionsBinding
     var teamId : String = ""
     var teamTitle: String = ""
+    lateinit var team: TeamModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return BottomSheetTeamOptionsBinding.inflate(inflater, container, false).also { binding = it }.apply {
@@ -34,6 +36,11 @@ class TeamActionBottomSheetFragment(
                 dismiss()
                 addSpaceClickListener(teamId)
             }
+
+            addMembers.setOnClickListener {
+                dismiss()
+                addMemberClickListener(team)
+             }
 
             deleteTeam.setOnClickListener {
                 dismiss()

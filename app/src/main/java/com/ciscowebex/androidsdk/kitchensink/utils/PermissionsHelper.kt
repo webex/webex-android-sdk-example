@@ -3,6 +3,7 @@ package com.ciscowebex.androidsdk.kitchensink.utils
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.core.content.ContextCompat
 
 class PermissionsHelper(private val context: Context) {
@@ -19,6 +20,13 @@ class PermissionsHelper(private val context: Context) {
         return checkSelfPermission(Manifest.permission.READ_PHONE_STATE)
     }
 
+    fun hasStoragePermissions(): Boolean =
+        if (hasAndroid13()) {
+        checkSelfPermission(Manifest.permission.READ_MEDIA_VIDEO) && checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) && checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO)
+    } else {
+        checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+    }
+
     fun hasReadStoragePermission(): Boolean {
         return checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     }
@@ -32,6 +40,10 @@ class PermissionsHelper(private val context: Context) {
         const val PERMISSIONS_STORAGE_REQUEST = 1
         const val PERMISSIONS_CAMERA_REQUEST = 2
 
+        fun hasAndroid13(): Boolean {
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+        }
+
         fun permissionsForCalling(): Array<String> {
             return arrayOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO, Manifest.permission.READ_PHONE_STATE)
         }
@@ -41,7 +53,11 @@ class PermissionsHelper(private val context: Context) {
         }
 
         fun permissionForStorage(): Array<String> {
-            return arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            return if (hasAndroid13()) {
+                arrayOf(Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_IMAGES ,Manifest.permission.READ_MEDIA_AUDIO)
+            } else {
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
         }
 
         fun resultForCallingPermissions(permissions: Array<String>, grantResults: IntArray): Boolean {
