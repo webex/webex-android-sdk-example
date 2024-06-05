@@ -56,26 +56,10 @@
             android:drawablePadding="@dimen/padding_2dp"
             android:drawableLeft="@{space.presenceStatus}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/iv_add_to_space"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/guideline1"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="sdfkljsdlkfsljk" />
-
-        <ImageView
-            android:id="@+id/iv_add_to_space"
-            android:layout_width="@dimen/icon_size_list_items"
-            android:layout_height="@dimen/icon_size_list_items"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/circle_filled_green"
-            android:padding="4dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/ic_add"
-            android:visibility="@{space.spaceType == spaceType.GROUP ? view.VISIBLE: view.GONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <RelativeLayout
             android:id="@+id/progressLayout"

@@ -489,4 +489,9 @@
     <!-- Annotation related strings -->
     <string name="annotation_policy">Select Policy</string>
     <string name="annotation_policy_first">NeedAskForAnnotate</string>
+    <string name="movemeeting">Move Meeting</string>
+    <string name="switch_to_uc_webexcalling_call">Switch to UC/WebexCalling call</string>
+    <string name="move_meeting_failed">Move Meeting Failure</string>
+    <string name="move_meeting_failed_message">Move Meeting has failed</string>
+    <string name="add_members">Add Members</string>
 </resources>

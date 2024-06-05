@@ -13,7 +13,7 @@
             android:clickable="false"
             android:paddingVertical="@dimen/size_8dp"
             android:text="@string/team_actions"
-            app:layout_constraintBottom_toTopOf="@id/actionsSeparator"
+            app:layout_constraintBottom_toTopOf="@id/addMembers"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -28,6 +28,27 @@
             app:layout_constraintTop_toBottomOf="@id/teamOptionsLabel" />
 
         <TextView
+            android:id="@+id/addMembers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:paddingVertical="@dimen/size_8dp"
+            android:text="@string/add_members"
+            app:layout_constraintBottom_toTopOf="@id/getMembers"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf = "@id/actionsSeparator" />
+
+        <View
+            android:id="@+id/addMembersSeparator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/addMembers" />
+
+        <TextView
             android:id="@+id/getMembers"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -38,7 +59,7 @@
             android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/actionsSeparator" />
+            app:layout_constraintTop_toBottomOf="@id/addMembersSeparator" />
 
         <View
             android:id="@+id/membersSeparator"

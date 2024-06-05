@@ -12,15 +12,12 @@ import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpaceModel
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.detail.SpaceDetailActivity
 
 
-class SpacesClientAdapter(private val optionsDialogFragment: SpaceActionBottomSheetFragment, val supportFragmentManager: FragmentManager,
-                          val onAddToSpaceButtonClicked: (SpaceModel) -> Unit) : RecyclerView.Adapter<SpacesClientViewHolder>() {
+class SpacesClientAdapter(private val optionsDialogFragment: SpaceActionBottomSheetFragment, val supportFragmentManager: FragmentManager) : RecyclerView.Adapter<SpacesClientViewHolder>() {
     var spaces: MutableList<SpaceModel> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SpacesClientViewHolder {
         return SpacesClientViewHolder(ListItemSpacesClientBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-                optionsDialogFragment, supportFragmentManager) { position ->
-            onAddToSpaceButtonClicked(spaces[position])
-        }
+                optionsDialogFragment, supportFragmentManager)
     }
 
     override fun getItemCount(): Int = spaces.size
@@ -37,13 +34,7 @@ class SpacesClientAdapter(private val optionsDialogFragment: SpaceActionBottomSh
 
 class SpacesClientViewHolder(private val binding: ListItemSpacesClientBinding,
                              private val optionsDialogFragment: SpaceActionBottomSheetFragment,
-                             private val supportFragmentManager: FragmentManager,
-                             private val onAddToSpaceButtonClicked: (Int) -> Unit) : RecyclerView.ViewHolder(binding.root) {
-    init {
-        binding.ivAddToSpace.setOnClickListener {
-            onAddToSpaceButtonClicked(adapterPosition)
-        }
-    }
+                             private val supportFragmentManager: FragmentManager) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(space: SpaceModel) {
         binding.space = space
@@ -65,7 +56,7 @@ class SpacesClientViewHolder(private val binding: ListItemSpacesClientBinding,
     private fun showSpaceOptions(space: SpaceModel, view: View): Boolean {
         optionsDialogFragment.spaceId = space.id
         optionsDialogFragment.spaceTitle = space.title
-
+        optionsDialogFragment.space = space
         optionsDialogFragment.show(supportFragmentManager, "Space Options")
 
         return true

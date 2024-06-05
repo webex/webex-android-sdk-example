@@ -13,19 +13,23 @@
             android:clickable="false"
             android:paddingVertical="@dimen/size_8dp"
             android:text="@string/space_actions"
-            app:layout_constraintBottom_toTopOf="@id/actionsSeparator"
+            app:layout_constraintBottom_toTopOf="@id/addMembers"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <View
-            android:id="@+id/actionsSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
+        <TextView
+            android:id="@+id/addMembers"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingVertical="@dimen/size_8dp"
+            android:text="@string/add_members"
+            android:background="@color/blue"
+            android:textColor="@color/white"
+            android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/spaceOptionsLabel" />
+            app:layout_constraintBottom_toTopOf="@id/editSpaceName"/>
 
         <TextView
             android:id="@+id/editSpaceName"
@@ -38,7 +42,7 @@
             android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/actionsSeparator" />
+            app:layout_constraintTop_toBottomOf="@id/addMembers" />
 
         <View
             android:id="@+id/editSpaceNameSeparator"
