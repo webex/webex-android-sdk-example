@@ -72,13 +72,6 @@ class SearchPeopleFragment : Fragment() {
         activity?.finish()
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        searchPeopleViewModel.loadData("", listItemSize)
-        progress_bar.visibility = View.VISIBLE
-    }
-
-
     private fun setUpViewModelObservers() {
         // TODO: Put common code inside a function
         searchPeopleViewModel.persons.observe(viewLifecycleOwner, Observer { personsList ->

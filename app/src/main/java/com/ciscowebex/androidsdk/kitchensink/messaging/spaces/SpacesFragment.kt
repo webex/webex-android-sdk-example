@@ -50,12 +50,15 @@ class SpacesFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return FragmentSpacesBinding.inflate(inflater, container, false).also { binding = it }.apply {
             val optionsDialogFragment = SpaceActionBottomSheetFragment({ id, title -> showEditSpaceDialog(id, title) }, { id -> spacesViewModel.getMeetingInfo(id) },
-                    { id -> showMembersInSpace(id) }, { id, title -> showDeleteSpaceConfirmationDialog(id, title) }, { id -> markSpaceRead(id) }, { id -> showSpaceMembersWithReadStatus(id) })
-
-            spacesClientAdapter = SpacesClientAdapter(optionsDialogFragment, requireActivity().supportFragmentManager) { listItem ->
+                    { id -> showMembersInSpace(id) }, { id, title -> showDeleteSpaceConfirmationDialog(id, title) }, { id -> markSpaceRead(id) }, { id -> showSpaceMembersWithReadStatus(id) }, { listItem ->
                 selectedSpaceListItem = listItem
-                startActivityForResult(context?.let { MessagingSearchActivity.getIntent(it) }, requestCodeSearchPersonToAddToSpace)
-            }
+                startActivityForResult(
+                    context?.let { MessagingSearchActivity.getIntent(it) },
+                    requestCodeSearchPersonToAddToSpace
+                )
+            })
+
+            spacesClientAdapter = SpacesClientAdapter(optionsDialogFragment, requireActivity().supportFragmentManager)
 
             setHasOptionsMenu(true)
 
@@ -75,7 +78,7 @@ class SpacesFragment : Fragment() {
                     Log.d(TAG, "SpaceClientImpl(Fragment) Space event ${space.title} is updated")
                     val spaceModel = SpaceModel.convertToSpaceModel(space)
                     val index = spacesClientAdapter.getPositionById(spaceModel.id)
-                    if (!spacesClientAdapter.spaces.isNullOrEmpty() && index != -1) {
+                    if (spacesClientAdapter.spaces.isNotEmpty() && index != -1) {
                         Log.d(TAG, "SpaceClientImpl(Fragment) Updating space object in list")
                         spacesClientAdapter.spaces[index] = spaceModel
                         activity?.runOnUiThread {

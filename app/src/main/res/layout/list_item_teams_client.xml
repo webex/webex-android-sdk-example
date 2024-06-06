@@ -43,24 +43,8 @@
             android:text="@{team.name}"
             app:layout_constraintStart_toStartOf="@id/guideline1"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/iv_add_to_team"
-            tools:text="test" />
-
-        <ImageView
-            android:id="@+id/iv_add_to_team"
-            android:layout_width="@dimen/icon_size_list_items"
-            android:layout_height="@dimen/icon_size_list_items"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/circle_filled_green"
-            android:padding="4dp"
-            android:contentDescription="@string/add_to_team"
-            android:scaleType="fitXY"
-            android:src="@drawable/ic_add"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            tools:text="test" />
 
         <RelativeLayout
             android:id="@+id/progressLayout"

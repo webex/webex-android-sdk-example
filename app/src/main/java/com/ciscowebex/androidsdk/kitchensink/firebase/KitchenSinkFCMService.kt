@@ -107,13 +107,10 @@ class KitchenSinkFCMService : FirebaseMessagingService() {
                 if (it.data == PushNotificationResult.NoError) {
                     Log.d(TAG, it.data.toString())
                     handler.onComplete(ResultImpl.success(PushNotificationResult.NoError))
-                } else if(it.data == PushNotificationResult.NotWebexCallingPush) {
-                    Log.d(TAG, it.data.toString())
-                    handler.onComplete(ResultImpl.success(PushNotificationResult.NotWebexCallingPush))
-                } else if (it.data == PushNotificationResult.MaxIncomingCallLimitReached) {
-                    Log.d(TAG, it.data.toString())
-                    handler.onComplete(ResultImpl.error(PushNotificationResult.MaxIncomingCallLimitReached.name))
                 }
+            } else {
+                Log.e(TAG, "Error code: ${it.error?.errorCode}, message: ${it.error?.errorMessage}")
+                handler.onComplete(ResultImpl.error(it.error?.errorMessage ?: "InternalError"))
             }
         }
     }
@@ -142,7 +139,7 @@ class KitchenSinkFCMService : FirebaseMessagingService() {
             val authorised = repository.webex.authenticator?.isAuthorized()
             if (authorised == true) {
                 processPushMessageInternal(fcmDataPayload) {
-                    if (it.isSuccessful && it.data == PushNotificationResult.NotWebexCallingPush) {
+                    if (!it.isSuccessful && it.error?.errorMessage == PushNotificationResult.NotWebexCallingPush.name) {
                         cucmPushRestFlow(remoteMessage)
                     }
                 }
@@ -151,7 +148,7 @@ class KitchenSinkFCMService : FirebaseMessagingService() {
                 repository.webex.initialize {
                     if (repository.webex.authenticator?.isAuthorized() == true) {
                         processPushMessageInternal(fcmDataPayload) {
-                            if (it.isSuccessful && it.data == PushNotificationResult.NotWebexCallingPush) {
+                            if (!it.isSuccessful && it.error?.errorMessage == PushNotificationResult.NotWebexCallingPush.name) {
                                 cucmPushRestFlow(remoteMessage)
                             }
                         }
