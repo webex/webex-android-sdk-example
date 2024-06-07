@@ -89,11 +89,6 @@
 *;
 }
 
--keep class com.ciscowebex.androidsdk.message.LocalFile{*;}
--keep public class com.ciscowebex.androidsdk.internal.IOmniusServiceBridge {*;}
--keep class com.ciscowebex.androidsdk.message.LocalFileWrapper { *; }
--keep class com.ciscowebex.androidsdk.message.MessageClient$ProgressHandler { *; }
-
 -keep class com.ciscowebex.androidsdk.utils.internal.NetworkHelper
 -keep class com.ciscowebex.androidsdk.utils.internal.NetworkHelper.**
 -keepclassmembers class com.ciscowebex.androidsdk.utils.internal.NetworkHelper {
@@ -123,3 +118,6 @@
 -keep enum com.ciscowebex.androidsdk.utils.internal.NetTypes{
 *;
 }
+-keep class com.cisco.newb.** {
+ *;
+ }
