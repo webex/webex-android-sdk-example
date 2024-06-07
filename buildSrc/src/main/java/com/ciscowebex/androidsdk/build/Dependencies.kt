@@ -5,10 +5,10 @@ object Versions {
     const val koin= "2.2.3"
 
     const val ndkVersion = "24.0.8215888"
-    const val buildTools = "30.0.3"
+    const val buildTools = "33.0.2"
 
     const val compileSdk = 33
-    const val targetSdk = 29
+    const val targetSdk = 33
     const val minSdk = 24
 
     const val cmake = "3.24.0+"
