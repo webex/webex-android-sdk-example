@@ -38,6 +38,10 @@ class MessageViewModel(private val spaceRepo: SpacesRepository) : BaseViewModel(
         }, { error -> _error.postValue(error.message) }).autoDispose()
     }
 
+    fun getMessage(messageId: String): SpaceMessageModel? {
+        return spaceRepo.getMessageWithoutObserver(messageId)
+    }
+
     fun downloadThumbnail(remoteFile: RemoteFile, file: File) {
         spaceRepo.downloadThumbnail(remoteFile, file).observeOn(AndroidSchedulers.mainThread()).subscribe({
             _uri.postValue(it)

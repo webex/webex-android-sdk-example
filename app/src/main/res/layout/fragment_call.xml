@@ -250,28 +250,35 @@
             android:inputType="textWebEmailAddress"
             app:layout_constraintEnd_toStartOf="@+id/ib_backspace"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/toggle_buttons_container" />
+            app:layout_constraintTop_toBottomOf="@id/moveMeetingSwitch" />
 
         <ImageButton
             android:id="@+id/ib_backspace"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/ic_backspace"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="32dp"
-            app:layout_constraintBottom_toBottomOf="@+id/et_dial_input"
+            android:background="@drawable/ic_backspace"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/toggle_buttons_container" />
+            app:layout_constraintTop_toTopOf="@id/et_dial_input"
+            app:layout_constraintBottom_toBottomOf="@+id/et_dial_input"/>
 
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/switch_callType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Switch to UC/WebexCalling call"
+            android:text="@string/switch_to_uc_webexcalling_call"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/moveMeetingSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/movemeeting"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/switch_callType" />
 
         <ViewSwitcher
             android:id="@+id/toggle_buttons_container"

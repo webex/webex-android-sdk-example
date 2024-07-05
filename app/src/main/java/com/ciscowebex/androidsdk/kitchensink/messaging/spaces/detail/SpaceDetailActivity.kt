@@ -41,6 +41,7 @@ class SpaceDetailActivity : BaseActivity() {
     lateinit var binding: ActivitySpaceDetailBinding
 
     private val spaceDetailViewModel: SpaceDetailViewModel by inject()
+    private val messageViewModel: MessageViewModel by inject()
     private lateinit var spaceId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,19 +76,9 @@ class SpaceDetailActivity : BaseActivity() {
     }
 
     private fun replyMessageListener(message: SpaceMessageModel) {
-        val model = ReplyMessageModel(
-                        message.spaceId,
-                        message.messageId,
-                        message.created,
-                        message.isSelfMentioned,
-                        message.parentId,
-                        message.isReply,
-                        message.personId,
-                        message.personEmail,
-                        message.toPersonId,
-                        message.toPersonEmail)
-        ContextCompat.startActivity(this@SpaceDetailActivity,
-                MessageComposerActivity.getIntent(this@SpaceDetailActivity, MessageComposerActivity.Companion.ComposerType.POST_SPACE, spaceDetailViewModel.spaceId, model), null)
+        val parentMessage = messageViewModel.getMessage(message.parentId)
+        val model = parentMessage?.let { ReplyMessageModel(it.spaceId, it.messageId, it.created, it.isSelfMentioned, it.parentId, it.isReply, it.personId, it.personEmail, it.toPersonId, it.toPersonEmail) }
+        startActivity(MessageComposerActivity.getIntent(this@SpaceDetailActivity, MessageComposerActivity.Companion.ComposerType.POST_SPACE, spaceDetailViewModel.spaceId, model), null)
     }
 
     private fun editMessage(message: SpaceMessageModel) {

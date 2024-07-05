@@ -31,4 +31,8 @@ class CalendarMeetingsRepository(private val webex: Webex) {
             })
         }.toObservable()
     }
+
+    fun isMoveMeetingSupported(meetingId: String): Boolean {
+        return webex.calendarMeetings.isMoveMeetingSupported(meetingId)
+    }
 }

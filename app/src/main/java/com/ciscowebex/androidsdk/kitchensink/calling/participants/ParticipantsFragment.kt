@@ -22,6 +22,7 @@ import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
 import com.ciscowebex.androidsdk.phone.MakeHostError
 import com.ciscowebex.androidsdk.phone.InviteParticipantError
 import com.ciscowebex.androidsdk.phone.CallMembership
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_participants.*
 
 
@@ -116,7 +117,7 @@ class ParticipantsFragment : DialogFragment(), ParticipantsAdapter.OnItemActionL
                     webexViewModel.muteAllParticipantAudio(it)
                 }
             } else {
-                showToast(getString(R.string.mute_feature_is_not_available_for_cucm_calls))
+                showSnackbar(getString(R.string.mute_feature_is_not_available_for_cucm_calls))
             }
         }
         binding.inviteParticipantButton.setOnClickListener {
@@ -127,8 +128,8 @@ class ParticipantsFragment : DialogFragment(), ParticipantsAdapter.OnItemActionL
 
     }
 
-    private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+    private fun showSnackbar(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
     override fun onParticipantMuted(participantId: String, hasPairedParticipant: Boolean) {
@@ -137,10 +138,10 @@ class ParticipantsFragment : DialogFragment(), ParticipantsAdapter.OnItemActionL
                 webexViewModel.muteParticipant(it, participantId)
                 adapter.notifyDataSetChanged()
             } else {
-                showToast(getString(R.string.mute_feature_is_not_available_for_cucm_calls))
+                showSnackbar(getString(R.string.mute_feature_is_not_available_for_cucm_calls))
             }
             if(hasPairedParticipant) {
-                showToast(getString(R.string.mute_feature_paired_participant))
+                showSnackbar(getString(R.string.mute_feature_paired_participant))
             }
         }
     }
@@ -166,10 +167,10 @@ class ParticipantsFragment : DialogFragment(), ParticipantsAdapter.OnItemActionL
         showDialogForTextBox(requireContext(), getString(R.string.invite_participant), onPositiveButtonClick = { dialog: DialogInterface, invitee: String ->
             webexViewModel.inviteParticipant(invitee) {
                 if (it.isSuccessful) {
-                    showToast("Invite Participant Successful")
+                    showSnackbar("Invite Participant Successful")
                     Log.d(tag, "Invite Participant Successful")
                 } else {
-                    showToast("Invite Participant failed ${it.error?.errorMessage}")
+                    showSnackbar("Invite Participant failed ${it.error?.errorMessage}")
                     Log.d(tag, "Invite Participant failed ${it.error?.errorMessage}")
                 }
             }
@@ -187,9 +188,9 @@ class ParticipantsFragment : DialogFragment(), ParticipantsAdapter.OnItemActionL
                         currentCallId?.let {
                             webexViewModel.makeHost(participantId) {
                                 if (it.isSuccessful) {
-                                    showToast(getString(R.string.assign_host_success))
+                                    showSnackbar(getString(R.string.assign_host_success))
                                 } else {
-                                    showToast(it.error?.errorMessage ?: getString(R.string.assign_host_failure))
+                                    showSnackbar(it.error?.errorMessage ?: getString(R.string.assign_host_failure))
                                 }
 
                             }

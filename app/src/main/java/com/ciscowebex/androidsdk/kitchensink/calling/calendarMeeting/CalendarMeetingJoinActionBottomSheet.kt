@@ -5,17 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.ciscowebex.androidsdk.calendarMeeting.CalendarMeeting
+import com.ciscowebex.androidsdk.kitchensink.calling.CallActivity
 import com.ciscowebex.androidsdk.kitchensink.databinding.BottomSheetCalendarMeetingJoinOptionsBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class CalendarMeetingJoinActionBottomSheet(
-    val joinByMeetingIdClickListener: (String) -> Unit,
-    val joinByMeetingLinkClickListener: (String) -> Unit,
-    val joinByMeetingNumberClickListener: (String) -> Unit
+    val joinByMeetingIdClickListener: (String, Boolean) -> Unit,
+    val joinByMeetingLinkClickListener: (String, Boolean) -> Unit,
+    val joinByMeetingNumberClickListener: (String, Boolean) -> Unit
 ) : BottomSheetDialogFragment() {
 
     private lateinit var binding: BottomSheetCalendarMeetingJoinOptionsBinding
     var meeting : CalendarMeeting? = null
+    var moveMeeting: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,17 +37,17 @@ class CalendarMeetingJoinActionBottomSheet(
 
                 tvJoinByMeetingId.setOnClickListener {
                     dismiss()
-                    joinByMeetingIdClickListener(meeting?.id ?: "")
+                    joinByMeetingIdClickListener(meeting?.id ?: "", moveMeeting)
                 }
 
                 tvJoinByMeetingLink.setOnClickListener {
                     dismiss()
-                    joinByMeetingLinkClickListener(meeting?.link ?: "")
+                    joinByMeetingLinkClickListener(meeting?.link ?: "", moveMeeting)
                 }
 
                 tvJoinByMeetingNumber.setOnClickListener {
                     dismiss()
-                    joinByMeetingNumberClickListener(meeting?.sipUrl ?: "")
+                    joinByMeetingNumberClickListener(meeting?.sipUrl ?: "", moveMeeting)
                 }
 
             tvCancel.setOnClickListener { dismiss() }
