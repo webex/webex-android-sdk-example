@@ -701,6 +701,15 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate, WebexAuthDelegat
                 }
             }
         }
+
+        override fun onMoveMeetingFailed(call: Call?) {
+            val observers: MutableList<CallObserver>? = _callObservers[_callId]
+            observers?.let { it ->
+                it.forEach { observer ->
+                    observer.onMoveMeetingFailed(call)
+                }
+            }
+        }
     }
 
     private fun registerCallObserver(call: Call) {

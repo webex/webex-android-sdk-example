@@ -20,6 +20,7 @@ class Constants {
         const val REJECT_REQUEST_CODE = 1002
         const val FULLSCREEN_REQUEST_CODE = 1001
         const val CALL_TYPE = "SwitchCallType"
+        const val MOVE_MEETING = "MoveMeeting"
         const val CLOSED_CAPTION_DATA = "closed_captions_data"
         const val CLOSED_CAPTION_LANGUAGES = "closed_captions_languages"
         const val CLOSED_CAPTION_LANGUAGE_ITEM = "closed_captions_language_item"

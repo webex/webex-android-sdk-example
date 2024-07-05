@@ -12,7 +12,6 @@ import com.ciscowebex.androidsdk.kitchensink.firebase.RegisterTokenService
 import com.ciscowebex.androidsdk.kitchensink.person.PersonModel
 import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.WebexError
-import com.ciscowebex.androidsdk.annotation.renderer.LiveAnnotationRenderer
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.messaging.FirebaseMessaging
@@ -21,6 +20,7 @@ import com.ciscowebex.androidsdk.auth.PhoneServiceRegistrationFailureReason
 import com.ciscowebex.androidsdk.auth.TokenAuthenticator
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
 import com.ciscowebex.androidsdk.internal.ResultImpl
+import com.ciscowebex.androidsdk.kitchensink.annotation.AnnotationRenderer
 import com.ciscowebex.androidsdk.kitchensink.calling.CallObserverInterface
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
@@ -45,6 +45,7 @@ import com.ciscowebex.androidsdk.phone.MediaStream
 import com.ciscowebex.androidsdk.phone.MediaStreamQuality
 import com.ciscowebex.androidsdk.phone.BreakoutSession
 import com.ciscowebex.androidsdk.phone.Breakout
+import com.ciscowebex.androidsdk.phone.CompanionMode
 import com.ciscowebex.androidsdk.phone.DirectTransferResult
 import com.ciscowebex.androidsdk.phone.InviteParticipantError
 import com.ciscowebex.androidsdk.phone.SwitchToAudioVideoCallResult
@@ -671,8 +672,8 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         })
     }
 
-    private var annotationRenderer: LiveAnnotationRenderer? = null
-    fun initalizeAnnotations(renderer: LiveAnnotationRenderer) {
+    private var annotationRenderer: AnnotationRenderer? = null
+    fun initalizeAnnotations(renderer: AnnotationRenderer) {
         getCall(currentCallId.orEmpty())?.getLiveAnnotationHandle()?.let {annotations->
 
             annotations.setLiveAnnotationsPolicy(LiveAnnotationsPolicy.NeedAskForAnnotate){
@@ -694,7 +695,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
                 override fun onLiveAnnotationsStarted() {
                     annotationRenderer = renderer.apply {
-                        setAnnotationRendererCallback(object : LiveAnnotationRenderer.LiveAnnotationRendererCallback {
+                        setAnnotationRendererCallback(object : AnnotationRenderer.AnnotationRendererCallback {
                             override fun onAnnotationRenderingReady() {
                                 Log.d(tag, "onAnnotationRenderingReady")
                             }
