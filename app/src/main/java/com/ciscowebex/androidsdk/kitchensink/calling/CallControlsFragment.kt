@@ -45,11 +45,11 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.WebexError
-import com.ciscowebex.androidsdk.annotation.renderer.LiveAnnotationRenderer
 import com.ciscowebex.androidsdk.kitchensink.BuildConfig
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.WebexViewModel
+import com.ciscowebex.androidsdk.kitchensink.annotation.AnnotationRenderer
 import com.ciscowebex.androidsdk.kitchensink.auth.LoginActivity
 import com.ciscowebex.androidsdk.kitchensink.calling.captions.ClosedCaptionsController
 import com.ciscowebex.androidsdk.kitchensink.calling.captions.ClosedCaptionsViewModel
@@ -90,13 +90,16 @@ import com.ciscowebex.androidsdk.phone.Phone
 import com.ciscowebex.androidsdk.phone.VirtualBackground
 import com.ciscowebex.androidsdk.phone.Breakout
 import com.ciscowebex.androidsdk.phone.BreakoutSession
+import com.ciscowebex.androidsdk.phone.CompanionMode
 import com.ciscowebex.androidsdk.phone.ReceivingNoiseInfo
 import com.ciscowebex.androidsdk.phone.ShareConfig
 import com.ciscowebex.androidsdk.phone.annotation.LiveAnnotationsPolicy
 import com.ciscowebex.androidsdk.phone.closedCaptions.CaptionItem
 import com.ciscowebex.androidsdk.phone.closedCaptions.ClosedCaptionsInfo
+import com.ciscowebex.androidsdk.kitchensink.utils.GlobalExceptionHandler
 import org.koin.android.ext.android.inject
 import com.ciscowebex.androidsdk.utils.internal.MimeUtils
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import java.io.File
 import java.util.Date
@@ -142,6 +145,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     private var isInPipMode = false
     private var screenShareOptionsDialog: AlertDialog? = null
     private lateinit var annotationPermissionDialog: AlertDialog
+    private lateinit var moveMeeting: CompanionMode
 
     // Is true when trying to join a Breakout Session, and becomes false when successfully joined or error occurs
     // Call onDisconnected is fired when user is the last one to leave main session and tries to join a breakout session.
@@ -237,7 +241,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         binding.ibHoldCall.isSelected = isOnHold ?: false
     }
 
-    private fun getMediaOption(isModerator: Boolean = false, pin: String = "", captcha: String = "", captchaId: String = ""): MediaOption {
+    private fun getMediaOption(isModerator: Boolean = false, pin: String = "", captcha: String = "", captchaId: String = "", companionMode: CompanionMode = CompanionMode.None): MediaOption {
         val mediaOption: MediaOption
         if (webexViewModel.callCapability == WebexRepository.CallCap.Audio_Only) {
             mediaOption = MediaOption.audioOnly()
@@ -249,17 +253,18 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         mediaOption.setPin(pin)
         mediaOption.setCaptchaCode(captcha)
         mediaOption.setCaptchaId(captchaId)
+        mediaOption.setCompanionMode(companionMode)
         return mediaOption
     }
 
-    fun dialOutgoingCall(callerId: String, isModerator: Boolean = false, pin: String = "", captcha: String = "", captchaId: String = "", isCucmOrWxcCall: Boolean) {
+    fun dialOutgoingCall(callerId: String, isModerator: Boolean = false, pin: String = "", captcha: String = "", captchaId: String = "", isCucmOrWxcCall: Boolean, moveMeeting: CompanionMode = CompanionMode.None) {
         Log.d(TAG, "dialOutgoingCall")
         this.callerId = callerId
         if(isCucmOrWxcCall) {
-            webexViewModel.dialPhoneNumber(callerId, getMediaOption(isModerator, pin, captcha, captchaId))
+            webexViewModel.dialPhoneNumber(callerId, getMediaOption(isModerator, pin, captcha, captchaId, moveMeeting))
         }
         else {
-            webexViewModel.dial(callerId, getMediaOption(isModerator, pin, captcha, captchaId))
+            webexViewModel.dial(callerId, getMediaOption(isModerator, pin, captcha, captchaId, moveMeeting))
         }
     }
 
@@ -280,7 +285,9 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 "isSelfCreator: ${webexViewModel.isSelfCreator()}, " +
                 "isSpaceMeeting: ${webexViewModel.isSpaceMeeting()}, "+
                 "isScheduledMeeting: ${webexViewModel.isScheduledMeeting()}")
-
+        // Setting exception handler before making any call. Ideally this would be set in onCallConnected event
+        // but due to codegen limitation, we are setting it here.
+        Thread.setDefaultUncaughtExceptionHandler(GlobalExceptionHandler())
         onCallConnected(call?.getCallId().orEmpty(), call?.isCUCMCall() ?: false, call?.isWebexCallingOrWebexForBroadworks() ?: false)
         webexViewModel.sendFeedback(call?.getCallId().orEmpty(), 5, "Testing Comments SDK-v3")
         webexViewModel.setShareMaxCaptureFPSSetting(30)
@@ -318,7 +325,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
     override fun onDisconnected(call: Call?, event: CallObserver.CallDisconnectedEvent?) {
         Log.d(TAG, "CallObserver onDisconnected : " + call?.getCallId())
-
+        Thread.setDefaultUncaughtExceptionHandler(null)
         var callFailed = false
         var callEnded = false
         var localClose = false
@@ -349,6 +356,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 }
                 is CallObserver.OtherConnected -> {
                     Log.d(TAG, "CallObserver OtherConnected")
+                    callEnded = true
                 }
                 is CallObserver.OtherDeclined -> {
                     Log.d(TAG, "CallObserver OtherDeclined")
@@ -808,7 +816,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
     override fun onClosedCaptionsArrived(captions: CaptionItem) {
         CoroutineScope(Dispatchers.Main).launch {
-            captionsController.showCaptionView(binding.rootLayout, captions)
+            captionsController.showCaptionView(binding.root, captions)
             if(captions.isFinal) {
                 captionsViewModel.updateData(captions)
                 Log.d(TAG, " Captions are arrived from ${captions.getDisplayName()}")
@@ -828,6 +836,10 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         }
     }
 
+    override fun onMoveMeetingFailed(call: Call?) {
+       showDialogWithMessage(requireContext(), R.string.move_meeting_failed, getString(R.string.move_meeting_failed_message))
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     private fun observerCallLiveData() {
 
@@ -842,7 +854,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 if (it) {
                     Log.d(TAG, "startShareLiveData success")
                     // For this share screen session initialize live annotations
-                    webexViewModel.initalizeAnnotations(LiveAnnotationRenderer(requireContext()))
+                    webexViewModel.initalizeAnnotations(AnnotationRenderer(requireContext()))
                     if(BuildConfig.FLAVOR != "wxc") {
                         binding.annotationPolicy.visibility = VISIBLE
                         binding.annotationPolicy.text = webexViewModel.getCurrentLiveAnnotationPolicy().toString()
@@ -1208,7 +1220,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                             dialOutgoingCall(callerId, isHost,
                                 pinTitleEditText.text.toString(),
                                 captchaInputText.text.toString(),
-                                data?.getId()?:"", false)
+                                data?.getId()?:"", false, moveMeeting)
                         }
                     }
                 }
@@ -1479,6 +1491,11 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             {toggleAudioMode(AudioMode.SPEAKER)}, {toggleAudioMode(AudioMode.BLUETOOTH)}, {toggleAudioMode(AudioMode.WIRED_HEADSET)})
 
         callingActivity = bundle?.getInt(Constants.Intent.CALLING_ACTIVITY_ID, 0)!!
+        moveMeeting = if(bundle.getBoolean(Constants.Intent.MOVE_MEETING, false)) {
+            CompanionMode.MoveMeeting
+        } else    {
+            CompanionMode.None
+        }
         val incomingCallId = bundle.getString(Constants.Intent.CALL_ID) ?: ""
         if (callingActivity == 1) {
             isIncomingActivity = true
@@ -2872,10 +2889,10 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         showDialogForHostKey(requireContext(), getString(R.string.enter_host_key), onPositiveButtonClick = { dialog: DialogInterface, number: String ->
             webexViewModel.reclaimHost(number){
                 if (it.isSuccessful) {
-                    showToast("Reclaim Host Successful")
+                    showSnackbar("Reclaim Host Successful")
                     Log.d(TAG, "Reclaim Host Successful")
                 } else {
-                    showToast("Reclaim Host failed ${it.error?.errorMessage}")
+                    showSnackbar("Reclaim Host failed ${it.error?.errorMessage}")
                     Log.d(TAG, "Reclaim Host failed ${it.error?.errorMessage}")
                 }
             }
@@ -3242,7 +3259,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         mediaPlayer.reset()
         super.onStop()
     }
-    private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+
+    private fun showSnackbar(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 }

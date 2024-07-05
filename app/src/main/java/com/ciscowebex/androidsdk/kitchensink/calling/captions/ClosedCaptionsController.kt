@@ -227,13 +227,15 @@ class ClosedCaptionsController(var call: Call?) {
                        snackbar = null
                 }
             })
+            snackbar?.show()
         }
 
-        val textView = snackbar?.view?.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-        textView?.maxLines = 5
-        textView?.text = "${caption.getDisplayName()} : ${caption.getContent().toString()}"
-        if (caption.isFinal) textView?.text = "${textView?.text} \n"
-        snackbar?.show()
+        if (snackbar?.isShown == true) {
+            val textView = snackbar?.view?.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+            textView?.maxLines = 5
+            textView?.text = "${caption.getDisplayName()} : ${caption.getContent().toString()}"
+            if (caption.isFinal) textView?.text = "${textView?.text} \n"
+        }
     }
 
     fun restCaptionView() {

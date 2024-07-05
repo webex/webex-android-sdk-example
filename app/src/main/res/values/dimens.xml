@@ -43,5 +43,6 @@
     <dimen name="filter_meetings_pos3">150dp</dimen>
     <dimen name="filter_meetings_pos4">190dp</dimen>
     <dimen name="filter_meetings_pos5">230dp</dimen>
+    <dimen name="filter_meetings_pos6">270dp</dimen>
 
 </resources>

@@ -327,7 +327,7 @@ class SearchCommonFragment : Fragment() {
                 else
                     binding.image.visibility = View.VISIBLE
                 binding.image.setOnClickListener {
-                    it.context.startActivity(CallActivity.getOutgoingIntent(it.context, itemModel.callerId, itemModel.isPhoneNumber))
+                    it.context.startActivity(CallActivity.getOutgoingIntent(it.context, itemModel.callerId, itemModel.isPhoneNumber, false))
                 }
 
                 if (itemModel.ongoing) {

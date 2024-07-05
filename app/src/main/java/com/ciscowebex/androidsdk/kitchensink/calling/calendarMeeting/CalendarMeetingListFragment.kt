@@ -30,11 +30,11 @@ class CalendarMeetingListFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return FragmentMeetingListBinding.inflate(inflater, container, false).also { binding = it }.apply {
             val meetingJoinOptionsDialogFragment = CalendarMeetingJoinActionBottomSheet(
-                {meetingId -> joinByMeetingId(meetingId)},
-                {meetingLink -> joinByMeetingLink(meetingLink)},
-                {sipUrl -> joinBySipUrl(sipUrl)}
+                {meetingId, moveMeeting -> joinByMeetingId(meetingId, moveMeeting)},
+                {meetingLink, moveMeeting -> joinByMeetingLink(meetingLink, moveMeeting)},
+                {sipUrl, moveMeeting -> joinBySipUrl(sipUrl, moveMeeting)}
             )
-            calendarMeetingListAdapter = CalendarMeetingListAdapter(meetingJoinOptionsDialogFragment, requireActivity().supportFragmentManager) {   listItemPosition ->
+            calendarMeetingListAdapter = CalendarMeetingListAdapter(meetingJoinOptionsDialogFragment, requireActivity().supportFragmentManager, meetingsViewModel) { listItemPosition ->
                 context?.let {
                     val meetingItem = calendarMeetingListAdapter.meetings[listItemPosition]
                     it.startActivity(CalendarMeetingDetailsActivity.getIntent(it, meetingItem.calendarMeeting.id ?: ""))
@@ -82,6 +82,10 @@ class CalendarMeetingListFragment : Fragment() {
             meetingsViewModel.onFilterItemClick(CalendarMeetingsViewModel.FilterMeetingsBy.AllMeetings)
             closeFABMenu()
         }
+        binding.tvOngoing.setOnClickListener {
+            meetingsViewModel.onFilterItemClick(CalendarMeetingsViewModel.FilterMeetingsBy.Ongoing)
+            closeFABMenu()
+        }
     }
 
     private fun showFABMenu() {
@@ -96,6 +100,8 @@ class CalendarMeetingListFragment : Fragment() {
         binding.tvToday.animate().translationY(-resources.getDimension(R.dimen.filter_meetings_pos4))
         binding.tvAllMeetings.animate().alpha(1F).duration = 250
         binding.tvAllMeetings.animate().translationY(-resources.getDimension(R.dimen.filter_meetings_pos5))
+        binding.tvOngoing.animate().alpha(1F).duration = 250
+        binding.tvOngoing.animate().translationY(-resources.getDimension(R.dimen.filter_meetings_pos6))
     }
 
     private fun closeFABMenu() {
@@ -110,6 +116,8 @@ class CalendarMeetingListFragment : Fragment() {
         binding.tvToday.animate().alpha(0F).duration = 300
         binding.tvAllMeetings.animate().translationY(0F)
         binding.tvAllMeetings.animate().alpha(0F).duration = 300
+        binding.tvOngoing.animate().translationY(0F)
+        binding.tvOngoing.animate().alpha(0F).duration = 300
     }
 
     private fun setUpObservers() {
@@ -155,28 +163,29 @@ class CalendarMeetingListFragment : Fragment() {
         })
     }
 
-    private fun joinByMeetingId(meetingId: String) {
+    private fun joinByMeetingId(meetingId: String, moveMeeting: Boolean) {
         context?.let {
-            startActivity(CallActivity.getOutgoingIntent(it, meetingId, false))
+            startActivity(CallActivity.getOutgoingIntent(it, meetingId, false, moveMeeting))
         }
     }
 
-    private fun joinByMeetingLink(meetingLink: String) {
+    private fun joinByMeetingLink(meetingLink: String, moveMeeting: Boolean) {
         context?.let {
-            startActivity(CallActivity.getOutgoingIntent(it, meetingLink, false))
+            startActivity(CallActivity.getOutgoingIntent(it, meetingLink, false, moveMeeting))
         }
     }
 
-    private fun joinBySipUrl(sipUrl: String) {
+    private fun joinBySipUrl(sipUrl: String, moveMeeting: Boolean) {
         context?.let {
-            startActivity(CallActivity.getOutgoingIntent(it, sipUrl, false))
+            startActivity(CallActivity.getOutgoingIntent(it, sipUrl, false, moveMeeting))
         }
     }
 
     class CalendarMeetingListAdapter(
         private val meetingJoinOptionsDialogFragment: CalendarMeetingJoinActionBottomSheet,
         private val supportFragmentManager: FragmentManager,
-        private val onListItemClicked : (listItemPosition: Int) -> Unit
+        private val meetingsViewModel: CalendarMeetingsViewModel,
+        private val onListItemClicked : (listItemPosition: Int) -> Unit,
     ) : RecyclerView.Adapter<MeetingListViewHolder>() {
         var meetings: MutableList<CalendarMeetingModel> = mutableListOf()
 
@@ -200,7 +209,7 @@ class CalendarMeetingListFragment : Fragment() {
         override fun getItemCount(): Int = meetings.size
 
         override fun onBindViewHolder(holder: MeetingListViewHolder, position: Int) {
-            holder.bind(meetings[position])
+            holder.bind(meetings[position], meetingsViewModel)
         }
     }
 
@@ -208,7 +217,7 @@ class CalendarMeetingListFragment : Fragment() {
         private val meetingJoinOptionsDialogFragment: CalendarMeetingJoinActionBottomSheet,
         private val supportFragmentManager: FragmentManager,
         private val binding: ListItemCalendarMeetingsBinding,
-        private val onListItemClicked : (listItemPosition: Int) -> Unit
+        private val onListItemClicked : (listItemPosition: Int) -> Unit,
     ) : RecyclerView.ViewHolder(binding.root) {
 
         init {
@@ -217,14 +226,21 @@ class CalendarMeetingListFragment : Fragment() {
             }
         }
 
-        fun bind(meetingModel: CalendarMeetingModel) {
+        fun bind(meetingModel: CalendarMeetingModel, meetingsViewModel: CalendarMeetingsViewModel) {
             binding.meeting = meetingModel.calendarMeeting
             val currentTime = Date().time
-            val showJoinButton = (meetingModel.calendarMeeting.startTime?.time ?: 0L <= currentTime && meetingModel.calendarMeeting.endTime?.time ?: 0L >= currentTime) || meetingModel.calendarMeeting.canJoin
+            val showJoinButton = ((meetingModel.calendarMeeting.startTime?.time ?: 0L) <= currentTime && (meetingModel.calendarMeeting.endTime?.time ?: 0L) >= currentTime) || meetingModel.calendarMeeting.canJoin
+            val isMoveMeetingPossible = meetingModel.calendarMeeting.isOngoingMeeting && meetingsViewModel.isMoveMeetingSupported(meetingModel.calendarMeeting.id ?: "")
             binding.btnJoinMeeting.visibility = if (showJoinButton) View.VISIBLE else View.GONE
+            binding.btnMoveMeeting.visibility = if (isMoveMeetingPossible) View.VISIBLE else View.GONE
             binding.tvTime.text = meetingModel.date
             binding.btnJoinMeeting.setOnClickListener {
                 meetingJoinOptionsDialogFragment.meeting = meetingModel.calendarMeeting
+                meetingJoinOptionsDialogFragment.show(supportFragmentManager, "Calendar meeting join options")
+            }
+            binding.btnMoveMeeting.setOnClickListener {
+                meetingJoinOptionsDialogFragment.meeting = meetingModel.calendarMeeting
+                meetingJoinOptionsDialogFragment.moveMeeting = true
                 meetingJoinOptionsDialogFragment.show(supportFragmentManager, "Calendar meeting join options")
             }
             binding.executePendingBindings()

@@ -82,6 +82,19 @@ open class MessagingRepository(private val webex: Webex) {
         }.toObservable()
     }
 
+    fun getMessageWithoutObserver(messageId: String): SpaceMessageModel? {
+        var message: SpaceMessageModel? = null
+        webex.messages.get(messageId, CompletionHandler { result ->
+            message = if (result.isSuccessful) {
+                (SpaceMessageModel.convertToSpaceMessageModel(result.data))
+            } else {
+                null
+            }
+
+        })
+        return message
+    }
+
     fun editMessage(messageId: String, messageText: Message.Text, mentions: ArrayList<Mention>?): Observable<SpaceMessageModel> {
         return Single.create<SpaceMessageModel> { emitter ->
             webex.messages.get(messageId, CompletionHandler { messageResult ->

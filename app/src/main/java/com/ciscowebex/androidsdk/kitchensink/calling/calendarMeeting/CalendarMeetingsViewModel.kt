@@ -26,11 +26,20 @@ class CalendarMeetingsViewModel(private val repo: CalendarMeetingsRepository, pr
 
     fun getCalendarMeetingEvent() = webexRepository._calendarMeetingEventLiveData
 
-    fun getCalendarMeetingsList(fromDate: Date? = null, toDate: Date? = null) {
+    fun getCalendarMeetingsList(fromDate: Date? = null, toDate: Date? = null, isOngoing: Boolean = false) {
         repo.listCalendarMeetings(fromDate, toDate).observeOn(AndroidSchedulers.mainThread())
             .subscribe({ meetingsList ->
+                if(isOngoing) {
+                    val ongoingMeetings = meetingsList.filter { it.isOngoingMeeting }
+                    _meetings.postValue(ongoingMeetings)
+                    return@subscribe
+                }
                 _meetings.postValue(meetingsList)
             }, { _meetings.postValue(emptyList()) }).autoDispose()
+    }
+
+    fun isMoveMeetingSupported(meetingId: String): Boolean {
+        return repo.isMoveMeetingSupported(meetingId)
     }
 
     fun onFilterItemClick(filterByOption: FilterMeetingsBy) {
@@ -50,6 +59,7 @@ class CalendarMeetingsViewModel(private val repo: CalendarMeetingsRepository, pr
             FilterMeetingsBy.UpcomingMeetings -> {
                 getCalendarMeetingsList(Date())
             }
+            FilterMeetingsBy.Ongoing -> { getCalendarMeetingsList(null, null, true) }
             FilterMeetingsBy.AllMeetings -> {
                 getCalendarMeetingsList()
             }
@@ -61,6 +71,7 @@ class CalendarMeetingsViewModel(private val repo: CalendarMeetingsRepository, pr
         Tomorrow,
         PastMeetings,
         UpcomingMeetings,
-        AllMeetings
+        AllMeetings,
+        Ongoing
     }
 }
