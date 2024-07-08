@@ -19,6 +19,7 @@ class DialFragment : Fragment() {
     lateinit var binding: FragmentCallBinding
     private var isAddingCall = false
     private var switchToCucmOrWxcCallToggle = false
+    private var moveMeeting = false
 
     companion object{
         private const val IS_ADDING_CALL = "isAddingCall"
@@ -67,7 +68,7 @@ class DialFragment : Fragment() {
                 activity?.setResult(Activity.RESULT_OK, intent)
                 activity?.finish()
             }else{
-                startActivity(context?.let { ctx -> CallActivity.getOutgoingIntent(ctx, dialText, switchToCucmOrWxcCallToggle) })
+                startActivity(context?.let { ctx -> CallActivity.getOutgoingIntent(ctx, dialText, switchToCucmOrWxcCallToggle, moveMeeting)})
             }
         }
 
@@ -79,6 +80,10 @@ class DialFragment : Fragment() {
 
         binding.switchCallType.setOnCheckedChangeListener {_, isChecked ->
             switchToCucmOrWxcCallToggle = isChecked
+        }
+
+        binding.moveMeetingSwitch.setOnCheckedChangeListener { _, isChecked ->
+            moveMeeting = isChecked
         }
 
         binding.ibBackspace.setOnClickListener {

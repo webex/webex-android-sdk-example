@@ -45,11 +45,12 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener, 
 
 
     companion object {
-        fun getOutgoingIntent(context: Context, callerName: String, callType: Boolean): Intent {
+        fun getOutgoingIntent(context: Context, callerName: String, callType: Boolean, moveMeeting: Boolean): Intent {
             val intent = Intent(context, CallActivity::class.java)
             intent.putExtra(Constants.Intent.CALLING_ACTIVITY_ID, 0)
             intent.putExtra(Constants.Intent.OUTGOING_CALL_CALLER_ID, callerName)
             intent.putExtra(Constants.Intent.CALL_TYPE, callType)
+            intent.putExtra(Constants.Intent.MOVE_MEETING, moveMeeting)
             return intent
         }
         fun getIncomingIntent(context: Context, callId: String? = null): Intent {
@@ -87,8 +88,10 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener, 
                     if (callingActivity == 0) {
                         val callerId = intent.getStringExtra(Constants.Intent.OUTGOING_CALL_CALLER_ID)
                         val switchToUcmOrBroadworksCall = intent.getBooleanExtra(Constants.Intent.CALL_TYPE, false)
+                        val moveMeeting = intent.getBooleanExtra(Constants.Intent.MOVE_MEETING, false)
+                        val companionMode: CompanionMode = if (moveMeeting) CompanionMode.MoveMeeting else CompanionMode.None
                         callerId?.let {
-                            fragment.dialOutgoingCall(callerId, isCucmOrWxcCall = switchToUcmOrBroadworksCall)
+                            fragment.dialOutgoingCall(callerId, isCucmOrWxcCall = switchToUcmOrBroadworksCall, moveMeeting = companionMode)
                         }
                     } else if (intent.action == Constants.Action.WEBEX_CALL_ACTION){
                         intent?.getStringExtra(Constants.Intent.CALL_ID) ?.let { callId ->
@@ -466,6 +469,10 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener, 
     }
 
     override fun onClosedCaptionsInfoChanged(closedCaptionsInfo: ClosedCaptionsInfo) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onMoveMeetingFailed(call: Call?) {
         TODO("Not yet implemented")
     }
 

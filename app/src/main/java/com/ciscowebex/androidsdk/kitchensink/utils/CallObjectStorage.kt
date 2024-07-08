@@ -57,6 +57,15 @@ object CallObjectStorage {
         }
     }
 
+    fun getCallObjectFromIndex(index: Int): Call? {
+        synchronized(this) {
+            if (index >= 0 && index < callObjects.size) {
+                return callObjects[index]
+            }
+            return null
+        }
+    }
+
     fun clearStorage() {
         synchronized(this) {
             callObjects.clear()

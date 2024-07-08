@@ -47,4 +47,5 @@ interface CallObserverInterface {
     // Closedcaption
     fun onClosedCaptionsArrived(closedCaptions: CaptionItem)
     fun onClosedCaptionsInfoChanged(closedCaptionsInfo: ClosedCaptionsInfo)
+    fun onMoveMeetingFailed(call: Call?)
 }
