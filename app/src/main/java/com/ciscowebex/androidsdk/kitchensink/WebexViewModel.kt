@@ -45,7 +45,6 @@ import com.ciscowebex.androidsdk.phone.MediaStream
 import com.ciscowebex.androidsdk.phone.MediaStreamQuality
 import com.ciscowebex.androidsdk.phone.BreakoutSession
 import com.ciscowebex.androidsdk.phone.Breakout
-import com.ciscowebex.androidsdk.phone.CompanionMode
 import com.ciscowebex.androidsdk.phone.DirectTransferResult
 import com.ciscowebex.androidsdk.phone.InviteParticipantError
 import com.ciscowebex.androidsdk.phone.SwitchToAudioVideoCallResult
@@ -1468,7 +1467,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     }
 
     fun startAudioDump() {
-        getCall(currentCallId.orEmpty())?.startAudioDump(KitchenSinkApp.applicationContext()) {
+        getCall(currentCallId.orEmpty())?.startRecordingAudioDump(KitchenSinkApp.applicationContext()) {
             if (it.isSuccessful) {
                 Log.d(tag, "[AudioDump] startAudioDump successful")
             } else {
@@ -1479,7 +1478,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     }
 
     fun stopAudioDump() {
-        getCall(currentCallId.orEmpty())?.stopAudioDump() {
+        getCall(currentCallId.orEmpty())?.stopRecordingAudioDump() {
             if (it.isSuccessful) {
                 Log.d(tag, "[AudioDump] stopAudioDump successful")
             } else {
