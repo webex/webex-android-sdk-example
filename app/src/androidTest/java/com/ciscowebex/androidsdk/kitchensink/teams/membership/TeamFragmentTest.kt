@@ -74,13 +74,13 @@ class TeamFragmentTest : KitchenSinkTest() {
         onView(withId(R.id.teamsRecyclerView)).check(matches(hasDescendant(withText(testTeam))))
     }
 
-//    @Test
-//    fun addPersonToTeam_teamFragment(){
-//        goToMessagingActivity()
-//        onView(withId(R.id.teamsRecyclerView)).perform(RecyclerViewActions.actionOnItemAtPosition<TeamsClientViewHolder>(0, clickChildViewWithId(R.id.iv_add_to_team)))
-//        WaitUtils.sleep(TIME_1_SEC)
-//        intended(hasComponent(MessagingSearchActivity::class.java.name))
-//    }
+    @Test
+    fun addPersonToTeam_teamFragment(){
+        goToMessagingActivity()
+        onView(withId(R.id.teamsRecyclerView)).perform(RecyclerViewActions.actionOnItemAtPosition<TeamsClientViewHolder>(0, clickChildViewWithId(R.id.iv_add_to_team)))
+        WaitUtils.sleep(TIME_1_SEC)
+        intended(hasComponent(MessagingSearchActivity::class.java.name))
+    }
 
     @Test
     fun testBottomSheetOptions_teamsFragment(){

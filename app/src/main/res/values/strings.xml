@@ -397,6 +397,7 @@
     <string name="force_register">Force Register Phone Services</string>
     <string name="force_register_dialog_message">This will log you out of phone services from your other android devices and force register on this device</string>
     <string name="app_running_in_background_notification_title">Kitchen Sink running in background</string>
+    <string name="call_management_service_notification_title">Kitchen Sink call management service is running</string>
     <string name="enable_app_background">Keep App running in Background</string>
     <string name="fetching_details">Fetching Details ...</string>
     <string name="caller_details_unavailable">Caller details not found</string>
@@ -448,6 +449,7 @@
     <string name="enableAudio">Enable Audio:</string>
     <string name="noShareType">None</string>
     <string name="closedCaptionOptions">Closed Caption Options</string>
+    <string name="startAudioDump">Start Audio Dump</string>
 
     <!-- Presence related Strings -->
     <string name="presence_active">Active</string>

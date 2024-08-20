@@ -121,9 +121,9 @@ android {
 
 dependencies {
     //At a time only one WebexSDK should be used.
-    implementation 'com.ciscowebex:webexsdk:3.12.0' // For full flavor
-    //implementation 'com.ciscowebex:webexsdk-wxc:3.12.0' //For webexCalling flavor
-    //implementation 'com.ciscowebex:webexsdk-meeting:3.12.0' // For meeting flavor
+    implementation 'com.ciscowebex:webexsdk:3.13.0' // For full flavor
+    //implementation 'com.ciscowebex:webexsdk-wxc:3.13.0' //For webexCalling flavor
+    //implementation 'com.ciscowebex:webexsdk-meeting:3.13.0' // For meeting flavor
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation Dependencies.kotlinStdLib

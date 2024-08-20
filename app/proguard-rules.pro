@@ -112,14 +112,17 @@
 *;
 }
 
--keep public enum com.webex.scf.commonhead.models.**{
+-keep public enum com.ciscowebex.androidsdk.omniusenums.**{
 *;
 }
 
--keep public class com.webex.scf.commonhead.models.**{
+-keep public class com.ciscowebex.androidsdk.omniusmodels.**{
 *;
 }
 
 -keep enum com.ciscowebex.androidsdk.utils.internal.NetTypes{
+*;
+}
+-keep class  com.ciscowebex.androidsdk.phone.internal.RenderSink{
 *;
 }

@@ -383,6 +383,28 @@
             app:layout_constraintTop_toBottomOf="@id/closedCaptionOptions" />
 
         <TextView
+            android:id="@+id/startAudioDump"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/blue"
+            android:paddingVertical="@dimen/size_8dp"
+            android:text="@string/startAudioDump"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/closedCaptionSeparator" />
+
+        <View
+            android:id="@+id/audioDumpSeparator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/startAudioDump" />
+
+        <TextView
             android:id="@+id/cancel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -393,6 +415,6 @@
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/closedCaptionSeparator" />
+            app:layout_constraintTop_toBottomOf="@id/audioDumpSeparator" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -22,6 +22,7 @@ import android.os.Looper
 import android.util.Log
 import android.util.Pair
 import android.util.Rational
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.INVISIBLE
@@ -92,11 +93,14 @@ import com.ciscowebex.androidsdk.phone.Breakout
 import com.ciscowebex.androidsdk.phone.BreakoutSession
 import com.ciscowebex.androidsdk.phone.CompanionMode
 import com.ciscowebex.androidsdk.phone.ReceivingNoiseInfo
+import com.ciscowebex.androidsdk.phone.RemoteShareCallback
 import com.ciscowebex.androidsdk.phone.ShareConfig
 import com.ciscowebex.androidsdk.phone.annotation.LiveAnnotationsPolicy
 import com.ciscowebex.androidsdk.phone.closedCaptions.CaptionItem
 import com.ciscowebex.androidsdk.phone.closedCaptions.ClosedCaptionsInfo
 import com.ciscowebex.androidsdk.kitchensink.utils.GlobalExceptionHandler
+import com.ciscowebex.androidsdk.kitchensink.CallManagementService
+import com.ciscowebex.androidsdk.phone.AudioDumpResult
 import org.koin.android.ext.android.inject
 import com.ciscowebex.androidsdk.utils.internal.MimeUtils
 import com.google.android.material.snackbar.Snackbar
@@ -107,7 +111,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface {
+class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface, RemoteShareCallback {
     private val TAG = "CallControlsFragment"
     val webexViewModel: WebexViewModel by viewModel()
     val captionsViewModel: ClosedCaptionsViewModel by viewModel()
@@ -151,6 +155,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     // Call onDisconnected is fired when user is the last one to leave main session and tries to join a breakout session.
     private var attemptingToJoinABreakoutSession = false
     private val mHandler = Handler(Looper.getMainLooper())
+    private var callManagementServiceIntent: Intent? = null
 
     interface OnCallActionListener {
         fun onEndAndAnswer(currentCallId: String, newCallId: String, handler: CompletionHandler<Boolean>)
@@ -211,11 +216,15 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             setUpViews(getArguments())
             observerCallLiveData()
             initAudioManager()
-
 //        Enable below line to check is USM is enabled
 //        Toast.makeText(requireActivity().applicationContext, "isUSMEnabled ${webexViewModel.webex.phone.isUnifiedSpaceMeetingEnabled()}", Toast.LENGTH_LONG).show()
 
         }.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.screenShareView.setRemoteShareCallback(this)
     }
 
     private fun initAudioManager() {
@@ -285,8 +294,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 "isSelfCreator: ${webexViewModel.isSelfCreator()}, " +
                 "isSpaceMeeting: ${webexViewModel.isSpaceMeeting()}, "+
                 "isScheduledMeeting: ${webexViewModel.isScheduledMeeting()}")
-        // Setting exception handler before making any call. Ideally this would be set in onCallConnected event
-        // but due to codegen limitation, we are setting it here.
+        // Setting exception handler before making any call.
         Thread.setDefaultUncaughtExceptionHandler(GlobalExceptionHandler())
         onCallConnected(call?.getCallId().orEmpty(), call?.isCUCMCall() ?: false, call?.isWebexCallingOrWebexForBroadworks() ?: false)
         webexViewModel.sendFeedback(call?.getCallId().orEmpty(), 5, "Testing Comments SDK-v3")
@@ -310,7 +318,9 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     }
 
     override fun onStartRinging(call: Call?, ringerType: Call.RingerType) {
-        Log.d(tag, "startRinger: $ringerType")
+        Log.d(TAG, "startRinger: $ringerType")
+        // Start call monitoring service when dialing a call
+        startCallMonitoringForegroundService()
         ringerManager.startRinger(ringerType)
     }
 
@@ -326,6 +336,10 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     override fun onDisconnected(call: Call?, event: CallObserver.CallDisconnectedEvent?) {
         Log.d(TAG, "CallObserver onDisconnected : " + call?.getCallId())
         Thread.setDefaultUncaughtExceptionHandler(null)
+        callManagementServiceIntent?.let {
+            activity?.stopService(it)
+            callManagementServiceIntent = null
+        }
         var callFailed = false
         var callEnded = false
         var localClose = false
@@ -1059,6 +1073,46 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
                 onSignedOut()
             }
         })
+
+        webexViewModel.startAudioDumpLiveData.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                if (it) {
+                    Log.d(TAG, "startAudioDumpLiveData success")
+                    showRecordingAlertDialog(requireActivity())
+                } else {
+                    Log.d(TAG, "startAudioDumpLiveData Failed")
+                    showSnackbar("Failed to start audio dump")
+                }
+            }
+        })
+        webexViewModel.stopAudioDumpLiveData.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                if(alertDialogBuilder?.isShowing == true) {
+                    alertDialogBuilder?.dismiss()
+                }
+                timerHandler.removeCallbacksAndMessages(null)
+                if (it) {
+                    Log.d(TAG, "stopAudioDumpLiveData success")
+                } else {
+                    Log.d(TAG, "stopAudioDumpLiveData Failed")
+                    showSnackbar("Failed to stop audio dump")
+                }
+            }
+        })
+        webexViewModel.canStartAudioDumpLiveData.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                if (it) {
+                    Log.d(TAG, "canStartAudioDumpLiveData success")
+                    if(!webexViewModel.isRecordingAudioDump()) {
+                        webexViewModel.startAudioDump()
+                    }
+
+                } else {
+                    Log.d(TAG, "canStartAudioDumpLiveData Failed")
+                    showSnackbar("Audio dump is not supported")
+                }
+            }
+        })
     }
 
     private fun onSignedOut() {
@@ -1452,7 +1506,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
             { call -> sendDTMFClickListener(call) },
             {  claimHostClickListener() },
             { showBreakoutSessions() },
-            { call -> showCaptionDialog(call) })
+            { call -> showCaptionDialog(call) },
+            { startAudioDump() })
 
         multiStreamOptionsBottomSheetFragment = MultiStreamOptionsBottomSheetFragment({ call -> setCategoryAOptionClickListener(call) },
             { call -> setCategoryBOptionClickListener(call) },
@@ -1582,6 +1637,48 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
         passwordDialog = Dialog(requireContext())
 
         binding.annotationPolicy.setOnClickListener(this)
+    }
+
+    private fun startAudioDump() {
+        webexViewModel.canStartRecordingAudioDump()
+    }
+
+    var alertDialogBuilder : AlertDialog? = null
+    var timerHandler = Handler(Looper.getMainLooper())
+    private fun showRecordingAlertDialog(activity: Activity) {
+        val builder = AlertDialog.Builder(requireActivity())
+        builder.setTitle("Recording")
+        val timerTextView = TextView(activity).apply {
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            gravity = Gravity.CENTER_HORIZONTAL
+            textSize = 20f
+        }
+
+        val startTime = System.currentTimeMillis()
+        val timerRunnable = object : Runnable {
+            override fun run() {
+                val millis = System.currentTimeMillis() - startTime
+                val seconds = (millis / 1000).toInt()
+                val minutes = seconds / 60
+                val hours = minutes / 60
+                timerTextView.text = String.format("%02d:%02d:%02d", hours, minutes % 60, seconds % 60)
+                timerHandler.postDelayed(this, 500)
+            }
+        }
+        timerHandler.postDelayed(timerRunnable, 0)
+
+        builder.setView(timerTextView)
+        builder.setMessage("Audio recording is in progress:")
+        builder.setCancelable(false)
+        builder.setPositiveButton("STOP") { dialog, _ ->
+            dialog.dismiss()
+            timerHandler.removeCallbacks(timerRunnable)
+            webexViewModel.stopAudioDump()
+        }
+
+        alertDialogBuilder = builder.create()
+
+        alertDialogBuilder?.show()
     }
 
     private fun showCaptionDialog(call: Call?) {
@@ -2322,13 +2419,11 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     // remoteStartedSharing : true means remote has started sharing else false means remote has ended sharing
     private fun onScreenShareVideoStreamInUseChanged(callId: String, remoteStartedSharing: Boolean? = null) {
         Log.d(TAG, "CallControlsFragment onScreenShareVideoStreamInUseChanged callerId: $callId")
-
         if (webexViewModel.currentCallId != callId) {
             return
         }
 
         mHandler.post {
-
             val remoteSharing = isReceivingSharing(callId)
             val localSharing = isLocalSharing(callId)
             Log.d(TAG, "CallControlsFragment onScreenShareVideoStreamInUseChanged isRemoteSharing: ${remoteSharing}, isLocalSharing: ${localSharing}")
@@ -2506,6 +2601,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
     private fun onIncomingCall(call: Call?, showBottomSheet : Boolean = true) {
         mHandler.post {
             Log.d(TAG, "CallControlsFragment onIncomingCall callerId: ${call?.getCallId()}, callInfo title: ${call?.getTitle()}")
+            // Start call monitoring service when incoming call is received.
+            startCallMonitoringForegroundService()
             binding.incomingCallHeader.visibility = View.GONE
             val schedules= call?.getSchedules()
             incomingLayoutState(false)
@@ -3262,5 +3359,26 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface 
 
     private fun showSnackbar(message: String) {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+    }
+
+    // Remote share callback
+    override fun onShareStarted() {
+        Log.d(TAG, "onShareStarted")
+    }
+
+    override fun onShareStopped() {
+        Log.d(TAG, "onShareStopped")
+    }
+
+    override fun onFrameSizeChanged(width: Int, height: Int) {
+        Log.d(TAG, "onFrameSizeChanged width: $width, height: $height")
+    }
+
+    private fun startCallMonitoringForegroundService() {
+        // Start CallManagement service to cut call when app is killed from recent tasks
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            callManagementServiceIntent = Intent(activity, CallManagementService::class.java)
+            activity?.startForegroundService(callManagementServiceIntent)
+        }
     }
 }
