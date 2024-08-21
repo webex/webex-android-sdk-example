@@ -45,7 +45,6 @@ import com.ciscowebex.androidsdk.phone.MediaStream
 import com.ciscowebex.androidsdk.phone.MediaStreamQuality
 import com.ciscowebex.androidsdk.phone.BreakoutSession
 import com.ciscowebex.androidsdk.phone.Breakout
-import com.ciscowebex.androidsdk.phone.CompanionMode
 import com.ciscowebex.androidsdk.phone.DirectTransferResult
 import com.ciscowebex.androidsdk.phone.InviteParticipantError
 import com.ciscowebex.androidsdk.phone.SwitchToAudioVideoCallResult
@@ -74,6 +73,9 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     val _setCompositeLayoutLiveData = MutableLiveData<Pair<Boolean, String>>()
     val _setRemoteVideoRenderModeLiveData = MutableLiveData<Pair<Boolean, String>>()
     val _forceSendingVideoLandscapeLiveData = MutableLiveData<Boolean>()
+    val _startAudioDumpLiveData = MutableLiveData<Boolean>()
+    val _stopAudioDumpLiveData = MutableLiveData<Boolean>()
+    val _canStartAudioDumpLiveData = MutableLiveData<Boolean>()
 
     var callMembershipsLiveData: LiveData<List<CallMembership>> = _callMembershipsLiveData
     val muteAllLiveData: LiveData<Boolean> = _muteAllLiveData
@@ -86,6 +88,9 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
     val setCompositeLayoutLiveData: LiveData<Pair<Boolean, String>> = _setCompositeLayoutLiveData
     val setRemoteVideoRenderModeLiveData: LiveData<Pair<Boolean, String>> = _setRemoteVideoRenderModeLiveData
     val forceSendingVideoLandscapeLiveData: LiveData<Boolean> = _forceSendingVideoLandscapeLiveData
+    val startAudioDumpLiveData: LiveData<Boolean> = _startAudioDumpLiveData
+    val stopAudioDumpLiveData: LiveData<Boolean> = _stopAudioDumpLiveData
+    val canStartAudioDumpLiveData: LiveData<Boolean> = _canStartAudioDumpLiveData
 
     private val _incomingListenerLiveData = MutableLiveData<Call?>()
     val incomingListenerLiveData: LiveData<Call?> = _incomingListenerLiveData
@@ -279,6 +284,9 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         repository._startAssociationLiveData = _startAssociationLiveData
         repository._startShareLiveData = _startShareLiveData
         repository._stopShareLiveData = _stopShareLiveData
+        repository._startAudioDumpLiveData = _startAudioDumpLiveData
+        repository._stopAudioDumpLiveData = _stopAudioDumpLiveData
+        repository._canStartAudioDumpLiveData = _canStartAudioDumpLiveData
     }
 
     fun setLogLevel(logLevel: String) {
@@ -1458,4 +1466,42 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         repository.printObservers(writer)
     }
 
+    fun startAudioDump() {
+        getCall(currentCallId.orEmpty())?.startRecordingAudioDump(KitchenSinkApp.applicationContext()) {
+            if (it.isSuccessful) {
+                Log.d(tag, "[AudioDump] startAudioDump successful")
+            } else {
+                Log.d(tag, "[AudioDump] startAudioDump error: ${it.error?.errorMessage}")
+            }
+            _startAudioDumpLiveData.postValue(it.isSuccessful)
+        }
+    }
+
+    fun stopAudioDump() {
+        getCall(currentCallId.orEmpty())?.stopRecordingAudioDump() {
+            if (it.isSuccessful) {
+                Log.d(tag, "[AudioDump] stopAudioDump successful")
+            } else {
+                Log.d(tag, "[AudioDump] stopAudioDump error: ${it.error?.errorMessage}")
+            }
+            _stopAudioDumpLiveData.postValue(it.isSuccessful)
+        }
+
+    }
+
+    fun canStartRecordingAudioDump() {
+        getCall(currentCallId.orEmpty())?.canStartRecordingAudioDump {
+            if (it.isSuccessful) {
+                Log.d(tag, "[AudioDump] canStartRecordingAudioDump successful")
+            } else {
+                Log.d(tag, "[AudioDump] canStartRecordingAudioDump error: ${it.error?.errorMessage}")
+            }
+            _canStartAudioDumpLiveData.postValue(it.isSuccessful)
+        }
+    }
+
+
+    fun isRecordingAudioDump(): Boolean {
+        return getCall(currentCallId.orEmpty())?.isRecordingAudioDump() ?: false
+    }
 }

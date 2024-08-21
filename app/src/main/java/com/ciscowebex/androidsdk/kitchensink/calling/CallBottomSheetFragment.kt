@@ -28,7 +28,8 @@ class CallBottomSheetFragment(val showIncomingCallsClickListener: (Call?) -> Uni
                               val sendDTMFClickListener: (Call?) -> Unit,
                               val claimHostClickListener: () -> Unit,
                               val showBreakoutSessions: () -> Unit,
-                              val closedCaptionOptions: (Call?) -> Unit): BottomSheetDialogFragment() {
+                              val closedCaptionOptions: (Call?) -> Unit,
+                              val startAudioDumpListener: () -> Unit): BottomSheetDialogFragment() {
     companion object {
         val TAG = "CallBottomSheetFragment"
     }
@@ -225,6 +226,11 @@ class CallBottomSheetFragment(val showIncomingCallsClickListener: (Call?) -> Uni
             closedCaptionOptions.setOnClickListener {
                 dismiss()
                 closedCaptionOptions(call)
+            }
+
+            startAudioDump.setOnClickListener {
+                dismiss()
+                startAudioDumpListener()
             }
 
             cancel.setOnClickListener { dismiss() }

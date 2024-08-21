@@ -164,7 +164,9 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate, WebexAuthDelegat
     var _startAssociationLiveData: MutableLiveData<CallLiveData>? = null
     var _startShareLiveData: MutableLiveData<Boolean>? = null
     var _stopShareLiveData: MutableLiveData<Boolean>? = null
-
+    var _startAudioDumpLiveData: MutableLiveData<Boolean>? = null
+    var _stopAudioDumpLiveData: MutableLiveData<Boolean>? = null
+    var _canStartAudioDumpLiveData: MutableLiveData<Boolean>? = null
     var _spaceEventLiveData: MutableLiveData<Pair<SpaceEvent, Any?>>? = null
     var spaceEventListener : SpaceEventListener? = null
     var _membershipEventLiveData: MutableLiveData<Pair<MembershipEvent, Membership?>>? = null
@@ -196,6 +198,9 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate, WebexAuthDelegat
         _startAssociationLiveData = null
         _startShareLiveData = null
         _stopShareLiveData = null
+        _startAudioDumpLiveData = null
+        _stopAudioDumpLiveData = null
+        _canStartAudioDumpLiveData = null
     }
 
     fun clearSpaceData(){
