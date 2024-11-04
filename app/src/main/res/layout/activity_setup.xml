@@ -155,10 +155,60 @@
                 </RelativeLayout>
 
                 <RelativeLayout
-                    android:id="@+id/callCapabilityLayout"
+                    android:id="@+id/enableLegacyNoiseRemovalLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/multiStreamApproachNewLayout"
+                    android:layout_marginTop="16dp">
+
+                    <TextView
+                        android:id="@+id/enableLegacyNoiseRemovalToggleText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:text="@string/enable_legacy_noise_removal" />
+
+                    <ToggleButton
+                        android:id="@+id/enableLegacyNoiseRemovalToggle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:checked="false" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/enableSpeechEnhancementLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/enableLegacyNoiseRemovalLayout"
+                    android:layout_marginTop="16dp">
+
+                    <TextView
+                        android:id="@+id/enableSpeechEnhancementToggleText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:text="@string/enable_speech_enhancement" />
+
+                    <ToggleButton
+                        android:id="@+id/enableSpeechEnhancementToggle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:checked="false" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/callCapabilityLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/enableSpeechEnhancementLayout"
                     android:layout_marginTop="16dp">
 
                     <TextView

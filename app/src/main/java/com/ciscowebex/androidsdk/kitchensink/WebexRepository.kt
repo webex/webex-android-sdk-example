@@ -109,7 +109,8 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate, WebexAuthDelegat
         InCorrectPasswordOrHostKey,
         InCorrectPasswordOrHostKeyWithCaptcha,
         WrongApiCalled,
-        CannotStartInstantMeeting
+        CannotStartInstantMeeting,
+        NonExistentCallPull
     }
 
     enum class CalendarMeetingEvent {
@@ -141,6 +142,8 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate, WebexAuthDelegat
     var enablePhoneStatePermission = true
     var enableHWAcceltoggle = false
     var multiStreamNewApproach = true
+    var enableLegacyNoiseRemoval = false
+    var enableSpeechEnhancement = false
     var logFilter = LogLevel.ALL.name
     var maxVideoBandwidth = BandWidthOptions.BANDWIDTH_720P.name
     var isConsoleLoggerEnabled = true

@@ -9,6 +9,7 @@ import com.ciscowebex.androidsdk.kitchensink.databinding.BottomSheetCallOptionsB
 import com.ciscowebex.androidsdk.phone.Call
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.ciscowebex.androidsdk.kitchensink.R
+import com.ciscowebex.androidsdk.kitchensink.WebexViewModel
 import com.ciscowebex.androidsdk.phone.MediaOption
 import com.ciscowebex.androidsdk.phone.Phone
 
@@ -29,7 +30,8 @@ class CallBottomSheetFragment(val showIncomingCallsClickListener: (Call?) -> Uni
                               val claimHostClickListener: () -> Unit,
                               val showBreakoutSessions: () -> Unit,
                               val closedCaptionOptions: (Call?) -> Unit,
-                              val startAudioDumpListener: () -> Unit): BottomSheetDialogFragment() {
+                              val startAudioDumpListener: () -> Unit,
+                              val toggleReceiverSpeechEnhancement: () -> Unit, val webexViewModel: WebexViewModel): BottomSheetDialogFragment() {
     companion object {
         val TAG = "CallBottomSheetFragment"
     }
@@ -231,6 +233,13 @@ class CallBottomSheetFragment(val showIncomingCallsClickListener: (Call?) -> Uni
             startAudioDump.setOnClickListener {
                 dismiss()
                 startAudioDumpListener()
+            }
+
+            enableReceiverSpeechEnhancement.text = if (webexViewModel.isReceiverSpeechEnhancementEnabled()) "Receiver Speech Enhancement: ON" else "Receiver Speech Enhancement: OFF"
+
+            enableReceiverSpeechEnhancement.setOnClickListener {
+                dismiss()
+                toggleReceiverSpeechEnhancement()
             }
 
             cancel.setOnClickListener { dismiss() }
