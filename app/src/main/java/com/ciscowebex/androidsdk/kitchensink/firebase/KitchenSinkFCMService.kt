@@ -11,6 +11,7 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Html
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.internal.ResultImpl
@@ -31,6 +32,7 @@ import com.ciscowebex.androidsdk.kitchensink.utils.decryptPushRESTPayload
 import com.ciscowebex.androidsdk.message.Message
 import com.ciscowebex.androidsdk.phone.Call
 import com.ciscowebex.androidsdk.phone.CallObserver
+import com.ciscowebex.androidsdk.phone.CallObserver.OtherConnected
 import com.ciscowebex.androidsdk.phone.NotificationCallType
 import com.ciscowebex.androidsdk.phone.Phone
 import com.ciscowebex.androidsdk.phone.PushNotificationResult
@@ -86,6 +88,12 @@ class KitchenSinkFCMService : FirebaseMessagingService() {
                                     val notificationManager =
                                         getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
                                     notificationManager?.cancel(Constants.Notification.WEBEX_CALL)
+                                    when(event){
+                                        is OtherConnected -> {
+                                            Log.i(TAG, "The Call has been answered by other person in the hunt group")
+                                            Toast.makeText(applicationContext, "The Call has been answered by other person in the hunt group", Toast.LENGTH_LONG).show()
+                                        }
+                                    }
                                     Handler(Looper.getMainLooper()).post {
                                         it.getCallId()?.let {callId->
                                             repository.removeCallObserver(

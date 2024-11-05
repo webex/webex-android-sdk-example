@@ -496,4 +496,7 @@
     <string name="move_meeting_failed">Move Meeting Failure</string>
     <string name="move_meeting_failed_message">Move Meeting has failed</string>
     <string name="add_members">Add Members</string>
+    <string name="enable_legacy_noise_removal">Enable Legacy Noise Removal</string>
+    <string name="enable_speech_enhancement">Enable Speech Enhancement</string>
+    <string name="enable_receiver_speech_enhancement">Enable Receiver Speech Enhancement</string>
 </resources>

@@ -52,6 +52,7 @@ import com.ciscowebex.androidsdk.phone.PhoneConnectionResult
 import com.ciscowebex.androidsdk.phone.ReceivingNoiseInfo
 import com.ciscowebex.androidsdk.phone.ReceivingNoiseRemovalEnableResult
 import com.ciscowebex.androidsdk.phone.ReclaimHostError
+import com.ciscowebex.androidsdk.phone.SpeechEnhancementResult
 import com.ciscowebex.androidsdk.phone.annotation.LiveAnnotationListener
 import com.ciscowebex.androidsdk.phone.annotation.LiveAnnotationsPolicy
 import com.ciscowebex.androidsdk.phone.closedCaptions.CaptionItem
@@ -275,6 +276,18 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
             repository.multiStreamNewApproach = value
         }
 
+    var enableLegacyNoiseRemoval: Boolean
+        get() = repository.enableLegacyNoiseRemoval
+        set(value) {
+            repository.enableLegacyNoiseRemoval = value
+        }
+
+    var enableSpeechEnhancement: Boolean
+        get() = repository.enableSpeechEnhancement
+        set(value) {
+            repository.enableSpeechEnhancement = value
+        }
+
     init {
         repository._callMembershipsLiveData = _callMembershipsLiveData
         repository._ucLiveData = _ucLiveData
@@ -386,6 +399,11 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
                         WebexError.ErrorCode.INVALID_API_ERROR.code -> {
                             _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.WrongApiCalled, null, null, result.error?.errorMessage))
                         }
+                        WebexError.ErrorCode.UNEXPECTED_ERROR.code  -> {
+                            if(error.errorMessage == "NonExistentCallPull") {
+                                _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.NonExistentCallPull, null, null, result.error?.errorMessage))
+                            }
+                        }
                         else -> {
                             _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.DialFailed, null, null, result.error?.errorMessage))
                         }
@@ -411,6 +429,11 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
                 result.error?.let { error ->
 
                     when(error.errorCode){
+                        WebexError.ErrorCode.UNEXPECTED_ERROR.code  -> {
+                            if(error.errorMessage == "NonExistentCallPull") {
+                                _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.NonExistentCallPull, null, null, result.error?.errorMessage))
+                            }
+                        }
                         WebexError.ErrorCode.HOST_PIN_OR_MEETING_PASSWORD_REQUIRED.code -> {
                             _callingLiveData.postValue(WebexRepository.CallLiveData(WebexRepository.CallEvent.MeetingPinOrPasswordRequired, null))
                         }
@@ -1500,8 +1523,27 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
         }
     }
 
-
     fun isRecordingAudioDump(): Boolean {
         return getCall(currentCallId.orEmpty())?.isRecordingAudioDump() ?: false
+    }
+
+    fun useLegacyReceiverNoiseRemoval(enable: Boolean) {
+        webex.phone.useLegacyReceiverNoiseRemoval(enable)
+    }
+
+    fun isReceiverSpeechEnhancementEnabledByDefault(): Boolean {
+        return webex.phone.isReceiverSpeechEnhancementEnabled()
+    }
+
+    fun enableReceiverSpeechEnhancementByDefault(enable: Boolean, callback: CompletionHandler<Void>) {
+        webex.phone.enableReceiverSpeechEnhancement(enable, callback)
+    }
+
+    fun isReceiverSpeechEnhancementEnabled(): Boolean {
+        return getCall(currentCallId.orEmpty())?.isReceiverSpeechEnhancementEnabled() ?: false
+    }
+
+    fun enableReceiverSpeechEnhancement(enable: Boolean, callback: CompletionHandler<Void>) {
+        getCall(currentCallId.orEmpty())?.enableReceiverSpeechEnhancement(enable, callback)
     }
 }
