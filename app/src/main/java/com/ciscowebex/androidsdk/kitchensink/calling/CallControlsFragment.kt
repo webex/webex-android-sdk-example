@@ -927,7 +927,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
                         onCallJoined(call)
                         handleCallControls(call)
                     }
-                    WebexRepository.CallEvent.DialFailed, WebexRepository.CallEvent.WrongApiCalled, WebexRepository.CallEvent.CannotStartInstantMeeting -> {
+                    WebexRepository.CallEvent.DialFailed, WebexRepository.CallEvent.NonExistentCallPull, WebexRepository.CallEvent.WrongApiCalled, WebexRepository.CallEvent.CannotStartInstantMeeting -> {
                         dismissErrorDialog()
                         val callActivity = activity as CallActivity?
                         callActivity?.alertDialog(true, errorMessage ?: event.name)
@@ -1506,7 +1506,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
             {  claimHostClickListener() },
             { showBreakoutSessions() },
             { call -> showCaptionDialog(call) },
-            { startAudioDump() })
+            { startAudioDump() },
+            { toggleReceiverSpeechEnhancement() }, webexViewModel)
 
         multiStreamOptionsBottomSheetFragment = MultiStreamOptionsBottomSheetFragment({ call -> setCategoryAOptionClickListener(call) },
             { call -> setCategoryBOptionClickListener(call) },
@@ -1631,7 +1632,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
         initAddedCallControls()
         binding.ivNetworkSignal.setOnClickListener(this)
         binding.ivNetworkSignal.visibility = View.GONE
-        binding.btnReturnToMainSession.visibility = View.INVISIBLE
+        binding.btnReturnToMainSession.visibility = INVISIBLE
 
         passwordDialog = Dialog(requireContext())
 
@@ -1846,13 +1847,13 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
             Log.d(TAG, "CallControlsFragment screenShareButtonVisibilityState canShare: $canShare")
 
             if (canShare) {
-                binding.ibScreenShare.visibility = View.VISIBLE
+                binding.ibScreenShare.visibility = VISIBLE
             } else {
-                binding.ibScreenShare.visibility = View.INVISIBLE
+                binding.ibScreenShare.visibility = INVISIBLE
             }
 
         } ?: run {
-            binding.ibScreenShare.visibility = View.INVISIBLE
+            binding.ibScreenShare.visibility = INVISIBLE
         }
     }
 
@@ -1861,7 +1862,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
             val call = webexViewModel.getCall(callId)
             call?.let {
                 if (it.isWebexCallingOrWebexForBroadworks() && !it.isGroupCall()) {
-                    binding.ibDirecttransferCall.visibility = View.VISIBLE
+                    binding.ibDirecttransferCall.visibility = VISIBLE
                 }
             }
         }
@@ -3221,6 +3222,19 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
         }
 
         webexViewModel.setRemoteVideoRenderMode(call?.getCallId().orEmpty(), webexViewModel.scalingMode)
+    }
+
+    private fun toggleReceiverSpeechEnhancement() {
+        Log.d(TAG, "toggleReceiverSpeechEnhancement")
+        webexViewModel.enableReceiverSpeechEnhancement(!webexViewModel.isReceiverSpeechEnhancementEnabled()) {
+            if (it.isSuccessful) {
+                Log.d(TAG, "enableReceiverSpeechEnhancementClickListener success")
+                Toast.makeText(activity, "Receiver Speech Enhancement ${if (webexViewModel.isReceiverSpeechEnhancementEnabled()) "Enabled" else "Disabled"}", Toast.LENGTH_LONG).show()
+            } else {
+                Log.d(TAG, "enableReceiverSpeechEnhancementClickListener failed")
+                Toast.makeText(activity, "Receiver Speech Enhancement failed", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun showBottomSheet(call: Call?) {

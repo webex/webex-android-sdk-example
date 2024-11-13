@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
+import com.ciscowebex.androidsdk.internal.ResultImpl
 import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.KitchenSinkForegroundService
 import com.ciscowebex.androidsdk.kitchensink.R
@@ -14,7 +15,9 @@ import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivitySetupBinding
 import com.ciscowebex.androidsdk.kitchensink.utils.PermissionsHelper
 import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils
+import com.ciscowebex.androidsdk.omniusenums.ReceivingSpeechEnhancementEnableResult
 import com.ciscowebex.androidsdk.phone.Phone
+import com.ciscowebex.androidsdk.phone.SpeechEnhancementResult
 import org.koin.android.ext.android.inject
 
 class SetupActivity: BaseActivity() {
@@ -171,6 +174,26 @@ class SetupActivity: BaseActivity() {
                     multiStreamApproachNewToggle.setOnCheckedChangeListener { _, checked ->
                         webexViewModel.multistreamNewApproach = checked
                     }
+
+                    enableLegacyNoiseRemovalToggle.setOnCheckedChangeListener { _, checked ->
+                        webexViewModel.useLegacyReceiverNoiseRemoval(checked)
+                        webexViewModel.enableLegacyNoiseRemoval = checked
+                    }
+
+                    enableLegacyNoiseRemovalToggle.isChecked = webexViewModel.enableLegacyNoiseRemoval
+
+                    enableSpeechEnhancementToggle.setOnCheckedChangeListener { _, checked ->
+                        webexViewModel.enableReceiverSpeechEnhancementByDefault(checked) {
+                            if (it.isSuccessful) {
+                                Toast.makeText(this@SetupActivity, "Speech enhancement $checked", Toast.LENGTH_SHORT).show()
+                            }
+                            else {
+                                showErrorDialog(it.error?.errorMessage ?: "Failed to enable speech enhancement")
+                            }
+                        }
+                    }
+
+                    enableSpeechEnhancementToggle.isChecked = webexViewModel.isReceiverSpeechEnhancementEnabledByDefault()
                 }
     }
 
