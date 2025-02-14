@@ -94,6 +94,12 @@ This demo support Android device with **Android 7.0** or later
          implementation 'com.ciscowebex:webexsdk-wxc:3.15.0'
          }
          ```
+      - For Messaging SDK
+         ```
+         dependencies {
+         implementation 'com.ciscowebex:webexsdk-message:3.15.0'
+         }
+         ```
 
 ## Usage
 
