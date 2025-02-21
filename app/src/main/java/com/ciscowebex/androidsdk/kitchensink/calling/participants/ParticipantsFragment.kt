@@ -23,7 +23,6 @@ import com.ciscowebex.androidsdk.phone.MakeHostError
 import com.ciscowebex.androidsdk.phone.InviteParticipantError
 import com.ciscowebex.androidsdk.phone.CallMembership
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.fragment_participants.*
 
 
 class ParticipantsFragment : DialogFragment(), ParticipantsAdapter.OnItemActionListener {
@@ -106,7 +105,7 @@ class ParticipantsFragment : DialogFragment(), ParticipantsAdapter.OnItemActionL
 
         webexViewModel.muteAllLiveData.observe(this, Observer { shouldMuteAll ->
             if (shouldMuteAll != null) {
-                tvMute.text = if(shouldMuteAll) getString(R.string.mute_all) else getString(R.string.unmute_all)
+                binding.tvMute.text = if(shouldMuteAll) getString(R.string.mute_all) else getString(R.string.unmute_all)
             }
         })
 

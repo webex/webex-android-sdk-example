@@ -31,6 +31,22 @@ class PermissionsHelper(private val context: Context) {
         return checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     }
 
+    fun hasManagePhoneCallsPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            checkSelfPermission(Manifest.permission.FOREGROUND_SERVICE_PHONE_CALL)
+        } else {
+            true
+        }
+    }
+
+    fun hasManageOwnCallsPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            checkSelfPermission(Manifest.permission.MANAGE_OWN_CALLS)
+        } else {
+            true
+        }
+    }
+
     private fun checkSelfPermission(permission: String): Boolean {
         return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
     }
@@ -39,6 +55,7 @@ class PermissionsHelper(private val context: Context) {
         const val PERMISSIONS_CALLING_REQUEST = 0
         const val PERMISSIONS_STORAGE_REQUEST = 1
         const val PERMISSIONS_CAMERA_REQUEST = 2
+        const val PERMISSIONS_MANAGE_CALL = 3
 
         fun hasAndroid13(): Boolean {
             return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
@@ -57,6 +74,14 @@ class PermissionsHelper(private val context: Context) {
                 arrayOf(Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_IMAGES ,Manifest.permission.READ_MEDIA_AUDIO)
             } else {
                 arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        }
+
+        fun permissionForManageCalls(): Array<String> {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                arrayOf(Manifest.permission.FOREGROUND_SERVICE_PHONE_CALL, Manifest.permission.MANAGE_OWN_CALLS)
+            } else {
+                arrayOf()
             }
         }
 

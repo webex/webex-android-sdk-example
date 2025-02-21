@@ -18,7 +18,7 @@ class ExtrasViewModel(private val extrasRepository: ExtrasRepository) : BaseView
     fun getAccessToken() {
         extrasRepository.getAccessToken().observeOn(AndroidSchedulers.mainThread()).subscribe({
             _accessToken.postValue(it)
-        }, { _accessToken.postValue(null) }).autoDispose()
+        }, { _accessToken.postValue("") }).autoDispose()
     }
 
     fun getRefreshToken() {

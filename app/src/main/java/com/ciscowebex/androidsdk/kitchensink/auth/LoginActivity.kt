@@ -152,6 +152,7 @@ class LoginActivity : AppCompatActivity() {
                     saveEmailPref(this, email)
                     startOAuthActivity()
                 }
+                else -> {}
             }
             dialog.dismiss()
         }, onNegativeButtonClick = { dialog: DialogInterface, _: Int ->

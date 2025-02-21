@@ -20,7 +20,6 @@ import com.ciscowebex.androidsdk.kitchensink.messaging.RemoteModel
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.kitchensink.utils.FileUtils.getFile
 import com.ciscowebex.androidsdk.kitchensink.utils.FileUtils.getThumbnailFile
-import kotlinx.android.synthetic.main.activity_file_viewer.*
 import org.koin.android.ext.android.inject
 import java.io.File
 import java.util.Locale
@@ -50,7 +49,7 @@ class FileViewerActivity : BaseActivity() {
             binding = it
             remoteModel?.let { _remoteModel ->
                 val text =  "${_remoteModel.getRemoteFile().getSize()} " + resources.getString(R.string.total_bytes)
-                totalBytesLabel.text = text
+                binding.totalBytesLabel.text = text
                 messageViewModel.downloadThumbnail(_remoteModel.getRemoteFile(), getThumbnailFile(applicationContext))
                 setUpObservers()
             }
@@ -73,8 +72,8 @@ class FileViewerActivity : BaseActivity() {
         messageViewModel.thumbnailUri.observe(this, Observer { uri ->
             uri?.let {
                 Log.d(tag, "thumbnail uri: $it")
-                progressBar.visibility = View.GONE
-                imgThumbnail.setImageURI(it)
+                binding.progressBar.visibility = View.GONE
+                binding.imgThumbnail.setImageURI(it)
             }
         })
 
@@ -87,14 +86,14 @@ class FileViewerActivity : BaseActivity() {
         messageViewModel.downloadFileProgressLiveData.observe(this, Observer {
             it?.let { bytes ->
                 val text =  "$bytes " + resources.getString(R.string.bytes_downloaded)
-                progressLabel.text = text
+                binding.progressLabel.text = text
             }
         })
     }
 
     private fun downloadComplete(_pair: Pair<MessagingRepository.FileDownloadEvent, String>) {
         runOnUiThread {
-            progressBar.visibility = View.GONE
+            binding.progressBar.visibility = View.GONE
             when (_pair.first) {
                 MessagingRepository.FileDownloadEvent.DOWNLOAD_COMPLETE -> {
                     Log.d(tag, "file downloaded at ${_pair.second}")
@@ -121,8 +120,8 @@ class FileViewerActivity : BaseActivity() {
     }
 
     private fun hideThumbnailView() {
-        imgThumbnail.visibility = View.GONE
-        btnDownload.visibility = View.GONE
+        binding.imgThumbnail.visibility = View.GONE
+        binding.btnDownload.visibility = View.GONE
     }
 
     private fun getFileUri(context: Context, fileName: String): Uri? {

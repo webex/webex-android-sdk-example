@@ -12,8 +12,8 @@ class SpaceReadStatusDetailViewModel(private val spacesRepo: SpacesRepository) :
     val spaceReadStatus : LiveData<SpaceReadStatusModel> = _spaceReadStatus
 
     fun getSpaceReadStatusById(spaceId: String){
-        spacesRepo.getSpaceReadStatusById(spaceId).observeOn(AndroidSchedulers.mainThread()).subscribe({
+        spacesRepo.getSpaceReadStatusById(spaceId).observeOn(AndroidSchedulers.mainThread()).subscribe {
             _spaceReadStatus.postValue(it)
-        }, {_spaceReadStatus.postValue(null)}).autoDispose()
+        }.autoDispose()
     }
 }

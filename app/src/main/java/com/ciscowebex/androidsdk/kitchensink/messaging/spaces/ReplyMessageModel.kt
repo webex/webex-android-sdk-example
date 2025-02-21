@@ -2,7 +2,7 @@ package com.ciscowebex.androidsdk.kitchensink.messaging.spaces
 
 import android.os.Parcelable
 import com.ciscowebex.androidsdk.message.Message
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 class InternalMessage(private val model: ReplyMessageModel) : Message() {
     override fun getId(): String? {

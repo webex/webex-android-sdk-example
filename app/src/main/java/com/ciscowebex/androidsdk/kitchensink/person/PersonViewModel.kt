@@ -21,13 +21,17 @@ class PersonViewModel(private val personRepo: PersonRepository) : BaseViewModel(
     fun getMe() {
         personRepo.getMe().observeOn(AndroidSchedulers.mainThread()).subscribe({
             _person.postValue(it)
-        }, { _person.postValue(null) }).autoDispose()
+        }, {
+            _error.postValue("Failed to fetch person data")
+        }).autoDispose()
     }
 
     fun getPersonDetail(personId: String) {
         personRepo.getPersonDetail(personId).observeOn(AndroidSchedulers.mainThread()).subscribe({
             _person.postValue(it)
-        }, { _person.postValue(null) }).autoDispose()
+        }, {
+            _error.postValue("Failed to fetch person data")
+        }).autoDispose()
     }
 
     fun getPeopleList(email: String?, displayName: String?, id: String?, orgId: String?, max: Int) {

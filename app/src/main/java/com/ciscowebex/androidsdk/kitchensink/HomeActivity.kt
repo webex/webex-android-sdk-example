@@ -1,11 +1,15 @@
 package com.ciscowebex.androidsdk.kitchensink
 
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.Toast
+import android.Manifest
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import com.ciscowebex.androidsdk.CompletionHandler
@@ -36,7 +40,6 @@ import com.google.android.material.snackbar.Snackbar
 import org.koin.android.ext.android.inject
 import java.io.FileDescriptor
 import java.io.PrintWriter
-
 
 class HomeActivity : BaseActivity() {
 
@@ -121,6 +124,11 @@ class HomeActivity : BaseActivity() {
             Log.d(tag, getString(R.string.initial_spaces_sync_completed))
             Snackbar.make(binding.root, getString(R.string.initial_spaces_sync_completed), Snackbar.LENGTH_LONG).show()
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
+            }
+        }
 
         DataBindingUtil.setContentView<ActivityHomeBinding>(this, R.layout.activity_home)
                 .also { binding = it }
@@ -200,6 +208,16 @@ class HomeActivity : BaseActivity() {
         // UC Login
         webexViewModel.startUCServices()
         observeUCLoginData()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            Log.d(tag, "POST NOTIFICATION permission granted")
+        } else {
+            Log.e(tag, "POST NOTIFICATION permission denied")
+            Toast.makeText(this, "POST NOTIFICATION permission denied", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun observeUCLoginData() {

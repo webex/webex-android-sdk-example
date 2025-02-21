@@ -1,7 +1,7 @@
 package com.ciscowebex.androidsdk.kitchensink.messaging
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import com.ciscowebex.androidsdk.message.RemoteFile
 import com.ciscowebex.androidsdk.message.internal.RemoteFileImpl
 

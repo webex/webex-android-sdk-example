@@ -17,7 +17,6 @@ import com.ciscowebex.androidsdk.kitchensink.messaging.RemoteModel
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.message.Message
 import com.ciscowebex.androidsdk.message.RemoteFile
-import kotlinx.android.synthetic.main.dialog_message_details.*
 import org.koin.android.ext.android.inject
 
 class MessageDetailsDialogFragment : BaseDialogFragment() {
@@ -36,11 +35,11 @@ class MessageDetailsDialogFragment : BaseDialogFragment() {
 
     private val messageViewModel: MessageViewModel by inject()
     private lateinit var messageId: String
-
+    lateinit var binding: DialogMessageDetailsBinding
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         messageId = arguments?.getString(Constants.Bundle.MESSAGE_ID) ?: ""
 
-        return DialogMessageDetailsBinding.inflate(inflater, container, false)
+        return DialogMessageDetailsBinding.inflate(inflater, container, false).also { binding = it }
                 .apply {
                     progressLayout.visibility = View.VISIBLE
 
@@ -70,15 +69,15 @@ class MessageDetailsDialogFragment : BaseDialogFragment() {
                 text = msg.getHtml()!!
             }
         }
-        messageBodyTextView.text = Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY)
+        binding.messageBodyTextView.text = Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY)
     }
 
     private fun setUpAttachments(attachments: List<RemoteFile>) {
-        attachmentTextView.text = getString(R.string.attachments_label, attachments.size)
+        binding.attachmentTextView.text = getString(R.string.attachments_label, attachments.size)
 
         val dividerItemDecoration = DividerItemDecoration(requireContext(),
                 LinearLayoutManager.VERTICAL)
-        attachmentList.addItemDecoration(dividerItemDecoration)
+        binding.attachmentList.addItemDecoration(dividerItemDecoration)
         val onAttachmentClick: (RemoteFile) -> Unit = { remoteFile ->
             val remoteModel = RemoteModel(remoteFile.getDisplayName().orEmpty(),
                     remoteFile.getMimeType(),
@@ -93,7 +92,7 @@ class MessageDetailsDialogFragment : BaseDialogFragment() {
                     remoteFile.getThumbnail()?.getUrl())
             activity?.startActivity(FileViewerActivity.getIntent(requireContext(), remoteModel))
         }
-        attachmentList.adapter = MessageAttachmentsAdapter(attachments, onAttachmentClick)
+        binding.attachmentList.adapter = MessageAttachmentsAdapter(attachments, onAttachmentClick)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

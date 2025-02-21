@@ -62,6 +62,7 @@ class MembershipReadStatusFragment : Fragment() {
                                 WebexRepository.MembershipEvent.MessageSeen -> {
                                     getList()
                                 }
+                                else -> {}
 
                             }
                         }

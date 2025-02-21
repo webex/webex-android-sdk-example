@@ -30,7 +30,7 @@ class TeamsViewModel(private val teamsRepo: TeamsRepository, private val members
     fun addTeam(teamName: String) {
         teamsRepo.createTeam(teamName).observeOn(AndroidSchedulers.mainThread()).subscribe({ addedTeam ->
             _teamAdded.postValue(addedTeam)
-        }, { _teamAdded.postValue(null) }).autoDispose()
+        },{ error -> _teamError.postValue(error.message) }).autoDispose()
     }
 
     fun updateTeam(teamId: String, teamName: String) {

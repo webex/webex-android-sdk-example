@@ -12,8 +12,8 @@ class TeamDetailViewModel(private val teamsRepo: TeamsRepository) : BaseViewMode
     val team : LiveData<TeamModel> = _team
 
     fun getTeamById(teamId: String){
-        teamsRepo.fetchTeamById(teamId).observeOn(AndroidSchedulers.mainThread()).subscribe({ teamModel ->
+        teamsRepo.fetchTeamById(teamId).observeOn(AndroidSchedulers.mainThread()).subscribe { teamModel ->
             _team.postValue((teamModel))
-        }, { _team.postValue(null)}).autoDispose()
+        }.autoDispose()
     }
 }

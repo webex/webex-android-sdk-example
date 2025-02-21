@@ -98,14 +98,14 @@ class SpacesViewModel(private val spacesRepo: SpacesRepository,
     fun addSpace(title: String, teamId: String?) {
         spacesRepo.addSpace(title, teamId).observeOn(AndroidSchedulers.mainThread()).subscribe({ createdSpace ->
             _addSpace.postValue(createdSpace)
-        }, { _addSpace.postValue(null) }).autoDispose()
+        }, { error -> _spaceError.postValue(error.message) }).autoDispose()
 
     }
 
     fun getSpaceReadStatusList(maxSpaces: Int) {
         spacesRepo.fetchSpaceReadStatusList(maxSpaces).observeOn(AndroidSchedulers.mainThread()).subscribe({ listReadStatus ->
             _readStatusList.postValue(listReadStatus)
-        }, { _readStatusList.postValue(null) }).autoDispose()
+        }, { _readStatusList.postValue(emptyList()) }).autoDispose()
     }
 
     fun updateSpace(spaceId: String, spaceName: String) {

@@ -34,6 +34,7 @@ import android.widget.ImageButton
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.NotificationCompat
@@ -100,6 +101,7 @@ import com.ciscowebex.androidsdk.phone.closedCaptions.CaptionItem
 import com.ciscowebex.androidsdk.phone.closedCaptions.ClosedCaptionsInfo
 import com.ciscowebex.androidsdk.kitchensink.utils.GlobalExceptionHandler
 import com.ciscowebex.androidsdk.kitchensink.CallManagementService
+import com.ciscowebex.androidsdk.kitchensink.utils.PermissionsHelper
 import org.koin.android.ext.android.inject
 import com.ciscowebex.androidsdk.utils.internal.MimeUtils
 import com.google.android.material.snackbar.Snackbar
@@ -224,6 +226,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.screenShareView.setRemoteShareCallback(this)
+        permissionRequest.launch(PermissionsHelper.permissionForManageCalls())
     }
 
     private fun initAudioManager() {
@@ -943,6 +946,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
                         Log.d(TAG, "answer Lambda failed $errorMessage")
                         dismissErrorDialog()
                         callEndedUIUpdate(call?.getCallId().orEmpty())
+                        val callActivity = activity as CallActivity?
+                        callActivity?.alertDialog(true, errorMessage ?: event.name)
                     }
                     WebexRepository.CallEvent.MeetingPinOrPasswordRequired,
                     WebexRepository.CallEvent.InCorrectPassword,
@@ -3219,6 +3224,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
             Call.VideoRenderMode.StretchFill -> {
                 webexViewModel.scalingMode = Call.VideoRenderMode.Fit
             }
+            else -> {}
         }
 
         webexViewModel.setRemoteVideoRenderMode(call?.getCallId().orEmpty(), webexViewModel.scalingMode)
@@ -3387,11 +3393,39 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
         Log.d(TAG, "onFrameSizeChanged width: $width, height: $height")
     }
 
+    private val permissionRequest =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            doPermissionAction()
+        }
+    private fun doPermissionAction() {
+        var allPermission = true
+        val permissionsHelper = PermissionsHelper(requireContext())
+        allPermission = permissionsHelper.hasManageOwnCallsPermission() && permissionsHelper.hasManagePhoneCallsPermission()
+        if (allPermission) {
+            Log.d(tag, "Manage calls permission granted")
+            launchIntentForCallMonitoring()
+        } else {
+            Toast.makeText(requireContext(), getString(R.string.manage_call_permission_error), Toast.LENGTH_LONG).show()
+        }
+
+    }
     private fun startCallMonitoringForegroundService() {
         // Start CallManagement service to cut call when app is killed from recent tasks
+        val permissionsHelper = PermissionsHelper(requireContext())
+        if(permissionsHelper.hasManagePhoneCallsPermission() && permissionsHelper.hasManageOwnCallsPermission()){
+            launchIntentForCallMonitoring()
+        } else {
+            Log.d(tag, "Requesting call manage permissions")
+            permissionRequest.launch(PermissionsHelper.permissionForManageCalls())
+        }
+    }
+
+    private fun launchIntentForCallMonitoring() {
+        callManagementServiceIntent = Intent(activity, CallManagementService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            callManagementServiceIntent = Intent(activity, CallManagementService::class.java)
             activity?.startForegroundService(callManagementServiceIntent)
+        } else {
+            activity?.startService(callManagementServiceIntent) // Older versions
         }
     }
 }

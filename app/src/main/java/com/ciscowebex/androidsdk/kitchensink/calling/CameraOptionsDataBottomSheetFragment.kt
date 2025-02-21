@@ -65,6 +65,7 @@ class CameraOptionsDataBottomSheetFragment(val zoomfactorValueSetListener: (Floa
                             cameraAutoExposureValueSetClickListener(propertyEditText.text.toString().toFloat())
                         }
                     }
+                    else -> {}
                 }
                 propertyEditText.text.clear()
                 property2EditText.text.clear()

@@ -4,7 +4,7 @@ import android.graphics.drawable.Drawable
 import android.os.Parcelable
 import com.ciscowebex.androidsdk.people.Person
 import com.ciscowebex.androidsdk.people.PersonRole
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import java.util.*
 
 @Parcelize

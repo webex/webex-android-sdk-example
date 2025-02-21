@@ -128,6 +128,7 @@ open class RingerManager(private val androidContext: Context): KoinComponent {
             Call.RingerType.Outgoing,Call.RingerType.CallWaiting, Call.RingerType.NotFound, Call.RingerType.BusyTone, Call.RingerType.Reconnect -> playCallTone(type)
             Call.RingerType.DTMF_0, Call.RingerType.DTMF_1, Call.RingerType.DTMF_2, Call.RingerType.DTMF_3, Call.RingerType.DTMF_4, Call.RingerType.DTMF_5, Call.RingerType.DTMF_6, Call.RingerType.DTMF_7,
             Call.RingerType.DTMF_8, Call.RingerType.DTMF_9, Call.RingerType.DTMF_STAR, Call.RingerType.DTMF_POUND -> playDtmfTone(type)
+            else -> Log.d(tag, "type not found")
         }
     }
 
