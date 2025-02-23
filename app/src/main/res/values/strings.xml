@@ -55,6 +55,7 @@
     <string name="post_message_email_empty">Empty email address</string>
     <string name="post_message_attach_permission_error">Permission not granted</string>
     <string name="camera_permission_error">Camera Permission not granted</string>
+    <string name="manage_call_permission_error">Manage call Permission not granted</string>
     <string name="post_message_invalid_message">Invalid Message</string>
     <string name="edit_message_internal_error">Edit Message Internal Error</string>
     <string name="message_edit_successful">Message edited successfully</string>
@@ -427,6 +428,7 @@
     <string name="breakout_session_started">Breakout session started</string>
     <string name="incorrectPin">Incorrect pin or password !</string>
     <string name="incorrectPinOrHostKey">Incorrect meeting pin or host key !</string>
+    <string name="permission_denied">Few permissions have been denied by the user.</string>
     <string name="captcha_empty_error">Please enter the text shown in image</string>
     <string name="captcha_hint">Enter captcha text here</string>
     <string name="meeting_pin_title">Enter meeting pin</string>
@@ -464,6 +466,7 @@
     <string name="presence_unknown">Unknown</string>
     <string name="presence_pending">Pending</string>
     <string name="presence_quiet">Quiet</string>
+    <string name="presence_away">Away</string>
 
     <!-- Closed Captions related strings -->
     <string name="cc_title">Closed Captions</string>

@@ -42,7 +42,7 @@ class SpaceDetailViewModel(private val spacesRepo: SpacesRepository, private val
     private fun getMe() {
         personRepo.getMe().observeOn(AndroidSchedulers.mainThread()).subscribe ({
             person = it
-            _getMeData.postValue(person)
+            _getMeData.postValue(it)
         },
         { error -> Log.e(tag, error.message.orEmpty())}).autoDispose()
     }
@@ -68,7 +68,7 @@ class SpaceDetailViewModel(private val spacesRepo: SpacesRepository, private val
     fun getSpaceById() {
         spacesRepo.fetchSpaceById(spaceId).observeOn(AndroidSchedulers.mainThread()).subscribe({ spaceModel ->
             _space.postValue((spaceModel))
-        }, { _space.postValue(null) }).autoDispose()
+        }, { error -> _messageError.postValue(error?.message ?: "")}).autoDispose()
     }
 
     fun getMessages(beforeMessageId: String? = null, beforeMessageDate: Long? = null) {

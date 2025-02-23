@@ -2,7 +2,7 @@ import com.ciscowebex.androidsdk.build.*
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'  // Google Services plugin
 apply plugin: 'com.google.firebase.crashlytics' // Crashlytics Gradle plugin
@@ -17,23 +17,22 @@ def WEBHOOK_URL='""'
 
 android {
     compileSdkVersion Versions.compileSdk
-    buildToolsVersion Versions.buildTools
     ndkVersion Versions.ndkVersion
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility Versions.jvmVersion
+        targetCompatibility Versions.jvmVersion
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+        jvmTarget = Versions.jvmTarget
     }
     defaultConfig {
         applicationId "com.cisco.sdk_android"
         minSdkVersion Versions.minSdk
         targetSdkVersion Versions.targetSdk
-        versionCode 3140000
-        versionName "3.14.0"
+        versionCode 3150000
+        versionName "3.15.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -66,6 +65,7 @@ android {
     packagingOptions {
         jniLibs {
             pickFirsts += ['lib/armeabi-v7a/libc++_shared.so', 'lib/arm64-v8a/libc++_shared.so', 'lib/x86/libc++_shared.so', 'lib/x86_64/libc++_shared.so']
+            useLegacyPackaging true
         }
     }
 
@@ -116,14 +116,21 @@ android {
             versionNameSuffix '-wxc'
             matchingFallbacks = ["wxc"]
         }
+        message {
+            dimension 'sdktype'
+            versionNameSuffix '-message'
+            matchingFallbacks = ["message"]
+        }
     }
+    namespace 'com.ciscowebex.androidsdk.kitchensink'
 }
 
 dependencies {
     //At a time only one WebexSDK should be used.
-    implementation 'com.ciscowebex:webexsdk:3.14.0' // For full flavor
-    //implementation 'com.ciscowebex:webexsdk-wxc:3.14.0' //For webexCalling flavor
-    //implementation 'com.ciscowebex:webexsdk-meeting:3.14.0' // For meeting flavor
+    implementation 'com.ciscowebex:webexsdk:3.15.0' // For full flavor
+    //implementation 'com.ciscowebex:webexsdk-wxc:3.15.0' //For webexCalling flavor
+    //implementation 'com.ciscowebex:webexsdk-meeting:3.15.0' // For meeting flavor
+    //implementation 'com.ciscowebex:webexsdk-message:3.15.0' // For meeting flavor
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation Dependencies.kotlinStdLib
     implementation Dependencies.coreKtx

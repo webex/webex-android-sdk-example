@@ -18,7 +18,6 @@ import com.ciscowebex.androidsdk.kitchensink.databinding.FragmentCommonBinding
 import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemPersonsBinding
 import com.ciscowebex.androidsdk.kitchensink.person.PersonModel
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
-import kotlinx.android.synthetic.main.fragment_common.*
 import org.koin.android.ext.android.inject
 
 class SearchPeopleFragment : Fragment() {
@@ -34,12 +33,13 @@ class SearchPeopleFragment : Fragment() {
         }
     }
 
+    lateinit var binding:FragmentCommonBinding
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        return FragmentCommonBinding.inflate(inflater, container, false).apply {
+        return FragmentCommonBinding.inflate(inflater, container, false).also { binding = it }.apply {
             recyclerView.itemAnimator = DefaultItemAnimator()
             personAdapter = SearchPersonAdapter { selectedPerson ->
                 finishActivityAndReturnValue(selectedPerson)
@@ -111,13 +111,13 @@ class SearchPeopleFragment : Fragment() {
     }
 
     private fun updateEmptyListUI(listEmpty: Boolean) {
-        progress_bar.visibility = View.GONE
+        binding.progressBar.visibility = View.GONE
         if (listEmpty) {
-            tv_empty_data.visibility = View.VISIBLE
-            recycler_view.visibility = View.GONE
+            binding.tvEmptyData.visibility = View.VISIBLE
+            binding.recyclerView.visibility = View.GONE
         } else {
-            tv_empty_data.visibility = View.GONE
-            recycler_view.visibility = View.VISIBLE
+            binding.tvEmptyData.visibility = View.GONE
+            binding.recyclerView.visibility = View.VISIBLE
         }
     }
 

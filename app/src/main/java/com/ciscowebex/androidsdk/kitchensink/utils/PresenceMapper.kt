@@ -18,6 +18,7 @@ fun stateToDrawable(context: Context, status: PresenceStatus): Drawable? {
         PresenceStatus.Meeting -> AppCompatResources.getDrawable(context, R.drawable.ic_presence_meeting)
         PresenceStatus.Presenting -> AppCompatResources.getDrawable(context, R.drawable.ic_presence_sharing_screen)
         PresenceStatus.CalendarItem -> AppCompatResources.getDrawable(context, R.drawable.ic_presence_calendar)
+        PresenceStatus.Away -> AppCompatResources.getDrawable(context, R.drawable.ic_presence_away)
         else -> null
     }
 }
@@ -35,6 +36,7 @@ fun stateToString(context: Context, status: PresenceStatus): String {
         PresenceStatus.Meeting -> context.getString(R.string.presence_meeting)
         PresenceStatus.Presenting -> context.getString(R.string.presence_presenting)
         PresenceStatus.CalendarItem -> context.getString(R.string.presence_calendar)
+        PresenceStatus.Away -> context.getString(R.string.presence_away)
         else -> context.getString(R.string.presence_unknown)
     }
 }

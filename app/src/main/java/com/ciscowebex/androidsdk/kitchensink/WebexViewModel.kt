@@ -945,8 +945,7 @@ class WebexViewModel(val webex: Webex, val repository: WebexRepository) : BaseVi
 
     fun postParticipantData(data: List<CallMembership>?) {
         synchronized(this) {
-            _callMembershipsLiveData.postValue(data)
-
+            data?.let {  _callMembershipsLiveData.postValue(it) }
             var isRemoteSendingAudio = false
 
             data?.let {

@@ -49,4 +49,5 @@
     <color name="presence_icon_call">@color/orange_60</color>
     <color name="presence_icon_schedule">@color/orange_60</color>
     <color name="presence_icon_presenting">@color/red_60</color>
+    <color name="presence_icon_away">@color/gray_70</color>
 </resources>

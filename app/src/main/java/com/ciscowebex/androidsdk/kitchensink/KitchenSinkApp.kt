@@ -8,8 +8,8 @@ import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.ciscowebex.androidsdk.kitchensink.auth.LoginActivity
 import com.ciscowebex.androidsdk.kitchensink.auth.loginModule
-import com.ciscowebex.androidsdk.kitchensink.calling.callModule
 import com.ciscowebex.androidsdk.kitchensink.calling.calendarMeeting.calendarMeetingsModule
+import com.ciscowebex.androidsdk.kitchensink.calling.callModule
 import com.ciscowebex.androidsdk.kitchensink.extras.extrasModule
 import com.ciscowebex.androidsdk.kitchensink.messaging.messagingModule
 import com.ciscowebex.androidsdk.kitchensink.messaging.search.searchPeopleModule
@@ -17,6 +17,7 @@ import com.ciscowebex.androidsdk.kitchensink.person.personModule
 import com.ciscowebex.androidsdk.kitchensink.search.searchModule
 import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils
 import com.ciscowebex.androidsdk.kitchensink.webhooks.webhooksModule
+import com.google.firebase.FirebaseApp
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.loadKoinModules
@@ -50,11 +51,13 @@ class KitchenSinkApp : Application(), LifecycleObserver {
 
     override fun onCreate() {
         super.onCreate()
+        FirebaseApp.initializeApp(this) // Initialize Firebase
+
         startKoin {
             androidLogger()
             androidContext(this@KitchenSinkApp)
         }
-        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+        ProcessLifecycleOwner.get().lifecycle.addObserver(this);
     }
 
     override fun attachBaseContext(base: Context?) {
