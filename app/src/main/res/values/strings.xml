@@ -56,6 +56,9 @@
     <string name="post_message_attach_permission_error">Permission not granted</string>
     <string name="camera_permission_error">Camera Permission not granted</string>
     <string name="manage_call_permission_error">Manage call Permission not granted</string>
+    <string name="permission_error">Permission not granted</string>
+    <string name="manage_overlay_permission_error">Overlay permission not granted</string>
+    <string name="manage_overlay_permission_granted">Overlay permission granted</string>
     <string name="post_message_invalid_message">Invalid Message</string>
     <string name="edit_message_internal_error">Edit Message Internal Error</string>
     <string name="message_edit_successful">Message edited successfully</string>

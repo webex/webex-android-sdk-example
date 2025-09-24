@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Explicitly declare meeting permissions to align with Full SDK behavior -->
+    <!-- Camera/Mic for audio-video -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- Optional: phone state optimization (controlled in app logic) -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <!-- Bluetooth for headset routing (API 31+ uses BLUETOOTH_CONNECT; legacy uses BLUETOOTH) -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <!-- Audio settings (used by audio routing) -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <!-- Overlay (for annotations) & foreground services (for screen share) -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+
+    <!-- Optional: calendar read if meeting list/joins need it in this flavor -->
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+</manifest>

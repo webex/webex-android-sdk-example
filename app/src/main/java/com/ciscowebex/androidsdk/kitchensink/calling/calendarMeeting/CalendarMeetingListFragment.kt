@@ -1,14 +1,19 @@
 package com.ciscowebex.androidsdk.kitchensink.calling.calendarMeeting
 
+import android.Manifest
 import android.os.Bundle
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
+import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.calendarMeeting.CalendarMeeting
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
@@ -26,6 +31,20 @@ class CalendarMeetingListFragment : Fragment() {
     private val meetingsViewModel: CalendarMeetingsViewModel by inject()
 
     private var isFABOpen = false
+
+    // No local pre-checks; rely on SDK PERMISSION_REQUIRED and KS observers
+
+    private val callingPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { grants ->
+            val allGranted = grants.values.all { it }
+            val webexVM = (activity as? BaseActivity)?.webexViewModel
+            if (allGranted) {
+                webexVM?.retryPendingDialIfAny()
+                webexVM?.retryPendingAnswerIfAny()
+            } else {
+                Toast.makeText(requireContext(), getString(R.string.permission_error), Toast.LENGTH_LONG).show()
+            }
+        }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return FragmentMeetingListBinding.inflate(inflater, container, false).also { binding = it }.apply {
@@ -45,6 +64,15 @@ class CalendarMeetingListFragment : Fragment() {
             lifecycleOwner = this@CalendarMeetingListFragment
             setUpObservers()
             setFilterMeetingListeners()
+
+            // Fragment-local fallback observer to launch permission prompts
+            (activity as? BaseActivity)?.webexViewModel?.callingLiveData?.observe(this@CalendarMeetingListFragment.viewLifecycleOwner) { live ->
+                val missing = live?.missingPermissions
+                if (!missing.isNullOrEmpty()) {
+                    val normalized = normalizePermissionsForApi(missing.toSet()).toTypedArray()
+                    callingPermissionLauncher.launch(normalized)
+                }
+            }
         }.root
     }
 
@@ -164,21 +192,25 @@ class CalendarMeetingListFragment : Fragment() {
     }
 
     private fun joinByMeetingId(meetingId: String, moveMeeting: Boolean) {
-        context?.let {
-            startActivity(CallActivity.getOutgoingIntent(it, meetingId, false, moveMeeting))
-        }
+        context?.let { startActivity(CallActivity.getOutgoingIntent(it, meetingId, false, moveMeeting)) }
     }
 
     private fun joinByMeetingLink(meetingLink: String, moveMeeting: Boolean) {
-        context?.let {
-            startActivity(CallActivity.getOutgoingIntent(it, meetingLink, false, moveMeeting))
-        }
+        context?.let { startActivity(CallActivity.getOutgoingIntent(it, meetingLink, false, moveMeeting)) }
     }
 
     private fun joinBySipUrl(sipUrl: String, moveMeeting: Boolean) {
-        context?.let {
-            startActivity(CallActivity.getOutgoingIntent(it, sipUrl, false, moveMeeting))
+        context?.let { startActivity(CallActivity.getOutgoingIntent(it, sipUrl, false, moveMeeting)) }
+    }
+
+    private fun normalizePermissionsForApi(perms: Set<String>): Set<String> {
+        if (Build.VERSION.SDK_INT >= 31) {
+            val mapped = perms.map {
+                if (it == Manifest.permission.BLUETOOTH) Manifest.permission.BLUETOOTH_CONNECT else it
+            }
+            return mapped.toSet()
         }
+        return perms
     }
 
     class CalendarMeetingListAdapter(

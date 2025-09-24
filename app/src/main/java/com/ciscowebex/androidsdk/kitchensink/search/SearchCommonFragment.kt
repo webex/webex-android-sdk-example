@@ -1,16 +1,21 @@
 package com.ciscowebex.androidsdk.kitchensink.search
 
+import android.Manifest
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SearchView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
+import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.calling.CallActivity
@@ -21,6 +26,7 @@ import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.Membership
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.kitchensink.utils.formatCallDurationTime
 import com.ciscowebex.androidsdk.kitchensink.utils.stateToDrawable
+import com.ciscowebex.androidsdk.phone.CallHistoryEvent
 import com.ciscowebex.androidsdk.phone.CallHistoryRecord
 import com.ciscowebex.androidsdk.space.Space
 import com.google.android.material.snackbar.Snackbar
@@ -36,7 +42,25 @@ class SearchCommonFragment : Fragment() {
     private val directMembers = mutableSetOf<MembershipModel>()
     lateinit var taskType: String
     lateinit var binding: FragmentCommonBinding
+    private val callingPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { grants ->
+            val allGranted = grants.values.all { it }
+            val webexVM = (activity as? BaseActivity)?.webexViewModel
+            if (allGranted) {
+                webexVM?.retryPendingDialIfAny()
+                webexVM?.retryPendingAnswerIfAny()
+            } else {
+                Toast.makeText(requireContext(), getString(R.string.permission_error), Toast.LENGTH_LONG).show()
+            }
+        }
 
+    // Progress dialog for delete operations
+    private var deleteDialogInfo: DeleteDialogInfo? = null
+
+    // No local pre-checks: rely on SDK PERMISSION_REQUIRED and BaseActivity/CallControlsFragment handlers
+    private fun startCall(callerId: String, isPhoneNumber: Boolean, moveMeeting: Boolean) {
+        startActivity(CallActivity.getOutgoingIntent(requireContext(), callerId, isPhoneNumber, moveMeeting))
+    }
 
     companion object {
         object TaskType {
@@ -58,6 +82,8 @@ class SearchCommonFragment : Fragment() {
 
             recyclerView.itemAnimator = DefaultItemAnimator()
 
+            // Set fragment reference in adapter
+            adapter.fragment = this@SearchCommonFragment
             recyclerView.adapter = adapter
 
             taskType = arguments?.getString(Constants.Bundle.KEY_TASK_TYPE)
@@ -77,6 +103,14 @@ class SearchCommonFragment : Fragment() {
             })
 
             setUpViewModelObservers()
+            // Fragment-local fallback observer to launch permission prompts
+            (activity as? BaseActivity)?.webexViewModel?.callingLiveData?.observe(this@SearchCommonFragment.viewLifecycleOwner) { live ->
+                val missing = live?.missingPermissions
+                if (!missing.isNullOrEmpty()) {
+                    val normalized = normalizePermissionsForApi(missing.toSet()).toTypedArray()
+                    callingPermissionLauncher.launch(normalized)
+                }
+            }
 
         }.root
 
@@ -90,8 +124,11 @@ class SearchCommonFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        searchViewModel.loadData(taskType, Constants.DefaultMax.SPACE_MAX)
         checkForInitialSpacesSync()
+
+        searchViewModel.setCallHistoryEventListener()
+        searchViewModel.loadData(taskType, Constants.DefaultMax.SPACE_MAX)
+
     }
 
     private fun checkForInitialSpacesSync() {
@@ -171,6 +208,7 @@ class SearchCommonFragment : Fragment() {
                         val callRecord = it[i]
                         itemModel.name = callRecord.displayName.orEmpty()
                         itemModel.image = R.drawable.ic_call
+                        itemModel.deleteImage = R.drawable.ic_baseline_delete_24
                         itemModel.callerId = callRecord.callbackAddress.orEmpty()
                         itemModel.ongoing = searchViewModel.isSpaceCallStarted() && searchViewModel.spaceCallId() == callRecord.conversationId
 //                        itemModel.isExternallyOwned = it[i].isExternallyOwned ?: false
@@ -180,6 +218,7 @@ class SearchCommonFragment : Fragment() {
                         itemModel.dateAndDuration = dateAndDurationString
                         itemModel.isMissedCall = callRecord.isMissedCall
                         itemModel.isPhoneNumber = callRecord.isPhoneNumber
+                        itemModel.recordId = callRecord.recordId.orEmpty()
                         //add in array list
                         itemModelList.add(itemModel)
                     }
@@ -251,6 +290,50 @@ class SearchCommonFragment : Fragment() {
         searchViewModel.initialSpacesSyncCompletedLiveData.observe(viewLifecycleOwner) {
             Log.d(tag, getString(R.string.initial_spaces_sync_completed))
         }
+
+        searchViewModel.callHistoryEventLiveData.observe(viewLifecycleOwner) { callHistoryEvent ->
+            Log.d("SearchCommonFragment", "Call history event received: $callHistoryEvent")
+
+            when (callHistoryEvent) {
+                is CallHistoryEvent.SyncCompleted -> {
+                    Log.d("SearchCommonFragment", "Call history sync completed, loading data...")
+                    searchViewModel.loadData(taskType, Constants.DefaultMax.SPACE_MAX)
+                }
+                is CallHistoryEvent.Removed -> {
+                    Log.d("SearchCommonFragment", "Call history records removed: ${callHistoryEvent.data}")
+
+                    // Check if this is for our pending delete operation
+                    deleteDialogInfo?.let { dialogInfo ->
+                        if (callHistoryEvent.data.contains(dialogInfo.recordId)) {
+                            // Dismiss the progress dialog
+                            dialogInfo.progressDialog.dismiss()
+                            deleteDialogInfo = null
+                        }
+                    }
+
+                    searchViewModel.loadData(taskType, Constants.DefaultMax.SPACE_MAX)
+                }
+                is CallHistoryEvent.RemoveFailed -> {
+                    Log.d("SearchCommonFragment", "Call history record removal failed")
+
+                    // Dismiss dialog if present
+                    deleteDialogInfo?.let { dialogInfo ->
+                        dialogInfo.progressDialog.dismiss()
+
+                        // Show failure toast
+                        context?.let { ctx ->
+                            android.widget.Toast.makeText(
+                                ctx,
+                                "Failed to delete call history record",
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        deleteDialogInfo = null
+                    }
+                }
+            }
+        }
     }
 
     private fun updateSpaceCallStatus(spaceId: String, callStarted: Boolean) {
@@ -284,6 +367,16 @@ class SearchCommonFragment : Fragment() {
         }
     }
 
+    private fun normalizePermissionsForApi(perms: Set<String>): Set<String> {
+        if (Build.VERSION.SDK_INT >= 31) {
+            val mapped = perms.map {
+                if (it == Manifest.permission.BLUETOOTH) Manifest.permission.BLUETOOTH_CONNECT else it
+            }
+            return mapped.toSet()
+        }
+        return perms
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         membershipViewModel.stopWatchingPresence()
@@ -291,6 +384,7 @@ class SearchCommonFragment : Fragment() {
 
     class ItemModel {
         var image = 0
+        var deleteImage = 0
         lateinit var name: String
         lateinit var callerId: String
         var ongoing = false
@@ -300,10 +394,13 @@ class SearchCommonFragment : Fragment() {
         var isMissedCall = false
         var isPhoneNumber = false
         var presenceStatus : Drawable? = null
+        var recordId = ""
     }
 
     class CustomAdapter() : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
         var itemList: MutableList<ItemModel> = mutableListOf()
+        // Reference to the SearchCommonFragment
+        var fragment: SearchCommonFragment? = null
 
         override fun onCreateViewHolder(parent: ViewGroup, i: Int): ViewHolder {
             return ViewHolder(CommonFragmentItemListBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -326,8 +423,31 @@ class SearchCommonFragment : Fragment() {
                     binding.image.visibility = View.GONE
                 else
                     binding.image.visibility = View.VISIBLE
-                binding.image.setOnClickListener {
-                    it.context.startActivity(CallActivity.getOutgoingIntent(it.context, itemModel.callerId, itemModel.isPhoneNumber, false))
+                binding.image.setOnClickListener { fragment?.startCall(itemModel.callerId, itemModel.isPhoneNumber, false) }
+
+                if(itemModel.deleteImage == 0)
+                    binding.deleteImage.visibility = View.GONE
+                else
+                    binding.deleteImage.visibility = View.VISIBLE
+
+                binding.deleteImage.setOnClickListener {
+                    // Handle delete action with the record ID
+                    if (itemModel.recordId.isNotEmpty()) {
+                        Log.d("SearchCommonFragment", "Delete clicked for record: ${itemModel.recordId}")
+
+                        // Show progress dialog while deleting
+                        val progressDialog = android.app.ProgressDialog(itemView.context).apply {
+                            setMessage("Deleting call history record...")
+                            setCancelable(false)
+                            show()
+                        }
+
+                        // Save the dialog in fragment for later handling events
+                        fragment?.let { frag ->
+                            frag.deleteDialogInfo = DeleteDialogInfo(progressDialog, itemModel.recordId)
+                            frag.searchViewModel.removeCallHistoryRecord(itemModel.recordId)
+                        }
+                    }
                 }
 
                 if (itemModel.ongoing) {
@@ -362,4 +482,10 @@ class SearchCommonFragment : Fragment() {
             return itemList.indexOfFirst { it.callerId == spaceId }
         }
     }
+
+    // Class to hold progress dialog and record ID for delete operations
+    private class DeleteDialogInfo(
+        val progressDialog: android.app.ProgressDialog,
+        val recordId: String
+    )
 }

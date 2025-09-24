@@ -10,13 +10,16 @@ import androidx.lifecycle.Observer
 import com.ciscowebex.androidsdk.kitchensink.HomeActivity
 import com.ciscowebex.androidsdk.kitchensink.KitchenSinkApp
 import com.ciscowebex.androidsdk.kitchensink.R
+import com.ciscowebex.androidsdk.kitchensink.WebexViewModel
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityOauthBinding
+import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class OAuthWebLoginActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityOauthBinding
     private val loginViewModel: LoginViewModel by viewModel()
+    private val webexViewModel: WebexViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +56,17 @@ class OAuthWebLoginActivity : AppCompatActivity() {
 
                     loginViewModel.errorData.observe(this@OAuthWebLoginActivity, Observer { errorMessage ->
                         onLoginFailed(errorMessage)
+                    })
+
+                    // Set up auth observer to handle authentication events from WebexRepository
+                    webexViewModel.authLiveData.observe(this@OAuthWebLoginActivity, Observer { authEvent ->
+                        Log.d("OAuthWebLoginActivity", "Auth event received: $authEvent")
+                        when (authEvent) {
+                            Constants.Callbacks.LOGIN_FAILED -> {
+                                Log.d("OAuthWebLoginActivity", "Login failed event received")
+                                onLoginFailed()
+                            }
+                        }
                     })
 
                     exitButton.setOnClickListener {

@@ -100,6 +100,7 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate, WebexAuthDelegat
         DialFailed,
         AnswerCompleted,
         AnswerFailed,
+        AnswerPermissionsRequired,
         AssociationCallCompleted,
         AssociationCallFailed,
         MeetingPinOrPasswordRequired,
@@ -126,7 +127,8 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate, WebexAuthDelegat
                             val errorMessage: String? = null,
                             val callMembershipEvent: CallObserver.CallMembershipChangedEvent? = null,
                             val mediaChangeEvent: CallObserver.MediaChangedEvent? = null,
-                            val disconnectEvent: CallObserver.CallDisconnectedEvent? = null) {}
+                            val disconnectEvent: CallObserver.CallDisconnectedEvent? = null,
+                            val missingPermissions: List<String>? = null) {}
 
     var isAddedCall = false
     var currentCallId: String? = null
@@ -414,6 +416,14 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate, WebexAuthDelegat
             liveData?.postValue(Constants.Callbacks.RE_LOGIN_REQUIRED)
         }
         Log.d(tag, Constants.Callbacks.RE_LOGIN_REQUIRED)
+    }
+
+    override fun onLoginFailed() {
+        Log.d("onLoginFailed", "live data list size : ${_authLiveDataList.size}")
+        for (liveData in _authLiveDataList) {
+            liveData?.postValue(Constants.Callbacks.LOGIN_FAILED)
+        }
+        Log.d(tag, Constants.Callbacks.LOGIN_FAILED)
     }
 
     private fun registerIncomingCallListener() {

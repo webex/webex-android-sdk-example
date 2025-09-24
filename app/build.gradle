@@ -16,7 +16,7 @@ def FEDRAMP_REDIRECT_URI='""'
 def WEBHOOK_URL='""'
 
 android {
-    compileSdkVersion Versions.compileSdk
+    compileSdk Versions.compileSdk
     ndkVersion Versions.ndkVersion
 
     compileOptions {
@@ -31,8 +31,8 @@ android {
         applicationId "com.cisco.sdk_android"
         minSdkVersion Versions.minSdk
         targetSdkVersion Versions.targetSdk
-        versionCode 3150000
-        versionName "3.15.0"
+        versionCode 3160000
+        versionName "3.16.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -82,6 +82,7 @@ android {
 
     buildFeatures {
         dataBinding true
+        buildConfig = true
     }
     splits {
         // Configures multiple APKs based on ABI.
@@ -127,12 +128,12 @@ android {
 
 dependencies {
     //At a time only one WebexSDK should be used.
-    implementation 'com.ciscowebex:webexsdk:3.15.0' // For full flavor
-    //implementation 'com.ciscowebex:webexsdk-wxc:3.15.0' //For webexCalling flavor
-    //implementation 'com.ciscowebex:webexsdk-meeting:3.15.0' // For meeting flavor
-    //implementation 'com.ciscowebex:webexsdk-message:3.15.0' // For meeting flavor
+    //implementation 'com.ciscowebex:webexsdk:3.16.0' // For full flavor
+    //implementation 'com.ciscowebex:webexsdk-wxc:3.16.0' //For webexCalling flavor
+    //implementation 'com.ciscowebex:webexsdk-meeting:3.16.0' // For meeting flavor
+    //implementation 'com.ciscowebex:webexsdk-message:3.16.0' // For meeting flavor
+    implementation files('libs/WebexSDK-Wxc.aar')
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation Dependencies.kotlinStdLib
     implementation Dependencies.coreKtx
     implementation Dependencies.appCompat
     implementation Dependencies.constraintLayout
@@ -168,4 +169,7 @@ dependencies {
     implementation Dependencies.firebaseCrashlytics
     implementation Dependencies.gson
     implementation Dependencies.glide
+    implementation 'com.orhanobut:logger:2.2.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation 'com.squareup.okio:okio:3.2.0'
 }

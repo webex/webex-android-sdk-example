@@ -3,16 +3,21 @@ package com.ciscowebex.androidsdk.kitchensink.calling
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.databinding.FragmentCallBinding
 import com.ciscowebex.androidsdk.kitchensink.utils.extensions.hideKeyboard
 import com.ciscowebex.androidsdk.kitchensink.utils.extensions.showKeyboard
+import android.Manifest
 
 class DialFragment : Fragment() {
 
@@ -20,6 +25,18 @@ class DialFragment : Fragment() {
     private var isAddingCall = false
     private var switchToCucmOrWxcCallToggle = false
     private var moveMeeting = false
+
+    private val callingPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { grants ->
+            val allGranted = grants.values.all { it }
+            val webexVM = (activity as? BaseActivity)?.webexViewModel
+            if (allGranted) {
+                webexVM?.retryPendingDialIfAny()
+                webexVM?.retryPendingAnswerIfAny()
+            } else {
+                Toast.makeText(requireContext(), getString(R.string.permission_error), Toast.LENGTH_LONG).show()
+            }
+        }
 
     companion object{
         private const val IS_ADDING_CALL = "isAddingCall"
@@ -42,6 +59,14 @@ class DialFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // Fragment-local fallback observer to launch permission prompts
+        (activity as? BaseActivity)?.webexViewModel?.callingLiveData?.observe(viewLifecycleOwner) { live ->
+            val missing = live?.missingPermissions
+            if (!missing.isNullOrEmpty()) {
+                val normalized = normalizePermissionsForApi(missing.toSet()).toTypedArray()
+                callingPermissionLauncher.launch(normalized)
+            }
+        }
         val dialKeysList = listOf<View>(
                 binding.tvNumber1,
                 binding.tvNumber2,
@@ -116,6 +141,16 @@ class DialFragment : Fragment() {
             binding.dialButtonsContainer.visibility = View.VISIBLE
             binding.toggleButtonsContainer.showNext()
         }
+    }
+
+    private fun normalizePermissionsForApi(perms: Set<String>): Set<String> {
+        if (Build.VERSION.SDK_INT >= 31) {
+            val mapped = perms.map {
+                if (it == Manifest.permission.BLUETOOTH) Manifest.permission.BLUETOOTH_CONNECT else it
+            }
+            return mapped.toSet()
+        }
+        return perms
     }
 
     private fun enableInput() {
