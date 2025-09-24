@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.media.RingtoneManager
 import android.os.Build
+import android.Manifest
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -17,6 +18,7 @@ import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.NotificationCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -42,6 +44,17 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener, 
     var calls : ArrayList<Call>  = ArrayList()
     //var fragmentMap : HashMap<String, CallControlsFragment> = HashMap()
     var argumentList : HashMap<String, Bundle> = HashMap()
+    private val callingPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { grants ->
+            val allGranted = grants.values.all { it }
+            if (allGranted) {
+                webexViewModel.retryPendingDialIfAny()
+                webexViewModel.retryPendingAnswerIfAny()
+            } else {
+                Toast.makeText(this, getString(R.string.permission_error), Toast.LENGTH_LONG).show()
+            }
+        }
+
 
 
     companion object {
@@ -107,9 +120,29 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener, 
                 registerIncomingCallListener()
             }
 
+        // Ensure permission prompts always fire while in the call flow
+        webexViewModel.callingLiveData.observe(this) { live ->
+            val missing = live?.missingPermissions
+            if (!missing.isNullOrEmpty()) {
+                val normalized = normalizePermissionsForApi(missing.toSet()).toTypedArray()
+                Log.d("KS-PERM", "CallActivity launching permission request; original=${missing} normalized=${normalized.toList()}")
+                callingPermissionLauncher.launch(normalized)
+            }
+        }
+
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             pictureInPictureParamsBuilder = PictureInPictureParams.Builder()
         }
+    }
+
+    private fun normalizePermissionsForApi(perms: Set<String>): Set<String> {
+        if (Build.VERSION.SDK_INT >= 31) {
+            val mapped = perms.map {
+                if (it == Manifest.permission.BLUETOOTH) Manifest.permission.BLUETOOTH_CONNECT else it
+            }
+            return mapped.toSet()
+        }
+        return perms
     }
 
     private fun registerIncomingCallListener() {
@@ -349,7 +382,7 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener, 
 
     }
 
-    private fun pictureInPictureMode(){
+    fun pictureInPictureMode(){
         Log.d(tag, "pictureInPictureMode: Try to enter PIP mode")
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             Log.d(tag, "pictureInPictureMode: Supports PIP")
@@ -540,6 +573,4 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener, 
         }
         notificationManager?.notify(notificationId, notificationBuilder.build())
     }
-
-
 }

@@ -7,6 +7,7 @@ import com.ciscowebex.androidsdk.kitchensink.BaseViewModel
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpaceModel
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpacesRepository
+import com.ciscowebex.androidsdk.phone.CallHistoryEvent
 import com.ciscowebex.androidsdk.phone.CallHistoryRecord
 import com.ciscowebex.androidsdk.space.Space
 import com.ciscowebex.androidsdk.space.SpaceClient
@@ -30,6 +31,9 @@ class SearchViewModel(private val searchRepo: SearchRepository, private val spac
 
     private val _initialSpacesSyncCompletedLiveData = MutableLiveData<Boolean>()
     val initialSpacesSyncCompletedLiveData: LiveData<Boolean> = _initialSpacesSyncCompletedLiveData
+
+    private val _callHistoryEventLiveData = MutableLiveData<CallHistoryEvent>()
+    val callHistoryEventLiveData: LiveData<CallHistoryEvent> = _callHistoryEventLiveData
 
     val titles =
             listOf("Call", "Search", "History", "Spaces", "Meetings")
@@ -88,5 +92,34 @@ class SearchViewModel(private val searchRepo: SearchRepository, private val spac
 
     fun isSpacesSyncCompleted(): Boolean {
         return webexRepo.webex.spaces.isSpacesSyncCompleted()
+    }
+
+    fun setCallHistoryEventListener() {
+        webexRepo.webex.phone.setOnCallHistoryEventListener { result ->
+            Log.d(tag, "Call history event result received: $result")
+
+            // Extract the CallHistoryEvent from the Result wrapper
+            val callHistoryEvent = when {
+                result.isSuccessful -> result.data
+                else -> null
+            }
+
+            callHistoryEvent?.let {
+                Log.d(tag, "Call history event: $it")
+                // Post the unwrapped CallHistoryEvent to LiveData
+                _callHistoryEventLiveData.postValue(it)
+            }
+        }
+    }
+
+    fun removeCallHistoryRecord(recordId: String) {
+        Log.d(tag, "Removing call history record: $recordId")
+
+        // Create a list with the single record ID
+        val recordIds = listOf(recordId)
+
+        // Call the SDK's removeCallHistoryRecords API
+        // The result will be delivered via the CallHistoryEventListener
+        webexRepo.webex.phone.removeCallHistoryRecords(recordIds)
     }
 }

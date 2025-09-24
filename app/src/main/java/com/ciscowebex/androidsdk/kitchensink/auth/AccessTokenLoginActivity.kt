@@ -9,7 +9,9 @@ import androidx.databinding.DataBindingUtil
 import com.ciscowebex.androidsdk.kitchensink.HomeActivity
 import com.ciscowebex.androidsdk.kitchensink.KitchenSinkApp
 import com.ciscowebex.androidsdk.kitchensink.R
+import com.ciscowebex.androidsdk.kitchensink.WebexViewModel
 import com.ciscowebex.androidsdk.kitchensink.databinding.ActivityLoginWithTokenBinding
+import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -17,6 +19,7 @@ class AccessTokenLoginActivity: AppCompatActivity() {
 
     lateinit var binding: ActivityLoginWithTokenBinding
     private val loginViewModel: LoginViewModel by viewModel()
+    private val webexViewModel: WebexViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +69,18 @@ class AccessTokenLoginActivity: AppCompatActivity() {
                 loginViewModel.errorData.observe(this@AccessTokenLoginActivity, Observer { errorMessage ->
                     progressLayout.visibility = View.GONE
                     onLoginFailed(errorMessage)
+                })
+
+                // Set up auth observer to handle authentication events from WebexRepository
+                webexViewModel.authLiveData.observe(this@AccessTokenLoginActivity, Observer { authEvent ->
+                    android.util.Log.d("AccessTokenLoginActivity", "Auth event received: $authEvent")
+                    when (authEvent) {
+                        Constants.Callbacks.LOGIN_FAILED -> {
+                            android.util.Log.d("AccessTokenLoginActivity", "Login failed event received")
+                            progressLayout.visibility = View.GONE
+                            onLoginFailed()
+                        }
+                    }
                 })
 
                 loginViewModel.initialize()

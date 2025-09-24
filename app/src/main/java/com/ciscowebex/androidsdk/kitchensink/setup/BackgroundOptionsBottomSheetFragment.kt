@@ -8,12 +8,14 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.RecyclerView
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.databinding.BottomSheetVirtualBackgroundItemAddBinding
@@ -44,6 +46,16 @@ class BackgroundOptionsBottomSheetFragment(
     var adapter: BackgroundAdapter? = null
     private val TAG: String = "BackgroundOptionsBottomSheetFragment"
 
+    private val vbPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { grants ->
+            val allGranted = grants.values.all { it }
+            if (allGranted) {
+                (activity as? com.ciscowebex.androidsdk.kitchensink.BaseActivity)?.webexViewModel?.retryPendingVbIfAny()
+            } else {
+                Toast.makeText(requireContext(), getString(R.string.permission_error), Toast.LENGTH_LONG).show()
+            }
+        }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -59,6 +71,17 @@ class BackgroundOptionsBottomSheetFragment(
             })
             virtualBackgrounds.adapter  =  adapter
         }.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Observe missing permissions from VM to prompt for VB flows
+        (activity as? com.ciscowebex.androidsdk.kitchensink.BaseActivity)?.webexViewModel?.callingLiveData?.observe(this) { live ->
+            val missing = live?.missingPermissions
+            if (!missing.isNullOrEmpty()) {
+                vbPermissionLauncher.launch(missing.toTypedArray())
+            }
+        }
     }
 
     override fun onCancel(dialog: DialogInterface) {
@@ -270,19 +293,147 @@ class BackgroundOptionsBottomSheetFragment(
     }
 
     private fun addUriToList(uri: Uri) {
+        Log.d(TAG, "Processing URI: $uri")
+
+        // First try to get a valid file using the existing FileUtils approach
         val filePath = FileUtils.getPath(requireContext(), uri)
         val file = File(filePath)
-        Log.d(tag, "PICKFILE_REQUEST_CODE filePath: $filePath")
-        Log.d(TAG, "PICKFILE_REQUEST_CODE file Exist: ${file.exists()}")
 
-        onNewBackgroundAdded(file)
+        Log.d(TAG, "Resolved file path: $filePath")
+        Log.d(TAG, "File exists: ${file.exists()}, isFile: ${file.isFile}")
+
+        // Check if the resolved path is actually a valid file
+        val validFile = when {
+            file.exists() && file.isFile -> {
+                Log.d(TAG, "Using direct file path")
+                file
+            }
+            else -> {
+                Log.d(TAG, "Direct file path not valid, copying URI content to temp file")
+                copyUriToTempFile(uri)
+            }
+        }
+
+        validFile?.let {
+            Log.d(TAG, "Successfully processed file: ${it.absolutePath}")
+            onNewBackgroundAdded(it)
+        } ?: run {
+            Log.e(TAG, "Failed to process URI: $uri")
+            Toast.makeText(requireContext(), "Failed to process selected image", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun copyUriToTempFile(uri: Uri): File? {
+        return try {
+            val context = requireContext()
+
+            // Get the file name and MIME type from the URI
+            val (fileName, mimeType) = getFileInfoFromUri(uri)
+            val finalFileName = generateUniqueFileName(fileName, mimeType)
+
+            Log.d(TAG, "Creating temp file: $finalFileName")
+
+            // Create a temporary file in the cache directory
+            val tempDir = File(context.cacheDir, "virtual_backgrounds")
+            if (!tempDir.exists()) {
+                tempDir.mkdirs()
+            }
+
+            val tempFile = File(tempDir, finalFileName)
+
+            // Copy the content from URI to temp file
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                tempFile.outputStream().buffered().use { outputStream ->
+                    val buffer = ByteArray(8192)
+                    var bytesRead: Int
+                    while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                        outputStream.write(buffer, 0, bytesRead)
+                    }
+                    outputStream.flush()
+                }
+            }
+
+            // Verify the file was created successfully
+            if (tempFile.exists() && tempFile.length() > 0) {
+                Log.d(TAG, "Successfully copied URI content to temp file: ${tempFile.absolutePath}, size: ${tempFile.length()} bytes")
+                tempFile
+            } else {
+                Log.e(TAG, "Temp file creation failed or file is empty")
+                tempFile.delete() // Clean up if something went wrong
+                null
+            }
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to copy URI content to temp file", e)
+            null
+        }
+    }
+
+    private fun getFileInfoFromUri(uri: Uri): Pair<String?, String?> {
+        return try {
+            val context = requireContext()
+            var fileName: String? = null
+            var mimeType: String? = null
+
+            // Try to get file info using ContentResolver
+            context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    // Get display name
+                    val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (nameIndex >= 0) {
+                        fileName = cursor.getString(nameIndex)
+                    }
+
+                    // Get size for verification (optional)
+                    val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+                    if (sizeIndex >= 0) {
+                        val size = cursor.getLong(sizeIndex)
+                        Log.d(TAG, "Original file size: $size bytes")
+                    }
+                }
+            }
+
+            // Get MIME type
+            mimeType = context.contentResolver.getType(uri)
+
+            Log.d(TAG, "File info from URI - Name: $fileName, MIME: $mimeType")
+            Pair(fileName, mimeType)
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to get file info from URI", e)
+            Pair(null, null)
+        }
+    }
+
+    private fun generateUniqueFileName(originalName: String?, mimeType: String?): String {
+        // Generate a base filename
+        val baseName = when {
+            !originalName.isNullOrBlank() -> originalName
+            mimeType?.startsWith("image/") == true -> {
+                val extension = when (mimeType) {
+                    "image/jpeg", "image/jpg" -> ".jpg"
+                    "image/png" -> ".png"
+                    "image/gif" -> ".gif"
+                    "image/webp" -> ".webp"
+                    else -> ".jpg"
+                }
+                "background_${System.currentTimeMillis()}$extension"
+            }
+            else -> "background_${System.currentTimeMillis()}.jpg"
+        }
+
+        // Ensure the filename is safe for filesystem
+        val safeName = baseName.replace(Regex("[^a-zA-Z0-9._-]"), "_")
+
+        Log.d(TAG, "Generated filename: $safeName")
+        return safeName
     }
 
     private fun checkReadStoragePermissions(): Boolean {
         if (!permissionsHelper.hasReadStoragePermission()) {
             Log.d(TAG, "requesting read permission")
             requestPermissions(
-                PermissionsHelper.permissionForStorage(),
+                PermissionsHelper.permissionForImages(),
                 PermissionsHelper.PERMISSIONS_STORAGE_REQUEST
             )
             return true
@@ -314,3 +465,4 @@ class BackgroundOptionsBottomSheetFragment(
     }
 
 }
+

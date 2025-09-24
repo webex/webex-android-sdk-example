@@ -19,6 +19,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import android.util.Pair
 import android.util.Rational
@@ -139,6 +140,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
     private lateinit var captionsController: ClosedCaptionsController
     private val mAuxStreamViewMap: HashMap<View, AuxStreamViewHolder> = HashMap()
     private var callerId: String = ""
+    private var lastDialIsCucmOrWxcCall: Boolean = false
     var bottomSheetFragment: BackgroundOptionsBottomSheetFragment? = null
     var onCallActionListener: OnCallActionListener? = null
     private var breakoutSessions : List<BreakoutSession> = emptyList()
@@ -271,6 +273,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
     fun dialOutgoingCall(callerId: String, isModerator: Boolean = false, pin: String = "", captcha: String = "", captchaId: String = "", isCucmOrWxcCall: Boolean, moveMeeting: CompanionMode = CompanionMode.None) {
         Log.d(TAG, "dialOutgoingCall")
         this.callerId = callerId
+        this.lastDialIsCucmOrWxcCall = isCucmOrWxcCall
         if(isCucmOrWxcCall) {
             webexViewModel.dialPhoneNumber(callerId, getMediaOption(isModerator, pin, captcha, captchaId, moveMeeting))
         }
@@ -464,8 +467,19 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
                     audioEventChanged(null, call, null, _event.isSending())
                 }
                 is CallObserver.SendingAudio -> {
-                    Log.d(TAG, "CallObserver OnMediaChanged SendingAudio: ${_event.isSending()}")
-                    audioEventChanged(null, call, _event.isSending())
+                    Log.d(TAG, "CallObserver OnMediaChanged SendingAudio: ${_event.isSending()}, result=${_event.result.name}")
+                    when (_event.result) {
+                        Call.SendingAudioChangeResult.Success -> { 
+                            audioEventChanged(null, call, _event.isSending())
+                            /* No toast for success */ 
+                        }
+                        Call.SendingAudioChangeResult.Failed -> {
+                            requireActivity().runOnUiThread { Toast.makeText(requireContext(), "Audio Error: Failed to change audio sending status", Toast.LENGTH_LONG).show() }
+                        }
+                        Call.SendingAudioChangeResult.NotAllowed -> {
+                            requireActivity().runOnUiThread { Toast.makeText(requireContext(), "Audio Error: Cannot change audio while call is on hold", Toast.LENGTH_LONG).show() }
+                        }
+                    }
                 }
                 is CallObserver.ReceivingAudio -> {
                     Log.d(TAG, "CallObserver OnMediaChanged ReceivingAudio: ${_event.isReceiving()}")
@@ -869,7 +883,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
             status?.let {
                 if (it) {
                     Log.d(TAG, "startShareLiveData success")
-                    // For this share screen session initialize live annotations
+                    // Reset consent attempt flag so future attempts can re-prompt if needed
+                    screenShareConsentAttempted = false
                     webexViewModel.initalizeAnnotations(AnnotationRenderer(requireContext()))
                     if(BuildConfig.FLAVOR != "wxc") {
                         binding.annotationPolicy.visibility = VISIBLE
@@ -877,8 +892,16 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
                     }
 
                 } else {
-                    updateScreenShareButtonState(ShareButtonState.OFF)
-                    Log.d(TAG, "User cancelled screen request")
+                    // First failure likely indicates missing MediaProjection consent; request it and retry once
+                    if (!screenShareConsentAttempted) {
+                        screenShareConsentAttempted = true
+                        val mgr = requireContext().getSystemService(android.content.Context.MEDIA_PROJECTION_SERVICE) as android.media.projection.MediaProjectionManager
+                        val intent = mgr.createScreenCaptureIntent()
+                        screenShareConsentLauncher.launch(intent)
+                    } else {
+                        updateScreenShareButtonState(ShareButtonState.OFF)
+                        Log.d(TAG, "User cancelled screen request")
+                    }
                 }
             }
         })
@@ -887,6 +910,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
             status?.let {
                 if (it) {
                     Log.d(TAG, "stopShareLiveData success")
+                    // Reset consent flag on stop so next share can acquire consent again
+                    screenShareConsentAttempted = false
                 } else {
                     Log.d(TAG, "stopShareLiveData Failed")
                 }
@@ -932,8 +957,13 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
                     }
                     WebexRepository.CallEvent.DialFailed, WebexRepository.CallEvent.NonExistentCallPull, WebexRepository.CallEvent.WrongApiCalled, WebexRepository.CallEvent.CannotStartInstantMeeting -> {
                         dismissErrorDialog()
-                        val callActivity = activity as CallActivity?
-                        callActivity?.alertDialog(true, errorMessage ?: event.name)
+                        if (event == WebexRepository.CallEvent.DialFailed && it.missingPermissions != null && it.missingPermissions.isNotEmpty()) {
+                            Toast.makeText(requireContext(), "Missing permissions: ${it.missingPermissions}", Toast.LENGTH_LONG).show()
+                            permissionRequestForDial.launch(it.missingPermissions.toTypedArray())
+                        } else {
+                            val callActivity = activity as CallActivity?
+                            callActivity?.alertDialog(true, errorMessage ?: event.name)
+                        }
                     }
                     WebexRepository.CallEvent.AnswerCompleted -> {
                         webexViewModel.currentCallId = call?.getCallId()
@@ -941,6 +971,13 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
                         dismissErrorDialog()
                         onCallJoined(call)
                         handleCallControls(null)
+                    }
+                    WebexRepository.CallEvent.AnswerPermissionsRequired -> {
+                        val missing = it.missingPermissions ?: emptyList()
+                        if (missing.isNotEmpty()) {
+                            Toast.makeText(requireContext(), "Missing permissions: $missing", Toast.LENGTH_LONG).show()
+                            permissionRequestForAnswer.launch(missing.toTypedArray())
+                        }
                     }
                     WebexRepository.CallEvent.AnswerFailed -> {
                         Log.d(TAG, "answer Lambda failed $errorMessage")
@@ -1069,6 +1106,15 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
             when (event) {
                 is WebexViewModel.AnnotationEvent.PERMISSION_ASK -> toggleAnnotationPermissionDialog(true, event.personId)
                 is WebexViewModel.AnnotationEvent.PERMISSION_EXPIRED -> toggleAnnotationPermissionDialog(false, event.personId)
+                WebexViewModel.AnnotationEvent.READY -> {}
+                WebexViewModel.AnnotationEvent.STOPPED -> {}
+                WebexViewModel.AnnotationEvent.OVERLAY_PERMISSION_REQUIRED -> {
+                     Toast.makeText(requireContext(), getString(R.string.manage_overlay_permission_error), Toast.LENGTH_LONG).show()
+                     try {
+                         val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + requireContext().packageName))
+                         overlayPermissionLauncher.launch(intent)
+                     } catch (_: Throwable) { }
+                }
             }
         }
         webexViewModel.authLiveData.observe(viewLifecycleOwner, Observer {
@@ -1987,11 +2033,10 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
             }
             builder.setPositiveButton(android.R.string.ok) { _, _ ->
                 updateScreenShareButtonState(ShareButtonState.DISABLED)
-                if (requireContext().applicationInfo.targetSdkVersion >= 29) {
-                    webexViewModel.startShare(webexViewModel.currentCallId.orEmpty(), buildScreenShareForegroundServiceNotification(), SHARE_SCREEN_FOREGROUND_SERVICE_NOTIFICATION_ID, shareConfig)
-                } else {
-                    webexViewModel.startShare(webexViewModel.currentCallId.orEmpty(), shareConfig)
-                }
+                pendingShareConfig = shareConfig
+                val mgr = requireContext().getSystemService(android.content.Context.MEDIA_PROJECTION_SERVICE) as android.media.projection.MediaProjectionManager
+                val intent = mgr.createScreenCaptureIntent()
+                screenShareConsentLauncher.launch(intent)
             }
             builder.setNeutralButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
             builder.setOnDismissListener {
@@ -2567,24 +2612,44 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
                 webexViewModel.switchAudioMode(Call.AudioOutputMode.SPEAKER) {
                     if (it.data == true)
                         binding.ibAudioMode.setImageResource(R.drawable.ic_speaker)
+                    else {
+                        val perms = PermissionsHelper.permissionForBluetooth()
+                        Toast.makeText(requireContext(), "Bluetooth permission required", Toast.LENGTH_LONG).show()
+                        permissionRequestForBluetooth.launch(perms)
+                    }
                 }
             }
             AudioMode.BLUETOOTH -> {
                 webexViewModel.switchAudioMode(Call.AudioOutputMode.BLUETOOTH_HEADSET) {
                     if (it.data == true)
                         binding.ibAudioMode.setImageResource(R.drawable.ic_bluetooth)
+                    else {
+                        val perms = PermissionsHelper.permissionForBluetooth()
+                        Toast.makeText(requireContext(), "Bluetooth permission required", Toast.LENGTH_LONG).show()
+                        permissionRequestForBluetooth.launch(perms)
+                    }
                 }
             }
             AudioMode.EARPIECE -> {
                 webexViewModel.switchAudioMode(Call.AudioOutputMode.PHONE) {
                     if (it.data == true)
                         binding.ibAudioMode.setImageResource(R.drawable.ic_earpiece)
+                    else {
+                        val perms = PermissionsHelper.permissionForBluetooth()
+                        Toast.makeText(requireContext(), "Bluetooth permission required", Toast.LENGTH_LONG).show()
+                        permissionRequestForBluetooth.launch(perms)
+                    }
                 }
             }
             AudioMode.WIRED_HEADSET -> {
                 webexViewModel.switchAudioMode(Call.AudioOutputMode.HEADSET) {
                     if (it.data == true)
                         binding.ibAudioMode.setImageResource(R.drawable.ic_headset)
+                    else {
+                        val perms = PermissionsHelper.permissionForBluetooth()
+                        Toast.makeText(requireContext(), "Bluetooth permission required", Toast.LENGTH_LONG).show()
+                        permissionRequestForBluetooth.launch(perms)
+                    }
                 }
             }
         }
@@ -3428,4 +3493,79 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
             activity?.startService(callManagementServiceIntent) // Older versions
         }
     }
+
+    private val permissionRequestForAnswer =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { resultMap ->
+            val allGranted = resultMap.values.all { it }
+            if (allGranted) {
+                webexViewModel.retryPendingAnswerIfAny()
+            } else {
+                Toast.makeText(requireContext(), getString(R.string.permission_error), Toast.LENGTH_LONG).show()
+            }
+        }
+
+    private val permissionRequestForDial =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { resultMap ->
+            val allGranted = resultMap.values.all { it }
+            if (allGranted) {
+                webexViewModel.retryPendingDialIfAny()
+            } else {
+                Toast.makeText(requireContext(), getString(R.string.permission_error), Toast.LENGTH_LONG).show()
+            }
+        }
+
+    private val permissionRequestForBluetooth =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { resultMap ->
+            val allGranted = resultMap.values.all { it }
+            if (allGranted) {
+                // Retry last toggled mode based on current selection
+                val current = webexViewModel.getCurrentAudioOutputMode()
+                // Cycle to the next mode user attempted by reusing UI button state
+            } else {
+                Toast.makeText(requireContext(), getString(R.string.permission_error), Toast.LENGTH_LONG).show()
+            }
+        }
+
+    private val overlayPermissionLauncher =
+         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+             if (Settings.canDrawOverlays(requireContext())) {
+                 Toast.makeText(requireContext(), getString(R.string.manage_overlay_permission_granted), Toast.LENGTH_SHORT).show()
+                 webexViewModel.initalizeAnnotations(AnnotationRenderer(requireContext()))
+             } else {
+                 Toast.makeText(requireContext(), getString(R.string.manage_overlay_permission_error), Toast.LENGTH_LONG).show()
+             }
+         }
+
+    private var screenShareConsentAttempted = false
+    private var pendingShareConfig: ShareConfig? = null
+    private val screenShareConsentLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+                val data = result.data!!
+                if (requireContext().applicationInfo.targetSdkVersion >= 29) {
+                    webexViewModel.currentCallId?.let {
+                        webexViewModel.getCall(it)?.startSharing(
+                            buildScreenShareForegroundServiceNotification(),
+                            SHARE_SCREEN_FOREGROUND_SERVICE_NOTIFICATION_ID,
+                            data,
+                            CompletionHandler { _ -> },
+                            pendingShareConfig
+                        )
+                    }
+                } else {
+                    webexViewModel.currentCallId?.let {
+                        webexViewModel.getCall(it)?.startSharing(
+                            data,
+                            CompletionHandler { _ -> },
+                            pendingShareConfig
+                        )
+                    }
+                }
+                pendingShareConfig = null
+            } else {
+                updateScreenShareButtonState(ShareButtonState.OFF)
+                screenShareConsentAttempted = false
+                pendingShareConfig = null
+            }
+        }
 }
