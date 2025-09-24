@@ -2,9 +2,12 @@ package com.ciscowebex.androidsdk.kitchensink
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -20,6 +23,18 @@ open class BaseActivity : AppCompatActivity() {
     var tag = "BaseActivity"
     private val permissionsHelper: PermissionsHelper by inject()
     val webexViewModel: WebexViewModel by viewModel()
+    protected var isForeground: Boolean = false
+
+    private val callingPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { grants ->
+            val allGranted = grants.values.all { it }
+            if (allGranted) {
+                webexViewModel.retryPendingDialIfAny()
+                webexViewModel.retryPendingAnswerIfAny()
+            } else {
+                Toast.makeText(this, getString(R.string.permission_error), Toast.LENGTH_LONG).show()
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +44,38 @@ open class BaseActivity : AppCompatActivity() {
                 onSignedOut()
             }
         })
+
+        // Centralized permission handling for all Activities extending BaseActivity
+        webexViewModel.callingLiveData.observe(this@BaseActivity) { live ->
+            live?.let {
+                val missing = it.missingPermissions
+                if (!missing.isNullOrEmpty()) {
+                    val normalized = normalizePermissionsForApi(missing.toSet()).toTypedArray()
+                    Toast.makeText(this, "Missing permissions: ${normalized.joinToString()}", Toast.LENGTH_LONG).show()
+                    callingPermissionLauncher.launch(normalized)
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        isForeground = true
+    }
+
+    override fun onPause() {
+        isForeground = false
+        super.onPause()
+    }
+
+    private fun normalizePermissionsForApi(perms: Set<String>): Set<String> {
+        if (Build.VERSION.SDK_INT >= 31) {
+            val mapped = perms.map {
+                if (it == android.Manifest.permission.BLUETOOTH) android.Manifest.permission.BLUETOOTH_CONNECT else it
+            }
+            return mapped.toSet()
+        }
+        return perms
     }
 
     fun onSignedOut() {

@@ -126,3 +126,34 @@
 -keep class  com.ciscowebex.androidsdk.phone.internal.RenderSink{
 *;
 }
+
+-keep class com.webex.scf.network.OkHttpAccess { *; }
+
+# Keep SCF network package
+-keep class com.webex.scf.network.**
+-keepclassmembers class com.webex.scf.network.** {
+*;
+}
+
+# Keep SCF proxy package
+-keep class com.webex.scf.proxy.**
+-keepclassmembers class com.webex.scf.proxy.** {
+*;
+}
+
+# Keep MercuryNetworkConnection class
+-keep class com.webex.scf.MercuryNetworkConnection
+-keepclassmembers class com.webex.scf.MercuryNetworkConnection {
+*;
+}
+
+# Keep AndroidMediaHelper class
+-keep class com.webex.teams.appshared.utils.AndroidMediaHelper
+-keepclassmembers class com.webex.teams.appshared.utils.AndroidMediaHelper {
+*;
+}
+
+# OkHttp optional TLS providers (absent in app; suppress warnings)
+-dontwarn org.conscrypt.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.openjsse.**

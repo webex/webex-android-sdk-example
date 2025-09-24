@@ -4,12 +4,13 @@ import org.gradle.api.JavaVersion
 object Versions {
     const val kotlin = "1.9.0"
     const val koin= "2.2.3"
+    const val orhanobutLogger = "2.2.0"
 
-    const val ndkVersion = "26.3.11579264"
+    const val ndkVersion = "27.2.12479018"
 
     const val compileSdk = 34
     const val targetSdk = 34
-    const val minSdk = 24
+    const val minSdk = 28
 
     const val cmake = "3.24.0+"
     const val dokka = "1.8.20"
@@ -18,6 +19,7 @@ object Versions {
 }
 
 object Dependencies {
+    const val orhanobutLogger = "com.orhanobut:logger:${Versions.orhanobutLogger}"
     const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib:${Versions.kotlin}"
     const val koin = "io.insert-koin:koin-core:${Versions.koin}"
     const val koinViewModel = "io.insert-koin:koin-androidx-viewmodel:${Versions.koin}"
@@ -27,7 +29,7 @@ object Dependencies {
     const val coreKtx = "androidx.core:core-ktx:1.9.0"
     const val appCompat = "androidx.appcompat:appcompat:1.6.1"
     const val constraintLayout = "androidx.constraintlayout:constraintlayout:1.1.3"
-    const val okhttp = "com.squareup.okhttp3:okhttp:3.0.1"
+    const val okhttp = "com.squareup.okhttp3:okhttp:4.12.0"
     const val material = "com.google.android.material:material:1.1.0"
     const val recyclerview = "androidx.recyclerview:recyclerview:1.1.0"
     const val cardview = "androidx.cardview:cardview:1.0.0"
@@ -57,4 +59,6 @@ object Dependencies {
         const val testExt = "androidx.test:core-ktx:1.4.0-beta01"
         const val mockk = "io.mockk:mockk-android:1.12.1"
     }
+
+
 }

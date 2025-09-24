@@ -63,5 +63,6 @@ class Constants {
     // Constants indicating callback events
     object Callbacks {
         const val RE_LOGIN_REQUIRED = "RE_LOGIN_REQUIRED"
+        const val LOGIN_FAILED = "LOGIN_FAILED"
     }
 }
