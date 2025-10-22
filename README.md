@@ -79,25 +79,25 @@ This demo support Android device with **Android 7.0** or later
        - For Full SDK
          ```
          dependencies {
-             implementation 'com.ciscowebex:webexsdk:3.15.0'
+             implementation 'com.ciscowebex:webexsdk:3.15.1'
          }
          ```
        - For Meeting SDK
          ```
          dependencies {
-         implementation 'com.ciscowebex:webexsdk-meeting:3.15.0'
+         implementation 'com.ciscowebex:webexsdk-meeting:3.15.1'
          }
          ```
        - For WebexCalling SDK
          ```
          dependencies {
-         implementation 'com.ciscowebex:webexsdk-wxc:3.15.0'
+         implementation 'com.ciscowebex:webexsdk-wxc:3.15.1'
          }
          ```
       - For Messaging SDK
          ```
          dependencies {
-         implementation 'com.ciscowebex:webexsdk-message:3.15.0'
+         implementation 'com.ciscowebex:webexsdk-message:3.15.1'
          }
          ```
 
