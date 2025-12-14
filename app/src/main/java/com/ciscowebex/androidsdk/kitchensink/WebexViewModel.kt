@@ -909,11 +909,21 @@ fun handoffScreenCaptureConsent(callId: String, data: Intent) { }
 		})
 	}
 
-	fun holdCall(callId: String) {
+	fun holdCall(callId: String, callback: CompletionHandler<Void>? = null) {
 		val callInfo = getCall(callId)
 		val isOnHold = callInfo?.isOnHold() ?: false
-		Log.d(tag, "holdCall isOnHold = $isOnHold")
-		callInfo?.holdCall(!isOnHold)
+		Log.d(tag, "holdCall isOnHold = $isOnHold, toggling to: ${!isOnHold}")
+
+        if (callback != null) {
+            callInfo?.holdCall(!isOnHold, callback)
+        } else {
+            // Backward compatibility - provide default callback
+            callInfo?.holdCall(!isOnHold, CompletionHandler { result ->
+                if (!result.isSuccessful) {
+                    Log.e(tag, "holdCall failed: ${result.error?.errorMessage}")
+                }
+            })
+        }
 	}
 
 	fun isOnHold(callId: String) = getCall(callId)?.isOnHold()

@@ -4,6 +4,7 @@ import com.ciscowebex.androidsdk.phone.Breakout
 import com.ciscowebex.androidsdk.phone.BreakoutSession
 import com.ciscowebex.androidsdk.phone.Call
 import com.ciscowebex.androidsdk.phone.CallObserver
+import com.ciscowebex.androidsdk.phone.HoldResumeInfo
 import com.ciscowebex.androidsdk.phone.BreakoutSession.BreakoutSessionError
 import com.ciscowebex.androidsdk.phone.ReceivingNoiseInfo
 import com.ciscowebex.androidsdk.phone.closedCaptions.CaptionItem
@@ -23,6 +24,8 @@ interface CallObserverInterface {
     fun onWaiting(call: Call?) {}
     fun onDisconnected(call: Call?, event: CallObserver.CallDisconnectedEvent?) {}
     fun onInfoChanged(call: Call?) {}
+
+    fun onCallHoldStateChanged(call: Call?, holdResumeInfo: HoldResumeInfo) {}
     fun onMediaChanged(call: Call?, event: CallObserver.MediaChangedEvent?) {}
     fun onCallMembershipChanged(call: Call?, event: CallObserver.CallMembershipChangedEvent?) {}
     fun onScheduleChanged(call: Call?) {}

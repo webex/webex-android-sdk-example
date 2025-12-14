@@ -25,6 +25,7 @@ import com.ciscowebex.androidsdk.phone.Breakout
 import com.ciscowebex.androidsdk.phone.BreakoutSession
 import com.ciscowebex.androidsdk.phone.Call
 import com.ciscowebex.androidsdk.phone.CallMembership
+import com.ciscowebex.androidsdk.phone.HoldResumeInfo
 import com.ciscowebex.androidsdk.phone.MediaOption
 import com.ciscowebex.androidsdk.phone.Phone
 import com.ciscowebex.androidsdk.phone.VirtualBackground
@@ -545,6 +546,15 @@ class WebexRepository(val webex: Webex) : WebexUCLoginDelegate, WebexAuthDelegat
             observers?.let { it ->
                 it.forEach { observer ->
                     observer.onInfoChanged(call)
+                }
+            }
+        }
+
+        override fun onCallHoldStateChanged(call: Call?, holdResumeInfo: HoldResumeInfo) {
+            val observers: MutableList<CallObserver>? = _callObservers[_callId]
+            observers?.let { it ->
+                it.forEach { observer ->
+                    observer.onCallHoldStateChanged(call, holdResumeInfo)
                 }
             }
         }

@@ -48,7 +48,6 @@
                 android:layout_marginTop="@dimen/margin_normal"
                 android:gravity="top|left"
                 android:background="@drawable/edit_text_bg"
-                android:maxLength="2000"
                 android:scrollbars="vertical"
                 android:visibility="gone" />
 

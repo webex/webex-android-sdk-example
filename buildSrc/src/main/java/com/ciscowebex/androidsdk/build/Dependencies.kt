@@ -2,7 +2,7 @@ package com.ciscowebex.androidsdk.build
 import org.gradle.api.JavaVersion
 
 object Versions {
-    const val kotlin = "1.9.0"
+    const val kotlin = "2.1.20"
     const val koin= "2.2.3"
     const val orhanobutLogger = "2.2.0"
 
