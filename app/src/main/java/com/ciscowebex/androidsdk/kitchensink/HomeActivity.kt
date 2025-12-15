@@ -13,6 +13,7 @@ import android.Manifest
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import com.ciscowebex.androidsdk.CompletionHandler
+import com.ciscowebex.androidsdk.ResourceType
 import com.ciscowebex.androidsdk.auth.OAuthWebViewAuthenticator
 import com.ciscowebex.androidsdk.auth.TokenAuthenticator
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
@@ -208,6 +209,8 @@ class HomeActivity : BaseActivity() {
         // UC Login
         webexViewModel.startUCServices()
         observeUCLoginData()
+        
+
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -272,6 +275,12 @@ class HomeActivity : BaseActivity() {
         webexViewModel.setIncomingListener()
         addVirtualBackground()
         checkForInitialSpacesSync()
+
+        // Base64 testing
+        Log.d(tag, "Testing Base64 encoding")
+        testBase64Encoding()
+        Log.d(tag, "Testing Base64 decoding")
+        testBase64Decoding()
     }
 
     private fun checkForInitialSpacesSync() {
@@ -347,5 +356,80 @@ class HomeActivity : BaseActivity() {
         writer.println(" ")
         writer.println("Dump logs: ")
         webexViewModel.printObservers(writer)
+    }
+
+    private fun testBase64Encoding() {
+        // Replace your personId with personUUIDString and comparison base64 string
+        val personUUIDString = "5bd7167d-0072-4878-8c58-c1097b720aaa"
+
+        Handler().postDelayed(Runnable {
+            Log.d(tag, "Attempting to Base64 People encoded string:")
+
+            webexViewModel.webex.base64Encode(ResourceType.People, personUUIDString, CompletionHandler { result ->
+                if (result.isSuccessful) {
+                    val encodedString = result.data
+                    Log.d(tag, "Base64 People encoded string: $encodedString")
+                    if (encodedString == "Y2lzY29zcGFyazovL3VzL1BFT1BMRS81YmQ3MTY3ZC0wMDcyLTQ4NzgtOGM1OC1jMTA5N2I3MjBhYWE" || encodedString == "Y2lzY29zcGFyazovL3VzL1BFT1BMRS81YmQ3MTY3ZC0wMDcyLTQ4NzgtOGM1OC1jMTA5N2I3MjBhYWE=") {
+                        Log.d(tag, "Base64 Encoding People ✅")
+                    } else {
+                        Log.d(tag, "Base64 Encoding People ❌. Please make sure to replace personId with personUUIDString and comparison base64 string in code")
+                    }
+                } else {
+                    Log.e(tag, "Base64 Encoding People ❌: ${result.error}. Please make sure to replace personId with personUUIDString and comparison base64 string in code")
+                }
+            })
+        }, 300)
+
+
+        Handler().postDelayed(Runnable {
+            Log.d(tag, "Attempting to Base64 Rooms encoded string:")
+
+            // Replace with any roomId in your account with roomUUIDString and comparison base64 string
+            val roomUUIDString = "55831920-9886-11f0-87b5-2b4f3f1744dc"
+            webexViewModel.webex.base64Encode(ResourceType.Rooms, roomUUIDString, CompletionHandler { result ->
+                if (result.isSuccessful) {
+                    val encodedString = result.data
+                    Log.d(tag, "Base64 Rooms encoded string: $encodedString")
+                    if (encodedString == "Y2lzY29zcGFyazovL3VzL1JPT00vNTU4MzE5MjAtOTg4Ni0xMWYwLTg3YjUtMmI0ZjNmMTc0NGRj" || encodedString == "Y2lzY29zcGFyazovL3VzL1JPT00vNTU4MzE5MjAtOTg4Ni0xMWYwLTg3YjUtMmI0ZjNmMTc0NGRj=") {
+                        Log.d(tag, "Base64 Encoding Rooms ✅")
+                    } else {
+                        Log.d(tag, "Base64 Encoding Rooms ❌. Please make sure to replace roomId with roomUUIDString and comparison base64 string in code")
+                    }
+                } else {
+                    Log.e(tag, "Base64 Encoding Rooms ❌: ${result.error}. Please make sure to replace roomId with roomUUIDString and comparison base64 string in code")
+                }
+            })
+        }, 300)
+
+        Handler().postDelayed(Runnable {
+            Log.d(tag, "Attempting to Base64 Teams encoded string:")
+
+            // Replace with any teamId in your account with teamUUIDString and comparison base64 string
+            val teamUUIDString = "a811a0e0-3289-11ee-a006-b7b8084e553b"
+            webexViewModel.webex.base64Encode(ResourceType.Teams, teamUUIDString, CompletionHandler { result ->
+                if (result.isSuccessful) {
+                    val encodedString = result.data
+                    Log.d(tag, "Base64 Teams encoded string: $encodedString")
+                    if (encodedString == "Y2lzY29zcGFyazovL3VzL1RFQU0vYTgxMWEwZTAtMzI4OS0xMWVlLWEwMDYtYjdiODA4NGU1NTNi" || encodedString == "Y2lzY29zcGFyazovL3VzL1RFQU0vYTgxMWEwZTAtMzI4OS0xMWVlLWEwMDYtYjdiODA4NGU1NTNi=") {
+                        Log.d(tag, "Base64 Encoding Teams ✅")
+                    } else {
+                        Log.d(tag, "Base64 Encoding Teams ❌. Please make sure to replace teamId with teamUUIDString and comparison base64 string in code")
+                    }
+                } else {
+                    Log.e(tag, "Base64 Encoding Teams ❌: ${result.error}. Please make sure to replace teamId with teamUUIDString and comparison base64 string in code")
+                }
+            })
+        }, 300)
+
+    }
+
+    private fun testBase64Decoding() {
+        val encodedString = "Y2lzY29zcGFyazovL3VzL1BFT1BMRS81YmQ3MTY3ZC0wMDcyLTQ4NzgtOGM1OC1jMTA5N2I3MjBhYWE"
+        val decodedString = webexViewModel.webex.base64Decode(encodedString)
+        if (decodedString == "5bd7167d-0072-4878-8c58-c1097b720aaa") {
+            Log.d(tag, "Base64 Decoding ✅")
+        } else {
+            Log.d(tag, "Base64 Decoding ❌: Expected '5bd7167d-0072-4878-8c58-c1097b720aaa', got '$decodedString'. Please make sure to replace encodedString and expected UUID in comparison")
+        }
     }
 }

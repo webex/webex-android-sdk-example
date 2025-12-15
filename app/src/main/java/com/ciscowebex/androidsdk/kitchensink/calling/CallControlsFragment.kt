@@ -909,7 +909,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
                     Log.d(TAG, "startShareLiveData success")
                     // Reset consent attempt flag so future attempts can re-prompt if needed
                     screenShareConsentAttempted = false
-                    webexViewModel.initalizeAnnotations(AnnotationRenderer(requireContext()))
+                    // TEMP_DISABLE_OVERLAY_LOOP: disabling live annotations init to avoid overlay permission loop
+                    // webexViewModel.initalizeAnnotations(AnnotationRenderer(requireContext()))
                     if(BuildConfig.FLAVOR != "wxc") {
                         binding.annotationPolicy.visibility = VISIBLE
                         binding.annotationPolicy.text = webexViewModel.getCurrentLiveAnnotationPolicy().toString()
@@ -1132,13 +1133,15 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
                 is WebexViewModel.AnnotationEvent.PERMISSION_EXPIRED -> toggleAnnotationPermissionDialog(false, event.personId)
                 WebexViewModel.AnnotationEvent.READY -> {}
                 WebexViewModel.AnnotationEvent.STOPPED -> {}
-                WebexViewModel.AnnotationEvent.OVERLAY_PERMISSION_REQUIRED -> {
-                     Toast.makeText(requireContext(), getString(R.string.manage_overlay_permission_error), Toast.LENGTH_LONG).show()
-                     try {
-                         val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + requireContext().packageName))
-                         overlayPermissionLauncher.launch(intent)
-                     } catch (_: Throwable) { }
-                }
+                else -> {}
+                // TEMP_DISABLE_OVERLAY_LOOP: Disable overlay permission prompt to avoid loop during screen share
+                // WebexViewModel.AnnotationEvent.OVERLAY_PERMISSION_REQUIRED -> {
+                //     Toast.makeText(requireContext(), getString(R.string.manage_overlay_permission_error), Toast.LENGTH_LONG).show()
+                //     try {
+                //         val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + requireContext().packageName))
+                //         overlayPermissionLauncher.launch(intent)
+                //     } catch (_: Throwable) { }
+                // }
             }
         }
         webexViewModel.authLiveData.observe(viewLifecycleOwner, Observer {
@@ -3570,15 +3573,16 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
             }
         }
 
-    private val overlayPermissionLauncher =
-         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-             if (Settings.canDrawOverlays(requireContext())) {
-                 Toast.makeText(requireContext(), getString(R.string.manage_overlay_permission_granted), Toast.LENGTH_SHORT).show()
-                 webexViewModel.initalizeAnnotations(AnnotationRenderer(requireContext()))
-             } else {
-                 Toast.makeText(requireContext(), getString(R.string.manage_overlay_permission_error), Toast.LENGTH_LONG).show()
-             }
-         }
+    // TEMP_DISABLE_OVERLAY_LOOP: Disable overlay permission launcher while focusing on screen share
+    // private val overlayPermissionLauncher =
+    //     registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+    //         if (Settings.canDrawOverlays(requireContext())) {
+    //             Toast.makeText(requireContext(), getString(R.string.manage_overlay_permission_granted), Toast.LENGTH_SHORT).show()
+    //             webexViewModel.initalizeAnnotations(AnnotationRenderer(requireContext()))
+    //         } else {
+    //             Toast.makeText(requireContext(), getString(R.string.manage_overlay_permission_error), Toast.LENGTH_LONG).show()
+    //         }
+    //     }
 
     private var screenShareConsentAttempted = false
     private var pendingShareConfig: ShareConfig? = null
