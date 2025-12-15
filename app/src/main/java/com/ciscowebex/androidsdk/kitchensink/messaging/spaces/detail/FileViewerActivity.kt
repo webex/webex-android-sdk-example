@@ -110,7 +110,7 @@ class FileViewerActivity : BaseActivity() {
 
     private fun showDownloadedFile(fileUrl: String?) {
         fileUrl?.let {
-            val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(File(fileUrl).extension.toLowerCase(Locale.US))
+            val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(File(fileUrl).extension.lowercase(Locale.US))
             Log.d(tag, "mimetype: $mimeType")
             if (mimeType != null) {
                 finish()

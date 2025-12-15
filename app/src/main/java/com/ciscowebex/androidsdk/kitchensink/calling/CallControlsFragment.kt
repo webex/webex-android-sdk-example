@@ -82,6 +82,7 @@ import com.ciscowebex.androidsdk.phone.CallAssociationType
 import com.ciscowebex.androidsdk.phone.CallMembership
 import com.ciscowebex.androidsdk.phone.CallObserver
 import com.ciscowebex.androidsdk.phone.CallSchedule
+import com.ciscowebex.androidsdk.phone.HoldResumeInfo
 import com.ciscowebex.androidsdk.phone.MediaOption
 import com.ciscowebex.androidsdk.phone.MediaRenderView
 import com.ciscowebex.androidsdk.phone.MultiStreamObserver
@@ -430,12 +431,35 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
 
         mHandler.post {
             call?.let { _call ->
-                binding.ibHoldCall.isSelected = _call.isOnHold()
+                checkIsOnHold()
                 Log.d(TAG, "CallObserver onInfoChanged isSendingDTMFEnabled : " + _call.isSendingDTMFEnabled())
 
                 if (_call.isSendingDTMFEnabled() && !callOptionsBottomSheetFragment.isDTMFOptionEnabled()) {
                     Log.d(TAG, "CallObserver onInfoChanged DTMF Enabled")
                     Toast.makeText(activity, "DTMF Option Enabled", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    override fun onCallHoldStateChanged(call: Call?, holdResumeInfo: HoldResumeInfo) {
+        Log.d(TAG, "CallObserver onCallHoldStateChanged: callId=${call?.getCallId()}, isOnHold=${holdResumeInfo.isOnHold}, initiatedByLocal=${holdResumeInfo.initiatedByLocal}")
+
+        mHandler.post {
+            call?.let { _call ->
+                // Update button state
+                binding.ibHoldCall.isEnabled = true
+                checkIsOnHold()
+
+                // Show notification if hold state changed remotely
+                if (!holdResumeInfo.initiatedByLocal) {
+                    val message = if (holdResumeInfo.isOnHold) {
+                        "Call was put on hold remotely"
+                    } else {
+                        "Call was resumed remotely"
+                    }
+                    Log.d(TAG, "Remote hold state change: $message")
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -885,7 +909,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
                     Log.d(TAG, "startShareLiveData success")
                     // Reset consent attempt flag so future attempts can re-prompt if needed
                     screenShareConsentAttempted = false
-                    webexViewModel.initalizeAnnotations(AnnotationRenderer(requireContext()))
+                    // TEMP_DISABLE_OVERLAY_LOOP: disabling live annotations init to avoid overlay permission loop
+                    // webexViewModel.initalizeAnnotations(AnnotationRenderer(requireContext()))
                     if(BuildConfig.FLAVOR != "wxc") {
                         binding.annotationPolicy.visibility = VISIBLE
                         binding.annotationPolicy.text = webexViewModel.getCurrentLiveAnnotationPolicy().toString()
@@ -1108,13 +1133,15 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
                 is WebexViewModel.AnnotationEvent.PERMISSION_EXPIRED -> toggleAnnotationPermissionDialog(false, event.personId)
                 WebexViewModel.AnnotationEvent.READY -> {}
                 WebexViewModel.AnnotationEvent.STOPPED -> {}
-                WebexViewModel.AnnotationEvent.OVERLAY_PERMISSION_REQUIRED -> {
-                     Toast.makeText(requireContext(), getString(R.string.manage_overlay_permission_error), Toast.LENGTH_LONG).show()
-                     try {
-                         val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + requireContext().packageName))
-                         overlayPermissionLauncher.launch(intent)
-                     } catch (_: Throwable) { }
-                }
+                else -> {}
+                // TEMP_DISABLE_OVERLAY_LOOP: Disable overlay permission prompt to avoid loop during screen share
+                // WebexViewModel.AnnotationEvent.OVERLAY_PERMISSION_REQUIRED -> {
+                //     Toast.makeText(requireContext(), getString(R.string.manage_overlay_permission_error), Toast.LENGTH_LONG).show()
+                //     try {
+                //         val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + requireContext().packageName))
+                //         overlayPermissionLauncher.launch(intent)
+                //     } catch (_: Throwable) { }
+                // }
             }
         }
         webexViewModel.authLiveData.observe(viewLifecycleOwner, Observer {
@@ -1792,7 +1819,27 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
                     initAddedCallControls()
                 }
                 binding.ibHoldCall -> {
-                    webexViewModel.holdCall(callId)
+                    val currentCall = webexViewModel.getCall(callId)
+                    val isCurrentlyOnHold = currentCall?.isOnHold() ?: false
+                    val shouldHold = !isCurrentlyOnHold
+                    // Disable button while operation is in progress
+                    binding.ibHoldCall.isEnabled = false
+                    webexViewModel.holdCall(callId, CompletionHandler { result ->
+                        requireActivity().runOnUiThread {
+                            binding.ibHoldCall.isEnabled = true
+
+                            if (result.isSuccessful) {
+                                Log.d(TAG, "Hold operation succeeded: shouldHold=$shouldHold")
+                                // UI will be updated by onInfoChanged or onCallHoldStateChanged callback
+                            } else {
+                                // On failure, revert button state
+                                Log.e(TAG, "Hold operation failed: ${result.error?.errorMessage}")
+                                Toast.makeText(requireContext(), "Hold operation failed: ${result.error?.errorMessage ?: "Unknown error"}", Toast.LENGTH_SHORT).show()
+                                // Restore button state:
+                                checkIsOnHold()
+                            }
+                        }
+                    })
                 }
                 binding.ivCancelCall -> {
                     endCall()
@@ -3526,15 +3573,16 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
             }
         }
 
-    private val overlayPermissionLauncher =
-         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-             if (Settings.canDrawOverlays(requireContext())) {
-                 Toast.makeText(requireContext(), getString(R.string.manage_overlay_permission_granted), Toast.LENGTH_SHORT).show()
-                 webexViewModel.initalizeAnnotations(AnnotationRenderer(requireContext()))
-             } else {
-                 Toast.makeText(requireContext(), getString(R.string.manage_overlay_permission_error), Toast.LENGTH_LONG).show()
-             }
-         }
+    // TEMP_DISABLE_OVERLAY_LOOP: Disable overlay permission launcher while focusing on screen share
+    // private val overlayPermissionLauncher =
+    //     registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+    //         if (Settings.canDrawOverlays(requireContext())) {
+    //             Toast.makeText(requireContext(), getString(R.string.manage_overlay_permission_granted), Toast.LENGTH_SHORT).show()
+    //             webexViewModel.initalizeAnnotations(AnnotationRenderer(requireContext()))
+    //         } else {
+    //             Toast.makeText(requireContext(), getString(R.string.manage_overlay_permission_error), Toast.LENGTH_LONG).show()
+    //         }
+    //     }
 
     private var screenShareConsentAttempted = false
     private var pendingShareConfig: ShareConfig? = null

@@ -31,8 +31,8 @@ android {
         applicationId "com.cisco.sdk_android"
         minSdkVersion Versions.minSdk
         targetSdkVersion Versions.targetSdk
-        versionCode 3160000
-        versionName "3.16.0"
+        versionCode 3160100
+        versionName "3.16.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -128,11 +128,11 @@ android {
 
 dependencies {
     //At a time only one WebexSDK should be used.
-    //implementation 'com.ciscowebex:webexsdk:3.16.0' // For full flavor
-    //implementation 'com.ciscowebex:webexsdk-wxc:3.16.0' //For webexCalling flavor
-    //implementation 'com.ciscowebex:webexsdk-meeting:3.16.0' // For meeting flavor
-    //implementation 'com.ciscowebex:webexsdk-message:3.16.0' // For meeting flavor
-    implementation files('libs/WebexSDK-Wxc.aar')
+    implementation 'com.ciscowebex:webexsdk:3.16.1' // For full flavor
+    //implementation 'com.ciscowebex:webexsdk-wxc:3.16.1' //For webexCalling flavor
+    //implementation 'com.ciscowebex:webexsdk-meeting:3.16.1' // For meeting flavor
+    //implementation 'com.ciscowebex:webexsdk-message:3.16.1' // For messaging flavor
+    //implementation files('libs/WebexSDK-Wxc.aar')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation Dependencies.coreKtx
     implementation Dependencies.appCompat
