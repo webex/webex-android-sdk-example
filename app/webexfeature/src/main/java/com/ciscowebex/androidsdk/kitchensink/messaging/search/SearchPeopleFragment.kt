@@ -15,7 +15,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
 import com.ciscowebex.androidsdk.kitchensink.R
-import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemPersonsBinding
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.ciscowebex.androidsdk.kitchensink.person.PersonModel
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import org.koin.android.ext.android.inject
@@ -136,7 +136,8 @@ class SearchPeopleFragment : Fragment() {
         var personsList: List<PersonModel> = mutableListOf()
 
         override fun onCreateViewHolder(parent: ViewGroup, i: Int): ViewHolder {
-            return ViewHolder(ListItemPersonsBinding.inflate(LayoutInflater.from(parent.context), parent, false)) { position ->
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_persons, parent, false)
+            return ViewHolder(view) { position ->
                 listItemClick(personsList[position])
             }
         }
@@ -149,17 +150,19 @@ class SearchPeopleFragment : Fragment() {
             return personsList.size
         }
 
-        inner class ViewHolder(val binding: ListItemPersonsBinding, val listItemClicked: (Int) -> Unit) :
-                RecyclerView.ViewHolder(binding.root) {
+        inner class ViewHolder(itemView: View, val listItemClicked: (Int) -> Unit) :
+                RecyclerView.ViewHolder(itemView) {
+            private val rootView: ConstraintLayout = itemView.findViewById(R.id.rootListItemPersonsView)
+            private val nameTextView: TextView = itemView.findViewById(R.id.name)
+            
             init {
-                binding.rootListItemPersonsView.setOnClickListener {
+                rootView.setOnClickListener {
                     listItemClicked(adapterPosition)
                 }
             }
 
             fun bind(itemModel: PersonModel) {
-                binding.listItem = itemModel
-                binding.executePendingBindings()
+                nameTextView.text = itemModel.displayName ?: ""
             }
         }
     }

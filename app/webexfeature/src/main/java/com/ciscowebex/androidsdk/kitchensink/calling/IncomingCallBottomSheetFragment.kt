@@ -5,10 +5,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.ciscowebex.androidsdk.kitchensink.R
-import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemCallMeetingBinding
 import com.ciscowebex.androidsdk.phone.Call
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
@@ -39,7 +41,8 @@ class IncomingCallBottomSheetFragment(val onBottomSheetDismissed: (BottomSheetDi
         var info: MutableList<IncomingCallInfoModel> = mutableListOf()
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IncomingInfoViewHolder {
-            return IncomingInfoViewHolder(ListItemCallMeetingBinding.inflate(LayoutInflater.from(parent.context), parent, false), IncomingCallPickEvent, incomingCallCancelEvent)
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_call_meeting, parent, false)
+            return IncomingInfoViewHolder(view, IncomingCallPickEvent, incomingCallCancelEvent)
         }
 
         override fun getItemCount(): Int = info.size
@@ -50,14 +53,22 @@ class IncomingCallBottomSheetFragment(val onBottomSheetDismissed: (BottomSheetDi
     }
 
     class IncomingInfoViewHolder(
-        private val binding: ListItemCallMeetingBinding,
+        itemView: View,
         private val IncomingCallPickEvent: (Call?) -> Unit,
         private val IncomingCallCancelEvent: (Call?) -> Unit
-    ) : RecyclerView.ViewHolder(binding.root) {
+    ) : RecyclerView.ViewHolder(itemView) {
         var item: IncomingCallInfoModel? = null
         val tag = "IncomingInfoViewHolder"
+        
+        private val meetingJoinButton: Button = itemView.findViewById(R.id.meetingJoinButton)
+        private val ivPickCall: ImageView = itemView.findViewById(R.id.iv_pick_call)
+        private val ivCancelCall: ImageView = itemView.findViewById(R.id.iv_cancel_call)
+        private val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
+        private val meetingTimeTextView: TextView = itemView.findViewById(R.id.meetingTimeTextView)
+        private val callingOneToOneButtonLayout: LinearLayout = itemView.findViewById(R.id.callingOneToOneButtonLayout)
+        
         init {
-            binding.meetingJoinButton.setOnClickListener {
+            meetingJoinButton.setOnClickListener {
                 item?.let { model ->
                     when (model) {
                         is MeetingInfoModel -> {
@@ -69,24 +80,24 @@ class IncomingCallBottomSheetFragment(val onBottomSheetDismissed: (BottomSheetDi
                     }
                     IncomingCallPickEvent(model.call)
                     model.isEnabled = false
-                    binding.meetingJoinButton.alpha = 0.5f
-                    binding.meetingJoinButton.isEnabled = false
+                    meetingJoinButton.alpha = 0.5f
+                    meetingJoinButton.isEnabled = false
                 }
             }
 
-            binding.ivPickCall.setOnClickListener {
+            ivPickCall.setOnClickListener {
                 item?.let { model ->
                     if (model is OneToOneIncomingCallModel) {
                         Log.d(tag, "ivPickCall clicked")
                         IncomingCallPickEvent(model.call)
                         model.isEnabled = false
-                        binding.ivPickCall.alpha = 0.5f
-                        binding.ivPickCall.isEnabled = false
+                        ivPickCall.alpha = 0.5f
+                        ivPickCall.isEnabled = false
                     }
                 }
             }
 
-            binding.ivCancelCall.setOnClickListener {
+            ivCancelCall.setOnClickListener {
                 item?.let { model ->
                     if (model is OneToOneIncomingCallModel) {
                         IncomingCallCancelEvent(model.call)
@@ -101,49 +112,48 @@ class IncomingCallBottomSheetFragment(val onBottomSheetDismissed: (BottomSheetDi
             when (model) {
                 is MeetingInfoModel -> {
                     if (model.isEnabled) {
-                        binding.meetingJoinButton.alpha = 1.0f
-                        binding.meetingJoinButton.isEnabled = true
+                        meetingJoinButton.alpha = 1.0f
+                        meetingJoinButton.isEnabled = true
                     } else {
-                        binding.meetingJoinButton.alpha = 0.5f
-                        binding.meetingJoinButton.isEnabled = false
+                        meetingJoinButton.alpha = 0.5f
+                        meetingJoinButton.isEnabled = false
                     }
 
-                    binding.titleTextView.text = model.subject
-                    binding.meetingTimeTextView.text = model.timeString
-                    binding.meetingTimeTextView.visibility = View.VISIBLE
-                    binding.callingOneToOneButtonLayout.visibility = View.GONE
-                    binding.meetingJoinButton.visibility = View.VISIBLE
+                    titleTextView.text = model.subject
+                    meetingTimeTextView.text = model.timeString
+                    meetingTimeTextView.visibility = View.VISIBLE
+                    callingOneToOneButtonLayout.visibility = View.GONE
+                    meetingJoinButton.visibility = View.VISIBLE
                 }
                 is OneToOneIncomingCallModel -> {
                     if (model.isEnabled) {
-                        binding.ivPickCall.alpha = 1.0f
-                        binding.ivPickCall.isEnabled = true
+                        ivPickCall.alpha = 1.0f
+                        ivPickCall.isEnabled = true
                     } else {
-                        binding.ivPickCall.alpha = 0.5f
-                        binding.ivPickCall.isEnabled = false
+                        ivPickCall.alpha = 0.5f
+                        ivPickCall.isEnabled = false
                     }
 
-                    binding.meetingJoinButton.visibility = View.GONE
-                    binding.meetingTimeTextView.visibility = View.GONE
-                    binding.callingOneToOneButtonLayout.visibility = View.VISIBLE
-                    binding.titleTextView.text = model.call?.getTitle()
+                    meetingJoinButton.visibility = View.GONE
+                    meetingTimeTextView.visibility = View.GONE
+                    callingOneToOneButtonLayout.visibility = View.VISIBLE
+                    titleTextView.text = model.call?.getTitle()
                 }
                 is SpaceIncomingCallModel -> {
                     if (model.isEnabled) {
-                        binding.meetingJoinButton.alpha = 1.0f
-                        binding.meetingJoinButton.isEnabled = true
+                        meetingJoinButton.alpha = 1.0f
+                        meetingJoinButton.isEnabled = true
                     } else {
-                        binding.meetingJoinButton.alpha = 0.5f
-                        binding.meetingJoinButton.isEnabled = false
+                        meetingJoinButton.alpha = 0.5f
+                        meetingJoinButton.isEnabled = false
                     }
 
-                    binding.meetingTimeTextView.visibility = View.GONE
-                    binding.titleTextView.text = model.call?.getTitle()
-                    binding.callingOneToOneButtonLayout.visibility = View.GONE
-                    binding.meetingJoinButton.visibility = View.VISIBLE
+                    meetingTimeTextView.visibility = View.GONE
+                    titleTextView.text = model.call?.getTitle()
+                    callingOneToOneButtonLayout.visibility = View.GONE
+                    meetingJoinButton.visibility = View.VISIBLE
                 }
             }
-            binding.executePendingBindings()
         }
     }
 }

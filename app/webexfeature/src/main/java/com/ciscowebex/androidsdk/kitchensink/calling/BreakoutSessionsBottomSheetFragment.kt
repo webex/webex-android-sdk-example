@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.ciscowebex.androidsdk.kitchensink.R
-import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemJoinBreakoutSessionBinding
 import com.ciscowebex.androidsdk.phone.BreakoutSession
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
@@ -40,7 +40,8 @@ class BreakoutSessionsBottomSheetFragment(): BottomSheetDialogFragment() {
         var sessions: MutableList<BreakoutSession> = mutableListOf()
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BreakoutSessionsViewHolder {
-            return BreakoutSessionsViewHolder(ListItemJoinBreakoutSessionBinding.inflate(LayoutInflater.from(parent.context), parent, false), onJoinSessionClicked)
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_join_breakout_session, parent, false)
+            return BreakoutSessionsViewHolder(view, onJoinSessionClicked)
         }
 
         override fun getItemCount(): Int = sessions.size
@@ -50,20 +51,23 @@ class BreakoutSessionsBottomSheetFragment(): BottomSheetDialogFragment() {
         }
     }
 
-    class BreakoutSessionsViewHolder(private val binding: ListItemJoinBreakoutSessionBinding, private val onJoinSessionClicked: (BreakoutSession) -> Unit)
-        : RecyclerView.ViewHolder(binding.root) {
+    class BreakoutSessionsViewHolder(itemView: View, private val onJoinSessionClicked: (BreakoutSession) -> Unit)
+        : RecyclerView.ViewHolder(itemView) {
         lateinit var item: BreakoutSession
         val tag = "BreakoutSessionsViewHolder"
+        
+        private val meetingJoinButton: Button = itemView.findViewById(R.id.meetingJoinButton)
+        private val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
+        
         init {
-            binding.meetingJoinButton.setOnClickListener {
+            meetingJoinButton.setOnClickListener {
                 onJoinSessionClicked(item)
             }
         }
 
         fun bind(model: BreakoutSession) {
             item = model
-            binding.titleTextView.text = model.getName()
-            binding.executePendingBindings()
+            titleTextView.text = model.getName()
         }
     }
 }

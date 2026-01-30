@@ -24,8 +24,6 @@ import android.widget.RadioGroup
 import android.widget.RelativeLayout
 import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.R
-import com.ciscowebex.androidsdk.kitchensink.databinding.DialogPostMessageHandlerBinding
-import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemUploadAttachmentBinding
 import com.ciscowebex.androidsdk.kitchensink.messaging.composer.MessageComposerViewModel.Companion.MINIMUM_MEMBERS_REQUIRED_FOR_MENTIONS
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.ReplyMessageModel
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
@@ -318,25 +316,34 @@ class MessageComposerActivity : BaseActivity() {
 
         builder.setTitle(R.string.message_details)
 
-        DialogPostMessageHandlerBinding.inflate(layoutInflater)
-                .apply {
-                    messageData = message
-                    val msg = message.getTextAsObject()
+        val dialogView = layoutInflater.inflate(R.layout.dialog_post_message_handler, null)
+        val messageBodyTextView: android.widget.TextView = dialogView.findViewById(R.id.messageBodyTextView)
+        val spaceIdTextView: android.widget.TextView = dialogView.findViewById(R.id.spaceIdTextView)
+        val messageIdTextView: android.widget.TextView = dialogView.findViewById(R.id.messageIdTextView)
+        val personIdTextView: android.widget.TextView = dialogView.findViewById(R.id.personIdTextView)
+        val personEmailTextView: android.widget.TextView = dialogView.findViewById(R.id.personEmailTextView)
+        
+        // Populate message details
+        spaceIdTextView.text = message.getSpaceId() ?: ""
+        messageIdTextView.text = message.getId() ?: ""
+        personIdTextView.text = message.getPersonId() ?: ""
+        personEmailTextView.text = message.getPersonEmail() ?: ""
+        
+        val msg = message.getTextAsObject()
+        msg.getHtml()?.let {
+            messageBodyTextView.text = Html.fromHtml(msg.getHtml(), Html.FROM_HTML_MODE_LEGACY)
+        } ?: run {
+            msg.getPlain()?.let {
+                messageBodyTextView.text = msg.getPlain()
+            }
+        }
+        
+        builder.setView(dialogView)
+        builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
+            dialog.dismiss()
+        }
 
-                    msg.getHtml()?.let {
-                        messageBodyTextView.text = Html.fromHtml(msg.getHtml(), Html.FROM_HTML_MODE_LEGACY)
-                    } ?: run {
-                        msg.getPlain()?.let {
-                            messageBodyTextView.text = msg.getPlain()
-                        }
-                    }
-                    builder.setView(this.root)
-                    builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-
-                    builder.show()
-                }
+        builder.show()
     }
 
     private fun postPersonByEmail(email: String, files: ArrayList<LocalFile>?) {
@@ -441,9 +448,10 @@ class MessageComposerActivity : BaseActivity() {
             return -1
         }
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UploadAttachmentsAdapter.AttachmentViewHolder {
-            val binding = ListItemUploadAttachmentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            binding.tvUploadPercentage.visibility = View.INVISIBLE
-            return AttachmentViewHolder(binding, onAttachmentCrossClick)
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_upload_attachment, parent, false)
+            val tvUploadPercentage = view.findViewById<android.widget.TextView>(R.id.tvUploadPercentage)
+            tvUploadPercentage.visibility = View.INVISIBLE
+            return AttachmentViewHolder(view, onAttachmentCrossClick)
         }
 
         override fun getItemCount(): Int {
@@ -454,22 +462,26 @@ class MessageComposerActivity : BaseActivity() {
             holder.bind(attachedFiles[position])
         }
 
-        inner class AttachmentViewHolder(private val binding: ListItemUploadAttachmentBinding, private val onAttachmentCrossClick: (FileWrapper) -> Unit) : RecyclerView.ViewHolder(binding.root) {
+        inner class AttachmentViewHolder(itemView: View, private val onAttachmentCrossClick: (FileWrapper) -> Unit) : RecyclerView.ViewHolder(itemView) {
+            private val buttonLayout: RelativeLayout = itemView.findViewById(R.id.buttonLayout)
+            private val nameTextView: android.widget.TextView = itemView.findViewById(R.id.name)
+            private val pathTextView: android.widget.TextView = itemView.findViewById(R.id.path)
+            private val tvUploadPercentage: android.widget.TextView = itemView.findViewById(R.id.tvUploadPercentage)
+            
             init {
-                binding.buttonLayout.setOnClickListener {
+                buttonLayout.setOnClickListener {
                     onAttachmentCrossClick(attachedFiles[adapterPosition])
                 }
             }
 
             fun bind(fileWrapper: FileWrapper) {
-                binding.name.text = fileWrapper.file.name
-                binding.path.text = fileWrapper.file.path
+                nameTextView.text = fileWrapper.file.name
+                pathTextView.text = fileWrapper.file.path
                 val percentageUploaded = "${fileWrapper.uploadPercentage}%"
                 if (fileWrapper.uploadPercentage > 0) {
-                    binding.tvUploadPercentage.visibility = View.VISIBLE
-                    binding.tvUploadPercentage.text = percentageUploaded
+                    tvUploadPercentage.visibility = View.VISIBLE
+                    tvUploadPercentage.text = percentageUploaded
                 }
-                binding.executePendingBindings()
             }
         }
     }

@@ -11,8 +11,9 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.ciscowebex.androidsdk.kitchensink.R
-import com.ciscowebex.androidsdk.kitchensink.databinding.DialogTeamMembershipDetailsBinding
-import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemTeamMembershipClientBinding
+import android.widget.RelativeLayout
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
 import org.koin.android.ext.android.inject
@@ -102,17 +103,24 @@ class TeamMembershipFragment : Fragment() {
 
         builder.setTitle(R.string.members_details)
 
-        DialogTeamMembershipDetailsBinding.inflate(layoutInflater)
-                .apply {
-                    membership = teamMembershipDetails
+        val dialogView = layoutInflater.inflate(R.layout.dialog_team_membership_details, null)
+        
+        teamMembershipDetails?.let { membership ->
+            dialogView.findViewById<TextView>(R.id.membershipIdTextView).text = membership.teamMembershipId ?: ""
+            dialogView.findViewById<TextView>(R.id.membershipPersonIdTextView).text = membership.personId ?: ""
+            dialogView.findViewById<TextView>(R.id.membershipPersonEmailTextView).text = membership.personEmail ?: ""
+            dialogView.findViewById<TextView>(R.id.membershipPersonDisplayNameTextView).text = membership.personDisplayName ?: ""
+            dialogView.findViewById<TextView>(R.id.membershipIsModeratorTextView).text = membership.isModerator.toString()
+            dialogView.findViewById<TextView>(R.id.membershipPersonOrgIdTextView).text = membership.personOrgId ?: ""
+            dialogView.findViewById<TextView>(R.id.membershipDateCreatedTextView).text = membership.created?.toString() ?: ""
+        }
 
-                    builder.setView(this.root)
-                    builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
-                        dialog.dismiss()
-                    }
+        builder.setView(dialogView)
+        builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
+            dialog.dismiss()
+        }
 
-                    builder.show()
-                }
+        builder.show()
     }
 
     private fun showErrorDialog(errorMessage: String) {
@@ -142,8 +150,8 @@ class TeamMembershipClientAdapter(private val teamMembershipActionBottomSheet: T
     var memberships: MutableList<TeamMembershipModel> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TeamMembershipClientViewHolder {
-        return TeamMembershipClientViewHolder(teamMembershipActionBottomSheet, ListItemTeamMembershipClientBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-                supportFragmentManager)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_team_membership_client, parent, false)
+        return TeamMembershipClientViewHolder(teamMembershipActionBottomSheet, view, supportFragmentManager)
     }
 
     override fun getItemCount(): Int = memberships.size
@@ -154,13 +162,20 @@ class TeamMembershipClientAdapter(private val teamMembershipActionBottomSheet: T
 
 }
 
-class TeamMembershipClientViewHolder(private val teamMembershipActionBottomSheet: TeamMembershipActionBottomSheetFragment,
-                                     private val binding: ListItemTeamMembershipClientBinding,
-                                     supportFragmentManager: FragmentManager) : RecyclerView.ViewHolder(binding.root) {
+class TeamMembershipClientViewHolder(
+    private val teamMembershipActionBottomSheet: TeamMembershipActionBottomSheetFragment,
+    itemView: View,
+    private val supportFragmentManager: FragmentManager
+) : RecyclerView.ViewHolder(itemView) {
     var membership: TeamMembershipModel? = null
+    
+    private val membershipContainer: ConstraintLayout = itemView.findViewById(R.id.membershipContainer)
+    private val membershipPersonDisplayNameTextView: TextView = itemView.findViewById(R.id.membershipPersonDisplayNameTextView)
+    private val membershipPersonEmailTextView: TextView = itemView.findViewById(R.id.membershipPersonEmailTextView)
+    private val membershipCreatedTextView: TextView = itemView.findViewById(R.id.membershipCreatedTextView)
 
     init {
-        binding.root.setOnLongClickListener { _ ->
+        itemView.setOnLongClickListener { _ ->
             membership?.let {
                 teamMembershipActionBottomSheet.teamMembershipId = it.teamMembershipId
                 teamMembershipActionBottomSheet.show(supportFragmentManager, "Team Membership Options")
@@ -171,7 +186,8 @@ class TeamMembershipClientViewHolder(private val teamMembershipActionBottomSheet
 
     fun bind(membership: TeamMembershipModel) {
         this.membership = membership
-        binding.membership = membership
-        binding.executePendingBindings()
+        membershipPersonDisplayNameTextView.text = membership.personDisplayName ?: ""
+        membershipPersonEmailTextView.text = membership.personEmail ?: ""
+        membershipCreatedTextView.text = membership.created?.toString() ?: ""
     }
 }

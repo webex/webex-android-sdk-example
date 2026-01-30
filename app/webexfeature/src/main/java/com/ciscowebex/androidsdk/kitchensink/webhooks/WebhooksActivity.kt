@@ -5,8 +5,11 @@ import android.os.Bundle
 import android.text.Editable
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
@@ -16,10 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.ciscowebex.androidsdk.kitchensink.R
-import com.ciscowebex.androidsdk.kitchensink.databinding.DialogWebhookCreateBinding
-import com.ciscowebex.androidsdk.kitchensink.databinding.DialogWebhookUpdateBinding
-import com.ciscowebex.androidsdk.kitchensink.databinding.FragmentDialogWebhookDetailsBinding
-import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemWebhookBinding
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
 import com.ciscowebex.androidsdk.webhook.Webhook
 import com.google.android.play.core.splitcompat.SplitCompat
@@ -114,84 +113,95 @@ class WebhooksActivity : AppCompatActivity() {
 
     private fun createWebhookDialog() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_webhook_create, null)
+        
+        val nameEditText = dialogView.findViewById<EditText>(R.id.nameEditText)
+        val targetUrlEditText = dialogView.findViewById<EditText>(R.id.targetUrlEditText)
+        val resourceEditText = dialogView.findViewById<EditText>(R.id.resourceEditText)
+        val eventEditText = dialogView.findViewById<EditText>(R.id.eventEditText)
+        val filterEditText = dialogView.findViewById<EditText>(R.id.filterEditText)
+        val secretEditText = dialogView.findViewById<EditText>(R.id.secretEditText)
+        
+        builder.setView(dialogView)
+        builder.setPositiveButton(getString(R.string.create)) { dialog, _ ->
+            val name = nameEditText.text.toString()
+            val targetUrl = targetUrlEditText.text.toString()
+            val resource = resourceEditText.text.toString()
+            val event = eventEditText.text.toString()
+            val filter: String? = if (filterEditText.text.isNotEmpty()) filterEditText.text.toString() else null
+            val secret: String? = if (secretEditText.text.isNotEmpty()) secretEditText.text.toString() else null
 
-        DialogWebhookCreateBinding.inflate(layoutInflater)
-                .apply {
-                    builder.setView(this.root)
-
-                    builder.setPositiveButton(getString(R.string.create)) { dialog, _ ->
-                        val name = nameEditText.text.toString()
-                        val targetUrl = targetUrlEditText.text.toString()
-                        val resource = resourceEditText.text.toString()
-                        val event = eventEditText.text.toString()
-                        val filter: String? = if (filterEditText.text.isNotEmpty()) filterEditText.text.toString() else null
-                        val secret: String? = if (secretEditText.text.isNotEmpty()) secretEditText.text.toString() else null
-
-                        webhookModel.create(name, targetUrl, resource, event, filter, secret)
-                        dialog.dismiss()
-                    }
-
-                    builder.show()
-                }
+            webhookModel.create(name, targetUrl, resource, event, filter, secret)
+            dialog.dismiss()
+        }
+        builder.show()
     }
 
     private fun updateWebhookDialog(webhookId: String, model: Webhook?) {
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_webhook_update, null)
+        
+        val nameEditText = dialogView.findViewById<EditText>(R.id.nameEditText)
+        val targetUrlEditText = dialogView.findViewById<EditText>(R.id.targetUrlEditText)
+        val statusEditText = dialogView.findViewById<EditText>(R.id.statusEditText)
+        val secretEditText = dialogView.findViewById<EditText>(R.id.secretEditText)
+        
+        builder.setView(dialogView)
+        
+        model?.let { webhook ->
+            nameEditText.text = Editable.Factory.getInstance().newEditable(webhook.name)
+            targetUrlEditText.text = Editable.Factory.getInstance().newEditable(webhook.targetUrl)
 
-        DialogWebhookUpdateBinding.inflate(layoutInflater)
-                .apply {
-                    builder.setView(this.root)
+            webhook.status?.let {
+                statusEditText.text = Editable.Factory.getInstance().newEditable(webhook.status)
+            }
 
-                    model?.let { webhook ->
-                        nameEditText.text = Editable.Factory.getInstance().newEditable(webhook.name)
-                        targetUrlEditText.text = Editable.Factory.getInstance().newEditable(webhook.targetUrl)
+            webhook.secret?.let {
+                secretEditText.text = Editable.Factory.getInstance().newEditable(webhook.secret)
+            }
+        }
 
-                        webhook.status?.let {
-                            statusEditText.text = Editable.Factory.getInstance().newEditable(webhook.status)
-                        }
+        builder.setPositiveButton(getString(R.string.update)) { dialog, _ ->
+            val name = nameEditText.text.toString()
+            val targetUrl = targetUrlEditText.text.toString()
+            val status: String? = if (statusEditText.text.isNotEmpty()) statusEditText.text.toString() else null
+            val secret: String? = if (secretEditText.text.isNotEmpty()) secretEditText.text.toString() else null
 
-                        webhook.secret?.let {
-                            secretEditText.text = Editable.Factory.getInstance().newEditable(webhook.secret)
-                        }
-                    }
-
-                    builder.setPositiveButton(getString(R.string.update)) { dialog, _ ->
-
-                        val name = nameEditText.text.toString()
-                        val targetUrl = targetUrlEditText.text.toString()
-                        val status: String? = if (statusEditText.text.isNotEmpty()) statusEditText.text.toString() else null
-                        val secret: String? = if (secretEditText.text.isNotEmpty()) secretEditText.text.toString() else null
-
-                        webhookModel.update(webhookId, name, targetUrl, secret, status)
-                        dialog.dismiss()
-                    }
-
-                    builder.show()
-                }
+            webhookModel.update(webhookId, name, targetUrl, secret, status)
+            dialog.dismiss()
+        }
+        builder.show()
     }
 
     private fun webhookDetails(_webhook: Webhook) {
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-
-        FragmentDialogWebhookDetailsBinding.inflate(layoutInflater)
-                .apply {
-                    webhook = _webhook
-
-                    builder.setView(this.root)
-                    builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
-                        updateList()
-                        dialog.dismiss()
-                    }
-
-                    builder.show()
-                }
+        val dialogView = layoutInflater.inflate(R.layout.fragment_dialog_webhook_details, null)
+        
+        // Set webhook details to the dialog views
+        dialogView.findViewById<TextView>(R.id.IdTextView)?.text = _webhook.id
+        dialogView.findViewById<TextView>(R.id.NameTextView)?.text = _webhook.name
+        dialogView.findViewById<TextView>(R.id.UrlTextView)?.text = _webhook.targetUrl
+        dialogView.findViewById<TextView>(R.id.resourceTextView)?.text = _webhook.resource
+        dialogView.findViewById<TextView>(R.id.eventTextView)?.text = _webhook.event
+        dialogView.findViewById<TextView>(R.id.filterTextView)?.text = _webhook.filter ?: ""
+        dialogView.findViewById<TextView>(R.id.secretTextView)?.text = _webhook.secret ?: ""
+        dialogView.findViewById<TextView>(R.id.statusTextView)?.text = _webhook.status ?: ""
+        dialogView.findViewById<TextView>(R.id.createdTextView)?.text = _webhook.created?.toString() ?: ""
+        
+        builder.setView(dialogView)
+        builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
+            updateList()
+            dialog.dismiss()
+        }
+        builder.show()
     }
 
     class WebhookListAdapter(private val optionsDialogFragment: WebhookActionBottomSheetFragment, private val fragmentManager: FragmentManager) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         var webhookList: MutableList<Webhook> = mutableListOf()
+        
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-            val binding = ListItemWebhookBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            return webhookViewHolder(binding, optionsDialogFragment, fragmentManager)
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_webhook, parent, false)
+            return WebhookViewHolder(view, optionsDialogFragment, fragmentManager)
         }
 
         override fun getItemCount(): Int {
@@ -199,14 +209,17 @@ class WebhooksActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-            (holder as webhookViewHolder).bind(webhookList[position])
+            (holder as WebhookViewHolder).bind(webhookList[position])
         }
 
-        inner class webhookViewHolder(private val binding: ListItemWebhookBinding, private val optionsDialogFragment: WebhookActionBottomSheetFragment, private val fragmentManager: FragmentManager): RecyclerView.ViewHolder(binding.root) {
+        inner class WebhookViewHolder(itemView: View, private val optionsDialogFragment: WebhookActionBottomSheetFragment, private val fragmentManager: FragmentManager): RecyclerView.ViewHolder(itemView) {
             var webhook: Webhook? = null
+            private val rootLayout: View = itemView.findViewById(R.id.rootListItemLayout)
+            private val nameTextView: TextView = itemView.findViewById(R.id.name)
+            private val pathTextView: TextView = itemView.findViewById(R.id.path)
 
             init {
-                binding.rootListItemLayout.setOnLongClickListener { _ ->
+                rootLayout.setOnLongClickListener { _ ->
                     optionsDialogFragment.webhookId = webhook?.id ?: ""
                     optionsDialogFragment.webhookModel = webhook
 
@@ -218,8 +231,8 @@ class WebhooksActivity : AppCompatActivity() {
 
             fun bind(webhook: Webhook) {
                 this.webhook = webhook
-                binding.name.text = webhook.name
-                binding.path.text = webhook.targetUrl
+                nameTextView.text = webhook.name
+                pathTextView.text = webhook.targetUrl
             }
         }
     }

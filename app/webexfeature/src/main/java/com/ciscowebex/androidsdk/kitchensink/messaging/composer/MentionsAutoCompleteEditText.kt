@@ -21,7 +21,7 @@ import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.ciscowebex.androidsdk.kitchensink.R
-import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemMentionBinding
+import android.widget.TextView
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipModel
 import com.ciscowebex.androidsdk.kitchensink.utils.extensions.utf8Offset
 import com.ciscowebex.androidsdk.message.Mention
@@ -330,26 +330,27 @@ class MentionsPlugin(
         fun firstNameCheck(firstName: String): MutableList<MembershipModel> = messageComposerViewModel.search(firstName).toMutableList()
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-            val viewHolder = if (convertView == null) {
-                ViewHolder(ListItemMentionBinding.inflate(inflator))
+            val view: View
+            val viewHolder: ViewHolder
+            
+            if (convertView == null) {
+                view = inflator.inflate(R.layout.list_item_mention, parent, false)
+                viewHolder = ViewHolder(view)
+                view.tag = viewHolder
             } else {
-                convertView.tag as ViewHolder
+                view = convertView
+                viewHolder = convertView.tag as ViewHolder
             }
-            return viewHolder.bind(mentions[position])
+            
+            viewHolder.bind(mentions[position])
+            return view
         }
 
-        inner class ViewHolder(val binding: ListItemMentionBinding) {
-            init {
-                binding.root.tag = this
-            }
+        inner class ViewHolder(val view: View) {
+            private val textView: TextView = view.findViewById(android.R.id.text1)
 
-            fun bind(item: MembershipModel): View {
-                binding.apply {
-                    lifecycleOwner = this@MentionsPlugin.lifecycleOwner
-                    membership = item
-                }
-                binding.executePendingBindings()
-                return binding.root
+            fun bind(item: MembershipModel) {
+                textView.text = item.personDisplayName ?: ""
             }
         }
     }

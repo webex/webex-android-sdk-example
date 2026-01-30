@@ -1,15 +1,19 @@
 package com.ciscowebex.androidsdk.kitchensink.calling
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.ciscowebex.androidsdk.kitchensink.databinding.CallQueueItemBinding
+import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.phone.Call
 
 class CallQueueAdapter(private val calls: ArrayList<Call>, private val itemClickListener: OnItemActionListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return CallItemViewHolder(CallQueueItemBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.call_queue_item, parent, false)
+        return CallItemViewHolder(view)
     }
 
     override fun getItemCount(): Int {
@@ -25,13 +29,15 @@ class CallQueueAdapter(private val calls: ArrayList<Call>, private val itemClick
         calls.addAll(list)
     }
 
-    inner class CallItemViewHolder(private val binding: CallQueueItemBinding): RecyclerView.ViewHolder(binding.root){
+    inner class CallItemViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+        private val callTitle: TextView = itemView.findViewById(R.id.callTitle)
+        private val callResume: Button = itemView.findViewById(R.id.callResume)
 
         fun bind(){
             val call = calls[adapterPosition] as Call
-            binding.callTitle.text = call.getTitle()
+            callTitle.text = call.getTitle()
 
-            binding.callResume.setOnClickListener {
+            callResume.setOnClickListener {
                 call.getCallId()?.let{
                     itemClickListener.onCallResumed(it)
                 }

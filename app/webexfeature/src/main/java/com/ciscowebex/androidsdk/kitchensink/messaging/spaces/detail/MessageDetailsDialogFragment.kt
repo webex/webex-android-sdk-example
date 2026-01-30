@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ciscowebex.androidsdk.kitchensink.R
-import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemAttachmentsBinding
 import com.ciscowebex.androidsdk.kitchensink.messaging.BaseDialogFragment
 import com.ciscowebex.androidsdk.kitchensink.messaging.RemoteModel
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
@@ -136,8 +135,8 @@ class MessageDetailsDialogFragment : BaseDialogFragment() {
 
     class MessageAttachmentsAdapter(private val attachments: List<RemoteFile>, private val onAttachmentClick: (RemoteFile) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-            val binding = ListItemAttachmentsBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            return AttachmentViewHolder(binding, onAttachmentClick)
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_attachments, parent, false)
+            return AttachmentViewHolder(view, onAttachmentClick)
         }
 
         override fun getItemCount(): Int {
@@ -148,16 +147,17 @@ class MessageDetailsDialogFragment : BaseDialogFragment() {
             (holder as AttachmentViewHolder).bind(attachments[position])
         }
 
-        inner class AttachmentViewHolder(private val binding: ListItemAttachmentsBinding, private val onAttachmentClick: (RemoteFile) -> Unit) : RecyclerView.ViewHolder(binding.root) {
+        inner class AttachmentViewHolder(itemView: View, private val onAttachmentClick: (RemoteFile) -> Unit) : RecyclerView.ViewHolder(itemView) {
+            private val nameTextView: TextView = itemView.findViewById(R.id.name)
+            
             init {
-                binding.root.setOnClickListener {
+                itemView.setOnClickListener {
                     onAttachmentClick(attachments[adapterPosition])
                 }
             }
 
             fun bind(remoteFile: RemoteFile) {
-                binding.remoteFile = remoteFile
-                binding.executePendingBindings()
+                nameTextView.text = remoteFile.getDisplayName() ?: ""
             }
         }
     }

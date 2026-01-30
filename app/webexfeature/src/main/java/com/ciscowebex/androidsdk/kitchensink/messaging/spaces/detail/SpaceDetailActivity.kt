@@ -18,7 +18,8 @@ import android.widget.RelativeLayout
 import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
-import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemSpaceMessageBinding
+import android.widget.ImageView
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.ciscowebex.androidsdk.kitchensink.messaging.composer.MessageComposerActivity
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.ReplyMessageModel
@@ -273,8 +274,8 @@ class MessageClientAdapter(private val messageActionBottomSheetFragment: Message
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageClientViewHolder {
-        return MessageClientViewHolder(ListItemSpaceMessageBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-                messageActionBottomSheetFragment, fragmentManager)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_space_message, parent, false)
+        return MessageClientViewHolder(view, messageActionBottomSheetFragment, fragmentManager)
     }
 
     override fun getItemCount(): Int = messages.size
@@ -285,12 +286,22 @@ class MessageClientAdapter(private val messageActionBottomSheetFragment: Message
 
 }
 
-class MessageClientViewHolder(private val binding: ListItemSpaceMessageBinding, private val messageActionBottomSheetFragment: MessageActionBottomSheetFragment, private val fragmentManager: FragmentManager) : RecyclerView.ViewHolder(binding.root) {
+class MessageClientViewHolder(
+    itemView: View,
+    private val messageActionBottomSheetFragment: MessageActionBottomSheetFragment,
+    private val fragmentManager: FragmentManager
+) : RecyclerView.ViewHolder(itemView) {
     var messageItem: SpaceMessageModel? = null
     val tag = "MessageClientViewHolder"
+    
+    private val membershipContainer: ConstraintLayout = itemView.findViewById(R.id.membershipContainer)
+    private val senderIdTextView: TextView = itemView.findViewById(R.id.senderIdTextView)
+    private val sentDateTextView: TextView = itemView.findViewById(R.id.sentDateTextView)
+    private val messageTextView: TextView = itemView.findViewById(R.id.messageTextView)
+    private val ivReply: ImageView = itemView.findViewById(R.id.iv_reply)
 
     init {
-        binding.membershipContainer.setOnClickListener {
+        membershipContainer.setOnClickListener {
             messageItem?.let { message ->
                 MessageDetailsDialogFragment.newInstance(message.messageId).show(fragmentManager, "MessageDetailsDialogFragment")
             }
@@ -298,9 +309,12 @@ class MessageClientViewHolder(private val binding: ListItemSpaceMessageBinding, 
     }
 
     fun bind(message: SpaceMessageModel) {
-        binding.message = message
         messageItem = message
-        binding.membershipContainer.setOnLongClickListener { view ->
+        senderIdTextView.text = message.personEmail ?: ""
+        sentDateTextView.text = message.created?.toString() ?: ""
+        ivReply.visibility = if (message.parentId != null) View.VISIBLE else View.GONE
+        
+        membershipContainer.setOnLongClickListener { view ->
             messageActionBottomSheetFragment.message = message
             messageActionBottomSheetFragment.show(fragmentManager, MessageActionBottomSheetFragment.TAG)
             true
@@ -308,19 +322,17 @@ class MessageClientViewHolder(private val binding: ListItemSpaceMessageBinding, 
 
         when {
             message.messageBody.getMarkdown() != null -> {
-                binding.messageTextView.text =  Html.fromHtml(message.messageBody.getMarkdown(), Html.FROM_HTML_MODE_LEGACY)
+                messageTextView.text = Html.fromHtml(message.messageBody.getMarkdown(), Html.FROM_HTML_MODE_LEGACY)
             }
             message.messageBody.getHtml() != null -> {
-                binding.messageTextView.text =  Html.fromHtml(message.messageBody.getHtml(), Html.FROM_HTML_MODE_LEGACY)
+                messageTextView.text = Html.fromHtml(message.messageBody.getHtml(), Html.FROM_HTML_MODE_LEGACY)
             }
             message.messageBody.getPlain() != null -> {
-                binding.messageTextView.text = message.messageBody.getPlain()
+                messageTextView.text = message.messageBody.getPlain()
             }
             else -> {
-                binding.messageTextView.text = ""
+                messageTextView.text = ""
             }
         }
-
-        binding.executePendingBindings()
     }
 }

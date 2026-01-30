@@ -7,12 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.RecyclerView
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexViewModel
 import com.ciscowebex.androidsdk.kitchensink.calling.CallActivity
-import com.ciscowebex.androidsdk.kitchensink.databinding.TranscriptTextItemBinding
 import com.ciscowebex.androidsdk.phone.WXA
 import com.ciscowebex.androidsdk.phone.transcription.Transcription
 
@@ -66,13 +66,8 @@ class TranscriptionsDialogFragment : DialogFragment(),
         var transcriptions = mutableListOf<Transcription>()
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TranscriptionViewHolder {
-            return TranscriptionViewHolder(
-                TranscriptTextItemBinding.inflate(
-                    LayoutInflater.from(
-                        parent.context
-                    ), parent, false
-                )
-            )
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.transcript_text_item, parent, false)
+            return TranscriptionViewHolder(view)
         }
 
         override fun onBindViewHolder(holder: TranscriptionViewHolder, position: Int) {
@@ -84,14 +79,15 @@ class TranscriptionsDialogFragment : DialogFragment(),
         }
     }
 
-    class TranscriptionViewHolder(val binding: TranscriptTextItemBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    class TranscriptionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val tvName: TextView = itemView.findViewById(R.id.tv_name)
+        private val arrivedAt: TextView = itemView.findViewById(R.id.arrivedAt)
+        private val tvText: TextView = itemView.findViewById(R.id.tv_text)
 
         fun bind(transcription: Transcription) {
-            binding.tvName.text = transcription.personName
-            binding.arrivedAt.text = transcription.timestamp
-            binding.tvText.text = transcription.content
-            binding.executePendingBindings()
+            tvName.text = transcription.personName
+            arrivedAt.text = transcription.timestamp
+            tvText.text = transcription.content
         }
     }
 

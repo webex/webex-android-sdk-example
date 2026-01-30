@@ -37,6 +37,6 @@ open class BaseActivity : AppCompatActivity() {
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(newBase)
         // Enable SplitCompat for dynamic feature module support in activities
-        SplitCompat.install(this)
+        SplitCompat.installActivity(this)
     }
 }

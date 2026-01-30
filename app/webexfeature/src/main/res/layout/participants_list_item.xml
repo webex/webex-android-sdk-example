@@ -1,109 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:padding="15dp">
 
-    <RelativeLayout
+    <ImageView
+        android:id="@+id/imgMute"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/ic_mic_off_24"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        tools:ignore="ContentDescription" />
+
+    <LinearLayout
+        android:id="@+id/nameLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
-        android:focusable="true"
-        android:foreground="?attr/selectableItemBackground"
-        android:padding="15dp">
+        android:layout_marginEnd="10dp"
+        android:orientation="vertical"
+        android:layout_toStartOf="@+id/imgMute">
 
-        <ImageView
-            android:id="@+id/imgMute"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:src="@drawable/ic_mic_off_24"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            tools:ignore="ContentDescription" />
-
-        <LinearLayout
-            android:id="@+id/nameLayout"
+        <TextView
+            android:id="@+id/tv_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:orientation="vertical"
-            android:layout_toStartOf="@+id/imgMute">
+            android:clickable="false"
+            android:gravity="center_vertical"
+            tools:text="Name"
+            android:textSize="16sp"
+            android:maxLines="1"/>
 
-            <TextView
-                android:id="@+id/tv_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="false"
-                android:gravity="center_vertical"
-                tools:text="Name"
-                android:textSize="16sp"
-                android:maxLines="1"/>
+        <TextView
+            android:id="@+id/infoLabelView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:gravity="center_vertical"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            android:text="@string/mute_all_self"
+            android:visibility="gone"
+            android:maxLines="1" />
 
-            <TextView
-                android:id="@+id/infoLabelView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="false"
-                android:gravity="center_vertical"
-                android:textSize="12sp"
-                android:textStyle="italic"
-                android:text="@string/mute_all_self"
-                android:visibility="gone"
-                android:maxLines="1" />
+        <TextView
+            android:id="@+id/infoDeviceType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:gravity="center_vertical"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            android:maxLines="1" />
 
-            <TextView
-                android:id="@+id/infoDeviceType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="false"
-                android:gravity="center_vertical"
-                android:textSize="12sp"
-                android:textStyle="italic"
-                android:maxLines="1" />
+        <TextView
+            android:id="@+id/presenter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:gravity="center_vertical"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            android:text="@string/presenter"
+            android:maxLines="1" />
 
-            <TextView
-                android:id="@+id/presenter"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="false"
-                android:gravity="center_vertical"
-                android:textSize="12sp"
-                android:textStyle="italic"
-                android:text="@string/presenter"
-                android:maxLines="1" />
+        <TextView
+            android:id="@+id/host"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:gravity="center_vertical"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            android:text="@string/host"
+            android:maxLines="1" />
 
-            <TextView
-                android:id="@+id/host"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="false"
-                android:gravity="center_vertical"
-                android:textSize="12sp"
-                android:textStyle="italic"
-                android:text="@string/host"
-                android:maxLines="1" />
+        <TextView
+            android:id="@+id/cohost"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:gravity="center_vertical"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            android:text="@string/cohost"
+            android:maxLines="1" />
 
-            <TextView
-                android:id="@+id/cohost"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="false"
-                android:gravity="center_vertical"
-                android:textSize="12sp"
-                android:textStyle="italic"
-                android:text="@string/cohost"
-                android:maxLines="1" />
+        <Button
+            android:id="@+id/makeHost"
+            android:layout_width="@dimen/icon_join_button_width"
+            android:layout_height="@dimen/icon_join_button_height"
+            android:backgroundTint="@color/green"
+            android:text="@string/makeHost"
+            android:textSize="10sp" />
 
-            <Button
-                android:id="@+id/makeHost"
-                android:layout_width="@dimen/icon_join_button_width"
-                android:layout_height="@dimen/icon_join_button_height"
-                android:backgroundTint="@color/green"
-                android:text="@string/makeHost"
-                android:textSize="10sp" />
-
-        </LinearLayout>
+    </LinearLayout>
 
 
-    </RelativeLayout>
-</layout>
+</RelativeLayout>

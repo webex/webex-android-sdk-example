@@ -12,8 +12,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.ciscowebex.androidsdk.kitchensink.R
-import com.ciscowebex.androidsdk.kitchensink.databinding.DialogCreateSpaceBinding
-import com.ciscowebex.androidsdk.kitchensink.databinding.DialogEnterTeamidBinding
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.ciscowebex.androidsdk.kitchensink.messaging.search.MessagingSearchActivity
@@ -402,20 +400,21 @@ class SpacesFragment : Fragment() {
 
         builder.setTitle(R.string.add_space)
 
-        DialogCreateSpaceBinding.inflate(layoutInflater)
-                .apply {
-                    spaceTeamIdText.visibility = View.GONE
-                    spaceTeamIdLabel.visibility = View.GONE
+        val dialogView = layoutInflater.inflate(R.layout.dialog_create_space, null)
+        val spaceTitleEditText: EditText = dialogView.findViewById(R.id.spaceTitleEditText)
+        val spaceTeamIdText: EditText = dialogView.findViewById(R.id.spaceTeamIdText)
+        val spaceTeamIdLabel: TextView = dialogView.findViewById(R.id.spaceTeamIdLabel)
+        
+        spaceTeamIdText.visibility = View.GONE
+        spaceTeamIdLabel.visibility = View.GONE
 
+        builder.setView(dialogView)
+        builder.setPositiveButton(android.R.string.ok) { _, _ ->
+            spacesViewModel.addSpace(spaceTitleEditText.text.toString(), null)
+        }
+        builder.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
 
-                    builder.setView(this.root)
-                    builder.setPositiveButton(android.R.string.ok) { _, _ ->
-                        spacesViewModel.addSpace(spaceTitleEditText.text.toString(), null)
-                    }
-                    builder.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
-
-                    builder.show()
-                }
+        builder.show()
     }
 
     private fun showTeamIdInputDialog() {
@@ -423,16 +422,16 @@ class SpacesFragment : Fragment() {
 
         builder.setTitle(R.string.space_filter)
 
-        DialogEnterTeamidBinding.inflate(layoutInflater)
-                .apply {
-                    builder.setView(this.root)
-                    builder.setPositiveButton(android.R.string.ok) { _, _ ->
-                        spacesViewModel.getSpacesList(maxSpaces, SpaceClient.SortBy.NONE, teamIdEditText.text.toString())
-                    }
-                    builder.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
+        val dialogView = layoutInflater.inflate(R.layout.dialog_enter_teamid, null)
+        val teamIdEditText: EditText = dialogView.findViewById(R.id.teamIdEditText)
+        
+        builder.setView(dialogView)
+        builder.setPositiveButton(android.R.string.ok) { _, _ ->
+            spacesViewModel.getSpacesList(maxSpaces, SpaceClient.SortBy.NONE, teamIdEditText.text.toString())
+        }
+        builder.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
 
-                    builder.show()
-                }
+        builder.show()
     }
 
     private fun showDeleteSpaceConfirmationDialog(spaceId: String, spaceTitle: String) {

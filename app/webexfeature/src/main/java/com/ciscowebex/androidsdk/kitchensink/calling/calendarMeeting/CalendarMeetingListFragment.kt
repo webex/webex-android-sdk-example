@@ -19,7 +19,7 @@ import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.calling.CallActivity
 import com.ciscowebex.androidsdk.kitchensink.calling.calendarMeeting.details.CalendarMeetingDetailsActivity
-import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemCalendarMeetingsBinding
+import android.widget.Button
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import android.widget.TextView
 import org.koin.android.ext.android.inject
@@ -248,14 +248,11 @@ class CalendarMeetingListFragment : Fragment() {
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MeetingListViewHolder {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_calendar_meetings, parent, false)
             return MeetingListViewHolder(
                 meetingJoinOptionsDialogFragment,
                 supportFragmentManager,
-                ListItemCalendarMeetingsBinding.inflate(
-                    LayoutInflater.from(
-                        parent.context
-                    ), parent, false
-                ),
+                view,
                 onListItemClicked
             )
         }
@@ -270,34 +267,40 @@ class CalendarMeetingListFragment : Fragment() {
     class MeetingListViewHolder(
         private val meetingJoinOptionsDialogFragment: CalendarMeetingJoinActionBottomSheet,
         private val supportFragmentManager: FragmentManager,
-        private val binding: ListItemCalendarMeetingsBinding,
+        itemView: View,
         private val onListItemClicked : (listItemPosition: Int) -> Unit,
-    ) : RecyclerView.ViewHolder(binding.root) {
+    ) : RecyclerView.ViewHolder(itemView) {
+        
+        private val tvMeetingTitle: TextView = itemView.findViewById(R.id.tv_meeting_title)
+        private val btnJoinMeeting: Button = itemView.findViewById(R.id.btn_join_meeting)
+        private val btnMoveMeeting: Button = itemView.findViewById(R.id.btn_move_meeting)
+        private val tvTime: TextView = itemView.findViewById(R.id.tv_time)
 
         init {
-            binding.root.setOnClickListener {
+            itemView.setOnClickListener {
                 onListItemClicked(adapterPosition)
             }
         }
 
         fun bind(meetingModel: CalendarMeetingModel, meetingsViewModel: CalendarMeetingsViewModel) {
-            binding.meeting = meetingModel.calendarMeeting
+            // Set the meeting title
+            tvMeetingTitle.text = meetingModel.calendarMeeting.subject ?: ""
+            
             val currentTime = Date().time
             val showJoinButton = ((meetingModel.calendarMeeting.startTime?.time ?: 0L) <= currentTime && (meetingModel.calendarMeeting.endTime?.time ?: 0L) >= currentTime) || meetingModel.calendarMeeting.canJoin
             val isMoveMeetingPossible = meetingModel.calendarMeeting.isOngoingMeeting && meetingsViewModel.isMoveMeetingSupported(meetingModel.calendarMeeting.id ?: "")
-            binding.btnJoinMeeting.visibility = if (showJoinButton) View.VISIBLE else View.GONE
-            binding.btnMoveMeeting.visibility = if (isMoveMeetingPossible) View.VISIBLE else View.GONE
-            binding.tvTime.text = meetingModel.date
-            binding.btnJoinMeeting.setOnClickListener {
+            btnJoinMeeting.visibility = if (showJoinButton) View.VISIBLE else View.GONE
+            btnMoveMeeting.visibility = if (isMoveMeetingPossible) View.VISIBLE else View.GONE
+            tvTime.text = meetingModel.date
+            btnJoinMeeting.setOnClickListener {
                 meetingJoinOptionsDialogFragment.meeting = meetingModel.calendarMeeting
                 meetingJoinOptionsDialogFragment.show(supportFragmentManager, "Calendar meeting join options")
             }
-            binding.btnMoveMeeting.setOnClickListener {
+            btnMoveMeeting.setOnClickListener {
                 meetingJoinOptionsDialogFragment.meeting = meetingModel.calendarMeeting
                 meetingJoinOptionsDialogFragment.moveMeeting = true
                 meetingJoinOptionsDialogFragment.show(supportFragmentManager, "Calendar meeting join options")
             }
-            binding.executePendingBindings()
         }
     }
 }

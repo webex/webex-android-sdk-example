@@ -15,8 +15,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
-import com.ciscowebex.androidsdk.kitchensink.databinding.DialogMembershipDetailsBinding
-import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemMembershipClientBinding
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.ciscowebex.androidsdk.kitchensink.person.PersonDialogFragment
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.kitchensink.utils.getCurrentDate
@@ -195,17 +194,25 @@ class MembershipFragment : Fragment() {
 
         builder.setTitle(R.string.members_details)
 
-        DialogMembershipDetailsBinding.inflate(layoutInflater)
-                .apply {
-                    membership = membershipModel
+        val dialogView = layoutInflater.inflate(R.layout.dialog_membership_details, null)
+        
+        // Populate dialog fields
+        dialogView.findViewById<TextView>(R.id.membershipIdTextView).text = membershipModel.membershipId ?: ""
+        dialogView.findViewById<TextView>(R.id.membershipSpaceIdTextView).text = membershipModel.spaceId ?: ""
+        dialogView.findViewById<TextView>(R.id.membershipPersonIdTextView).text = membershipModel.personId ?: ""
+        dialogView.findViewById<TextView>(R.id.membershipPersonEmailTextView).text = membershipModel.personEmail ?: ""
+        dialogView.findViewById<TextView>(R.id.membershipPersonDisplayNameTextView).text = membershipModel.personDisplayName ?: ""
+        dialogView.findViewById<TextView>(R.id.membershipIsModeratorTextView).text = membershipModel.isModerator.toString()
+        dialogView.findViewById<TextView>(R.id.membershipIsMonitorTextView).text = membershipModel.isMonitor.toString()
+        dialogView.findViewById<TextView>(R.id.membershipPersonOrgIdTextView).text = membershipModel.personOrgId ?: ""
+        dialogView.findViewById<TextView>(R.id.membershipDateCreatedTextView).text = membershipModel.created?.toString() ?: ""
 
-                    builder.setView(this.root)
-                    builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
-                        dialog.dismiss()
-                    }
+        builder.setView(dialogView)
+        builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
+            dialog.dismiss()
+        }
 
-                    builder.show()
-                }
+        builder.show()
     }
 
     private fun showErrorDialog(errorMessage: String) {
@@ -239,7 +246,8 @@ class MembershipClientAdapter(private val spaceMembershipActionBottomSheetFragme
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MembershipClientViewHolder {
-        return MembershipClientViewHolder(ListItemMembershipClientBinding.inflate(LayoutInflater.from(parent.context), parent, false), spaceMembershipActionBottomSheetFragment, spaceId)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_membership_client, parent, false)
+        return MembershipClientViewHolder(view, spaceMembershipActionBottomSheetFragment, spaceId)
     }
 
     override fun getItemCount(): Int = memberships.size
@@ -249,12 +257,31 @@ class MembershipClientAdapter(private val spaceMembershipActionBottomSheetFragme
     }
 }
 
-class MembershipClientViewHolder(private val binding: ListItemMembershipClientBinding, private val spaceMembershipActionBottomSheetFragment: SpaceMembershipActionBottomSheetFragment, private val spaceId: String?) : RecyclerView.ViewHolder(binding.root) {
+class MembershipClientViewHolder(
+    itemView: View,
+    private val spaceMembershipActionBottomSheetFragment: SpaceMembershipActionBottomSheetFragment,
+    private val spaceId: String?
+) : RecyclerView.ViewHolder(itemView) {
+    
+    private val membershipContainer: ConstraintLayout = itemView.findViewById(R.id.membershipContainer)
+    private val membershipPersonIdTextView: TextView = itemView.findViewById(R.id.membershipPersonIdTextView)
+    private val membershipPersonDisplayNameTextView: TextView = itemView.findViewById(R.id.membershipPersonDisplayNameTextView)
+    private val membershipPersonEmailTextView: TextView = itemView.findViewById(R.id.membershipPersonEmailTextView)
+    private val membershipPersonPresenceStatusTextView: TextView = itemView.findViewById(R.id.membershipPersonPresenceStatusTextView)
+    private val membershipIsModeratorTextView: TextView = itemView.findViewById(R.id.membershipIsModeratorTextView)
+    private val membershipCreatedDateTextView: TextView = itemView.findViewById(R.id.membershipCreatedDateTextView)
+    
     fun bind(membership: MembershipModel) {
-        binding.membership = membership
+        membershipPersonIdTextView.text = membership.personId ?: ""
+        membershipPersonDisplayNameTextView.text = membership.personDisplayName ?: ""
+        membershipPersonEmailTextView.text = membership.personEmail ?: ""
+        membershipPersonPresenceStatusTextView.text = membership.presenceStatusText ?: ""
+        membershipPersonPresenceStatusTextView.setCompoundDrawablesWithIntrinsicBounds(membership.presenceStatusDrawable, null, null, null)
+        membershipIsModeratorTextView.text = membership.isModerator.toString()
+        membershipCreatedDateTextView.text = membership.created?.toString() ?: ""
 
         if (!spaceId.isNullOrEmpty()) {
-            binding.membershipContainer.setOnLongClickListener { view ->
+            membershipContainer.setOnLongClickListener { view ->
                 spaceMembershipActionBottomSheetFragment.membershipId = membership.membershipId
                 spaceMembershipActionBottomSheetFragment.personId = membership.personId
                 spaceMembershipActionBottomSheetFragment.position = adapterPosition
@@ -265,7 +292,5 @@ class MembershipClientViewHolder(private val binding: ListItemMembershipClientBi
                 true
             }
         }
-
-        binding.executePendingBindings()
     }
 }

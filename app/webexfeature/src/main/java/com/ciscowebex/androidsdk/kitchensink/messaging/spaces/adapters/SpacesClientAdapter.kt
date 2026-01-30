@@ -3,10 +3,12 @@ package com.ciscowebex.androidsdk.kitchensink.messaging.spaces.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
-import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemSpacesClientBinding
+import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpaceActionBottomSheetFragment
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.SpaceModel
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.detail.SpaceDetailActivity
@@ -16,8 +18,8 @@ class SpacesClientAdapter(private val optionsDialogFragment: SpaceActionBottomSh
     var spaces: MutableList<SpaceModel> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SpacesClientViewHolder {
-        return SpacesClientViewHolder(ListItemSpacesClientBinding.inflate(LayoutInflater.from(parent.context), parent, false),
-                optionsDialogFragment, supportFragmentManager)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_spaces_client, parent, false)
+        return SpacesClientViewHolder(view, optionsDialogFragment, supportFragmentManager)
     }
 
     override fun getItemCount(): Int = spaces.size
@@ -32,25 +34,30 @@ class SpacesClientAdapter(private val optionsDialogFragment: SpaceActionBottomSh
 
 }
 
-class SpacesClientViewHolder(private val binding: ListItemSpacesClientBinding,
-                             private val optionsDialogFragment: SpaceActionBottomSheetFragment,
-                             private val supportFragmentManager: FragmentManager) : RecyclerView.ViewHolder(binding.root) {
+class SpacesClientViewHolder(
+    itemView: View,
+    private val optionsDialogFragment: SpaceActionBottomSheetFragment,
+    private val supportFragmentManager: FragmentManager
+) : RecyclerView.ViewHolder(itemView) {
+    
+    private val spaceTitleLabel: TextView = itemView.findViewById(R.id.spaceTitleLabel)
+    private val spaceTitleTextView: TextView = itemView.findViewById(R.id.spaceTitleTextView)
 
     fun bind(space: SpaceModel) {
-        binding.space = space
-        binding.spaceTitleLabel.setOnClickListener { view ->
+        spaceTitleTextView.text = space.title ?: ""
+        
+        spaceTitleLabel.setOnClickListener { view ->
             startSpaceDetailActivity(view, space)
         }
-        binding.spaceTitleTextView.setOnClickListener { view ->
+        spaceTitleTextView.setOnClickListener { view ->
             startSpaceDetailActivity(view, space)
         }
-        binding.spaceTitleLabel.setOnLongClickListener { view ->
+        spaceTitleLabel.setOnLongClickListener { view ->
             showSpaceOptions(space, view)
         }
-        binding.spaceTitleTextView.setOnLongClickListener { view ->
+        spaceTitleTextView.setOnLongClickListener { view ->
             showSpaceOptions(space, view)
         }
-        binding.executePendingBindings()
     }
 
     private fun showSpaceOptions(space: SpaceModel, view: View): Boolean {

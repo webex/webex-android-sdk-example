@@ -1,148 +1,145 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <RelativeLayout
+        android:id="@+id/propertyRelLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/lightGray"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="10dp">
 
         <RelativeLayout
-            android:id="@+id/propertyRelLayout"
+            android:id="@+id/numStreamsLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/lightGray"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="10dp">
-
-            <RelativeLayout
-                android:id="@+id/numStreamsLayout"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:visibility="gone">
+            <TextView
+                android:id="@+id/numStreamsTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:visibility="gone">
-                <TextView
-                    android:id="@+id/numStreamsTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingVertical="@dimen/size_8dp"
-                    android:text="@string/media_stream_num_streams"
-                    android:textColor="@color/black"/>
+                android:paddingVertical="@dimen/size_8dp"
+                android:text="@string/media_stream_num_streams"
+                android:textColor="@color/black"/>
 
-                <EditText
-                    android:id="@+id/numStreamsEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="0dp"
-                    android:ems="10"
-                    android:inputType="numberSigned"
-                    android:layout_below="@+id/numStreamsTextView"/>
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/duplicateValueLayout"
+            <EditText
+                android:id="@+id/numStreamsEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/numStreamsLayout"
-                android:layout_marginTop="10dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:visibility="gone" >
+                android:layout_marginTop="0dp"
+                android:ems="10"
+                android:inputType="numberSigned"
+                android:layout_below="@+id/numStreamsTextView"/>
+        </RelativeLayout>
 
-                <TextView
-                    android:id="@+id/duplicateValueToggleText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:text="@string/media_stream_duplicate" />
+        <RelativeLayout
+            android:id="@+id/duplicateValueLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/numStreamsLayout"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:visibility="gone" >
 
-                <ToggleButton
-                    android:id="@+id/duplicateValueToggle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:checked="true" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/qualityLayout"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/duplicateValueToggleText"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_below="@+id/duplicateValueLayout">
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:text="@string/media_stream_duplicate" />
 
-                <TextView
-                    android:id="@+id/qualityLogLevel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/media_stream_quality"/>
-
-                <Spinner
-                    android:id="@+id/qualitySpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/qualityLogLevel"
-                    android:layout_marginTop="10dp"
-                    android:entries="@array/qualityArray"/>
-
-            </RelativeLayout>
-
+            <ToggleButton
+                android:id="@+id/duplicateValueToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:checked="true" />
 
         </RelativeLayout>
 
-        <View
-            android:id="@+id/propertyRelLayoutSeparator"
+        <RelativeLayout
+            android:id="@+id/qualityLayout"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            android:layout_below="@id/propertyRelLayout" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_below="@+id/duplicateValueLayout">
 
-        <LinearLayout
+            <TextView
+                android:id="@+id/qualityLogLevel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/media_stream_quality"/>
+
+            <Spinner
+                android:id="@+id/qualitySpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/qualityLogLevel"
+                android:layout_marginTop="10dp"
+                android:entries="@array/qualityArray"/>
+
+        </RelativeLayout>
+
+
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/propertyRelLayoutSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@id/propertyRelLayout" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/propertyRelLayoutSeparator">
+
+        <TextView
+            android:id="@+id/ok"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:orientation="horizontal"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@id/propertyRelLayoutSeparator">
+            android:background="@color/red"
+            android:paddingVertical="@dimen/size_8dp"
+            android:text="@android:string/ok"
+            android:textAlignment="center"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:textColor="@color/white" />
 
-            <TextView
-                android:id="@+id/ok"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/red"
-                android:paddingVertical="@dimen/size_8dp"
-                android:text="@android:string/ok"
-                android:textAlignment="center"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:textColor="@color/white" />
+        <TextView
+            android:id="@+id/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/red"
+            android:paddingVertical="@dimen/size_8dp"
+            android:text="@android:string/cancel"
+            android:textAlignment="center"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@+id/ok"
+            android:textColor="@color/white" />
 
-            <TextView
-                android:id="@+id/cancel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/red"
-                android:paddingVertical="@dimen/size_8dp"
-                android:text="@android:string/cancel"
-                android:textAlignment="center"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:layout_marginLeft="20dp"
-                android:layout_toRightOf="@+id/ok"
-                android:textColor="@color/white" />
-
-        </LinearLayout>
-    </RelativeLayout>
-</layout>
+    </LinearLayout>
+</RelativeLayout>

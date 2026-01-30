@@ -14,7 +14,6 @@ import com.ciscowebex.androidsdk.calendarMeeting.CalendarMeeting
 import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.calling.calendarMeeting.CalendarMeetingModel
-import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemMeetingInviteeBinding
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import org.koin.android.ext.android.inject
 
@@ -84,13 +83,8 @@ class CalendarMeetingDetailsActivity : BaseActivity() {
         var invitees = mutableListOf<CalendarMeeting.Invitee>()
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InviteesViewHolder {
-            return InviteesViewHolder(
-                ListItemMeetingInviteeBinding.inflate(
-                    LayoutInflater.from(
-                        parent.context
-                    ), parent, false
-                )
-            )
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_meeting_invitee, parent, false)
+            return InviteesViewHolder(view)
         }
 
         override fun onBindViewHolder(holder: InviteesViewHolder, position: Int) {
@@ -103,12 +97,13 @@ class CalendarMeetingDetailsActivity : BaseActivity() {
 
     }
 
-    class InviteesViewHolder(val binding: ListItemMeetingInviteeBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    class InviteesViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val tvInviteeName: TextView = itemView.findViewById(R.id.tvInviteeName)
+        private val tvResponse: TextView = itemView.findViewById(R.id.tvResponse)
 
         fun bind(invitee: CalendarMeeting.Invitee) {
-            binding.invitee = invitee
-            binding.executePendingBindings()
+            tvInviteeName.text = invitee.displayName ?: ""
+            tvResponse.text = invitee.response?.name ?: ""
         }
 
     }

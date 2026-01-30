@@ -17,8 +17,9 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.ciscowebex.androidsdk.kitchensink.R
-import com.ciscowebex.androidsdk.kitchensink.databinding.DialogCreatePersonBinding
-import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemPersonBinding
+import android.widget.EditText
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.ciscowebex.androidsdk.kitchensink.messaging.composer.MessageComposerActivity
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipViewModel
@@ -180,48 +181,62 @@ class PeopleFragment : Fragment() {
         }
     }
 
+    // Helper class to hold dialog views
+    private class PersonDialogViewHolder(val root: View) {
+        val emailEditText: EditText = root.findViewById(R.id.emailEditText)
+        val displayNameEditText: EditText = root.findViewById(R.id.displayNameEditText)
+        val firstNameEditText: EditText = root.findViewById(R.id.firstNameEditText)
+        val lastNameEditText: EditText = root.findViewById(R.id.lastNameEditText)
+        val avatarEditText: EditText = root.findViewById(R.id.avatarEditText)
+        val orgIdEditText: EditText = root.findViewById(R.id.orgIdEditText)
+        val rolesEditText: EditText = root.findViewById(R.id.rolesEditText)
+        val licensesEditText: EditText = root.findViewById(R.id.licensesEditText)
+        val siteUrlsEditText: EditText = root.findViewById(R.id.siteUrlsEditText)
+    }
+
     private fun createPersonDialog() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(requireContext())
 
-        DialogCreatePersonBinding.inflate(layoutInflater)
-            .apply {
-                builder.setView(this.root)
-                builder.setTitle(getString(R.string.create_person))
-                builder.setPositiveButton(getString(R.string.create)) { dialog, _ ->
-                    createOrUpdatePerson(TaskType.CREATE, this, null, null)
-                    dialog.dismiss()
-                }
-                builder.show()
-            }
+        val dialogView = layoutInflater.inflate(R.layout.dialog_create_person, null)
+        val viewHolder = PersonDialogViewHolder(dialogView)
+        
+        builder.setView(dialogView)
+        builder.setTitle(getString(R.string.create_person))
+        builder.setPositiveButton(getString(R.string.create)) { dialog, _ ->
+            createOrUpdatePerson(TaskType.CREATE, viewHolder, null, null)
+            dialog.dismiss()
+        }
+        builder.show()
     }
 
     private fun updatePersonDialog(personId: String, model: PersonModel) {
         val builder: AlertDialog.Builder = AlertDialog.Builder(requireContext())
-        DialogCreatePersonBinding.inflate(layoutInflater)
-            .apply {
-                builder.setView(this.root)
-                builder.setTitle(getString(R.string.update_person))
-                licensesEditText.inputType = InputType.TYPE_NULL
-                orgIdEditText.inputType = InputType.TYPE_NULL
+        
+        val dialogView = layoutInflater.inflate(R.layout.dialog_create_person, null)
+        val viewHolder = PersonDialogViewHolder(dialogView)
+        
+        builder.setView(dialogView)
+        builder.setTitle(getString(R.string.update_person))
+        viewHolder.licensesEditText.inputType = InputType.TYPE_NULL
+        viewHolder.orgIdEditText.inputType = InputType.TYPE_NULL
 
-                model.let { person ->
-                    emailEditText.text = Editable.Factory.getInstance().newEditable(person.emails[0])
-                    displayNameEditText.text = Editable.Factory.getInstance().newEditable(person.displayName)
-                    firstNameEditText.text = Editable.Factory.getInstance().newEditable(person.firstName)
-                    lastNameEditText.text = Editable.Factory.getInstance().newEditable(person.lastName)
-                    avatarEditText.text = Editable.Factory.getInstance().newEditable(person.avatar)
-                    orgIdEditText.text = Editable.Factory.getInstance().newEditable(person.orgId)
-                    rolesEditText.text = Editable.Factory.getInstance().newEditable(formatListToString(person.roles.map { it.name }))
-                    licensesEditText.text = Editable.Factory.getInstance().newEditable(formatListToString(person.licenses))
-                    siteUrlsEditText.text = Editable.Factory.getInstance().newEditable(formatListToString(person.siteUrls))
-                }
+        model.let { person ->
+            viewHolder.emailEditText.text = Editable.Factory.getInstance().newEditable(person.emails[0])
+            viewHolder.displayNameEditText.text = Editable.Factory.getInstance().newEditable(person.displayName)
+            viewHolder.firstNameEditText.text = Editable.Factory.getInstance().newEditable(person.firstName)
+            viewHolder.lastNameEditText.text = Editable.Factory.getInstance().newEditable(person.lastName)
+            viewHolder.avatarEditText.text = Editable.Factory.getInstance().newEditable(person.avatar)
+            viewHolder.orgIdEditText.text = Editable.Factory.getInstance().newEditable(person.orgId)
+            viewHolder.rolesEditText.text = Editable.Factory.getInstance().newEditable(formatListToString(person.roles.map { it.name }))
+            viewHolder.licensesEditText.text = Editable.Factory.getInstance().newEditable(formatListToString(person.licenses))
+            viewHolder.siteUrlsEditText.text = Editable.Factory.getInstance().newEditable(formatListToString(person.siteUrls))
+        }
 
-                builder.setPositiveButton(getString(R.string.update)) { dialog, _ ->
-                    createOrUpdatePerson(TaskType.UPDATE, this, personId, model)
-                    dialog.dismiss()
-                }
-                builder.show()
-            }
+        builder.setPositiveButton(getString(R.string.update)) { dialog, _ ->
+            createOrUpdatePerson(TaskType.UPDATE, viewHolder, personId, model)
+            dialog.dismiss()
+        }
+        builder.show()
     }
 
     private fun formatListToString(list: List<String>): String {
@@ -237,41 +252,37 @@ class PeopleFragment : Fragment() {
         UPDATE
     }
 
-    private fun createOrUpdatePerson(taskType: TaskType, viewBinding: DialogCreatePersonBinding, personId: String?, model: PersonModel?) {
-        if (viewBinding is DialogCreatePersonBinding) {
-            viewBinding.apply {
-                val email = emailEditText.text.toString()
-                val displayName = displayNameEditText.text.toString()
-                val firstName = firstNameEditText.text.toString()
-                val lastName = lastNameEditText.text.toString()
-                val avatar = avatarEditText.text.toString()
-                val avatarStr = avatar.ifEmpty { null }
-                val role = rolesEditText.text.toString()
-                val roles = role.split(commaDelimiter)
-                val finalRoles = mutableListOf<PersonRole>()
-                for (i in roles.indices) {
-                    PersonRole.values().forEach {
-                        if (it.toString().lowercase() == roles[i].lowercase()) {
-                            finalRoles.add(it)
-                        }
-                    }
-                }
-
-                val licensesText = licensesEditText.text.toString()
-
-                val siteUrl = siteUrlsEditText.text.toString()
-                val siteUrls = if (siteUrl.isNotEmpty()) siteUrl.split(commaDelimiter) else emptyList()
-                if (taskType == TaskType.CREATE) {
-                    val licenses = if (licensesText.isEmpty()) emptyList() else licensesText.split(commaDelimiter)
-                    val orgId = orgIdEditText.text.toString()
-
-                    personViewModel.createPerson(email, displayName, firstName, lastName, avatarStr, orgId, finalRoles, licenses, siteUrls)
-                } else {
-                    val licenses = model?.licenses ?: emptyList()
-                    val orgId = model?.orgId.orEmpty()
-                    personViewModel.updatePerson(personId.orEmpty(), email, displayName, firstName, lastName, avatarStr, orgId, finalRoles, licenses, siteUrls)
+    private fun createOrUpdatePerson(taskType: TaskType, viewHolder: PersonDialogViewHolder, personId: String?, model: PersonModel?) {
+        val email = viewHolder.emailEditText.text.toString()
+        val displayName = viewHolder.displayNameEditText.text.toString()
+        val firstName = viewHolder.firstNameEditText.text.toString()
+        val lastName = viewHolder.lastNameEditText.text.toString()
+        val avatar = viewHolder.avatarEditText.text.toString()
+        val avatarStr = avatar.ifEmpty { null }
+        val role = viewHolder.rolesEditText.text.toString()
+        val roles = role.split(commaDelimiter)
+        val finalRoles = mutableListOf<PersonRole>()
+        for (i in roles.indices) {
+            PersonRole.values().forEach {
+                if (it.toString().lowercase() == roles[i].lowercase()) {
+                    finalRoles.add(it)
                 }
             }
+        }
+
+        val licensesText = viewHolder.licensesEditText.text.toString()
+
+        val siteUrl = viewHolder.siteUrlsEditText.text.toString()
+        val siteUrls = if (siteUrl.isNotEmpty()) siteUrl.split(commaDelimiter) else emptyList()
+        if (taskType == TaskType.CREATE) {
+            val licenses = if (licensesText.isEmpty()) emptyList() else licensesText.split(commaDelimiter)
+            val orgId = viewHolder.orgIdEditText.text.toString()
+
+            personViewModel.createPerson(email, displayName, firstName, lastName, avatarStr, orgId, finalRoles, licenses, siteUrls)
+        } else {
+            val licenses = model?.licenses ?: emptyList()
+            val orgId = model?.orgId.orEmpty()
+            personViewModel.updatePerson(personId.orEmpty(), email, displayName, firstName, lastName, avatarStr, orgId, finalRoles, licenses, siteUrls)
         }
     }
 
@@ -292,7 +303,8 @@ class PeopleClientAdapter(private val optionsDialogFragment: PeopleActionBottomS
     var persons: MutableList<PersonModel> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PeopleClientViewHolder {
-        return PeopleClientViewHolder(ListItemPersonBinding.inflate(LayoutInflater.from(parent.context), parent, false), optionsDialogFragment, fragmentManager)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_person, parent, false)
+        return PeopleClientViewHolder(view, optionsDialogFragment, fragmentManager)
     }
 
     override fun getItemCount(): Int = persons.size
@@ -306,12 +318,26 @@ class PeopleClientAdapter(private val optionsDialogFragment: PeopleActionBottomS
     }
 }
 
-class PeopleClientViewHolder(private val binding: ListItemPersonBinding, private val optionsDialogFragment: PeopleActionBottomSheetFragment, private val fragmentManager: FragmentManager) :
-    RecyclerView.ViewHolder(binding.root) {
+class PeopleClientViewHolder(
+    itemView: View,
+    private val optionsDialogFragment: PeopleActionBottomSheetFragment,
+    private val fragmentManager: FragmentManager
+) : RecyclerView.ViewHolder(itemView) {
+    
+    private val personClientLayout: ConstraintLayout = itemView.findViewById(R.id.personClientLayout)
+    private val personIdTextView: TextView = itemView.findViewById(R.id.personIdTextView)
+    private val displayNameTextView: TextView = itemView.findViewById(R.id.displayNameTextView)
+    private val emailTextView: TextView = itemView.findViewById(R.id.emailTextView)
+    private val presenceStatusTextView: TextView = itemView.findViewById(R.id.presenceStatusTextView)
+    
     fun bind(person: PersonModel) {
-        binding.person = person
+        personIdTextView.text = person.personId ?: ""
+        displayNameTextView.text = person.displayName ?: ""
+        emailTextView.text = if (person.emails.isNotEmpty()) person.emails[0] else ""
+        presenceStatusTextView.text = person.presenceStatusText ?: ""
+        presenceStatusTextView.setCompoundDrawablesWithIntrinsicBounds(person.presenceStatusDrawable, null, null, null)
 
-        binding.personClientLayout.setOnLongClickListener { view ->
+        personClientLayout.setOnLongClickListener { view ->
             optionsDialogFragment.personId = person.personId
             if (person.emails.isEmpty()) {
                 optionsDialogFragment.email = EmailAddress.fromString("")
@@ -324,7 +350,5 @@ class PeopleClientViewHolder(private val binding: ListItemPersonBinding, private
 
             true
         }
-
-        binding.executePendingBindings()
     }
 }

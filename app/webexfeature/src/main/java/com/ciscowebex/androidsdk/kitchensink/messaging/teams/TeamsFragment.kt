@@ -18,8 +18,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.ciscowebex.androidsdk.kitchensink.R
-import com.ciscowebex.androidsdk.kitchensink.databinding.DialogCreateSpaceBinding
-import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemTeamsClientBinding
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.ciscowebex.androidsdk.kitchensink.messaging.search.MessagingSearchActivity
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.AddPersonBottomSheetFragment
@@ -151,20 +150,20 @@ class TeamsFragment : Fragment() {
 
         builder.setTitle(R.string.add_space)
 
-        DialogCreateSpaceBinding.inflate(layoutInflater)
-                .apply {
-                    spaceTeamIdText.text = teamId
+        val dialogView = layoutInflater.inflate(R.layout.dialog_create_space, null)
+        val spaceTitleEditText: EditText = dialogView.findViewById(R.id.spaceTitleEditText)
+        val spaceTeamIdText: EditText = dialogView.findViewById(R.id.spaceTeamIdText)
+        
+        spaceTeamIdText.setText(teamId)
+        spaceTitleEditText.requestFocus()
 
-                    spaceTitleEditText.requestFocus()
+        builder.setView(dialogView)
+        builder.setPositiveButton(android.R.string.ok) { _, _ ->
+            teamsViewModel.addSpaceFromTeam(spaceTitleEditText.text.toString(), teamId)
+        }
+        builder.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
 
-                    builder.setView(this.root)
-                    builder.setPositiveButton(android.R.string.ok) { _, _ ->
-                        teamsViewModel.addSpaceFromTeam(spaceTitleEditText.text.toString(), teamId)
-                    }
-                    builder.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
-
-                    builder.show()
-                }
+        builder.show()
     }
 
     private fun showMembers(teamId: String) {
@@ -228,7 +227,8 @@ class TeamsClientAdapter(private val optionsDialogFragment: TeamActionBottomShee
     var teams: MutableList<TeamModel> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TeamsClientViewHolder {
-        return TeamsClientViewHolder(ListItemTeamsClientBinding.inflate(LayoutInflater.from(parent.context), parent, false), optionsDialogFragment)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_teams_client, parent, false)
+        return TeamsClientViewHolder(view, optionsDialogFragment)
     }
 
     override fun getItemCount(): Int = teams.size
@@ -238,16 +238,18 @@ class TeamsClientAdapter(private val optionsDialogFragment: TeamActionBottomShee
     }
 }
 
-class TeamsClientViewHolder(private val binding: ListItemTeamsClientBinding, private val optionsDialogFragment: TeamActionBottomSheetFragment) : RecyclerView.ViewHolder(binding.root) {
+class TeamsClientViewHolder(itemView: View, private val optionsDialogFragment: TeamActionBottomSheetFragment) : RecyclerView.ViewHolder(itemView) {
+    private val teamsClientLayout: ConstraintLayout = itemView.findViewById(R.id.teamsClientLayout)
+    private val teamsNameTextView: TextView = itemView.findViewById(R.id.teamsNameTextView)
 
     fun bind(team: TeamModel) {
-        binding.team = team
+        teamsNameTextView.text = team.name ?: ""
 
-        binding.teamsClientLayout.setOnClickListener { view ->
+        teamsClientLayout.setOnClickListener { view ->
             ContextCompat.startActivity(view.context, TeamDetailActivity.getIntent(view.context, team.id), null)
         }
 
-        binding.teamsClientLayout.setOnLongClickListener { view ->
+        teamsClientLayout.setOnLongClickListener { view ->
             optionsDialogFragment.teamId = team.id
             optionsDialogFragment.teamTitle = team.name
             optionsDialogFragment.team = team
@@ -256,7 +258,5 @@ class TeamsClientViewHolder(private val binding: ListItemTeamsClientBinding, pri
 
             true
         }
-
-        binding.executePendingBindings()
     }
 }

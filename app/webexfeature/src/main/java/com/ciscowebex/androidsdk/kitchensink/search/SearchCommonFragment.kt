@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.SearchView
 import android.widget.TextView
@@ -21,7 +22,6 @@ import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.calling.CallActivity
-import com.ciscowebex.androidsdk.kitchensink.databinding.CommonFragmentItemListBinding
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipModel
 import com.ciscowebex.androidsdk.kitchensink.messaging.spaces.members.MembershipViewModel
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
@@ -413,7 +413,8 @@ class SearchCommonFragment : Fragment() {
         var fragment: SearchCommonFragment? = null
 
         override fun onCreateViewHolder(parent: ViewGroup, i: Int): ViewHolder {
-            return ViewHolder(CommonFragmentItemListBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.common_fragment_item_list, parent, false)
+            return ViewHolder(view)
         }
 
         override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
@@ -424,23 +425,31 @@ class SearchCommonFragment : Fragment() {
             return itemList.size
         }
 
-        inner class ViewHolder(val binding: CommonFragmentItemListBinding) :
-                RecyclerView.ViewHolder(binding.root) {
+        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            private val nameTextView: TextView = itemView.findViewById(R.id.name)
+            private val imageView: ImageView = itemView.findViewById(R.id.image)
+            private val deleteImageView: ImageView = itemView.findViewById(R.id.deleteImage)
+            private val ongoingTextView: TextView = itemView.findViewById(R.id.ongoing)
+            private val callDirectionImageView: ImageView = itemView.findViewById(R.id.callDirection)
+            private val startTimeAndDurationTextView: TextView = itemView.findViewById(R.id.startTimeAndDuration)
 
             fun bind(itemModel: ItemModel) {
-                binding.listItem = itemModel
+                // Set the name text
+                nameTextView.text = itemModel.name
+                nameTextView.setCompoundDrawablesWithIntrinsicBounds(itemModel.presenceStatus, null, null, null)
+                
                 if(itemModel.image == 0)
-                    binding.image.visibility = View.GONE
+                    imageView.visibility = View.GONE
                 else
-                    binding.image.visibility = View.VISIBLE
-                binding.image.setOnClickListener { fragment?.startCall(itemModel.callerId, itemModel.isPhoneNumber, false) }
+                    imageView.visibility = View.VISIBLE
+                imageView.setOnClickListener { fragment?.startCall(itemModel.callerId, itemModel.isPhoneNumber, false) }
 
                 if(itemModel.deleteImage == 0)
-                    binding.deleteImage.visibility = View.GONE
+                    deleteImageView.visibility = View.GONE
                 else
-                    binding.deleteImage.visibility = View.VISIBLE
+                    deleteImageView.visibility = View.VISIBLE
 
-                binding.deleteImage.setOnClickListener {
+                deleteImageView.setOnClickListener {
                     // Handle delete action with the record ID
                     if (itemModel.recordId.isNotEmpty()) {
                         Log.d("SearchCommonFragment", "Delete clicked for record: ${itemModel.recordId}")
@@ -461,30 +470,29 @@ class SearchCommonFragment : Fragment() {
                 }
 
                 if (itemModel.ongoing) {
-                    binding.ongoing.visibility = View.VISIBLE
+                    ongoingTextView.visibility = View.VISIBLE
                 } else {
-                    binding.ongoing.visibility = View.GONE
+                    ongoingTextView.visibility = View.GONE
                 }
 
                 if (itemModel.callDirection == CallHistoryRecord.CallDirection.OUTGOING) {
-                    binding.callDirection.visibility = View.VISIBLE
-                    binding.callDirection.setImageResource(R.drawable.ic_call_outgoing)
+                    callDirectionImageView.visibility = View.VISIBLE
+                    callDirectionImageView.setImageResource(R.drawable.ic_call_outgoing)
                 } else if(itemModel.isMissedCall) {
-                    binding.callDirection.visibility = View.VISIBLE
-                    binding.callDirection.setImageResource(R.drawable.ic_missed_call)
+                    callDirectionImageView.visibility = View.VISIBLE
+                    callDirectionImageView.setImageResource(R.drawable.ic_missed_call)
                 } else if (itemModel.callDirection == CallHistoryRecord.CallDirection.INCOMING) {
-                    binding.callDirection.visibility = View.VISIBLE
-                    binding.callDirection.setImageResource(R.drawable.ic_call_incoming)
+                    callDirectionImageView.visibility = View.VISIBLE
+                    callDirectionImageView.setImageResource(R.drawable.ic_call_incoming)
                 } else {
-                    binding.callDirection.visibility = View.GONE
+                    callDirectionImageView.visibility = View.GONE
                 }
                 if (itemModel.dateAndDuration.isNotEmpty()) {
-                    binding.startTimeAndDuration.visibility = View.VISIBLE
-                    binding.startTimeAndDuration.text = itemModel.dateAndDuration
+                    startTimeAndDurationTextView.visibility = View.VISIBLE
+                    startTimeAndDurationTextView.text = itemModel.dateAndDuration
                 } else {
-                    binding.startTimeAndDuration.visibility = View.GONE
+                    startTimeAndDurationTextView.visibility = View.GONE
                 }
-                binding.executePendingBindings()
             }
         }
 

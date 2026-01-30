@@ -18,8 +18,7 @@ import com.ciscowebex.androidsdk.auth.UCSSOWebViewAuthenticator
 import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
-import com.ciscowebex.androidsdk.kitchensink.databinding.DialogUcloginNonssoBinding
-import com.ciscowebex.androidsdk.kitchensink.databinding.DialogUcloginSettingsBinding
+import android.widget.EditText
 import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.auth.PhoneServiceRegistrationFailureReason
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
@@ -287,19 +286,19 @@ class UCLoginActivity : BaseActivity() {
     private fun showUCLoginSettingsDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle(R.string.uc_login_settings)
-        DialogUcloginSettingsBinding.inflate(layoutInflater).apply {
-            builder.setView(this.root)
-            builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
-
-                Handler(Looper.getMainLooper()).postDelayed({
-                    setUCDomainServerUrl(domain.text.toString(), server.text.toString())
-                }, 200)
-                dialog.dismiss()
-            }
-            builder.setNeutralButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
-            builder.setOnDismissListener {
-                ucSettingsAlertDialog = null
-            }
+        val dialogView = layoutInflater.inflate(R.layout.dialog_uclogin_settings, null)
+        val domainEditText = dialogView.findViewById<EditText>(R.id.domain)
+        val serverEditText = dialogView.findViewById<EditText>(R.id.server)
+        builder.setView(dialogView)
+        builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
+            Handler(Looper.getMainLooper()).postDelayed({
+                setUCDomainServerUrl(domainEditText.text.toString(), serverEditText.text.toString())
+            }, 200)
+            dialog.dismiss()
+        }
+        builder.setNeutralButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
+        builder.setOnDismissListener {
+            ucSettingsAlertDialog = null
         }
         ucSettingsAlertDialog = builder.create()
         ucSettingsAlertDialog?.setCanceledOnTouchOutside(false)
@@ -309,22 +308,21 @@ class UCLoginActivity : BaseActivity() {
     private fun showUCNonSSOLoginDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle(R.string.uc_login_settings)
-        DialogUcloginNonssoBinding.inflate(layoutInflater).apply {
-            builder.setView(this.root)
-            builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
-
-                Handler(Looper.getMainLooper()).postDelayed({
-                    val username = username.text.toString()
-                    val password = password.text.toString()
-                    webexViewModel.setCallServiceCredential(username, password)
-                }, 200)
-
-                dialog.dismiss()
-            }
-            builder.setNeutralButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
-            builder.setOnDismissListener {
-                nonSSOAlertDialog = null
-            }
+        val dialogView = layoutInflater.inflate(R.layout.dialog_uclogin_nonsso, null)
+        val usernameEditText = dialogView.findViewById<EditText>(R.id.username)
+        val passwordEditText = dialogView.findViewById<EditText>(R.id.password)
+        builder.setView(dialogView)
+        builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
+            Handler(Looper.getMainLooper()).postDelayed({
+                val username = usernameEditText.text.toString()
+                val password = passwordEditText.text.toString()
+                webexViewModel.setCallServiceCredential(username, password)
+            }, 200)
+            dialog.dismiss()
+        }
+        builder.setNeutralButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
+        builder.setOnDismissListener {
+            nonSSOAlertDialog = null
         }
 
         nonSSOAlertDialog = builder.create()

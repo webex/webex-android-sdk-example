@@ -18,10 +18,9 @@ import androidx.core.content.ContextCompat
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.RecyclerView
 import com.ciscowebex.androidsdk.kitchensink.R
-import com.ciscowebex.androidsdk.kitchensink.databinding.BottomSheetVirtualBackgroundItemAddBinding
-import com.ciscowebex.androidsdk.kitchensink.databinding.BottomSheetVirtualBackgroundItemBlurBinding
-import com.ciscowebex.androidsdk.kitchensink.databinding.BottomSheetVirtualBackgroundItemImageBinding
-import com.ciscowebex.androidsdk.kitchensink.databinding.BottomSheetVirtualBackgroundItemNoneBinding
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
 import com.ciscowebex.androidsdk.kitchensink.utils.FileUtils
 import com.ciscowebex.androidsdk.kitchensink.utils.PermissionsHelper
 import com.ciscowebex.androidsdk.phone.Phone
@@ -104,45 +103,26 @@ class BackgroundOptionsBottomSheetFragment(
         private val itemTypeAdd   = 3
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+            val inflater = LayoutInflater.from(parent.context)
             return when(viewType) {
                 itemTypeNone -> {
-                    val view = BottomSheetVirtualBackgroundItemNoneBinding.inflate(
-                        LayoutInflater.from(
-                            parent.context
-                        ), parent, false
-                    )
+                    val view = inflater.inflate(R.layout.bottom_sheet_virtual_background_item_none, parent, false)
                     ItemTypeNoneViewHolder(view, dialog, onBackgroundChanged)
                 }
                 itemTypeBlur -> {
-                    val view = BottomSheetVirtualBackgroundItemBlurBinding.inflate(
-                        LayoutInflater.from(
-                            parent.context
-                        ), parent, false
-                    )
+                    val view = inflater.inflate(R.layout.bottom_sheet_virtual_background_item_blur, parent, false)
                     ItemTypeBlurViewHolder(view, dialog, onBackgroundChanged)
                 }
                 itemTypeImage -> {
-                    val view = BottomSheetVirtualBackgroundItemImageBinding.inflate(
-                        LayoutInflater.from(
-                            parent.context
-                        ), parent, false
-                    )
+                    val view = inflater.inflate(R.layout.bottom_sheet_virtual_background_item_image, parent, false)
                     ItemTypeImageViewHolder(view, dialog, onBackgroundChanged, onBackgroundRemoved)
                 }
                 itemTypeAdd -> {
-                    val view = BottomSheetVirtualBackgroundItemAddBinding.inflate(
-                        LayoutInflater.from(
-                            parent.context
-                        ), parent, false
-                    )
+                    val view = inflater.inflate(R.layout.bottom_sheet_virtual_background_item_add, parent, false)
                     ItemTypeAddViewHolder(view, dialog, onAddButtonClicked)
                 }
                 else -> {
-                    val view  = BottomSheetVirtualBackgroundItemNoneBinding.inflate(
-                        LayoutInflater.from(
-                            parent.context
-                        ), parent, false
-                    )
+                    val view = inflater.inflate(R.layout.bottom_sheet_virtual_background_item_none, parent, false)
                     ItemTypeNoneViewHolder(view, dialog, onBackgroundChanged)
                 }
             }
@@ -171,68 +151,74 @@ class BackgroundOptionsBottomSheetFragment(
         }
 
         inner class ItemTypeNoneViewHolder(
-            val binding: BottomSheetVirtualBackgroundItemNoneBinding,
-            dialog: Dialog?,
-            val onBackgroundChanged: (VirtualBackground) -> Unit
-        ) : RecyclerView.ViewHolder(binding.root) {
+            itemView: View,
+            private val dialog: Dialog?,
+            private val onBackgroundChanged: (VirtualBackground) -> Unit
+        ) : RecyclerView.ViewHolder(itemView) {
+            private val tvNone: TextView = itemView.findViewById(R.id.tv_none)
+            
             fun bind() {
-                val item =  virtualBackgrounds[adapterPosition]
+                val item = virtualBackgrounds[adapterPosition]
                 if (item.isActive) {
-                    binding.tvNone.foreground =
-                        ContextCompat.getDrawable(binding.tvNone.context, R.drawable.border)
+                    tvNone.foreground = ContextCompat.getDrawable(tvNone.context, R.drawable.border)
                 } else {
-                    binding.tvNone.foreground = null
+                    tvNone.foreground = null
                 }
 
-                binding.tvNone.setOnClickListener {
-                    binding.tvNone.foreground = ContextCompat.getDrawable(binding.tvNone.context, R.drawable.border)
+                tvNone.setOnClickListener {
+                    tvNone.foreground = ContextCompat.getDrawable(tvNone.context, R.drawable.border)
                     onBackgroundChanged(item)
                     dialog?.cancel()
                 }
             }
         }
+        
         inner class ItemTypeBlurViewHolder(
-            val binding: BottomSheetVirtualBackgroundItemBlurBinding,
-            dialog: Dialog?,
-            val onBackgroundChanged: (VirtualBackground) -> Unit
-        ) : RecyclerView.ViewHolder(binding.root) {
+            itemView: View,
+            private val dialog: Dialog?,
+            private val onBackgroundChanged: (VirtualBackground) -> Unit
+        ) : RecyclerView.ViewHolder(itemView) {
+            private val tvBlur: TextView = itemView.findViewById(R.id.tv_blur)
+            
             fun bind() {
-                val item =  virtualBackgrounds[adapterPosition]
+                val item = virtualBackgrounds[adapterPosition]
                 if (item.isActive) {
-                    binding.tvBlur.foreground =
-                        ContextCompat.getDrawable(binding.tvBlur.context, R.drawable.border)
+                    tvBlur.foreground = ContextCompat.getDrawable(tvBlur.context, R.drawable.border)
                 } else {
-                    binding.tvBlur.foreground = null
+                    tvBlur.foreground = null
                 }
 
-                binding.tvBlur.setOnClickListener {
-                    binding.tvBlur.foreground = ContextCompat.getDrawable(binding.tvBlur.context, R.drawable.border)
+                tvBlur.setOnClickListener {
+                    tvBlur.foreground = ContextCompat.getDrawable(tvBlur.context, R.drawable.border)
                     onBackgroundChanged(item)
                     dialog?.cancel()
                 }
             }
         }
+        
         inner class ItemTypeImageViewHolder(
-            val binding: BottomSheetVirtualBackgroundItemImageBinding,
-            dialog: Dialog?,
-            val onBackgroundChanged: (VirtualBackground) -> Unit,
-            val onBackgroundRemoved: (VirtualBackground) -> Unit
-        ) : RecyclerView.ViewHolder(binding.root) {
+            itemView: View,
+            private val dialog: Dialog?,
+            private val onBackgroundChanged: (VirtualBackground) -> Unit,
+            private val onBackgroundRemoved: (VirtualBackground) -> Unit
+        ) : RecyclerView.ViewHolder(itemView) {
+            private val bgImg: ImageView = itemView.findViewById(R.id.bg_img)
+            private val imgDelete: ImageView = itemView.findViewById(R.id.imgDelete)
+            
             fun bind() {
-                val item =  virtualBackgrounds[adapterPosition]
+                val item = virtualBackgrounds[adapterPosition]
                 if (item.isActive) {
-                    binding.bgImg.foreground =
-                        ContextCompat.getDrawable(binding.bgImg.context, R.drawable.border)
+                    bgImg.foreground = ContextCompat.getDrawable(bgImg.context, R.drawable.border)
                 } else {
-                    binding.bgImg.foreground = null
+                    bgImg.foreground = null
                 }
 
-                binding.imgDelete.setOnClickListener {
+                imgDelete.setOnClickListener {
                     onBackgroundRemoved(item)
                 }
 
-                binding.bgImg.setOnClickListener {
-                    binding.bgImg.foreground = ContextCompat.getDrawable(binding.bgImg.context, R.drawable.border)
+                bgImg.setOnClickListener {
+                    bgImg.foreground = ContextCompat.getDrawable(bgImg.context, R.drawable.border)
                     onBackgroundChanged(item)
                     dialog?.cancel()
                 }
@@ -241,17 +227,20 @@ class BackgroundOptionsBottomSheetFragment(
                 if (byteArray != null) {
                     val bmp = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
                     Log.d("TAG", "bitmap: ${bmp?.byteCount}")
-                    binding.bgImg.setImageBitmap(bmp)
+                    bgImg.setImageBitmap(bmp)
                 }
             }
         }
+        
         inner class ItemTypeAddViewHolder(
-            val binding: BottomSheetVirtualBackgroundItemAddBinding,
-            dialog: Dialog?,
-            val onAddButtonClicked: () -> Unit
-        ) : RecyclerView.ViewHolder(binding.root) {
+            itemView: View,
+            private val dialog: Dialog?,
+            private val onAddButtonClicked: () -> Unit
+        ) : RecyclerView.ViewHolder(itemView) {
+            private val tvAdd: ImageButton = itemView.findViewById(R.id.tv_add)
+            
             fun bind() {
-                binding.tvAdd.setOnClickListener {
+                tvAdd.setOnClickListener {
                     onAddButtonClicked()
                 }
             }

@@ -1,442 +1,439 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <TextView
+        android:id="@+id/showIncomingCall"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/lightGreen"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/show_incoming"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <View
+        android:id="@+id/incomingCallSeparator"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/showIncomingCall" />
 
-        <TextView
-            android:id="@+id/showIncomingCall"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/lightGreen"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/show_incoming"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+    <TextView
+        android:id="@+id/sendDTMF"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/gray90"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/send_dtmf"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/incomingCallSeparator" />
 
-        <View
-            android:id="@+id/incomingCallSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/showIncomingCall" />
+    <View
+        android:id="@+id/sendDTMFSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sendDTMF" />
 
-        <TextView
-            android:id="@+id/sendDTMF"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/gray90"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/send_dtmf"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/incomingCallSeparator" />
+    <TextView
+        android:id="@+id/showTranscripts"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/blue"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/show_transcriptions"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sendDTMFSeparator"/>
 
-        <View
-            android:id="@+id/sendDTMFSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/sendDTMF" />
+    <View
+        android:id="@+id/transcriptsSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/showTranscripts" />
 
-        <TextView
-            android:id="@+id/showTranscripts"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/blue"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/show_transcriptions"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/sendDTMFSeparator"/>
+    <TextView
+        android:id="@+id/claimHost"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/red"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/claim_host"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/transcriptsSeparator"/>
 
-        <View
-            android:id="@+id/transcriptsSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/showTranscripts" />
+    <View
+        android:id="@+id/claimHostSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/claimHost" />
 
-        <TextView
-            android:id="@+id/claimHost"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/red"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/claim_host"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/transcriptsSeparator"/>
+    <TextView
+        android:id="@+id/enableWXA"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/gray60"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/enable_webex_assistant"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/claimHostSeparator" />
 
-        <View
-            android:id="@+id/claimHostSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/claimHost" />
+    <View
+        android:id="@+id/enableWXASeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/enableWXA" />
 
-        <TextView
-            android:id="@+id/enableWXA"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/gray60"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/enable_webex_assistant"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/claimHostSeparator" />
+    <TextView
+        android:id="@+id/receivingVideo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/green"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/receiving_video"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/enableWXASeparator"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-        <View
-            android:id="@+id/enableWXASeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/enableWXA" />
+    <View
+        android:id="@+id/receivingVideoSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/receivingVideo" />
+    <TextView
+        android:id="@+id/receivingAudio"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/blue"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/receiving_audio"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/receivingVideoSeparator" />
 
-        <TextView
-            android:id="@+id/receivingVideo"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/green"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/receiving_video"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:layout_constraintTop_toBottomOf="@id/enableWXASeparator"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+    <View
+        android:id="@+id/receivingAudioSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/receivingAudio" />
+    <TextView
+        android:id="@+id/receivingSharing"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/lightYellow"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/receiving_sharing"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/receivingAudioSeparator" />
 
-        <View
-            android:id="@+id/receivingVideoSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/receivingVideo" />
-        <TextView
-            android:id="@+id/receivingAudio"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/blue"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/receiving_audio"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/receivingVideoSeparator" />
+    <View
+        android:id="@+id/receivingSharingSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/receivingSharing" />
 
-        <View
-            android:id="@+id/receivingAudioSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/receivingAudio" />
-        <TextView
-            android:id="@+id/receivingSharing"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/lightYellow"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/receiving_sharing"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/receivingAudioSeparator" />
+    <TextView
+        android:id="@+id/scalingMode"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/scaling_mode"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/receivingSharingSeparator" />
 
-        <View
-            android:id="@+id/receivingSharingSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/receivingSharing" />
+    <View
+        android:id="@+id/scalingTypeSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/scalingMode" />
 
-        <TextView
-            android:id="@+id/scalingMode"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/scaling_mode"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/receivingSharingSeparator" />
+    <TextView
+        android:id="@+id/compositeStream"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_green_dark"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/composite_stream"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:enabled="false"
+        android:alpha="0.6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/scalingTypeSeparator" />
 
-        <View
-            android:id="@+id/scalingTypeSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scalingMode" />
+    <View
+        android:id="@+id/compositeStreamSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/compositeStream" />
 
-        <TextView
-            android:id="@+id/compositeStream"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@android:color/holo_green_dark"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/composite_stream"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            android:enabled="false"
-            android:alpha="0.6"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scalingTypeSeparator" />
+    <TextView
+        android:id="@+id/multiStreamOptions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/lightYellow"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/multi_stream_options"
+        android:textAlignment="center"
+        android:visibility="gone"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/compositeStreamSeparator" />
 
-        <View
-            android:id="@+id/compositeStreamSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/compositeStream" />
+    <View
+        android:id="@+id/multiStreamOptionsSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/multiStreamOptions" />
 
-        <TextView
-            android:id="@+id/multiStreamOptions"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/lightYellow"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/multi_stream_options"
-            android:textAlignment="center"
-            android:visibility="gone"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/compositeStreamSeparator" />
+    <TextView
+        android:id="@+id/bgOptionsBtn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_orange_dark"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/change_virtual_background"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/multiStreamOptionsSeparator" />
 
-        <View
-            android:id="@+id/multiStreamOptionsSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/multiStreamOptions" />
+    <View
+        android:id="@+id/bgOptionsTypeSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bgOptionsBtn" />
 
-        <TextView
-            android:id="@+id/bgOptionsBtn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@android:color/holo_orange_dark"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/change_virtual_background"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/multiStreamOptionsSeparator" />
+    <TextView
+        android:id="@+id/swapVideo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/green"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/swap_video"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bgOptionsTypeSeparator" />
 
-        <View
-            android:id="@+id/bgOptionsTypeSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/bgOptionsBtn" />
+    <View
+        android:id="@+id/swapVideoSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/swapVideo" />
 
-        <TextView
-            android:id="@+id/swapVideo"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/green"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/swap_video"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/bgOptionsTypeSeparator" />
+    <TextView
+        android:id="@+id/sendingVideoforceLandscape"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/blue"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/sending_video_force_landscape"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/swapVideoSeparator" />
 
-        <View
-            android:id="@+id/swapVideoSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/swapVideo" />
+    <View
+        android:id="@+id/forceLandscapeSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sendingVideoforceLandscape" />
 
-        <TextView
-            android:id="@+id/sendingVideoforceLandscape"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/blue"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/sending_video_force_landscape"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/swapVideoSeparator" />
+    <TextView
+        android:id="@+id/cameraOptions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/gray90"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/call_camera_options"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/forceLandscapeSeparator" />
 
-        <View
-            android:id="@+id/forceLandscapeSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/sendingVideoforceLandscape" />
+    <View
+        android:id="@+id/cameraOptionsSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cameraOptions" />
 
-        <TextView
-            android:id="@+id/cameraOptions"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/gray90"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/call_camera_options"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/forceLandscapeSeparator" />
+    <TextView
+        android:id="@+id/breakoutSessions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/show_breakout_sessions"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cameraOptionsSeparator" />
 
-        <View
-            android:id="@+id/cameraOptionsSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cameraOptions" />
+    <View
+        android:id="@+id/breakoutSessionsSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/breakoutSessions" />
 
-        <TextView
-            android:id="@+id/breakoutSessions"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/show_breakout_sessions"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cameraOptionsSeparator" />
+    <TextView
+        android:id="@+id/closedCaptionOptions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/lightYellow"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/closedCaptionOptions"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/breakoutSessionsSeparator" />
 
-        <View
-            android:id="@+id/breakoutSessionsSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/breakoutSessions" />
+    <View
+        android:id="@+id/closedCaptionSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/closedCaptionOptions" />
 
-        <TextView
-            android:id="@+id/closedCaptionOptions"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/lightYellow"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/closedCaptionOptions"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/breakoutSessionsSeparator" />
+    <TextView
+        android:id="@+id/startAudioDump"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/blue"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/startAudioDump"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/closedCaptionSeparator" />
 
-        <View
-            android:id="@+id/closedCaptionSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/closedCaptionOptions" />
+    <View
+        android:id="@+id/audioDumpSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/startAudioDump" />
 
-        <TextView
-            android:id="@+id/startAudioDump"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/blue"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/startAudioDump"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/closedCaptionSeparator" />
+    <TextView
+        android:id="@+id/enableReceiverSpeechEnhancement"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@string/enable_receiver_speech_enhancement"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/audioDumpSeparator" />
 
-        <View
-            android:id="@+id/audioDumpSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/startAudioDump" />
+    <View
+        android:id="@+id/enableReceiverSpeechEnhancementSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/enableReceiverSpeechEnhancement" />
 
-        <TextView
-            android:id="@+id/enableReceiverSpeechEnhancement"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@string/enable_receiver_speech_enhancement"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/audioDumpSeparator" />
-
-        <View
-            android:id="@+id/enableReceiverSpeechEnhancementSeparator"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/enableReceiverSpeechEnhancement" />
-
-        <TextView
-            android:id="@+id/cancel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/red"
-            android:paddingVertical="@dimen/size_8dp"
-            android:text="@android:string/cancel"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/enableReceiverSpeechEnhancementSeparator" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</layout>
+    <TextView
+        android:id="@+id/cancel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/red"
+        android:paddingVertical="@dimen/size_8dp"
+        android:text="@android:string/cancel"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/enableReceiverSpeechEnhancementSeparator" />
+</androidx.constraintlayout.widget.ConstraintLayout>

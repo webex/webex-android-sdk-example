@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
-import com.ciscowebex.androidsdk.kitchensink.databinding.ListItemMembershipReadStatusBinding
+import android.widget.TextView
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.kitchensink.utils.showDialogWithMessage
 import org.koin.android.ext.android.inject
@@ -87,7 +87,8 @@ class MembershipReadStatusAdapter : RecyclerView.Adapter<MembershipReadStatusVie
     var membershipsReadStatus: MutableList<MembershipReadStatusModel> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MembershipReadStatusViewHolder {
-        return MembershipReadStatusViewHolder(ListItemMembershipReadStatusBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_membership_read_status, parent, false)
+        return MembershipReadStatusViewHolder(view)
     }
 
     override fun getItemCount(): Int = membershipsReadStatus.size
@@ -98,9 +99,21 @@ class MembershipReadStatusAdapter : RecyclerView.Adapter<MembershipReadStatusVie
 
 }
 
-class MembershipReadStatusViewHolder(private val binding: ListItemMembershipReadStatusBinding) : RecyclerView.ViewHolder(binding.root) {
+class MembershipReadStatusViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    private val membershipIdTextView: TextView = itemView.findViewById(R.id.membershipIdTextView)
+    private val membershipPersonIdTextView: TextView = itemView.findViewById(R.id.membershipPersonIdTextView)
+    private val membershipPersonDisplayNameTextView: TextView = itemView.findViewById(R.id.membershipPersonDisplayNameTextView)
+    private val membershipPersonEmailTextView: TextView = itemView.findViewById(R.id.membershipPersonEmailTextView)
+    private val membershipIsModeratorTextView: TextView = itemView.findViewById(R.id.membershipIsModeratorTextView)
+    private val membershipLastSeenDateTextView: TextView = itemView.findViewById(R.id.membershipLastSeenDateTextView)
+    
     fun bind(membershipReadStatus: MembershipReadStatusModel) {
-        binding.membershipReadStatus = membershipReadStatus
-        binding.executePendingBindings()
+        val member = membershipReadStatus.member
+        membershipIdTextView.text = member.membershipId ?: ""
+        membershipPersonIdTextView.text = member.personId ?: ""
+        membershipPersonDisplayNameTextView.text = member.personDisplayName ?: ""
+        membershipPersonEmailTextView.text = member.personEmail ?: ""
+        membershipIsModeratorTextView.text = member.isModerator.toString()
+        membershipLastSeenDateTextView.text = membershipReadStatus.lastSeenDate.toString()
     }
 }

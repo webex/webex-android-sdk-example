@@ -60,8 +60,10 @@ import com.ciscowebex.androidsdk.kitchensink.calling.captions.REQUEST_CODE_SPOKE
 import com.ciscowebex.androidsdk.kitchensink.calling.captions.REQUEST_CODE_TRANSLATION_LANGUAGE
 import com.ciscowebex.androidsdk.kitchensink.calling.participants.ParticipantsFragment
 import com.ciscowebex.androidsdk.kitchensink.calling.transcription.TranscriptionsDialogFragment
-import com.ciscowebex.androidsdk.kitchensink.databinding.DialogEnterMeetingPinBinding
-import com.ciscowebex.androidsdk.kitchensink.databinding.ScreenshareconfigBinding
+import android.widget.Button
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.ProgressBar as WidgetProgressBar
 import com.ciscowebex.androidsdk.kitchensink.person.PersonViewModel
 import com.ciscowebex.androidsdk.kitchensink.setup.BackgroundOptionsBottomSheetFragment
 import com.ciscowebex.androidsdk.kitchensink.utils.AudioManagerUtils
@@ -184,8 +186,22 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
     private var breakout: Breakout? = null
     private var dialType = DialType.NONE
     private val mediaPlayer: MediaPlayer = MediaPlayer()
-    private lateinit var passwordDialogBinding: DialogEnterMeetingPinBinding
+    private lateinit var passwordDialogViewHolder: PasswordDialogViewHolder
     private lateinit var passwordDialog : Dialog
+    
+    // Helper class to hold dialog views instead of using ViewBinding
+    private class PasswordDialogViewHolder(val root: View) {
+        val pinTitleLabel: TextView = root.findViewById(R.id.pinTitleLabel)
+        val pinTitleEditText: EditText = root.findViewById(R.id.pinTitleEditText)
+        val errorText: TextView = root.findViewById(R.id.errorText)
+        val captchaRootLayout: LinearLayout = root.findViewById(R.id.captchaRootLayout)
+        val captchImage: ImageView = root.findViewById(R.id.captchImage)
+        val captchaAudio: ImageView = root.findViewById(R.id.captchaAudio)
+        val captchaInputText: EditText = root.findViewById(R.id.captchaInputText)
+        val refresh: ImageView = root.findViewById(R.id.refresh)
+        val submit: Button = root.findViewById(R.id.submit)
+        val progressBar: WidgetProgressBar = root.findViewById(R.id.progressBar)
+    }
     private var isInPipMode = false
     private var screenShareOptionsDialog: AlertDialog? = null
     private lateinit var annotationPermissionDialog: AlertDialog
@@ -1330,41 +1346,40 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
         error: WebexRepository.CallEvent = WebexRepository.CallEvent.MeetingPinOrPasswordRequired
     ) {
         val isCaptchaAvailable = (captchaData!=null)
-        passwordDialogBinding.root.apply {
-            if(isCaptchaAvailable) {
-                passwordDialogBinding.captchaRootLayout.visibility = View.VISIBLE
-                Glide.with(requireContext())
-                    .load(captchaData?.getImageUrl()) // image url
-                    .placeholder(R.color.black) // any placeholder to load at start
-                    .centerCrop()
-                    .into(passwordDialogBinding.captchImage)
-                passwordDialogBinding.captchaAudio.tag = captchaData?.getAudioUrl()
-                passwordDialogBinding.submit.tag = captchaData
-            } else {
-                passwordDialogBinding.captchaRootLayout.visibility = View.GONE
+        val holder = passwordDialogViewHolder
+        if(isCaptchaAvailable) {
+            holder.captchaRootLayout.visibility = View.VISIBLE
+            Glide.with(requireContext())
+                .load(captchaData?.getImageUrl()) // image url
+                .placeholder(R.color.black) // any placeholder to load at start
+                .centerCrop()
+                .into(holder.captchImage)
+            holder.captchaAudio.tag = captchaData?.getAudioUrl()
+            holder.submit.tag = captchaData
+        } else {
+            holder.captchaRootLayout.visibility = View.GONE
+        }
+
+        holder.progressBar.visibility = View.GONE
+        holder.submit.visibility = View.VISIBLE
+
+        holder.pinTitleEditText.text.clear()
+        holder.captchaInputText.text.clear()
+
+        when (error) {
+            WebexRepository.CallEvent.MeetingPinOrPasswordRequired,
+            WebexRepository.CallEvent.CaptchaRequired-> {
+                holder.errorText.text = ""
             }
-
-            passwordDialogBinding.progressBar.visibility = View.GONE
-            passwordDialogBinding.submit.visibility = View.VISIBLE
-
-            passwordDialogBinding.pinTitleEditText.text.clear()
-            passwordDialogBinding.captchaInputText.text.clear()
-
-            when (error) {
-                WebexRepository.CallEvent.MeetingPinOrPasswordRequired,
-                WebexRepository.CallEvent.CaptchaRequired-> {
-                    passwordDialogBinding.errorText.text = ""
-                }
-                WebexRepository.CallEvent.InCorrectPassword ,
-                WebexRepository.CallEvent.InCorrectPasswordWithCaptcha -> {
-                    passwordDialogBinding.errorText.text = getString(R.string.incorrectPin)
-                }
-                WebexRepository.CallEvent.InCorrectPasswordOrHostKey ,
-                WebexRepository.CallEvent.InCorrectPasswordOrHostKeyWithCaptcha -> {
-                    passwordDialogBinding.errorText.text = getString(R.string.incorrectPinOrHostKey)
-                }
-                else -> { }
+            WebexRepository.CallEvent.InCorrectPassword ,
+            WebexRepository.CallEvent.InCorrectPasswordWithCaptcha -> {
+                holder.errorText.text = getString(R.string.incorrectPin)
             }
+            WebexRepository.CallEvent.InCorrectPasswordOrHostKey ,
+            WebexRepository.CallEvent.InCorrectPasswordOrHostKeyWithCaptcha -> {
+                holder.errorText.text = getString(R.string.incorrectPinOrHostKey)
+            }
+            else -> { }
         }
     }
 
@@ -1373,79 +1388,76 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
         captchaData: Phone.Captcha? = null,
         error: WebexRepository.CallEvent = WebexRepository.CallEvent.MeetingPinOrPasswordRequired
     ) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_enter_meeting_pin, null)
+        passwordDialogViewHolder = PasswordDialogViewHolder(dialogView)
+        val holder = passwordDialogViewHolder
 
-        passwordDialogBinding = DialogEnterMeetingPinBinding.inflate(layoutInflater)
-            .apply {
+        // Captcha data validation if any
+        if (captchaData != null) {
+            holder.captchaRootLayout.visibility = View.VISIBLE
+            Glide.with(requireContext())
+                .load(captchaData.getImageUrl()) // image url
+                .placeholder(R.color.black) // any placeholder to load at start
+                .centerCrop()
+                .into(holder.captchImage)
+            holder.captchaAudio.tag = captchaData.getAudioUrl()
+        } else {
+            holder.captchaRootLayout.visibility = View.GONE
+        }
 
-                // Captcha data validation if any
-                if (captchaData != null) {
-                    captchaRootLayout.visibility = View.VISIBLE
-                    Glide.with(requireContext())
-                        .load(captchaData.getImageUrl()) // image url
-                        .placeholder(R.color.black) // any placeholder to load at start
-                        .centerCrop()
-                        .into(captchImage)
-                    captchaAudio.tag = captchaData.getAudioUrl()
-                } else {
-                    captchaRootLayout.visibility = View.GONE
-                }
+        // Prepare error message
+        holder.errorText.text = ""
+        if (error == WebexRepository.CallEvent.InCorrectPassword ||
+            error == WebexRepository.CallEvent.InCorrectPasswordWithCaptcha
+        ) {
+            holder.errorText.text = getString(R.string.incorrectPin)
+        } else if (error == WebexRepository.CallEvent.InCorrectPasswordOrHostKey ||
+            error == WebexRepository.CallEvent.InCorrectPasswordOrHostKeyWithCaptcha
+        ) {
+            holder.errorText.text = getString(R.string.incorrectPinOrHostKey)
+        }
 
-                // Prepare error message
-                errorText.text = ""
-                if (error == WebexRepository.CallEvent.InCorrectPassword ||
-                    error == WebexRepository.CallEvent.InCorrectPasswordWithCaptcha
-                ) {
-                    errorText.text = getString(R.string.incorrectPin)
-                } else if (error == WebexRepository.CallEvent.InCorrectPasswordOrHostKey ||
-                    error == WebexRepository.CallEvent.InCorrectPasswordOrHostKeyWithCaptcha
-                ) {
-                    errorText.text = getString(R.string.incorrectPinOrHostKey)
-                }
+        // Handle submit action for pin and captcha
+        holder.submit.tag = captchaData
+        holder.submit.setOnClickListener { view ->
+            // reset the previous error
+            holder.errorText.text = ""
 
-                // Handle submit action for pin and captcha
-                submit.tag = captchaData
-                submit.setOnClickListener {
-                    it.let {
-                        // reset the previous error
-                        errorText.text = ""
+            if (holder.pinTitleEditText.text.isEmpty()) {
+                val errorMsg = if (isHost) getString(R.string.host_key_required) else getString(R.string.meeting_pin_required)
+                holder.errorText.text = errorMsg
+            } else if(captchaData != null && holder.captchaInputText.text.isEmpty()) {
+                val errorMsg = getString(R.string.captcha_empty_error)
+                holder.errorText.text = errorMsg
+            } else{
+                holder.submit.visibility = View.INVISIBLE
+                holder.progressBar.visibility = View.VISIBLE
+                val data = view.tag as Phone.Captcha?
 
-                        if (pinTitleEditText.text.isEmpty()) {
-                            val error = if (isHost) getString(R.string.host_key_required) else getString(R.string.meeting_pin_required)
-                            errorText.text = error
-                        } else if(captchaData != null && captchaInputText.text.isEmpty()) {
-                            val error = getString(R.string.captcha_empty_error)
-                            errorText.text = error
-                        } else{
-                            submit.visibility = View.INVISIBLE
-                            progressBar.visibility = View.VISIBLE
-                            val data = it.tag as Phone.Captcha?
-
-                            dialOutgoingCall(callerId, isHost,
-                                pinTitleEditText.text.toString(),
-                                captchaInputText.text.toString(),
-                                data?.getId()?:"", false, moveMeeting)
-                        }
-                    }
-                }
-
-                //initialize audio action
-                captchaAudio.setOnClickListener {
-                    it?.let{
-                        playAudio(it.tag as String)
-                    }
-                }
-
-                //initialize refresh action
-                refresh.setOnClickListener {
-                    mediaPlayer.reset()
-                    webexViewModel.refreshCaptcha()
-                }
+                dialOutgoingCall(callerId, isHost,
+                    holder.pinTitleEditText.text.toString(),
+                    holder.captchaInputText.text.toString(),
+                    data?.getId()?:"", false, moveMeeting)
             }
+        }
+
+        //initialize audio action
+        holder.captchaAudio.setOnClickListener { view ->
+            view?.let{
+                playAudio(it.tag as String)
+            }
+        }
+
+        //initialize refresh action
+        holder.refresh.setOnClickListener {
+            mediaPlayer.reset()
+            webexViewModel.refreshCaptcha()
+        }
 
         val title = if (isHost) getString(R.string.enter_host_key) else getString(R.string.enter_meeting_pin)
         passwordDialog.setTitle(title)
-        passwordDialogBinding.pinTitleLabel.text = title
-        passwordDialog.setContentView(passwordDialogBinding.root)
+        holder.pinTitleLabel.text = title
+        passwordDialog.setContentView(holder.root)
         passwordDialog.show()
     }
 
@@ -2119,48 +2131,51 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
         val builder = AlertDialog.Builder(requireContext())
         var shareConfig:ShareConfig? = ShareConfig()
         builder.setTitle(getString(R.string.screenShare_config))
-        ScreenshareconfigBinding.inflate(layoutInflater).apply {
-            builder.setView(this.root)
-            optimizeTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-                when (checkedId) {
-                    R.id.defaultShare -> {
-                        shareConfig?.setShareType(Call.ShareOptimizeType.Default)
-                    }
-                    R.id.autoDetection -> {
-                        shareConfig?.setShareType(Call.ShareOptimizeType.AutoDetection)
-                    }
-                    R.id.optimizeForText -> {
-                        shareConfig?.setShareType(Call.ShareOptimizeType.OptimizeText)
-                    }
-                    R.id.optimizeForVideo -> {
-                        shareConfig?.setShareType(Call.ShareOptimizeType.OptimizeVideo)
-                    }
-                    R.id.noOptimizeType -> {
-                        shareConfig = null
-                    }
+        val dialogView = layoutInflater.inflate(R.layout.screenshareconfig, null)
+        builder.setView(dialogView)
+        
+        val optimizeTypeRadioGroup = dialogView.findViewById<android.widget.RadioGroup>(R.id.optimizeTypeRadioGroup)
+        val enableAudioGroup = dialogView.findViewById<android.widget.RadioGroup>(R.id.enableAudioGroup)
+        
+        optimizeTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.defaultShare -> {
+                    shareConfig?.setShareType(Call.ShareOptimizeType.Default)
+                }
+                R.id.autoDetection -> {
+                    shareConfig?.setShareType(Call.ShareOptimizeType.AutoDetection)
+                }
+                R.id.optimizeForText -> {
+                    shareConfig?.setShareType(Call.ShareOptimizeType.OptimizeText)
+                }
+                R.id.optimizeForVideo -> {
+                    shareConfig?.setShareType(Call.ShareOptimizeType.OptimizeVideo)
+                }
+                R.id.noOptimizeType -> {
+                    shareConfig = null
                 }
             }
-            enableAudioGroup.setOnCheckedChangeListener { _, checkedId ->
-                when (checkedId) {
-                    R.id.enableAudioTrue -> {
-                        shareConfig?.setEnableAudio(true)
-                    }
-                    R.id.enableAudioFalse -> {
-                        shareConfig?.setEnableAudio(false)
-                    }
+        }
+        enableAudioGroup.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.enableAudioTrue -> {
+                    shareConfig?.setEnableAudio(true)
+                }
+                R.id.enableAudioFalse -> {
+                    shareConfig?.setEnableAudio(false)
                 }
             }
-            builder.setPositiveButton(android.R.string.ok) { _, _ ->
-                updateScreenShareButtonState(ShareButtonState.DISABLED)
-                pendingShareConfig = shareConfig
-                val mgr = requireContext().getSystemService(android.content.Context.MEDIA_PROJECTION_SERVICE) as android.media.projection.MediaProjectionManager
-                val intent = mgr.createScreenCaptureIntent()
-                screenShareConsentLauncher.launch(intent)
-            }
-            builder.setNeutralButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
-            builder.setOnDismissListener {
-                screenShareOptionsDialog = null
-            }
+        }
+        builder.setPositiveButton(android.R.string.ok) { _, _ ->
+            updateScreenShareButtonState(ShareButtonState.DISABLED)
+            pendingShareConfig = shareConfig
+            val mgr = requireContext().getSystemService(android.content.Context.MEDIA_PROJECTION_SERVICE) as android.media.projection.MediaProjectionManager
+            val intent = mgr.createScreenCaptureIntent()
+            screenShareConsentLauncher.launch(intent)
+        }
+        builder.setNeutralButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
+        builder.setOnDismissListener {
+            screenShareOptionsDialog = null
         }
         screenShareOptionsDialog = builder.create()
         screenShareOptionsDialog?.setCanceledOnTouchOutside(false)
