@@ -84,23 +84,9 @@ android {
         dataBinding true
         buildConfig = true
     }
-    splits {
-        // Configures multiple APKs based on ABI.
-        abi {
-            // Enables building multiple APKs per ABI.
-            enable true
-
-            // By default all ABIs are included, so use reset() and include to specify that we only
-            // want APKs for x86, armeabi-v7a, and mips.
-            reset()
-
-            // Specifies a list of ABIs that Gradle should create APKs for.
-            include "x86", "x86_64", "armeabi-v7a", "arm64-v8a"
-
-            // Specifies that we want to also generate a universal APK that includes all ABIs.
-            universalApk true
-        }
-    }
+    // ABI splits are not needed for App Bundle with dynamic feature modules
+    // The Play Store handles ABI-specific delivery automatically
+    
     flavorDimensions 'sdktype'
     productFlavors {
         full {
@@ -123,35 +109,38 @@ android {
             matchingFallbacks = ["message"]
         }
     }
-    namespace 'com.ciscowebex.androidsdk.kitchensink'
+    namespace 'com.ciscowebex.androidsdk.kitchensink.base'
+    
+    // Dynamic feature module declaration
+    dynamicFeatures = [':webexfeature']
 }
 
 dependencies {
-    //At a time only one WebexSDK should be used.
-    implementation 'com.ciscowebex:webexsdk:3.16.1' // For full flavor
-    //implementation 'com.ciscowebex:webexsdk-wxc:3.16.1' //For webexCalling flavor
-    //implementation 'com.ciscowebex:webexsdk-meeting:3.16.1' // For meeting flavor
-    //implementation 'com.ciscowebex:webexsdk-message:3.16.1' // For messaging flavor
-    //implementation files('libs/WebexSDK-Wxc.aar')
-    implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation Dependencies.coreKtx
-    implementation Dependencies.appCompat
-    implementation Dependencies.constraintLayout
-    implementation Dependencies.material
-    implementation Dependencies.recyclerview
-    implementation Dependencies.cardview
-    implementation Dependencies.viewpager2
-    implementation Dependencies.koin
-    implementation Dependencies.koinViewModel
-    implementation Dependencies.swiperefresh
-    implementation Dependencies.media
-    implementation Dependencies.nimbusJosh
+    // Note: Webex SDK is now in the dynamic feature module (webexfeature)
+    // The SDK dependency has been moved to webexfeature/build.gradle
+    
+    api fileTree(dir: "libs", include: ["*.jar"])
+    
+    // Core Android dependencies - use 'api' so feature module can access them
+    api Dependencies.coreKtx
+    api Dependencies.appCompat
+    api Dependencies.constraintLayout
+    api Dependencies.material
+    api Dependencies.recyclerview
+    api Dependencies.cardview
+    api Dependencies.viewpager2
+    api Dependencies.koin
+    api Dependencies.koinViewModel
+    api Dependencies.swiperefresh
+    api Dependencies.media
+    api Dependencies.nimbusJosh
 
     // RXJAVA
-    implementation Dependencies.rxjava
-    implementation Dependencies.rxandroid
-    implementation Dependencies.rxkotlin
+    api Dependencies.rxjava
+    api Dependencies.rxandroid
+    api Dependencies.rxkotlin
 
+    // Test dependencies
     testImplementation Dependencies.Test.junit
     androidTestImplementation Dependencies.Test.androidxJunit
     androidTestImplementation Dependencies.Test.espressoCore
@@ -163,13 +152,26 @@ dependencies {
     debugImplementation (Dependencies.Test.fragmentScenerio) {
         exclude group: 'androidx.test', module: 'monitor'
     }
-    implementation platform(Dependencies.firebaseBom)
-    implementation Dependencies.firebaseMessaging
-    implementation Dependencies.firebaseAnalytics
-    implementation Dependencies.firebaseCrashlytics
-    implementation Dependencies.gson
-    implementation Dependencies.glide
-    implementation 'com.orhanobut:logger:2.2.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
-    implementation 'com.squareup.okio:okio:3.2.0'
+    
+    // Firebase - use 'api' so feature module can access Firebase
+    api platform(Dependencies.firebaseBom)
+    api Dependencies.firebaseMessaging
+    api Dependencies.firebaseAnalytics
+    api Dependencies.firebaseCrashlytics
+    
+    // Common utilities
+    api Dependencies.gson
+    api Dependencies.glide
+    api 'com.orhanobut:logger:2.2.0'
+    api 'com.squareup.okhttp3:okhttp:4.10.0'
+    api 'com.squareup.okio:okio:3.2.0'
+    
+    // Play Feature Delivery for on-demand module installation
+    api 'com.google.android.play:feature-delivery-ktx:2.1.0'
+    
+    // Splash screen for Android 12+ compatibility (1.0.1 is compatible with compileSdk 34)
+    implementation 'androidx.core:core-splashscreen:1.0.1'
+    
+    // Kotlin reflection for dynamic class loading
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 }

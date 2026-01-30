@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Base app permissions - core permissions needed by the app -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -14,11 +15,10 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 
-    
-
     <!-- Camera/Mic/Bluetooth/Overlay/Phone state will be declared in flavor manifests -->
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -33,17 +33,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        
+        <!-- Splash Activity - Entry point and dynamic feature installer -->
         <activity
-            android:name=".calling.LockScreenActivity"
-            android:showOnLockScreen="true"
-            android:showWhenLocked="true"
-            android:turnScreenOn="true" />
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.App.Starting">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
-        <service
-            android:name=".CallRejectService"
-            android:enabled="true"
-            android:exported="true" />
-
+        <!-- File Provider for sharing files -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -54,117 +56,21 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".extras.ExtrasActivity" />
-        <activity
-            android:name=".auth.JWTLoginActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".auth.AccessTokenLoginActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".auth.OAuthWebLoginActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".messaging.search.MessagingSearchActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".messaging.MessagingActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".messaging.teams.detail.TeamDetailActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".messaging.spaces.detail.SpaceDetailActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".messaging.spaces.members.MembershipActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".messaging.spaces.members.membersReadStatus.MembershipReadStatusActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".messaging.spaces.readStatusDetails.SpaceReadStatusDetailActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".auth.LoginActivity"
-            android:exported="true"
-            android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".calling.CallActivity"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize"
-            android:exported="true"
-            android:launchMode="singleTask"
-            android:resizeableActivity="true"
-            android:showOnLockScreen="true"
-            android:showWhenLocked="true"
-            android:supportsPictureInPicture="true"
-            android:turnScreenOn="true"
-            tools:ignore="UnusedAttribute" />
-        <activity
-            android:name=".search.SearchActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".HomeActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".setup.SetupActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".setup.SetupCameraActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".calling.DialerActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".cucm.UCLoginActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".messaging.teams.membership.TeamMembershipActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".messaging.spaces.detail.FileViewerActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".messaging.composer.MessageComposerActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".webhooks.WebhooksActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".calling.calendarMeeting.details.CalendarMeetingDetailsActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".calling.CucmCallActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".calling.captions.ClosedCaptionsActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".calling.captions.ClosedCaptionsLanguageActivity"
-            android:screenOrientation="portrait" />
-
+        <!-- Base FCM Service - delegates to feature module when installed -->
         <service
-            android:name=".firebase.KitchenSinkFCMService"
+            android:name=".KitchenSinkBaseFCMService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
+        <!-- Foreground Service for keeping app alive in background -->
         <service
             android:name=".KitchenSinkForegroundService"
             android:exported="false" />
 
-        <service android:name=".CallManagementService"
-            android:foregroundServiceType="phoneCall"
-            android:exported="false" />
-
+        <!-- Firebase metadata -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/app_notification_icon" />
@@ -177,6 +83,21 @@
         <meta-data
             android:name="android.content.APP_RESTRICTIONS"
             android:resource="@xml/app_restrictions" />
+            
+        <!-- Note: All feature activities (LoginActivity, HomeActivity, CallActivity, etc.) -->
+        <!-- are now declared in the webexfeature dynamic feature module manifest -->
+
+        <!-- 
+        Remove SDK's FileProvider from merged manifest.
+        The Webex SDK declares this provider, but since the SDK is in the dynamic feature module,
+        this provider class isn't available at app startup. This prevents ClassNotFoundException.
+        The SDK's FileProvider will be re-declared in the webexfeature module's manifest.
+        -->
+        <provider
+            android:name="com.ciscowebex.androidsdk.utils.WebexSdkFileProvider"
+            android:authorities="${applicationId}.webexsdk.fileprovider"
+            tools:node="remove" />
+
     </application>
 
 </manifest>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="textLarge">32sp</dimen>
+    <dimen name="icon_size_list_items">24dp</dimen>
+    <dimen name="icon_size_normal">56dp</dimen>
+    <dimen name="icon_calling_button_normal">40dp</dimen>
+    <dimen name="icon_join_button_width">100dp</dimen>
+    <dimen name="icon_join_button_height">50dp</dimen>
+    <dimen name="textMedium">18sp</dimen>
+    <dimen name="margin12dp">12dp</dimen>
+    <dimen name="size_8dp">8dp</dimen>
+    <dimen name="dimen_4dp">4dp</dimen>
+    <dimen name="margin_normal">16dp</dimen>
+    <!--Padding sizes-->
+
+    <dimen name="padding_2dp">2dp</dimen>
+    <dimen name="padding_4dp">4dp</dimen>
+    <dimen name="padding_8dp">8dp</dimen>
+    <dimen name="padding_normal">16dp</dimen>
+    <dimen name="padding_large">24dp</dimen>
+    <dimen name="padding_xLarge">32dp</dimen>
+    <dimen name="padding_xxLarge">40dp</dimen>
+    <!--Text sizes-->
+    <dimen name="size_12sp">12sp</dimen>
+    <dimen name="size_16sp">16sp</dimen>
+    <dimen name="heading_1_text">48sp</dimen>
+    <dimen name="dial_numbers">26sp</dimen>
+
+    <dimen name="video_view_height">300dp</dimen>
+    <dimen name="local_video_view_width">100dp</dimen>
+    <dimen name="local_video_view_height">200dp</dimen>
+    <dimen name="preview_video_view_height">400dp</dimen>
+
+    <dimen name="remote_video_view_width">100dp</dimen>
+    <dimen name="remote_video_view_height">230dp</dimen>
+    <dimen name="remote_video_view_margin_start">10dp</dimen>
+    <dimen name="remote_video_view_margin_Bottom">10dp</dimen>
+
+    <dimen name="virtual_bg_item_height">100dp</dimen>
+
+    <dimen name="filter_meetings_pos1">70dp</dimen>
+    <dimen name="filter_meetings_pos2">110dp</dimen>
+    <dimen name="filter_meetings_pos3">150dp</dimen>
+    <dimen name="filter_meetings_pos4">190dp</dimen>
+    <dimen name="filter_meetings_pos5">230dp</dimen>
+    <dimen name="filter_meetings_pos6">270dp</dimen>
+
+</resources>

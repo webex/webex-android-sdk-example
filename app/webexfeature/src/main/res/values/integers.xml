@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="space_list_size">100</integer>
+    <integer name="membership_list_size">20</integer>
+    <integer name="person_list_size">50</integer>
+    <integer name="attachment_thumbnail_width">320</integer>
+    <integer name="attachment_thumbnail_height">240</integer>
+    <integer name="virtual_bg_thumbnail_height">64</integer>
+    <integer name="virtual_bg_thumbnail_width">64</integer>
+    <integer name="webhook_list_max">50</integer>
+</resources>

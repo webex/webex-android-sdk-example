@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- SDK file provider paths for Webex SDK internal use -->
+    <cache-path name="sdk_cache" path="." />
+    <files-path name="sdk_files" path="." />
+    <external-cache-path name="sdk_external_cache" path="." />
+    <external-files-path name="sdk_external_files" path="." />
+</paths>

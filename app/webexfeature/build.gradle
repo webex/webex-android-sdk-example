@@ -1,0 +1,127 @@
+import com.ciscowebex.androidsdk.build.Versions
+
+apply plugin: 'com.android.dynamic-feature'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-parcelize'
+apply plugin: 'kotlin-kapt'
+
+def CLIENT_ID='""'
+def CLIENT_SECRET='""'
+def REDIRECT_URI='""'
+def FEDRAMP_CLIENT_ID='""'
+def FEDRAMP_CLIENT_SECRET='""'
+def FEDRAMP_REDIRECT_URI='""'
+def WEBHOOK_URL='""'
+
+android {
+    compileSdk Versions.compileSdk
+    
+    defaultConfig {
+        minSdkVersion Versions.minSdk
+        
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        Properties properties = new Properties()
+        if (project.rootProject.file('local.properties').canRead()) {
+            properties.load(project.rootProject.file("local.properties").newDataInputStream())
+
+            //All the values will be read from local.properties file
+            CLIENT_ID = properties.getProperty('CLIENT_ID', '""')
+            CLIENT_SECRET = properties.getProperty('CLIENT_SECRET', '""')
+            REDIRECT_URI = properties.getProperty('REDIRECT_URI', '" "')
+            FEDRAMP_CLIENT_ID = properties.getProperty('FEDRAMP_CLIENT_ID', '""')
+            FEDRAMP_CLIENT_SECRET = properties.getProperty('FEDRAMP_CLIENT_SECRET', '""')
+            FEDRAMP_REDIRECT_URI = properties.getProperty('FEDRAMP_REDIRECT_URI','""')
+            WEBHOOK_URL = properties.getProperty('WEBHOOK_URL', '""')
+        }
+
+        buildConfigField "String", "CLIENT_ID", "${CLIENT_ID}"
+        buildConfigField "String", "CLIENT_SECRET", "${CLIENT_SECRET}"
+        buildConfigField "String", "REDIRECT_URI", "${REDIRECT_URI}"
+        buildConfigField "String", "FEDRAMP_CLIENT_ID", "${FEDRAMP_CLIENT_ID}"
+        buildConfigField "String", "FEDRAMP_CLIENT_SECRET", "${FEDRAMP_CLIENT_SECRET}"
+        buildConfigField "String", "FEDRAMP_REDIRECT_URI", "${FEDRAMP_REDIRECT_URI}"
+        buildConfigField "String", "WEBHOOK_URL", "${WEBHOOK_URL}"
+
+        // SCOPE value is from Gradle.prop
+        buildConfigField "String", "SCOPE", "${SCOPE}"
+        
+        // Version info
+        buildConfigField "String", "VERSION_NAME", "\"3.16.1\""
+    }
+
+    compileOptions {
+        sourceCompatibility Versions.jvmVersion
+        targetCompatibility Versions.jvmVersion
+    }
+
+    kotlinOptions {
+        jvmTarget = Versions.jvmTarget
+    }
+
+    buildFeatures {
+        dataBinding true
+        buildConfig = true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+        debug {
+            minifyEnabled false
+            debuggable true
+        }
+    }
+
+    // Product flavors must match the base app module
+    flavorDimensions 'sdktype'
+    productFlavors {
+        full {
+            dimension 'sdktype'
+            matchingFallbacks = ["full"]
+        }
+        meeting {
+            dimension 'sdktype'
+            matchingFallbacks = ["meeting"]
+        }
+        wxc {
+            dimension 'sdktype'
+            matchingFallbacks = ["wxc"]
+        }
+        message {
+            dimension 'sdktype'
+            matchingFallbacks = ["message"]
+        }
+    }
+    
+    namespace 'com.ciscowebex.androidsdk.kitchensink'
+}
+
+// Repository configuration for Webex SDK
+repositories {
+    google()
+    mavenCentral()
+    maven {
+        url 'https://devhub.cisco.com/artifactory/webexsdk/'
+    }
+    flatDir { dirs 'aars' }
+}
+
+dependencies {
+    // Depend on the base app module
+    implementation project(':app')
+    
+    // Webex SDK - flavor-specific dependencies
+    // Each flavor uses its corresponding SDK variant
+    fullImplementation 'com.ciscowebex:webexsdk:3.16.1'
+    meetingImplementation 'com.ciscowebex:webexsdk-meeting:3.16.1'
+    wxcImplementation 'com.ciscowebex:webexsdk-wxc:3.16.1'
+    messageImplementation 'com.ciscowebex:webexsdk-message:3.16.1'
+    
+    // Test dependencies
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}

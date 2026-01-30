@@ -1,2 +1,6 @@
 include ':app'
+include ':webexfeature'
+
 rootProject.name = "kitchenSink"
+
+project(":webexfeature").projectDir = new File(rootDir, "app/webexfeature")

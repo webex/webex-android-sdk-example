@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:dist="http://schemas.android.com/apk/distribution"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- 
+    Dynamic Feature Module Manifest for Webex Feature
+    This module contains the Webex SDK and all SDK-dependent functionality.
+    Using install-time delivery because the SDK contains native libraries that need to 
+    be available immediately. On-demand delivery can cause UnsatisfiedLinkError due to
+    race conditions in native library extraction.
+    
+    Note: You still get App Bundle benefits (per-language/density APKs) with install-time delivery.
+    -->
+    <dist:module
+        dist:instant="false"
+        dist:title="@string/title_webexfeature">
+        <dist:delivery>
+            <dist:install-time />
+        </dist:delivery>
+        <dist:fusing dist:include="true" />
+    </dist:module>
+
+    <application>
+        <!-- Authentication Activities -->
+        <activity
+            android:name=".auth.LoginActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".auth.JWTLoginActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".auth.AccessTokenLoginActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".auth.OAuthWebLoginActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <!-- Main Activities -->
+        <activity
+            android:name=".HomeActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".search.SearchActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".extras.ExtrasActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".setup.SetupActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".setup.SetupCameraActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <!-- Calling Activities -->
+        <activity
+            android:name=".calling.CallActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize"
+            android:launchMode="singleTask"
+            android:resizeableActivity="true"
+            android:showOnLockScreen="true"
+            android:showWhenLocked="true"
+            android:supportsPictureInPicture="true"
+            android:turnScreenOn="true"
+            android:exported="false"
+            tools:ignore="UnusedAttribute" />
+        <activity
+            android:name=".calling.DialerActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".calling.LockScreenActivity"
+            android:showOnLockScreen="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:exported="false" />
+        <activity
+            android:name=".calling.CucmCallActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".calling.calendarMeeting.details.CalendarMeetingDetailsActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".calling.captions.ClosedCaptionsActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".calling.captions.ClosedCaptionsLanguageActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <!-- CUCM Login -->
+        <activity
+            android:name=".cucm.UCLoginActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <!-- Messaging Activities -->
+        <activity
+            android:name=".messaging.MessagingActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".messaging.search.MessagingSearchActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".messaging.composer.MessageComposerActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".messaging.teams.detail.TeamDetailActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".messaging.teams.membership.TeamMembershipActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".messaging.spaces.detail.SpaceDetailActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".messaging.spaces.detail.FileViewerActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".messaging.spaces.members.MembershipActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".messaging.spaces.members.membersReadStatus.MembershipReadStatusActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".messaging.spaces.readStatusDetails.SpaceReadStatusDetailActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <!-- Webhooks -->
+        <activity
+            android:name=".webhooks.WebhooksActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <!-- Services -->
+        <service
+            android:name=".CallRejectService"
+            android:enabled="true"
+            android:exported="false" />
+        <service
+            android:name=".CallManagementService"
+            android:enabled="true"
+            android:foregroundServiceType="phoneCall"
+            android:exported="false" />
+
+        <!-- 
+        Note: FileProvider is declared in the base app module's manifest.
+        The file_paths.xml in the base app includes all necessary paths for both 
+        the app and the Webex SDK functionality.
+        -->
+
+    </application>
+
+</manifest>

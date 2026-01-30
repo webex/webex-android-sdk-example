@@ -157,3 +157,47 @@
 -dontwarn org.conscrypt.**
 -dontwarn org.bouncycastle.**
 -dontwarn org.openjsse.**
+
+# ====================================================================
+# Dynamic Feature Module (webexfeature) ProGuard Rules
+# ====================================================================
+# These classes are loaded via reflection and must not be obfuscated
+
+# Keep DynamicModuleProvider - instantiated via reflection from base module
+-keep class com.ciscowebex.androidsdk.kitchensink.DynamicModuleProvider {
+    *;
+}
+
+# Keep KitchenSinkFCMService - instantiated via reflection for FCM handling
+-keep class com.ciscowebex.androidsdk.kitchensink.firebase.KitchenSinkFCMService {
+    *;
+}
+
+# Keep IDynamicModule interface and its nested interfaces
+-keep interface com.ciscowebex.androidsdk.kitchensink.base.IDynamicModule {
+    *;
+}
+-keep interface com.ciscowebex.androidsdk.kitchensink.base.IDynamicModule$IFCMHelper {
+    *;
+}
+
+# Keep base module classes that are accessed from feature module
+-keep class com.ciscowebex.androidsdk.kitchensink.base.KitchenSinkApp {
+    public static *;
+    public *;
+}
+-keep class com.ciscowebex.androidsdk.kitchensink.base.KitchenSinkForegroundService {
+    public static *;
+    public *;
+}
+
+# Keep LoginActivity.LoginType enum for Koin module loading
+-keep enum com.ciscowebex.androidsdk.kitchensink.auth.LoginActivity$LoginType {
+    *;
+}
+
+# Keep all Koin modules from being obfuscated
+-keep class com.ciscowebex.androidsdk.kitchensink.**Module {
+    *;
+}
+-keepnames class com.ciscowebex.androidsdk.kitchensink.**Module

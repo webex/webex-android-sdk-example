@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">Kitchen Sink</string>
+    <string name="installing">Loading...</string>
+    <string name="title_webexfeature">Webex Feature</string>
+    <string name="appconfig_fedramp_title">Enforce FedRAMP login</string>
+    <string name="appconfig_fedramp_description">Ensure FedRAMP login for MDM users</string>
     <string name="kitchen_sink">Kitchen Sink</string>
     <string name="feedback">Feedback</string>
     <string name="webhooks">Webhooks</string>
