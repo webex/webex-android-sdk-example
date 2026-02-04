@@ -402,7 +402,7 @@ class SpacesFragment : Fragment() {
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_create_space, null)
         val spaceTitleEditText: EditText = dialogView.findViewById(R.id.spaceTitleEditText)
-        val spaceTeamIdText: EditText = dialogView.findViewById(R.id.spaceTeamIdText)
+        val spaceTeamIdText: TextView = dialogView.findViewById(R.id.spaceTeamIdText)
         val spaceTeamIdLabel: TextView = dialogView.findViewById(R.id.spaceTeamIdLabel)
         
         spaceTeamIdText.visibility = View.GONE

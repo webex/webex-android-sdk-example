@@ -11,7 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.LinearLayout
+import android.widget.FrameLayout
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
@@ -47,7 +47,7 @@ class DialFragment : Fragment() {
     private lateinit var switchCallType: SwitchMaterial
     private lateinit var moveMeetingSwitch: SwitchMaterial
     private lateinit var ibBackspace: ImageButton
-    private lateinit var llNumber0: LinearLayout
+    private lateinit var llNumber0: FrameLayout
     private lateinit var ibNumpadToggle: ImageButton
     private var isAddingCall = false
     private var switchToCucmOrWxcCallToggle = false

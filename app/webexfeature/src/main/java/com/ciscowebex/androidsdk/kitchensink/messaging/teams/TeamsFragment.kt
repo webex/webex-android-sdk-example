@@ -152,7 +152,7 @@ class TeamsFragment : Fragment() {
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_create_space, null)
         val spaceTitleEditText: EditText = dialogView.findViewById(R.id.spaceTitleEditText)
-        val spaceTeamIdText: EditText = dialogView.findViewById(R.id.spaceTeamIdText)
+        val spaceTeamIdText: TextView = dialogView.findViewById(R.id.spaceTeamIdText)
         
         spaceTeamIdText.setText(teamId)
         spaceTitleEditText.requestFocus()

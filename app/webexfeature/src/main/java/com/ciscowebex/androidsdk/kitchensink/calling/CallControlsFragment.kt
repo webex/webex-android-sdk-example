@@ -62,7 +62,7 @@ import com.ciscowebex.androidsdk.kitchensink.calling.participants.ParticipantsFr
 import com.ciscowebex.androidsdk.kitchensink.calling.transcription.TranscriptionsDialogFragment
 import android.widget.Button
 import android.widget.EditText
-import android.widget.LinearLayout
+import androidx.constraintlayout.widget.Group
 import android.widget.ProgressBar as WidgetProgressBar
 import com.ciscowebex.androidsdk.kitchensink.person.PersonViewModel
 import com.ciscowebex.androidsdk.kitchensink.setup.BackgroundOptionsBottomSheetFragment
@@ -146,7 +146,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
     private lateinit var ibScreenShare: ImageButton
     private lateinit var ibMoreOption: ImageButton
     private lateinit var ivNetworkSignal: ImageView
-    private lateinit var controlGroup: ViewGroup
+    private lateinit var controlGroup: Group
     private lateinit var localViewLayout: ViewGroup
     private lateinit var remoteViewLayout: ViewGroup
     private lateinit var tvRemoteUserName: TextView
@@ -194,11 +194,11 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
         val pinTitleLabel: TextView = root.findViewById(R.id.pinTitleLabel)
         val pinTitleEditText: EditText = root.findViewById(R.id.pinTitleEditText)
         val errorText: TextView = root.findViewById(R.id.errorText)
-        val captchaRootLayout: LinearLayout = root.findViewById(R.id.captchaRootLayout)
+        val captchaRootLayout: ConstraintLayout = root.findViewById(R.id.captchaRootLayout)
         val captchImage: ImageView = root.findViewById(R.id.captchImage)
-        val captchaAudio: ImageView = root.findViewById(R.id.captchaAudio)
+        val captchaAudio: ImageButton = root.findViewById(R.id.captchaAudio)
         val captchaInputText: EditText = root.findViewById(R.id.captchaInputText)
-        val refresh: ImageView = root.findViewById(R.id.refresh)
+        val refresh: ImageButton = root.findViewById(R.id.refresh)
         val submit: Button = root.findViewById(R.id.submit)
         val progressBar: WidgetProgressBar = root.findViewById(R.id.progressBar)
     }

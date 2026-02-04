@@ -15,7 +15,6 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
 import com.ciscowebex.androidsdk.kitchensink.R
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.ciscowebex.androidsdk.kitchensink.person.PersonModel
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import org.koin.android.ext.android.inject
@@ -152,7 +151,7 @@ class SearchPeopleFragment : Fragment() {
 
         inner class ViewHolder(itemView: View, val listItemClicked: (Int) -> Unit) :
                 RecyclerView.ViewHolder(itemView) {
-            private val rootView: ConstraintLayout = itemView.findViewById(R.id.rootListItemPersonsView)
+            private val rootView: View = itemView.findViewById(R.id.rootListItemPersonsView)
             private val nameTextView: TextView = itemView.findViewById(R.id.name)
             
             init {

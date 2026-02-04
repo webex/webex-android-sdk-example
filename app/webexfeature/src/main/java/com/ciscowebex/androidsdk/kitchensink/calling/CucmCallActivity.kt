@@ -7,7 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
-import android.widget.ImageView
+import android.widget.Button
 import android.widget.TextView
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
 import com.ciscowebex.androidsdk.kitchensink.BaseActivity
@@ -24,8 +24,8 @@ class CucmCallActivity : BaseActivity() {
     // private lateinit var binding: ActivityCucmCallBinding
     private lateinit var callerinfo: TextView
     private lateinit var buttongroup: View
-    private lateinit var accept: ImageView
-    private lateinit var decline: ImageView
+    private lateinit var accept: Button
+    private lateinit var decline: Button
     private lateinit var ucServerConnectionStatusTextView: TextView
     private var mCallId: String? = null
     private var mPushId: String = ""
