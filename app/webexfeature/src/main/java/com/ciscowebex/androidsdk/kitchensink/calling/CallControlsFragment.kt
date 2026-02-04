@@ -137,7 +137,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
     private lateinit var ibSwitchToAudioVideoCall: ImageButton
     private lateinit var ibMute: ImageButton
     private lateinit var mainContentLayout: ViewGroup
-    private lateinit var incomingCallHeader: ViewGroup
+    private lateinit var incomingCallHeader: View
     private lateinit var ibParticipants: ImageButton
     private lateinit var ibAudioMode: ImageButton
     private lateinit var ibDirecttransferCall: ImageButton

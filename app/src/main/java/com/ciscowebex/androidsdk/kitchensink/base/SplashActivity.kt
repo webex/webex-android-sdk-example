@@ -1,6 +1,7 @@
 package com.ciscowebex.androidsdk.kitchensink.base
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -15,6 +16,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.ciscowebex.androidsdk.kitchensink.base.R
 import com.ciscowebex.androidsdk.kitchensink.base.KitchenSinkApp.Companion.dmProvider
 import com.ciscowebex.androidsdk.kitchensink.base.KitchenSinkApp.Companion.isWebexSplitInstalled
+import com.google.android.play.core.splitcompat.SplitCompat
+import com.google.android.play.core.splitinstall.SplitInstallHelper
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import com.google.android.play.core.splitinstall.SplitInstallManagerFactory
 import com.google.android.play.core.splitinstall.SplitInstallRequest
@@ -158,22 +161,62 @@ class SplashActivity : Activity() {
     }
 
     private fun onSuccessfulLoad(moduleName: String, launch: Boolean) {
+        if (!manager.installedModules.contains(moduleName)) {
+            toastAndLog("Module not installed yet")
+            return
+        }
+
         try {
-            dmProvider = Class.forName(PROVIDER_CLASS).kotlin.createInstance() as IDynamicModule
-            isWebexSplitInstalled = true
+            // IMPORTANT: include code so the classloader has split dex paths
+            val splitContext = createPackageContext(
+                packageName,
+                Context.CONTEXT_INCLUDE_CODE or Context.CONTEXT_IGNORE_SECURITY
+            )
+            Log.d(TAG, "installedModules=${manager.installedModules}")
+            Log.d(TAG, "splitSourceDirs=${splitContext.applicationInfo.splitSourceDirs?.joinToString()}")
 
-            if (launch) {
-                when (moduleName) {
-                    this.moduleName -> launchActivity(LOGIN_ACTIVITY_CLASS)
+            // Make sure split paths are visible to the current process/component
+            // Update app info for THIS context so splitSourceDirs includes the feature split
+            /*SplitInstallHelper.updateAppInfo(splitContext)
+            SplitCompat.installActivity(splitContext)*/
+
+            // After module is installed
+            SplitInstallHelper.updateAppInfo(this)
+            SplitCompat.installActivity(this)
+            // Now load classes using the Activity classloader
+            dmProvider = Class.forName(PROVIDER_CLASS, true, this.classLoader)
+                .kotlin.createInstance() as IDynamicModule
+
+            Log.d(TAG, "splitSourceDirs=${splitContext.applicationInfo.splitSourceDirs?.joinToString()}")
+            Log.d(TAG, "applicationInfo.splitSourceDirs=${this.applicationInfo.splitSourceDirs?.joinToString()}")
+
+            //loadNativeLibraries(splitContext)
+            // Update the app's library paths to include the split APK's native libraries
+            //dmProvider = splitContext.classLoader.loadClass(PROVIDER_CLASS).kotlin.createInstance() as IDynamicModule
+            Thread {
+                //dmProvider.loadNativeLibraries(splitContext)
+
+                runOnUiThread {
+                    if (launch) {
+                        when (moduleName) {
+                            this.moduleName -> launchActivity(LOGIN_ACTIVITY_CLASS)
+                        }
+                    }
+                    hideProgress()
+                    finish()
                 }
-            }
+            }.start()
 
-            hideProgress()
-            finish()
+            isWebexSplitInstalled = true
         } catch (e: Exception) {
             Log.e(TAG, "Failed to load dynamic module provider: ${e.message}")
             toastAndLog("Failed to initialize module: ${e.message}")
         }
+    }
+
+    override fun attachBaseContext(newBase: Context?) {
+        super.attachBaseContext(newBase)
+        SplitCompat.installActivity(this)
     }
 
     /** Launch an activity by its class name. */

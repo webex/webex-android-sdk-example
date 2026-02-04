@@ -23,6 +23,7 @@ import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.kitchensink.utils.extensions.hideKeyboard
 import com.ciscowebex.androidsdk.kitchensink.utils.extensions.showKeyboard
 import android.Manifest
+import com.google.android.material.switchmaterial.SwitchMaterial
 
 class DialFragment : Fragment() {
 
@@ -43,8 +44,8 @@ class DialFragment : Fragment() {
     private lateinit var ibKeypadToggle: ImageButton
     private lateinit var dialButtonsContainer: ViewGroup
     private lateinit var toggleButtonsContainer: ViewSwitcher
-    private lateinit var switchCallType: Switch
-    private lateinit var moveMeetingSwitch: Switch
+    private lateinit var switchCallType: SwitchMaterial
+    private lateinit var moveMeetingSwitch: SwitchMaterial
     private lateinit var ibBackspace: ImageButton
     private lateinit var llNumber0: LinearLayout
     private lateinit var ibNumpadToggle: ImageButton
