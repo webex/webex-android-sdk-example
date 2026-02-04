@@ -19,6 +19,7 @@ import com.ciscowebex.androidsdk.auth.OAuthWebViewAuthenticator
 import com.ciscowebex.androidsdk.auth.TokenAuthenticator
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
 import com.ciscowebex.androidsdk.kitchensink.auth.LoginActivity
+import com.ciscowebex.androidsdk.kitchensink.base.BuildConfig
 import com.ciscowebex.androidsdk.kitchensink.calling.CallActivity
 import com.ciscowebex.androidsdk.kitchensink.cucm.UCLoginActivity
 import com.ciscowebex.androidsdk.kitchensink.extras.ExtrasActivity
@@ -164,7 +165,7 @@ class HomeActivity : BaseActivity() {
         ivSetup = findViewById(R.id.iv_setup)
         ivExtras = findViewById(R.id.iv_extras)
         
-        versionTextView.text = "Version : "+BuildConfig.VERSION_NAME
+        versionTextView.text = "Version : " + BuildConfig.VERSION_NAME
 
         ivStartCall.setOnClickListener {
             startActivity(Intent(this@HomeActivity, SearchActivity::class.java))

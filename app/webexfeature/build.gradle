@@ -45,9 +45,6 @@ android {
 
         // SCOPE value is from Gradle.prop
         buildConfigField "String", "SCOPE", "${SCOPE}"
-        
-        // Version info
-        buildConfigField "String", "VERSION_NAME", "\"3.16.1\""
     }
 
     compileOptions {
@@ -112,6 +109,8 @@ repositories {
 dependencies {
     // Depend on the base app module
     implementation project(':app')
+
+    //implementation "com.getkeepsafe.relinker:relinker:1.4.5"
     
     // Webex SDK - flavor-specific dependencies
     // Each flavor uses its corresponding SDK variant
@@ -119,6 +118,8 @@ dependencies {
     meetingImplementation 'com.ciscowebex:webexsdk-meeting:3.16.1'
     wxcImplementation 'com.ciscowebex:webexsdk-wxc:3.16.1'
     messageImplementation 'com.ciscowebex:webexsdk-message:3.16.1'
+
+    //implementation files('../libs/WebexSDK-Message.aar')
     
     // Test dependencies
     testImplementation 'junit:junit:4.13.2'

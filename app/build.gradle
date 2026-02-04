@@ -31,8 +31,8 @@ android {
         applicationId "com.cisco.sdk_android"
         minSdkVersion Versions.minSdk
         targetSdkVersion Versions.targetSdk
-        versionCode 3160100
-        versionName "3.16.1"
+        versionCode 3160201
+        versionName "3.16.2.1-ondemand"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
