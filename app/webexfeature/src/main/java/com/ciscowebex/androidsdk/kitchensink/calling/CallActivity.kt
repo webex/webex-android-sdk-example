@@ -27,6 +27,7 @@ import com.ciscowebex.androidsdk.internal.ResultImpl
 import com.ciscowebex.androidsdk.kitchensink.BaseActivity
 import com.ciscowebex.androidsdk.kitchensink.CallRejectService
 import com.ciscowebex.androidsdk.kitchensink.R
+import com.ciscowebex.androidsdk.kitchensink.base.R as BaseR
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import com.ciscowebex.androidsdk.phone.*
@@ -549,7 +550,7 @@ class CallActivity : BaseActivity(), CallControlsFragment.OnCallActionListener, 
         val channelId = "Calls"
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.app_notification_icon)
+            .setSmallIcon(BaseR.drawable.app_notification_icon)
             .setContentTitle(spaceTitle)
             .setContentText("Call from Webex")
             .setAutoCancel(true)

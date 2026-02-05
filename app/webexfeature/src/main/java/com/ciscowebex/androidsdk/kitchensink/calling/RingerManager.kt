@@ -15,11 +15,14 @@ import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
 import com.ciscowebex.androidsdk.kitchensink.R
 import com.ciscowebex.androidsdk.phone.Call
+import com.google.android.play.core.splitcompat.SplitCompat
 import org.koin.core.component.KoinComponent
 import java.io.IOException
 
 
-open class RingerManager(private val androidContext: Context): KoinComponent {
+open class RingerManager(context: Context): KoinComponent {
+    // Ensure SplitCompat is installed on the context for dynamic feature module resource access
+    private val androidContext: Context = context.also { SplitCompat.install(it) }
 
     private val tag = "RingerManager"
 

@@ -61,10 +61,17 @@ android {
         buildConfig = true
     }
 
+    packagingOptions {
+        jniLibs {
+            pickFirsts += ['lib/armeabi-v7a/libc++_shared.so', 'lib/arm64-v8a/libc++_shared.so', 'lib/x86/libc++_shared.so', 'lib/x86_64/libc++_shared.so']
+            useLegacyPackaging true
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            proguardFiles "proguard-rules.pro"
         }
         debug {
             minifyEnabled false
@@ -111,7 +118,8 @@ dependencies {
     implementation project(':app')
 
     //implementation "com.getkeepsafe.relinker:relinker:1.4.5"
-    
+    //implementation files('../libs/WebexSDK-Meeting.aar')
+
     // Webex SDK - flavor-specific dependencies
     // Each flavor uses its corresponding SDK variant
     fullImplementation 'com.ciscowebex:webexsdk:3.16.1'
@@ -119,8 +127,6 @@ dependencies {
     wxcImplementation 'com.ciscowebex:webexsdk-wxc:3.16.1'
     messageImplementation 'com.ciscowebex:webexsdk-message:3.16.1'
 
-    //implementation files('../libs/WebexSDK-Message.aar')
-    
     // Test dependencies
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

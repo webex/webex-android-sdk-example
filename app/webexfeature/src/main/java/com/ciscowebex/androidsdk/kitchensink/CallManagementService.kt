@@ -15,11 +15,18 @@ import androidx.core.app.NotificationCompat
 import com.ciscowebex.androidsdk.kitchensink.utils.CallObjectStorage
 import com.ciscowebex.androidsdk.phone.Call
 import com.ciscowebex.androidsdk.phone.CallObserver
-
+import com.google.android.play.core.splitcompat.SplitCompat
+import com.ciscowebex.androidsdk.kitchensink.base.R as BaseR
 
 class CallManagementService : Service() {
     private val tag = "CallManagementService"
     private var receiver: BroadcastReceiver? = null
+
+    override fun attachBaseContext(base: Context?) {
+        super.attachBaseContext(base)
+        // Required for dynamic feature modules to access resources in Services
+        SplitCompat.installActivity(this)
+    }
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -65,11 +72,11 @@ class CallManagementService : Service() {
         val mNotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         mNotificationManager.createNotificationChannel(notificationChannel)
 
-        val title = getString(R.string.call_management_service_notification_title)
+        val title = getString(BaseR.string.call_management_service_notification_title)
         return NotificationCompat.Builder(
             this,
             channelId
-        ).setSmallIcon(R.drawable.app_notification_icon)
+        ).setSmallIcon(BaseR.drawable.app_notification_icon)
             .setWhen(0)
             .setContentTitle(title)
             .setOngoing(true)

@@ -28,11 +28,11 @@ android {
         jvmTarget = Versions.jvmTarget
     }
     defaultConfig {
-        applicationId "com.cisco.sdk_android"
+        applicationId "com.cisco.sdk_android.sample.kitchensink"
         minSdkVersion Versions.minSdk
         targetSdkVersion Versions.targetSdk
-        versionCode 3160201
-        versionName "3.16.2.1-ondemand"
+        versionCode 3160211
+        versionName "3.16.2.11-ondemand"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -71,7 +71,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
         debug {
@@ -113,6 +113,12 @@ android {
     
     // Dynamic feature module declaration
     dynamicFeatures = [':webexfeature']
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ["nativeLibs"]
+        }
+    }
 }
 
 dependencies {

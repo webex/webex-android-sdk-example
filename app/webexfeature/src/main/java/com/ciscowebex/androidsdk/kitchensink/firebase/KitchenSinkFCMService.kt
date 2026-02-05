@@ -20,6 +20,7 @@ import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.base.IDynamicModule
 import com.ciscowebex.androidsdk.kitchensink.base.KitchenSinkApp
 import com.ciscowebex.androidsdk.kitchensink.R
+import com.ciscowebex.androidsdk.kitchensink.base.R as BaseR
 import com.ciscowebex.androidsdk.kitchensink.CallRejectService
 import com.ciscowebex.androidsdk.kitchensink.HomeActivity
 import com.ciscowebex.androidsdk.kitchensink.calling.CallActivity
@@ -296,12 +297,12 @@ class KitchenSinkFCMService : KoinComponent, IDynamicModule.IFCMHelper {
         intent.action = Constants.Action.WEBEX_CALL_ACTION
 
         val pendingIntent = PendingIntent.getActivity(getContext(), requestCode, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT)
-        val channelId: String = getContext().getString(R.string.default_notification_channel_id)
+        val channelId: String = getContext().getString(BaseR.string.default_notification_channel_id)
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(getContext(), channelId)
-                .setSmallIcon(R.drawable.app_notification_icon)
+                .setSmallIcon(BaseR.drawable.app_notification_icon)
                 .setContentTitle("$caller is calling")
-                .setContentText(getContext().getString(R.string.call_description))
+                .setContentText(getContext().getString(BaseR.string.call_description))
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent)
@@ -323,12 +324,12 @@ class KitchenSinkFCMService : KoinComponent, IDynamicModule.IFCMHelper {
         val intent = CucmCallActivity.getIncomingIntent(getContext(), pushId)
 
         val pendingIntent = PendingIntent.getActivity(getContext(), requestCode, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT)
-        val channelId: String = getContext().getString(R.string.default_notification_channel_id)
+        val channelId: String = getContext().getString(BaseR.string.default_notification_channel_id)
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(getContext(), channelId)
-                .setSmallIcon(R.drawable.app_notification_icon)
+                .setSmallIcon(BaseR.drawable.app_notification_icon)
                 .setContentTitle("$caller is calling")
-                .setContentText(getContext().getString(R.string.call_description))
+                .setContentText(getContext().getString(BaseR.string.call_description))
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent)
@@ -445,7 +446,7 @@ class KitchenSinkFCMService : KoinComponent, IDynamicModule.IFCMHelper {
         val channelId = "Calls"
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(getContext(), channelId)
-                .setSmallIcon(R.drawable.app_notification_icon)
+                .setSmallIcon(BaseR.drawable.app_notification_icon)
                 .setContentTitle(spaceTitle)
                 .setContentText(number)
                 .setAutoCancel(true)
@@ -483,10 +484,10 @@ class KitchenSinkFCMService : KoinComponent, IDynamicModule.IFCMHelper {
         intent.action = Constants.Action.MESSAGE_ACTION
 
         val pendingIntent = PendingIntent.getActivity(getContext(), requestCode, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT)
-        val channelId: String = getContext().getString(R.string.default_notification_channel_id)
+        val channelId: String = getContext().getString(BaseR.string.default_notification_channel_id)
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(getContext(), channelId)
-                .setSmallIcon(R.drawable.app_notification_icon)
+                .setSmallIcon(BaseR.drawable.app_notification_icon)
                 .setContentTitle(spaceTitle)
                 .setContentText(personTitle)
                 .setAutoCancel(true)

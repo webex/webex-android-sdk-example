@@ -8,11 +8,17 @@ import android.os.IBinder
 import android.util.Log
 import com.ciscowebex.androidsdk.kitchensink.utils.Constants
 import org.koin.android.ext.android.inject
+import com.google.android.play.core.splitcompat.SplitCompat
 
 class CallRejectService : Service() {
 
     private val repository: WebexRepository by inject()
     val tag = "CallRejectService"
+
+    override fun attachBaseContext(base: Context?) {
+        super.attachBaseContext(base)
+        SplitCompat.installActivity(this)
+    }
 
     companion object {
         fun getCallRejectIntent(context: Context, callId: String? = null, accept : Boolean = true): Intent {

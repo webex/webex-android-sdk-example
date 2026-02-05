@@ -49,6 +49,7 @@ import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.WebexError
 import com.ciscowebex.androidsdk.kitchensink.BuildConfig
 import com.ciscowebex.androidsdk.kitchensink.R
+import com.ciscowebex.androidsdk.kitchensink.base.R as BaseR
 import com.ciscowebex.androidsdk.kitchensink.WebexRepository
 import com.ciscowebex.androidsdk.kitchensink.WebexViewModel
 import com.ciscowebex.androidsdk.kitchensink.annotation.AnnotationRenderer
@@ -2101,7 +2102,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
 
         val notificationBuilder =
                 NotificationCompat.Builder(requireContext(), channelId)
-                        .setSmallIcon(R.drawable.app_notification_icon)
+                        .setSmallIcon(BaseR.drawable.app_notification_icon)
                         .setContentTitle(getString(R.string.notification_share_foreground_title))
                         .setContentText(getString(contentId))
                         .setPriority(NotificationCompat.PRIORITY_MAX)
