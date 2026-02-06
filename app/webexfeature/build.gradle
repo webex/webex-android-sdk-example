@@ -122,10 +122,10 @@ dependencies {
 
     // Webex SDK - flavor-specific dependencies
     // Each flavor uses its corresponding SDK variant
-    fullImplementation 'com.ciscowebex:webexsdk:3.16.1'
-    meetingImplementation 'com.ciscowebex:webexsdk-meeting:3.16.1'
-    wxcImplementation 'com.ciscowebex:webexsdk-wxc:3.16.1'
-    messageImplementation 'com.ciscowebex:webexsdk-message:3.16.1'
+    fullImplementation 'com.ciscowebex:webexsdk:3.16.2'
+    meetingImplementation 'com.ciscowebex:webexsdk-meeting:3.16.2'
+    wxcImplementation 'com.ciscowebex:webexsdk-wxc:3.16.2'
+    messageImplementation 'com.ciscowebex:webexsdk-message:3.16.2'
 
     // Test dependencies
     testImplementation 'junit:junit:4.13.2'
