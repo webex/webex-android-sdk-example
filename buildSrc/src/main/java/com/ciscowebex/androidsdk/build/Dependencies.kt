@@ -2,6 +2,7 @@ package com.ciscowebex.androidsdk.build
 import org.gradle.api.JavaVersion
 
 object Versions {
+    // Unified with teams-android toolchain (Kotlin 2.1.20)
     const val kotlin = "2.1.20"
     const val koin= "2.2.3"
     const val orhanobutLogger = "2.2.0"
@@ -39,6 +40,7 @@ object Dependencies {
     const val nimbusJosh = "com.nimbusds:nimbus-jose-jwt:9.0"
 
     const val preferences = "androidx.preference:preference-ktx:1.1.1"
+    const val lifecycleProcess = "androidx.lifecycle:lifecycle-process:2.8.7"
     const val firebaseBom = "com.google.firebase:firebase-bom:26.1.0"
     const val firebaseMessaging = "com.google.firebase:firebase-messaging"
     const val firebaseAnalytics = "com.google.firebase:firebase-analytics-ktx"

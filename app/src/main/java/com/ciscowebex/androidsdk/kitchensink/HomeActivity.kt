@@ -10,10 +10,13 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import android.Manifest
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import com.ciscowebex.androidsdk.CompletionHandler
 import com.ciscowebex.androidsdk.ResourceType
+import com.ciscowebex.androidsdk.UploadDiagnosticLogsResponse.UploadDiagnosticLogsResult
+import com.ciscowebex.androidsdk.Webex
 import com.ciscowebex.androidsdk.auth.OAuthWebViewAuthenticator
 import com.ciscowebex.androidsdk.auth.TokenAuthenticator
 import com.ciscowebex.androidsdk.auth.UCLoginServerConnectionStatus
@@ -165,26 +168,7 @@ class HomeActivity : BaseActivity() {
                     }
 
                     ivFeedback.setOnClickListener {
-                        val fileUri = webexViewModel.getlogFileUri(false)
-                        val recipient = "webex-mobile-sdk@cisco.com"
-                        val subject = resources.getString(R.string.feedbackLogsSubject)
-
-                        val emailIntent = Intent().apply {
-                            action = Intent.ACTION_SEND
-                            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                            type = "text/plain"
-//                            data = Uri.parse("mailto:")
-                            putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
-                            putExtra(Intent.EXTRA_SUBJECT, subject)
-                            putExtra(Intent.EXTRA_STREAM, fileUri)
-                        }
-
-                        try {
-                            startActivity(Intent.createChooser(emailIntent, "Send mail..."))
-                        }
-                        catch (e: Exception) {
-                            Log.e(tag, "Send mail exception: $e")
-                        }
+                        showFeedbackOptionsDialog()
                     }
 
                     ivSetup.setOnClickListener {
@@ -209,8 +193,6 @@ class HomeActivity : BaseActivity() {
         // UC Login
         webexViewModel.startUCServices()
         observeUCLoginData()
-        
-
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -245,6 +227,71 @@ class HomeActivity : BaseActivity() {
                 }
             }
         })
+    }
+
+    private fun showFeedbackOptionsDialog() {
+        val options = arrayOf(
+            getString(R.string.share_externally),
+            getString(R.string.send_to_webex_backend)
+        )
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.feedback_options_title)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> shareDiagnosticsBundle()
+                    1 -> uploadDiagnosticsBundle()
+                }
+            }
+            .show()
+    }
+
+    private fun shareDiagnosticsBundle() {
+        val fileUri = webexViewModel.getlogFileUri(true)
+        val recipient = "webex-mobile-sdk@cisco.com"
+        val subject = resources.getString(R.string.feedbackLogsSubject)
+
+        val emailIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            type = "text/plain"
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            putExtra(Intent.EXTRA_STREAM, fileUri)
+        }
+
+        try {
+            startActivity(Intent.createChooser(emailIntent, getString(R.string.share_diagnostics_bundle)))
+        }
+        catch (e: Exception) {
+            Log.e(tag, "Send mail exception: $e")
+        }
+    }
+
+    private fun uploadDiagnosticsBundle() {
+        binding.progressLayout.visibility = View.VISIBLE
+        webexViewModel.uploadDiagnosticLogs(
+            handler = CompletionHandler { result ->
+                runOnUiThread {
+                    binding.progressLayout.visibility = View.GONE
+                    val response = result.data
+                    if (result.isSuccessful && response?.result == UploadDiagnosticLogsResult.NoError && !response.feedbackId.isNullOrBlank()) {
+                        Snackbar.make(
+                            binding.root,
+                            getString(R.string.feedback_upload_success, response.feedbackId),
+                            Snackbar.LENGTH_LONG
+                        ).show()
+                    } else {
+                        showErrorDialog(
+                            getString(
+                                R.string.feedback_upload_failed,
+                                response?.result?.name ?: result.error?.errorMessage ?: getString(R.string.error_occurred)
+                            )
+                        )
+                    }
+                }
+            }
+        )
     }
 
     private fun showMessageIfCameFromNotification() {

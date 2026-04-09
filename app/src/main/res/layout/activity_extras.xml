@@ -53,6 +53,62 @@
                         android:layout_marginTop="10dp"
                         android:layout_gravity="center" />
 
+                    <Button
+                        android:id="@+id/btn_trigger_java_crash"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/trigger_java_crash"
+                        android:layout_marginTop="10dp"
+                        android:layout_gravity="center" />
+
+                    <Button
+                        android:id="@+id/btn_trigger_native_crash"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/trigger_native_crash"
+                        android:layout_marginTop="10dp"
+                        android:layout_gravity="center" />
+
+                    <Button
+                        android:id="@+id/btn_trigger_omnius_service_native_crash"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/trigger_omnius_service_native_crash"
+                        android:layout_marginTop="10dp"
+                        android:layout_gravity="center" />
+
+                    <Button
+                        android:id="@+id/btn_trigger_omnius_service_stack_overflow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/trigger_omnius_service_stack_overflow"
+                        android:layout_marginTop="10dp"
+                        android:layout_gravity="center" />
+
+                    <Button
+                        android:id="@+id/btn_trigger_omnius_service_abort"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/trigger_omnius_service_abort"
+                        android:layout_marginTop="10dp"
+                        android:layout_gravity="center" />
+
+                    <Button
+                        android:id="@+id/btn_trigger_bridge_native_crash"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/trigger_bridge_native_crash"
+                        android:layout_marginTop="10dp"
+                        android:layout_gravity="center" />
+
+                    <Button
+                        android:id="@+id/btn_trigger_wrapper_jni_native_crash"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/trigger_wrapper_jni_native_crash"
+                        android:layout_marginTop="10dp"
+                        android:layout_gravity="center" />
+
                 </LinearLayout>
 
             </LinearLayout>

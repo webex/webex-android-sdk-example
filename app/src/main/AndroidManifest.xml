@@ -24,6 +24,8 @@
         android:name="android.hardware.telephony"
         android:required="false" />
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" android:minSdkVersion="34" />
+
     <application
         android:name=".KitchenSinkApp"
         android:allowBackup="false"
@@ -159,7 +161,8 @@
 
         <service
             android:name=".KitchenSinkForegroundService"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
 
         <service android:name=".CallManagementService"
             android:foregroundServiceType="phoneCall"

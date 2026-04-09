@@ -161,6 +161,8 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
     private val mHandler = Handler(Looper.getMainLooper())
     private var callManagementServiceIntent: Intent? = null
 
+    private var prevExceptionHandler: Thread.UncaughtExceptionHandler? = null
+
     interface OnCallActionListener {
         fun onEndAndAnswer(currentCallId: String, newCallId: String, handler: CompletionHandler<Boolean>)
     }
@@ -301,6 +303,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
                 "isSpaceMeeting: ${webexViewModel.isSpaceMeeting()}, "+
                 "isScheduledMeeting: ${webexViewModel.isScheduledMeeting()}")
         // Setting exception handler before making any call.
+        prevExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler(GlobalExceptionHandler())
         onCallConnected(call?.getCallId().orEmpty(), call?.isCUCMCall() ?: false, call?.isWebexCallingOrWebexForBroadworks() ?: false)
         webexViewModel.sendFeedback(call?.getCallId().orEmpty(), 5, "Testing Comments SDK-v3")
@@ -341,7 +344,7 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
 
     override fun onDisconnected(call: Call?, event: CallObserver.CallDisconnectedEvent?) {
         Log.d(TAG, "CallObserver onDisconnected : " + call?.getCallId())
-        Thread.setDefaultUncaughtExceptionHandler(null)
+        Thread.setDefaultUncaughtExceptionHandler(prevExceptionHandler)
         callManagementServiceIntent?.let {
             activity?.stopService(it)
             callManagementServiceIntent = null

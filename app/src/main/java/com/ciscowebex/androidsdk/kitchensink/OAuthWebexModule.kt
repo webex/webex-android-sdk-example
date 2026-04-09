@@ -1,6 +1,5 @@
 package com.ciscowebex.androidsdk.kitchensink
 
-import com.ciscowebex.androidsdk.Webex
 import com.ciscowebex.androidsdk.auth.OAuthWebViewAuthenticator
 import com.ciscowebex.androidsdk.auth.Authenticator
 import com.ciscowebex.androidsdk.kitchensink.utils.SharedPrefUtils.getEmailPref
@@ -22,6 +21,6 @@ val OAuthWebexModule = module {
     }
 
     factory {
-        Webex(androidApplication(), get(named("oAuth")))
+        buildCrashEnabledWebex(androidApplication(), get(named("oAuth")))
     }
 }

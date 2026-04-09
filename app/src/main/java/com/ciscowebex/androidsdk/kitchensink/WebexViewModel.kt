@@ -15,6 +15,7 @@ import com.ciscowebex.androidsdk.Webex
 import com.ciscowebex.androidsdk.kitchensink.firebase.RegisterTokenService
 import com.ciscowebex.androidsdk.kitchensink.person.PersonModel
 import com.ciscowebex.androidsdk.CompletionHandler
+import com.ciscowebex.androidsdk.UploadDiagnosticLogsResponse
 import com.ciscowebex.androidsdk.WebexError
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
@@ -1004,6 +1005,10 @@ fun handoffScreenCaptureConsent(callId: String, data: Intent) { }
 
 	fun getlogFileUri(includelastRunLog: Boolean = false): Uri {
 		return webex.getlogFileUri(includelastRunLog)
+	}
+
+	fun uploadDiagnosticLogs(handler: CompletionHandler<UploadDiagnosticLogsResponse>) {
+		webex.uploadDiagnosticLogs(handler)
 	}
 
 	fun setPushTokens(id: String, token: String){

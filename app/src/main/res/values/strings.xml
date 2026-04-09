@@ -2,6 +2,12 @@
     <string name="app_name">Kitchen Sink</string>
     <string name="kitchen_sink">Kitchen Sink</string>
     <string name="feedback">Feedback</string>
+    <string name="feedback_options_title">Feedback Options</string>
+    <string name="share_externally">Share externally</string>
+    <string name="send_to_webex_backend">Send to Webex backend</string>
+    <string name="share_diagnostics_bundle">Share diagnostics bundle</string>
+    <string name="feedback_upload_success">Diagnostics uploaded successfully. Feedback ID: %1$s</string>
+    <string name="feedback_upload_failed">Diagnostics upload failed: %1$s</string>
     <string name="webhooks">Webhooks</string>
     <string name="uc_login">UC Login</string>
     <string name="setup">Setup</string>
@@ -306,6 +312,13 @@
     <string name="no_jwt_token_available">No JWT Token available</string>
     <string name="access_token_expiration">Access Token Expiration</string>
     <string name="expiry_date_not_available">Expiry date is not available</string>
+    <string name="trigger_java_crash">Trigger Java/Kotlin Crash</string>
+    <string name="trigger_native_crash">Trigger App Native Crash (SIGABRT)</string>
+    <string name="trigger_omnius_service_native_crash">Trigger OmniusService Native Crash</string>
+    <string name="trigger_omnius_service_stack_overflow">Trigger OmniusService Stack Overflow</string>
+    <string name="trigger_omnius_service_abort">Trigger OmniusService SIGABRT</string>
+    <string name="trigger_bridge_native_crash">Trigger Bridge JNI Native Crash</string>
+    <string name="trigger_wrapper_jni_native_crash">Trigger Wrapper JNI Native Crash</string>
     <string name="are_you_host">Are you a host?</string>
     <string name="meeting_error">Meeting Error</string>
     <string name="enter_meeting_pin">Enter meeting password</string>
