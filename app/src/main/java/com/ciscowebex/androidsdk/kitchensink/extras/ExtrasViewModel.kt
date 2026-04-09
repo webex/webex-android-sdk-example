@@ -33,4 +33,32 @@ class ExtrasViewModel(private val extrasRepository: ExtrasRepository) : BaseView
         return extrasRepository.getJwtAccessTokenExpiration()
     }
 
+    fun triggerJavaCrashForTesting(): Nothing {
+        return extrasRepository.triggerJavaCrashForTesting()
+    }
+
+    fun triggerNativeCrashForTesting(): Nothing {
+        return extrasRepository.triggerNativeCrashForTesting()
+    }
+
+    fun triggerOmniusServiceNativeCrashForTesting(): Nothing {
+        return extrasRepository.triggerOmniusServiceNativeCrashForTesting()
+    }
+
+    fun triggerOmniusServiceStackOverflowForTesting(): Nothing {
+        return extrasRepository.triggerOmniusServiceStackOverflowForTesting()
+    }
+
+    fun triggerOmniusServiceAbortForTesting(): Nothing {
+        return extrasRepository.triggerOmniusServiceAbortForTesting()
+    }
+
+    fun triggerBridgeNativeCrashForTesting(): Nothing {
+        return extrasRepository.triggerBridgeNativeCrashForTesting()
+    }
+
+    fun triggerWrapperJniNativeCrashForTesting(): Nothing {
+        return extrasRepository.triggerWrapperJniNativeCrashForTesting()
+    }
+
 }

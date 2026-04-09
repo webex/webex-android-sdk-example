@@ -157,3 +157,8 @@
 -dontwarn org.conscrypt.**
 -dontwarn org.bouncycastle.**
 -dontwarn org.openjsse.**
+
+# JNI-reflected classes used from native code.
+-keep class com.webex.android.common.network.** { *; }
+-keep class com.webex.android.common.proxy.** { *; }
+-keep class com.webex.android.common.VideoFrameRoiInfo { *; }

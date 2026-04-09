@@ -32,6 +32,27 @@ class ExtrasActivity : BaseActivity() {
                         val message = expiryDate?.toString()?: getString(R.string.expiry_date_not_available)
                         showDialogWithMessage(this@ExtrasActivity, R.string.access_token_expiration, message)
                     }
+                    btnTriggerJavaCrash.setOnClickListener {
+                        extrasViewModel.triggerJavaCrashForTesting()
+                    }
+                    btnTriggerNativeCrash.setOnClickListener {
+                        extrasViewModel.triggerNativeCrashForTesting()
+                    }
+                    btnTriggerOmniusServiceNativeCrash.setOnClickListener {
+                        extrasViewModel.triggerOmniusServiceNativeCrashForTesting()
+                    }
+                    btnTriggerOmniusServiceStackOverflow.setOnClickListener {
+                        extrasViewModel.triggerOmniusServiceStackOverflowForTesting()
+                    }
+                    btnTriggerOmniusServiceAbort.setOnClickListener {
+                        extrasViewModel.triggerOmniusServiceAbortForTesting()
+                    }
+                    btnTriggerBridgeNativeCrash.setOnClickListener {
+                        extrasViewModel.triggerBridgeNativeCrashForTesting()
+                    }
+                    btnTriggerWrapperJniNativeCrash.setOnClickListener {
+                        extrasViewModel.triggerWrapperJniNativeCrashForTesting()
+                    }
 
                     setUpObservers()
                 }
