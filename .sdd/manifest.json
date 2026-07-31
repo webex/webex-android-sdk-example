@@ -1,0 +1,330 @@
+{
+  "manifest_version": 1,
+  "repository": {
+    "name": "kitchenSink",
+    "purpose": "Cisco Webex Android SDK 'KitchenSink' demo app that showcases and exercises Webex SDK APIs (authentication, calling, messaging, people, search, webhooks) from a single Android application.",
+    "category": "cat1-legacy",
+    "primary_languages": ["kotlin"]
+  },
+  "topology": "Single-repo",
+  "commands": {
+    "build": { "command": "./gradlew assembleFullDebug", "source_file": "app/build.gradle", "role": "build" },
+    "unit-test": { "command": "./gradlew testFullDebugUnitTest", "source_file": "app/build.gradle", "role": "unit-test" },
+    "instrumented-test": { "command": "./gradlew connectedFullDebugAndroidTest", "source_file": "app/build.gradle", "role": "e2e" },
+    "lint": { "command": "./gradlew lintFullDebug", "source_file": "app/build.gradle", "role": "lint" },
+    "clean": { "command": "./gradlew clean", "source_file": "build.gradle", "role": "other" }
+  },
+  "toolchain": [
+    { "name": "jdk", "version": "17", "origin": "repo-config", "source_file": "buildSrc/src/main/java/com/ciscowebex/androidsdk/build/Dependencies.kt" },
+    { "name": "kotlin", "version": "2.1.20", "origin": "repo-config", "source_file": "buildSrc/src/main/java/com/ciscowebex/androidsdk/build/Dependencies.kt" },
+    { "name": "android-gradle-plugin", "version": "8.7.3", "origin": "repo-config", "source_file": "build.gradle" },
+    { "name": "android-compile-sdk", "version": "34", "origin": "repo-config", "source_file": "buildSrc/src/main/java/com/ciscowebex/androidsdk/build/Dependencies.kt" },
+    { "name": "ndk", "version": "27.2.12479018", "origin": "repo-config", "source_file": "buildSrc/src/main/java/com/ciscowebex/androidsdk/build/Dependencies.kt" }
+  ],
+  "registries": [
+    { "name": "webex-artifactory", "type": "maven", "host": "devhub.cisco.com/artifactory/webexsdk", "settings_file": "build.gradle", "egress_required": true, "origin": "repo-config", "source_file": "build.gradle" },
+    { "name": "google-maven", "type": "maven", "host": "maven.google.com", "settings_file": "build.gradle", "egress_required": true, "origin": "repo-config", "source_file": "build.gradle" },
+    { "name": "maven-central", "type": "maven", "host": "repo.maven.apache.org", "settings_file": "build.gradle", "egress_required": true, "origin": "repo-config", "source_file": "build.gradle" }
+  ],
+  "artifacts": [
+    { "name": "Cisco Webex Android SDK (full)", "type": "maven-dependency", "coordinates": "com.ciscowebex:webexsdk", "version": "3.16.3", "registry": "webex-artifactory", "source_file": "app/build.gradle" },
+    { "name": "Cisco Webex Android SDK (meeting)", "type": "maven-dependency", "coordinates": "com.ciscowebex:webexsdk-meeting", "version": "3.16.3", "registry": "webex-artifactory", "source_file": "app/build.gradle" },
+    { "name": "Cisco Webex Android SDK (wxc)", "type": "maven-dependency", "coordinates": "com.ciscowebex:webexsdk-wxc", "version": "3.16.3", "registry": "webex-artifactory", "source_file": "app/build.gradle" },
+    { "name": "Cisco Webex Android SDK (message)", "type": "maven-dependency", "coordinates": "com.ciscowebex:webexsdk-message", "version": "3.16.3", "registry": "webex-artifactory", "source_file": "app/build.gradle" },
+    { "name": "Koin (DI)", "type": "maven-dependency", "coordinates": "io.insert-koin:koin-androidx-viewmodel", "version": "2.2.3", "registry": "maven-central", "source_file": "buildSrc/src/main/java/com/ciscowebex/androidsdk/build/Dependencies.kt" }
+  ],
+  "tests": {
+    "unit": { "command_ref": "unit-test", "dir": "app/src/test/java", "framework": "JUnit4" },
+    "e2e": { "command_ref": "instrumented-test", "dir": "app/src/androidTest/java", "framework": "AndroidX Test / Espresso" }
+  },
+  "quality_gates": {
+    "code_coverage": {
+      "origin": "unknown"
+    }
+  },
+  "coverage_status_definitions": {
+    "specced": ">=80% public surface specced, drift <5% — spec is authoritative",
+    "partial": "40-80% specced — spec is a hint, cross-check code",
+    "untracked": "<40% specced — code is the source of truth"
+  },
+  "modules": [
+    {
+      "path": "app/src/main/java/com/ciscowebex/androidsdk/kitchensink/",
+      "coverage_status": "Untracked",
+      "coverage_evidence": "Assess-only bootstrap; no prior specs. Draft spec generated from KitchenSinkApp.kt, WebexRepository.kt, WebexViewModel.kt, and DI wiring (WebexModule.kt). Code remains source of truth until human confirmation.",
+      "canonical_spec": "app/src/main/java/com/ciscowebex/androidsdk/kitchensink/ai-docs/core-spec.md",
+      "last_assessed": "2026-07-31",
+      "section_profile": {
+        "has_ui": true,
+        "crosses_service_boundaries": true,
+        "enforces_domain_rules": false,
+        "is_concurrent_async": true,
+        "owns_persistence": false,
+        "returns_caller_errors": true,
+        "has_design_tradeoff": null,
+        "stateful_transitions": null,
+        "exposes_wire_protocol": false,
+        "ui_multi_screen": true,
+        "large_data_model": false,
+        "has_tiers": false,
+        "module_specific_conventions": null,
+        "published_package": false,
+        "embedded_in_host": false,
+        "holds_client_state": true,
+        "resolved_by": "claude-cli/us.anthropic.claude-opus-4-8 (invocation-input; assess-only bootstrap, code-grounded prior)",
+        "resolved_at": "2026-07-31T00:00:00Z"
+      }
+    },
+    {
+      "path": "app/src/main/java/com/ciscowebex/androidsdk/kitchensink/auth/",
+      "coverage_status": "Untracked",
+      "coverage_evidence": "Assess-only bootstrap; no prior specs. Draft spec generated from LoginActivity.kt and the auth activity set declared in AndroidManifest.xml. Code remains source of truth until human confirmation.",
+      "canonical_spec": "app/src/main/java/com/ciscowebex/androidsdk/kitchensink/auth/ai-docs/auth-spec.md",
+      "last_assessed": "2026-07-31",
+      "section_profile": {
+        "has_ui": true,
+        "crosses_service_boundaries": true,
+        "enforces_domain_rules": false,
+        "is_concurrent_async": true,
+        "owns_persistence": false,
+        "returns_caller_errors": true,
+        "has_design_tradeoff": null,
+        "stateful_transitions": null,
+        "exposes_wire_protocol": false,
+        "ui_multi_screen": true,
+        "large_data_model": false,
+        "has_tiers": false,
+        "module_specific_conventions": null,
+        "published_package": false,
+        "embedded_in_host": false,
+        "holds_client_state": true,
+        "resolved_by": "claude-cli/us.anthropic.claude-opus-4-8 (invocation-input; assess-only bootstrap, code-grounded prior)",
+        "resolved_at": "2026-07-31T00:00:00Z"
+      }
+    },
+    {
+      "path": "app/src/main/java/com/ciscowebex/androidsdk/kitchensink/calling/",
+      "coverage_status": "Untracked",
+      "coverage_evidence": "Assess-only bootstrap; no prior specs. Draft spec generated from CallActivity.kt, CallModule.kt, and the calling activity/service set in AndroidManifest.xml. Code remains source of truth until human confirmation.",
+      "canonical_spec": "app/src/main/java/com/ciscowebex/androidsdk/kitchensink/calling/ai-docs/calling-spec.md",
+      "last_assessed": "2026-07-31",
+      "section_profile": {
+        "has_ui": true,
+        "crosses_service_boundaries": true,
+        "enforces_domain_rules": false,
+        "is_concurrent_async": true,
+        "owns_persistence": false,
+        "returns_caller_errors": true,
+        "has_design_tradeoff": null,
+        "stateful_transitions": true,
+        "exposes_wire_protocol": false,
+        "ui_multi_screen": true,
+        "large_data_model": false,
+        "has_tiers": false,
+        "module_specific_conventions": null,
+        "published_package": false,
+        "embedded_in_host": false,
+        "holds_client_state": true,
+        "resolved_by": "claude-cli/us.anthropic.claude-opus-4-8 (invocation-input; assess-only bootstrap, code-grounded prior)",
+        "resolved_at": "2026-07-31T00:00:00Z"
+      }
+    },
+    {
+      "path": "app/src/main/java/com/ciscowebex/androidsdk/kitchensink/messaging/",
+      "coverage_status": "Untracked",
+      "coverage_evidence": "Assess-only bootstrap; no prior specs. Draft spec generated from MessagingModule.kt and the messaging activity set in AndroidManifest.xml (spaces, teams, memberships, composer). Code remains source of truth until human confirmation.",
+      "canonical_spec": "app/src/main/java/com/ciscowebex/androidsdk/kitchensink/messaging/ai-docs/messaging-spec.md",
+      "last_assessed": "2026-07-31",
+      "section_profile": {
+        "has_ui": true,
+        "crosses_service_boundaries": true,
+        "enforces_domain_rules": false,
+        "is_concurrent_async": true,
+        "owns_persistence": false,
+        "returns_caller_errors": true,
+        "has_design_tradeoff": null,
+        "stateful_transitions": null,
+        "exposes_wire_protocol": false,
+        "ui_multi_screen": true,
+        "large_data_model": false,
+        "has_tiers": false,
+        "module_specific_conventions": null,
+        "published_package": false,
+        "embedded_in_host": false,
+        "holds_client_state": true,
+        "resolved_by": "claude-cli/us.anthropic.claude-opus-4-8 (invocation-input; assess-only bootstrap, code-grounded prior)",
+        "resolved_at": "2026-07-31T00:00:00Z"
+      }
+    },
+    {
+      "path": "app/src/main/java/com/ciscowebex/androidsdk/kitchensink/person/",
+      "coverage_status": "Untracked",
+      "coverage_evidence": "Assess-only bootstrap; no prior specs. Draft spec generated from PersonModule.kt and the personModule DI registration in KitchenSinkApp.kt. Code remains source of truth until human confirmation.",
+      "canonical_spec": "app/src/main/java/com/ciscowebex/androidsdk/kitchensink/person/ai-docs/person-spec.md",
+      "last_assessed": "2026-07-31",
+      "section_profile": {
+        "has_ui": true,
+        "crosses_service_boundaries": true,
+        "enforces_domain_rules": false,
+        "is_concurrent_async": true,
+        "owns_persistence": false,
+        "returns_caller_errors": true,
+        "has_design_tradeoff": null,
+        "stateful_transitions": false,
+        "exposes_wire_protocol": false,
+        "ui_multi_screen": null,
+        "large_data_model": false,
+        "has_tiers": false,
+        "module_specific_conventions": null,
+        "published_package": false,
+        "embedded_in_host": false,
+        "holds_client_state": true,
+        "resolved_by": "claude-cli/us.anthropic.claude-opus-4-8 (invocation-input; assess-only bootstrap, code-grounded prior)",
+        "resolved_at": "2026-07-31T00:00:00Z"
+      }
+    },
+    {
+      "path": "app/src/main/java/com/ciscowebex/androidsdk/kitchensink/search/",
+      "coverage_status": "Untracked",
+      "coverage_evidence": "Assess-only bootstrap; no prior specs. Draft spec generated from SearchModule.kt, the searchModule DI registration in KitchenSinkApp.kt, and the SearchActivity declared in AndroidManifest.xml. Code remains source of truth until human confirmation.",
+      "canonical_spec": "app/src/main/java/com/ciscowebex/androidsdk/kitchensink/search/ai-docs/search-spec.md",
+      "last_assessed": "2026-07-31",
+      "section_profile": {
+        "has_ui": true,
+        "crosses_service_boundaries": true,
+        "enforces_domain_rules": false,
+        "is_concurrent_async": true,
+        "owns_persistence": false,
+        "returns_caller_errors": true,
+        "has_design_tradeoff": null,
+        "stateful_transitions": false,
+        "exposes_wire_protocol": false,
+        "ui_multi_screen": null,
+        "large_data_model": false,
+        "has_tiers": false,
+        "module_specific_conventions": null,
+        "published_package": false,
+        "embedded_in_host": false,
+        "holds_client_state": true,
+        "resolved_by": "claude-cli/us.anthropic.claude-opus-4-8 (invocation-input; assess-only bootstrap, code-grounded prior)",
+        "resolved_at": "2026-07-31T00:00:00Z"
+      }
+    },
+    {
+      "path": "app/src/main/java/com/ciscowebex/androidsdk/kitchensink/webhooks/",
+      "coverage_status": "Untracked",
+      "coverage_evidence": "Assess-only bootstrap; no prior specs. Draft spec generated from WebhooksModule.kt, the webhooksModule DI registration in KitchenSinkApp.kt, and the WebhooksActivity declared in AndroidManifest.xml. Code remains source of truth until human confirmation.",
+      "canonical_spec": "app/src/main/java/com/ciscowebex/androidsdk/kitchensink/webhooks/ai-docs/webhooks-spec.md",
+      "last_assessed": "2026-07-31",
+      "section_profile": {
+        "has_ui": true,
+        "crosses_service_boundaries": true,
+        "enforces_domain_rules": false,
+        "is_concurrent_async": true,
+        "owns_persistence": false,
+        "returns_caller_errors": true,
+        "has_design_tradeoff": null,
+        "stateful_transitions": false,
+        "exposes_wire_protocol": false,
+        "ui_multi_screen": false,
+        "large_data_model": false,
+        "has_tiers": false,
+        "module_specific_conventions": null,
+        "published_package": false,
+        "embedded_in_host": false,
+        "holds_client_state": true,
+        "resolved_by": "claude-cli/us.anthropic.claude-opus-4-8 (invocation-input; assess-only bootstrap, code-grounded prior)",
+        "resolved_at": "2026-07-31T00:00:00Z"
+      }
+    },
+    {
+      "path": "app/src/main/java/com/ciscowebex/androidsdk/kitchensink/extras/",
+      "coverage_status": "Untracked",
+      "coverage_evidence": "Assess-only bootstrap; no prior specs. Draft spec generated from ExtrasModule.kt, the extrasModule DI registration in KitchenSinkApp.kt, and the ExtrasActivity declared in AndroidManifest.xml. Code remains source of truth until human confirmation.",
+      "canonical_spec": "app/src/main/java/com/ciscowebex/androidsdk/kitchensink/extras/ai-docs/extras-spec.md",
+      "last_assessed": "2026-07-31",
+      "section_profile": {
+        "has_ui": true,
+        "crosses_service_boundaries": true,
+        "enforces_domain_rules": false,
+        "is_concurrent_async": true,
+        "owns_persistence": false,
+        "returns_caller_errors": true,
+        "has_design_tradeoff": null,
+        "stateful_transitions": false,
+        "exposes_wire_protocol": false,
+        "ui_multi_screen": null,
+        "large_data_model": false,
+        "has_tiers": false,
+        "module_specific_conventions": null,
+        "published_package": false,
+        "embedded_in_host": false,
+        "holds_client_state": true,
+        "resolved_by": "claude-cli/us.anthropic.claude-opus-4-8 (invocation-input; assess-only bootstrap, code-grounded prior)",
+        "resolved_at": "2026-07-31T00:00:00Z"
+      }
+    }
+  ],
+  "spec_policy": {
+    "delta_grammar": {
+      "added": "## ADDED Requirements",
+      "modified": "## MODIFIED Requirements",
+      "removed": "## REMOVED Requirements"
+    },
+    "require_what_and_why": true,
+    "require_provenance": true,
+    "protected_specs": [],
+    "required_sections_by_change_class": {
+      "core_always": ["Intent (WHAT)", "Rationale (WHY)", "Scope/Out-of-scope", "Acceptance criteria", "Contracts delta"],
+      "security_or_contract_or_perf_critical": ["Data", "Error Matrix", "Resilience", "Observability", "Operations"]
+    }
+  },
+  "validation": {
+    "generator_runtime": "claude-cli",
+    "generator_model": "us.anthropic.claude-opus-4-8",
+    "generator_runtime_source": "invocation-input",
+    "minimum_independence": "different-runtime",
+    "blocking_severities": ["Blocking"],
+    "generator_run_id": "49c4cf08-3d2a-49a9-b497-f2edf82e1b61"
+  },
+  "layout": {
+    "sdd_root": ".sdd",
+    "docs_root": "ai-docs",
+    "agent_entry_path": "AGENTS.md",
+    "standing_docs_root": "ai-docs",
+    "spec_index_path": "ai-docs/SPEC_INDEX.md",
+    "module_docs_strategy": "source-local",
+    "module_docs_folder_name": "ai-docs",
+    "template_roots": {
+      "canonical": ".sdd/templates",
+      "extensions": [".sdd/templates/extensions"]
+    },
+    "repo_skills_root": ".sdd/skills",
+    "contracts_strategy": "root-index-module-detail"
+  },
+  "substrate": {
+    "source": "No org repo-readiness (repo-standards) substrate detected in this repository during assess-only bootstrap.",
+    "consumed": [],
+    "compliance_tier": "legacy"
+  },
+  "section_profiles": {
+    "repo": {
+      "owns_datastore": false,
+      "holds_client_state": true,
+      "components_interact": true,
+      "domain_data_across_components": false,
+      "caches_data": false,
+      "observability_convention": true,
+      "deploys_to_infra": false,
+      "shared_base_libs": false,
+      "is_monorepo": false,
+      "multi_platform": false,
+      "published_package": false,
+      "embedded_in_host": false,
+      "cross_repo_deps_material": true,
+      "security_arch_warranted": true
+    },
+    "resolved_by": "claude-cli/us.anthropic.claude-opus-4-8 (invocation-input; assess-only bootstrap, code-grounded prior)",
+    "resolved_at": "2026-07-31T00:00:00Z"
+  }
+}
