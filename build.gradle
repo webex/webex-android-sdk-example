@@ -25,7 +25,7 @@ allprojects {
         mavenCentral()
         mavenLocal()
         maven {
-            url 'https://devhub.cisco.com/artifactory/webexsdk/'
+            url 'https://arti.anon.devhub-cloud.cisco.com/artifactory/webexsdk/'
         }
         flatDir { dirs 'aars' }
     }
