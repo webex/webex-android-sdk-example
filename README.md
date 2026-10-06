@@ -34,6 +34,8 @@ This demo support Android device with **Android 7.0** or later
 
 ## Integration
 
+> **Maven repository URL migration:** The Android SDK Maven repository URL has changed from `devhub.cisco.com` to `arti.anon.devhub-cloud.cisco.com`. Update your project-level Gradle configuration before performing a clean build or resolving SDK versions. SDK dependency coordinates remain unchanged. If your organization uses repository allowlists or network proxies, allow the new domain.
+
 ### Option 1
 1. Put AAR file in libs folder of your Android project
 2. Open the project level Gradle file and add the following lines under the repositories tag, which is nested under allprojects.
@@ -69,7 +71,7 @@ This demo support Android device with **Android 7.0** or later
             repositories {
                 jcenter()
                 maven {
-                    url 'https://devhub.cisco.com/artifactory/webexsdk/'
+                    url 'https://arti.anon.devhub-cloud.cisco.com/artifactory/webexsdk/'
                 }
             }
         }
@@ -79,25 +81,25 @@ This demo support Android device with **Android 7.0** or later
        - For Full SDK
          ```
          dependencies {
-          implementation 'com.ciscowebex:webexsdk:3.16.3'
+          implementation 'com.ciscowebex:webexsdk:3.17.0'
          }
          ```
        - For Meeting SDK
          ```
          dependencies {
-      implementation 'com.ciscowebex:webexsdk-meeting:3.16.3'
+      implementation 'com.ciscowebex:webexsdk-meeting:3.17.0'
          }
          ```
        - For WebexCalling SDK
          ```
          dependencies {
-         implementation 'com.ciscowebex:webexsdk-wxc:3.16.3'
+         implementation 'com.ciscowebex:webexsdk-wxc:3.17.0'
          }
          ```
       - For Messaging SDK
          ```
          dependencies {
-         implementation 'com.ciscowebex:webexsdk-message:3.16.3'
+         implementation 'com.ciscowebex:webexsdk-message:3.17.0'
          }
          ```
 
