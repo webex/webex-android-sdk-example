@@ -104,6 +104,7 @@ import com.ciscowebex.androidsdk.phone.closedCaptions.ClosedCaptionsInfo
 import com.ciscowebex.androidsdk.kitchensink.utils.GlobalExceptionHandler
 import com.ciscowebex.androidsdk.kitchensink.CallManagementService
 import com.ciscowebex.androidsdk.kitchensink.utils.PermissionsHelper
+import com.ciscowebex.androidsdk.omniusenums.SendingAudioChangeResult
 import org.koin.android.ext.android.inject
 import com.ciscowebex.androidsdk.utils.internal.MimeUtils
 import com.google.android.material.snackbar.Snackbar
@@ -496,14 +497,14 @@ class CallControlsFragment : Fragment(), OnClickListener, CallObserverInterface,
                 is CallObserver.SendingAudio -> {
                     Log.d(TAG, "CallObserver OnMediaChanged SendingAudio: ${_event.isSending()}, result=${_event.result.name}")
                     when (_event.result) {
-                        Call.SendingAudioChangeResult.Success -> { 
+                        SendingAudioChangeResult.Success -> { 
                             audioEventChanged(null, call, _event.isSending())
                             /* No toast for success */ 
                         }
-                        Call.SendingAudioChangeResult.Failed -> {
+                        SendingAudioChangeResult.Failed -> {
                             requireActivity().runOnUiThread { Toast.makeText(requireContext(), "Audio Error: Failed to change audio sending status", Toast.LENGTH_LONG).show() }
                         }
-                        Call.SendingAudioChangeResult.NotAllowed -> {
+                        SendingAudioChangeResult.NotAllowed -> {
                             requireActivity().runOnUiThread { Toast.makeText(requireContext(), "Audio Error: Cannot change audio while call is on hold", Toast.LENGTH_LONG).show() }
                         }
                     }
